@@ -185,6 +185,40 @@ defined specification and a regime evaluated on the same constituted objects,
 rather than an implicit identification of what can be produced with what should
 be admitted.
 
+## Structural out-of-distribution
+
+The framework introduces **structural OOD relative to a regime** as a
+conceptual extension of out-of-distribution reasoning. Statistical OOD concerns
+departure from a data distribution. Structural OOD instead concerns a candidate
+that remains generated and faithfully realizable but lies outside the carrier
+admitted by an explicit regime. It requires neither a probability distribution
+nor a training set.
+
+The circular instance provides a machine-checked witness:
+
+```text
+h⁺ : RootedGeneratedHistory P
+∀ A, ExactConcreteRealization A h⁺
+¬ CircularRefinement P h⁺
+```
+
+Thus `h⁺` is not outside the space of construction or concrete realization. It
+is outside the operational regime while retaining the positive structural
+witnesses already established. This makes structural OOD a diagnosis of a
+change of status, rather than a synonym for malformed, unknown, or
+unrealizable.
+
+Structural OOD and relative misalignment are not identified. A regime exit is
+the structural diagnosis; relative misalignment additionally involves an
+independent norm and the proved adequacy of the regime to that norm. In the
+circular instance, the same minimal candidate also directly refutes
+`CircularSpecificationSatisfaction P h⁺`, so it witnesses both diagnoses.
+
+The underlying constructions and refutations are verified in Lean. The term
+**structural OOD** and its interpretation are presently a conceptual proposal,
+not yet a generic Lean definition. See the full treatment in
+[Structural foundations](docs/en/structural_foundations.md).
+
 ## Abstract kernel and normative interface
 
 The architecture has two distinct levels of generality.
