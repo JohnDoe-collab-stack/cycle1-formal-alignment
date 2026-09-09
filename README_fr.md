@@ -192,16 +192,19 @@ admis.
 Le cadre introduit l'**OOD structurel relatif à un régime** comme extension
 conceptuelle du raisonnement out-of-distribution. L'OOD statistique concerne la
 sortie d'une distribution de données. L'OOD structurel concerne plutôt un
-candidat qui reste engendré et fidèlement réalisable, mais se trouve hors du
-carrier admis par un régime explicite. Il ne requiert ni distribution de
-probabilité ni jeu d'entraînement.
+candidat qui reste engendré par la construction considérée, mais n'est pas
+admis par un régime explicite. Il ne requiert ni distribution de probabilité ni
+jeu d'entraînement. La réalisabilité fidèle n'appartient pas à cette définition
+documentaire; elle constitue une propriété supplémentaire démontrée pour le
+témoin circulaire ci-dessous.
 
 L'instance circulaire en fournit un témoin vérifié mécaniquement:
 
 ```text
 h⁺ : RootedGeneratedHistory P
-∀ A, ExactConcreteRealization A h⁺
-¬ CircularRefinement P h⁺
+∀ A : ConcreteContinuationAlgebra P,
+  ExactConcreteRealization A h⁺
+CircularRefinement P h⁺ → False
 ```
 
 Ainsi, `h⁺` n'est hors ni de l'espace de construction ni de celui des
@@ -213,9 +216,9 @@ d'irréalisable.
 L'OOD structurel et le désalignement relatif ne sont pas identifiés. La sortie
 de régime constitue le diagnostic structurel; le désalignement relatif engage
 en outre une norme indépendante et l'adéquation démontrée du régime à cette
-norme. Dans l'instance circulaire, le même candidat minimal réfute aussi
-directement `CircularSpecificationSatisfaction P h⁺`: il témoigne donc des deux
-diagnostics.
+norme. Dans l'instance circulaire, le même candidat minimal porte également la
+réfutation directe `CircularSpecificationSatisfaction P h⁺ → False`: il
+témoigne donc des deux diagnostics.
 
 Les constructions et réfutations sous-jacentes sont vérifiées dans Lean. Le
 terme **OOD structurel** et son interprétation constituent actuellement une
