@@ -1,0 +1,10 @@
+/.lake/
+
+*.olean
+*.ilean
+*.trace
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

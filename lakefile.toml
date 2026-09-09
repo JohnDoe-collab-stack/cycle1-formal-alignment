@@ -1,0 +1,7 @@
+name = "Cycle1Alignment"
+version = "1.0.0"
+defaultTargets = ["Cycle1Alignment"]
+
+[[lean_lib]]
+name = "Cycle1Alignment"
+roots = ["SegmentedResidualRole", "AbstractSegmentedTurning", "StrongPerimetralTurning"]

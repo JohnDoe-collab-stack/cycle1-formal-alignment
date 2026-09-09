@@ -1,0 +1,335 @@
+Cycle 1 standalone artifact — compilation and axiom audit
+========================================================
+
+Current package location: audit/AUDIT_BUILD.txt
+
+Repository generation-provenance declaration (added during packaging): the
+project owner declares that all repository contents were written from start to
+finish by models in OpenAI's ChatGPT model series, under human direction and
+over successive interactions. See the root file AI_AUTHORSHIP.md. This
+packaging note is not part of the historical build evidence reproduced below.
+
+Audit date: 2026-09-09
+Source repository: git@github.com:JohnDoe-collab-stack/meta.git
+Source commit: 31ba1516aaefc5e2ef29aff902fed6af2cd43176
+Command: lake build
+Working directory: cycle1-formal-alignment
+Lean: Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6
+Lake: 5.0.0-src+819816b
+Exit code: 0
+Warnings: 0
+Axiom audit declarations: 297
+Forbidden axiom audit lines: 0
+
+Scientific source SHA-256:
+1200d2b820747a1220adbbe0e3723d7f8c4332b88747831fea38d5b17168d12c  SegmentedResidualRole.lean
+c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
+51fd2c4b2e09c2e2a9443e9cd5adc23c98cdfde232d5a24d0248c620ec0b2d17  StrongPerimetralTurning.lean
+e6f8d35e09c058ebad3c49f5363e99034d6fc5f400850ad8c0914467e357b98e  cycle_1_diagnostic_alignement_relatif.md
+e74ff12bba6d3d45c9af7d7ba73f403527d6e3d61756f33a3e699549bb6c8f85  4_distinctions-cycle1-stabilise.md
+
+Complete build output:
+----------------------
+info: Cycle1Alignment: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+ℹ [2/5] Built SegmentedResidualRole (4.5s)
+info: SegmentedResidualRole.lean:189:0: 'SegmentedResidualRole.ExactInternalRealization' does not depend on any axioms
+info: SegmentedResidualRole.lean:190:0: 'SegmentedResidualRole.FaithfulExtension.newOccurrence_cannotReuseInternalRole' does not depend on any axioms
+info: SegmentedResidualRole.lean:191:0: 'SegmentedResidualRole.FaithfulExtension.newOccurrence_label_is_residual' does not depend on any axioms
+info: SegmentedResidualRole.lean:192:0: 'SegmentedResidualRole.FaithfulExtension.newOccurrences_unique' does not depend on any axioms
+info: SegmentedResidualRole.lean:193:0: 'SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence' does not depend on any axioms
+ℹ [3/5] Built AbstractSegmentedTurning (3.6s)
+info: AbstractSegmentedTurning.lean:743:0: 'AbstractSegmentedTurning.BoundaryGenerator.continuation_ne_boundary' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:744:0: 'AbstractSegmentedTurning.ObstructedRegime.exactClassification' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:745:0: 'AbstractSegmentedTurning.ObstructedRegime.continuation_outside_regime' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:746:0: 'AbstractSegmentedTurning.ObstructedRegime.no_strict_regime_extension' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:747:0: 'AbstractSegmentedTurning.abstractTurning' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:748:0: 'AbstractSegmentedTurning.PositiveResidualBoundary.uniqueResidualOccurrence' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:749:0: 'AbstractSegmentedTurning.CoupledObstructedRegime.exactClassification' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:750:0: 'AbstractSegmentedTurning.CoupledObstructedRegime.toObstructedRegime' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:751:0: 'AbstractSegmentedTurning.CoupledObstructedRegime.admittedPositiveBoundary_rejected' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:752:0: 'AbstractSegmentedTurning.coupledTurning' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:753:0: 'AbstractSegmentedTurning.RegimeExit' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:754:0: 'AbstractSegmentedTurning.RegimeExit.mapFaithful' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:755:0: 'AbstractSegmentedTurning.RegimeExit.restrictRegime' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:756:0: 'AbstractSegmentedTurning.RegimeExit.refutesFaithfulToRegime' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:757:0: 'AbstractSegmentedTurning.RegimeExit.mapFaithful_id' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:758:0: 'AbstractSegmentedTurning.RegimeExit.mapFaithful_comp' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:759:0: 'AbstractSegmentedTurning.RegimeExit.restrictRegime_id' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:760:0: 'AbstractSegmentedTurning.RegimeExit.restrictRegime_comp' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:761:0: 'AbstractSegmentedTurning.RegimeExit.mapFaithful_restrictRegime' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:762:0: 'AbstractSegmentedTurning.UniformRegimeExit' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:763:0: 'AbstractSegmentedTurning.UniformRegimeExit.atImplementation' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:764:0: 'AbstractSegmentedTurning.UniformRegimeExit.reindexImplementation' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:765:0: 'AbstractSegmentedTurning.UniformRegimeExit.reindex_id' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:766:0: 'AbstractSegmentedTurning.UniformRegimeExit.reindex_comp' does not depend on any axioms
+info: AbstractSegmentedTurning.lean:767:0: 'AbstractSegmentedTurning.UniformRegimeExit.reindex_at' does not depend on any axioms
+ℹ [4/5] Built StrongPerimetralTurning (15s)
+info: StrongPerimetralTurning.lean:7877:0: 'StrongPerimetralTurning.CircularPresentation.rejectTotalLoop' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7878:0: 'StrongPerimetralTurning.CircularPresentation.positiveClosureObstruction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7879:0: 'StrongPerimetralTurning.RawJunctionWithSeparatedEndpoints' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7880:0: 'StrongPerimetralTurning.ExplicitTotalization.toContractionKernel' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7881:0: 'StrongPerimetralTurning.ImplicitTotalization.toContractionKernel' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7882:0: 'StrongPerimetralTurning.explicitKernelContractsClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7883:0: 'StrongPerimetralTurning.implicitKernelContractsClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7884:0: 'StrongPerimetralTurning.explicitContractionKernelRejected' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7885:0: 'StrongPerimetralTurning.implicitContractionKernelRejected' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7886:0: 'StrongPerimetralTurning.ContractedClosureDifference.endpointContraction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7887:0: 'StrongPerimetralTurning.ContractedClosureDifference.reject' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7888:0: 'StrongPerimetralTurning.explicitTotalizationContractsClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7889:0: 'StrongPerimetralTurning.implicitTotalizationContractsClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7890:0: 'StrongPerimetralTurning.explicitTotalizationRejected' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7891:0: 'StrongPerimetralTurning.implicitTotalizationRejected' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7892:0: 'StrongPerimetralTurning.FreeConstitution.formed_boundaryCode_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7893:0: 'StrongPerimetralTurning.FreeConstitution.formed_core_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7894:0: 'StrongPerimetralTurning.FreeConstitution.root_inheritedClosureObstruction_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7895:0: 'StrongPerimetralTurning.FreeConstitution.formed_inheritedClosureObstruction_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7896:0: 'StrongPerimetralTurning.FreeConstitution.formed_integratedClosureObstruction_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7897:0: 'StrongPerimetralTurning.FreeConstitution.formed_integratedProvenance_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7898:0: 'StrongPerimetralTurning.canonicalTarget_inheritedClosureObstruction_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7899:0: 'StrongPerimetralTurning.generate' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7900:0: 'StrongPerimetralTurning.canonicalFormationEliminator_exact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7901:0: 'StrongPerimetralTurning.formationEliminator_is_free_fold' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7902:0: 'StrongPerimetralTurning.canonicalFreeLayer_is_free_elimination' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7903:0: 'StrongPerimetralTurning.HistoricalProvenanceRecord' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7904:0: 'StrongPerimetralTurning.HistoricalProvenanceRecord.ofIntegration' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7905:0: 'StrongPerimetralTurning.HistoricalProvenanceRecord.recordedProvenance' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7906:0: 'StrongPerimetralTurning.HistoricalProvenanceRecord.recordedProvenance_is_origin' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7907:0: 'StrongPerimetralTurning.PreservesProvenance.inscribedInTarget' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7908:0: 'StrongPerimetralTurning.PreservesProvenance.exactProvenance_is_origin' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7909:0: 'StrongPerimetralTurning.canonicalSourceProvenanceInscribed' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7910:0: 'StrongPerimetralTurning.recoverImmediateOriginFromFormation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7911:0: 'StrongPerimetralTurning.RecoveredImmediateOrigin.provenance' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7912:0: 'StrongPerimetralTurning.GeneratedStep.compatibilityWitnessExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7913:0: 'StrongPerimetralTurning.GeneratedStep.provenanceWitnessExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7914:0: 'StrongPerimetralTurning.GeneratedStep.integratesClosureObstruction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7915:0: 'StrongPerimetralTurning.GeneratedStep.inheritedClosureObstructionExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7916:0: 'StrongPerimetralTurning.GeneratedStep.sourceProvenanceInscribedInTarget' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7917:0: 'StrongPerimetralTurning.GeneratedStep.currentFormationRecord' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7918:0: 'StrongPerimetralTurning.GeneratedStep.rejectsAlternativeCompatibility' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7919:0: 'StrongPerimetralTurning.GeneratedStep.rejectsAlternativeProvenance' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7920:0: 'StrongPerimetralTurning.generatedHistory_preservesClosureObstruction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7921:0: 'StrongPerimetralTurning.preserveFormationRecordAlongHistory' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7922:0: 'StrongPerimetralTurning.preserveHistoricalProvenanceAlongStep' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7923:0: 'StrongPerimetralTurning.preserveHistoricalProvenanceAlongHistory' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7924:0: 'StrongPerimetralTurning.positiveGeneratedHistory_hasFreshFormation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7925:0: 'StrongPerimetralTurning.FreshFormationRecord.notFromSource' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7926:0: 'StrongPerimetralTurning.append_positive_ne' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7927:0: 'StrongPerimetralTurning.positiveGeneratedHistory_source_ne_target' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7928:0: 'StrongPerimetralTurning.positiveGeneratedHistory_cursorAdvance' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7929:0: 'StrongPerimetralTurning.positiveCursorAdvance_irreflexive' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7930:0: 'StrongPerimetralTurning.CursorFuture.irreflexive' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7931:0: 'StrongPerimetralTurning.ProperSpineSuffix.irreflexive' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7932:0: 'StrongPerimetralTurning.ProperFreeTail.irreflexive' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7933:0: 'StrongPerimetralTurning.ProperStructuralDepth.irreflexive' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7934:0: 'StrongPerimetralTurning.partial_is_prefix_of_perimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7935:0: 'StrongPerimetralTurning.RequirementOccurrenceAgreement.compatibilityTransport' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7936:0: 'StrongPerimetralTurning.RequirementOccurrenceAgreement.provenanceWitnessExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7937:0: 'StrongPerimetralTurning.History.embedLeftOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7938:0: 'StrongPerimetralTurning.locatedStep_transportOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7939:0: 'StrongPerimetralTurning.PerimeterExtension.oldOccurrenceAgreement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7940:0: 'StrongPerimetralTurning.PerimeterExtension.oldOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7941:0: 'StrongPerimetralTurning.PerimeterExtension.toExactNonClosingRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7942:0: 'StrongPerimetralTurning.identityCircularRefinement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7943:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_is_extension' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7944:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_nonClosingRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7945:0: 'StrongPerimetralTurning.CircularClosureMeaning' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7946:0: 'StrongPerimetralTurning.perimeterDeployment_closureMeaning' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7947:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_notClosureMeaning' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7948:0: 'StrongPerimetralTurning.CircularSpecificationSatisfaction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7949:0: 'StrongPerimetralTurning.perimeterDeployment_specificationSatisfaction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7950:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_notSpecificationSatisfaction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7951:0: 'StrongPerimetralTurning.oneStepAfterPerimeterStrict' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7952:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_ne' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7953:0: 'StrongPerimetralTurning.perimetralBoundaryGenerator' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7954:0: 'StrongPerimetralTurning.occurrenceToRequirement_toOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7955:0: 'StrongPerimetralTurning.requirementToOccurrence_toRequirement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7956:0: 'StrongPerimetralTurning.deployOccurrence_position_roundTrip' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7957:0: 'StrongPerimetralTurning.classifyDeploymentOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7958:0: 'StrongPerimetralTurning.decodeDeploymentOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7959:0: 'StrongPerimetralTurning.deployPosition_occurrence_roundTrip' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7960:0: 'StrongPerimetralTurning.deployPositionToOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7961:0: 'StrongPerimetralTurning.requirementToOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7962:0: 'StrongPerimetralTurning.ExactNonClosingRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7963:0: 'StrongPerimetralTurning.SemanticTrace' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7964:0: 'StrongPerimetralTurning.SemanticTrace.locatedStep' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7965:0: 'StrongPerimetralTurning.LocatedRequirementAgreement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7966:0: 'StrongPerimetralTurning.SemanticExactNonClosingRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7967:0: 'StrongPerimetralTurning.NonClosingPrecedes' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7968:0: 'StrongPerimetralTurning.SemanticOrderPreserved' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7969:0: 'StrongPerimetralTurning.perimeterRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7970:0: 'StrongPerimetralTurning.finalRequirementContractible' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7971:0: 'StrongPerimetralTurning.perimeterInternalRoleRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7972:0: 'StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.toSegmentedResidualExtension' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7973:0: 'StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.newOccurrence_cannotReuseNonClosingRequirement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7974:0: 'StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.newOccurrence_label_is_final' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7975:0: 'StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.continuation_occurrences_unique' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7976:0: 'StrongPerimetralTurning.oneStepSegmentedBoundary' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7977:0: 'StrongPerimetralTurning.positiveContinuation_exactlyOne' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7978:0: 'StrongPerimetralTurning.finalBoundaryOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7979:0: 'StrongPerimetralTurning.FinalBoundaryOccurrence.compatibility_is_leaveBoundary' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7980:0: 'StrongPerimetralTurning.finalClosureInterpretation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7981:0: 'StrongPerimetralTurning.FinalClosureInterpretation.sourceObstructionIsInitial' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7982:0: 'StrongPerimetralTurning.ConstitutiveClosureAttachment.formationRecordIsStepExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7983:0: 'StrongPerimetralTurning.ConstitutiveClosureAttachment.provenanceRecordIsStepExact' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7984:0: 'StrongPerimetralTurning.ConstitutiveClosureAttachment.obstructionIsInitial' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7985:0: 'StrongPerimetralTurning.BilateralClosureAttemptAt.explicitContraction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7986:0: 'StrongPerimetralTurning.BilateralClosureAttemptAt.implicitContraction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7987:0: 'StrongPerimetralTurning.BilateralClosureAttemptAt.rejectExplicit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7988:0: 'StrongPerimetralTurning.BilateralClosureAttemptAt.rejectImplicit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7989:0: 'StrongPerimetralTurning.refinementOutcome' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7990:0: 'StrongPerimetralTurning.NormativeAdequacy' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7991:0: 'StrongPerimetralTurning.AdequateAlong' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7992:0: 'StrongPerimetralTurning.SpecRelativeHistoryExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7993:0: 'StrongPerimetralTurning.RootedGeneratedHistory.terminalClosureObstruction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7994:0: 'StrongPerimetralTurning.RootedGeneratedHistory.terminalClosureObstruction_is_initial' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7995:0: 'StrongPerimetralTurning.FinalJunctionRealization.toBilateralContractions' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7996:0: 'StrongPerimetralTurning.FinalJunctionRealization.toExplicitContractedClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7997:0: 'StrongPerimetralTurning.FinalJunctionRealization.toImplicitContractedClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7998:0: 'StrongPerimetralTurning.FinalJunctionRealization.toContractedClosureDifference' does not depend on any axioms
+info: StrongPerimetralTurning.lean:7999:0: 'StrongPerimetralTurning.FinalJunctionRealization.endpointEquality' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8000:0: 'StrongPerimetralTurning.FinalJunctionRealization.toTotalLoop' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8001:0: 'StrongPerimetralTurning.rejectFinalJunctionRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8002:0: 'StrongPerimetralTurning.rejectFinalJunctionRealizationImplicit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8003:0: 'StrongPerimetralTurning.circularPositiveResidualBoundary' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8004:0: 'StrongPerimetralTurning.analyzeCircularRefinementThroughResidual' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8005:0: 'StrongPerimetralTurning.interpretCircularResidual' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8006:0: 'StrongPerimetralTurning.circularResidualBranch' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8007:0: 'StrongPerimetralTurning.rejectResidualBilateralClosureAttempt' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8008:0: 'StrongPerimetralTurning.analyzeCircularRegimeWithResidualAttempt' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8009:0: 'StrongPerimetralTurning.perimetralCoupledRegime' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8010:0: 'StrongPerimetralTurning.perimetralObstructedRegime' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8011:0: 'StrongPerimetralTurning.coupledTurningOfCircularPresentation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8012:0: 'StrongPerimetralTurning.abstractTurningOfCircularPresentation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8013:0: 'StrongPerimetralTurning.strictRefinementProducesFinalJunctionRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8014:0: 'StrongPerimetralTurning.FinalLoopRealization.endpointEquality' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8015:0: 'StrongPerimetralTurning.FinalLoopRealization.toFinalIdentification' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8016:0: 'StrongPerimetralTurning.strictRefinementProducesFinalLoopRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8017:0: 'StrongPerimetralTurning.rejectFinalLoopRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8018:0: 'StrongPerimetralTurning.CircularRefinement.newOccurrence_cannotReuseNonClosingRequirement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8019:0: 'StrongPerimetralTurning.strictRefinementProducesFinalIdentification' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8020:0: 'StrongPerimetralTurning.strictRefinementProducesTotalLoop' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8021:0: 'StrongPerimetralTurning.noIntermediateRefinement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8022:0: 'StrongPerimetralTurning.exactCircularRefinementClassification' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8023:0: 'StrongPerimetralTurning.oneStepAfterPerimeter_notCircularRefinement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8024:0: 'StrongPerimetralTurning.noStrictSamePerimeterExtension' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8025:0: 'StrongPerimetralTurning.admissible_is_prefix_of_perimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8026:0: 'StrongPerimetralTurning.strongPerimetralTurning' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8027:0: 'StrongPerimetralTurning.partial_length_le_perimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8028:0: 'StrongPerimetralTurning.prefix_length_le' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8029:0: 'StrongPerimetralTurning.History.length_append' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8030:0: 'StrongPerimetralTurning.admissible_length_le_perimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8031:0: 'StrongPerimetralTurning.ConcreteContinuationAlgebra.realizeHistory' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8032:0: 'StrongPerimetralTurning.concreteForwardOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8033:0: 'StrongPerimetralTurning.concreteBackwardOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8034:0: 'StrongPerimetralTurning.concreteOccurrenceAgreement' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8035:0: 'StrongPerimetralTurning.exactlyInterpretHistory' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8036:0: 'StrongPerimetralTurning.ExactHistoryInterpretation.forwardOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8037:0: 'StrongPerimetralTurning.ConcreteFaithfulPartialPath.reconstruct' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8038:0: 'StrongPerimetralTurning.interpretEveryFaithfulPartialRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8039:0: 'StrongPerimetralTurning.Example.permutedExampleTrace' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8040:0: 'StrongPerimetralTurning.Example.permutedExampleRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8041:0: 'StrongPerimetralTurning.Example.permutedExample_realizes_p1_at_one' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8042:0: 'StrongPerimetralTurning.Example.permutedExample_realizes_p2_at_zero' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8043:0: 'StrongPerimetralTurning.Example.permutedExample_realizes_p3_at_two' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8044:0: 'StrongPerimetralTurning.Example.permutedExample_reverses_first_two' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8045:0: 'StrongPerimetralTurning.Example.exampleP1_precedes_exampleP2' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8046:0: 'StrongPerimetralTurning.Example.permutedExample_not_order_preserved' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8047:0: 'StrongPerimetralTurning.Example.exampleExtra1Source' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8048:0: 'StrongPerimetralTurning.Example.exampleExtra1' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8049:0: 'StrongPerimetralTurning.Example.exampleExtra2Source' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8050:0: 'StrongPerimetralTurning.Example.exampleExtra2' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8051:0: 'StrongPerimetralTurning.Example.interleavedExampleTrace' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8052:0: 'StrongPerimetralTurning.Example.interleavedExampleRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8053:0: 'StrongPerimetralTurning.Example.interleavedExample_realizes_p1_at_zero' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8054:0: 'StrongPerimetralTurning.Example.interleavedExample_realizes_p2_at_two' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8055:0: 'StrongPerimetralTurning.Example.interleavedExample_realizes_p3_at_four' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8056:0: 'StrongPerimetralTurning.Example.interleavedExample_order_preserved' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8057:0: 'StrongPerimetralTurning.Example.exampleCertificate' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8058:0: 'StrongPerimetralTurning.Example.exampleBeyondIsNotSamePerimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8059:0: 'StrongPerimetralTurning.Example.exampleConcreteFirstPath' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8060:0: 'StrongPerimetralTurning.Example.exampleConcreteFirstRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8061:0: 'StrongPerimetralTurning.Example.exampleConcreteInterpretation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8062:0: 'StrongPerimetralTurning.Example.exampleFreshFormationRejectsPreviousRecord' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8063:0: 'StrongPerimetralTurning.Example.exampleHistoricalFirstProvenancePreserved' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8064:0: 'StrongPerimetralTurning.Example.exampleHistoricalRecordReadsFirst' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8065:0: 'StrongPerimetralTurning.Example.exampleCurrentTargetReadsSecond' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8066:0: 'StrongPerimetralTurning.Example.exampleHistoricalRecordAfterSecondStillReadsFirst' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8067:0: 'StrongPerimetralTurning.Example.exampleInitialObstructionStored' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8068:0: 'StrongPerimetralTurning.Example.exampleAfterFirstObstructionPreserved' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8069:0: 'StrongPerimetralTurning.Example.exampleFormationConsumesInitialObstruction' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8070:0: 'StrongPerimetralTurning.Example.exampleIntegratedProvenanceStored' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8071:0: 'StrongPerimetralTurning.Example.exampleRecoveredAfterFirstReadsStoredProvenance' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8072:0: 'StrongPerimetralTurning.Example.exampleRawFinalJunctionCompatibility' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8073:0: 'StrongPerimetralTurning.Example.exampleRawJunctionWithSeparatedEndpoints' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8074:0: 'StrongPerimetralTurning.Example.exampleFinalBoundaryOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8075:0: 'StrongPerimetralTurning.Example.exampleFinalClosureInterpretation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8076:0: 'StrongPerimetralTurning.Example.exampleActualFreeStep_source_is_fourth' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8077:0: 'StrongPerimetralTurning.Example.exampleActualFreeStep_target_is_beyondFirst' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8078:0: 'StrongPerimetralTurning.Example.exampleActualFreeStep_is_leaveBoundary' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8079:0: 'StrongPerimetralTurning.Example.exampleInvokedJunction_is_fourthToFirst' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8080:0: 'StrongPerimetralTurning.Example.exampleFinalObstruction_is_initial' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8081:0: 'StrongPerimetralTurning.Example.exampleFinalProvenance_is_origin' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8082:0: 'StrongPerimetralTurning.Example.exampleFinalFormationRecord_is_current' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8083:0: 'StrongPerimetralTurning.Example.exampleNoBilateralClosureAttemptAt' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8084:0: 'StrongPerimetralTurning.Example.exampleNoImplicitBilateralClosureAttemptAt' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8085:0: 'StrongPerimetralTurning.ExactConcreteRealization' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8086:0: 'StrongPerimetralTurning.ConcreteRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8087:0: 'StrongPerimetralTurning.PerimetralRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8088:0: 'StrongPerimetralTurning.PerimetralRegimeExit.toRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8089:0: 'StrongPerimetralTurning.UniformConcreteRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8090:0: 'StrongPerimetralTurning.UniformPerimetralRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8091:0: 'StrongPerimetralTurning.UniformPerimetralRegimeExit.toUniformRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8092:0: 'StrongPerimetralTurning.UniformPerimetralRegimeExit.atImplementation' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8093:0: 'StrongPerimetralTurning.UniformPerimetralRegimeExit.at_forget' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8094:0: 'StrongPerimetralTurning.UniformPerimetralRegimeExit.at_forget_named' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8095:0: 'StrongPerimetralTurning.oneStepUniformPerimetralRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8096:0: 'StrongPerimetralTurning.oneStepPerimetralRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8097:0: 'StrongPerimetralTurning.oneStepConcreteRegimeExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8098:0: 'StrongPerimetralTurning.HistoryAlignmentSpec' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8099:0: 'StrongPerimetralTurning.circularNormativeAdequacy' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8100:0: 'StrongPerimetralTurning.circularRefinement_adequateAlong' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8101:0: 'StrongPerimetralTurning.oneStepSpecRelativeHistoryExit' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8102:0: 'StrongPerimetralTurning.oneStepSpecRelativeHistoryExit_notSpecification' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8104:0: 'StrongPerimetralTurning.NonClosingNext' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8105:0: 'StrongPerimetralTurning.NonClosingNext.target_eq_source' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8106:0: 'StrongPerimetralTurning.generatedHistory_equalEndpoints_noOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8107:0: 'StrongPerimetralTurning.SemanticTrace.Between' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8108:0: 'StrongPerimetralTurning.ExactSemanticBridgeSegment' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8109:0: 'StrongPerimetralTurning.EffectiveConstitutiveBridge' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8110:0: 'StrongPerimetralTurning.bridgeParticipation_between_empty_of_next' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8111:0: 'StrongPerimetralTurning.effectiveBridge_between_empty_of_next' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8112:0: 'StrongPerimetralTurning.Example.exampleP1_next_exampleP2' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8113:0: 'StrongPerimetralTurning.Example.exampleP2_next_exampleP3' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8114:0: 'StrongPerimetralTurning.Example.interleavedExample_extra1_between' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8115:0: 'StrongPerimetralTurning.Example.interleavedExample_extra2_between' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8116:0: 'StrongPerimetralTurning.Example.interleavedExample_no_effective_bridge_p1_p2' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8117:0: 'StrongPerimetralTurning.Example.interleavedExample_no_effective_bridge_p2_p3' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8119:0: 'StrongPerimetralTurning.History.OccurrencePrecedes' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8120:0: 'StrongPerimetralTurning.History.OccurrenceNext' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8121:0: 'StrongPerimetralTurning.History.OccurrenceNext.toPrecedes' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8122:0: 'StrongPerimetralTurning.History.OccurrencePrecedes.ne' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8123:0: 'StrongPerimetralTurning.History.OccurrencePrecedes.trichotomy' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8124:0: 'StrongPerimetralTurning.CursorReach.trans' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8125:0: 'StrongPerimetralTurning.CursorFuture.transReach' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8126:0: 'StrongPerimetralTurning.occurrenceSource_to_historyEndpoint_future' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8127:0: 'StrongPerimetralTurning.occurrenceTarget_to_historyEndpoint_reach' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8128:0: 'StrongPerimetralTurning.History.OccurrencePrecedes.sourceCursorFuture' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8129:0: 'StrongPerimetralTurning.History.OccurrencePrecedes.next_or_positiveGap' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8130:0: 'StrongPerimetralTurning.NonClosingPrecedes.ne' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8131:0: 'StrongPerimetralTurning.NonClosingNext.toPrecedes' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8132:0: 'StrongPerimetralTurning.positionSourceCursorReach' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8133:0: 'StrongPerimetralTurning.NonClosingPrecedes.sourceCursorFuture' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8134:0: 'StrongPerimetralTurning.ExactNonClosingRealization.preservesPrecedence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8135:0: 'StrongPerimetralTurning.ExactNonClosingRealization.preservesNext' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8136:0: 'StrongPerimetralTurning.ExactNonClosingRealization.embedPerimeterOccurrence' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8137:0: 'StrongPerimetralTurning.ExactNonClosingRealization.embedPerimeterOccurrence_locatedStep' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8138:0: 'StrongPerimetralTurning.ExactNonClosingRealization.embedPerimeterOccurrence_injective' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8139:0: 'StrongPerimetralTurning.History.factorInitialGeneratedStep' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8140:0: 'StrongPerimetralTurning.History.extractRightOccurrenceAfterSingle' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8141:0: 'StrongPerimetralTurning.factorDeployRemainingFromExactOccurrences' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8142:0: 'StrongPerimetralTurning.ExactNonClosingRealization.toPerimeterExtension' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8143:0: 'StrongPerimetralTurning.CircularSpecificationSatisfaction.eq_perimeter' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8144:0: 'StrongPerimetralTurning.circularSpecification_complete' does not depend on any axioms
+info: StrongPerimetralTurning.lean:8145:0: 'StrongPerimetralTurning.circularRefinement_soundSpecification' does not depend on any axioms
+Build completed successfully (5 jobs).
