@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "AI-generation disclosure: the project owner declares that this artifact was written from start to finish by models in OpenAI's ChatGPT model series, under human direction and over successive interactions. Please cite it using these metadata. / Déclaration de génération par IA : le responsable du projet déclare que cet artefact a été écrit de A à Z par des modèles de la série ChatGPT d'OpenAI, sous la direction d'un humain et au cours d'interactions successives. Veuillez le citer à l'aide de ces métadonnées."
+message: "Conceptual-authorship and AI-generation disclosure: the project owner declares that the project's essential ideas and research direction are their own, while this artifact was written from start to finish by models in OpenAI's ChatGPT model series, under human direction and over successive interactions. Please cite it using these metadata. / Déclaration de conception intellectuelle et de génération par IA : le responsable du projet déclare être à l'origine de l'essentiel des idées et de la direction de recherche du projet, tandis que cet artefact a été écrit de A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours d'interactions successives. Veuillez le citer à l'aide de ces métadonnées."
 title: "Cycle 1 — A Formal Proof of Relative Alignment"
 type: software
 authors:

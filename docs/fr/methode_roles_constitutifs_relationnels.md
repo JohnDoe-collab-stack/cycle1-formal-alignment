@@ -4,9 +4,11 @@
 
 [English](../en/relational_constitutive_roles_method.md) | **Français**
 
-> **Déclaration de génération par IA.** Le responsable du projet déclare que ce
-> document a été écrit de A à Z par des modèles de la série ChatGPT d'OpenAI,
-> sous la direction d'un humain et au cours d'interactions successives. Voir la
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
 
 > **Ce document expose la méthode dégagée par le cycle 1 : individuer les

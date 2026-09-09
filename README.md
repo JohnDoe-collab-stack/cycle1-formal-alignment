@@ -2,10 +2,11 @@
 
 **English** | [Français](README_fr.md)
 
-> **AI-generation disclosure.** The project owner declares that every part of
-> this repository was written from start to finish by models in OpenAI's
-> ChatGPT model series, under human direction and through successive
-> interactions. See the
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are
+> their own. Every part of this repository was written from start to finish by
+> models in OpenAI's ChatGPT model series, under human direction and through
+> successive interactions. See the
 > [full bilingual declaration](AI_AUTHORSHIP.md).
 
 > **This project builds and machine-checks in Lean a dependently typed kernel
@@ -335,24 +336,18 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 - [Formal proof of relative alignment — English](docs/en/formal_relative_alignment_proof.md)
 - [Preuve formelle d'alignement relatif — français](docs/fr/preuve_formelle_alignement_relatif.md)
 - [Build and audit log](audit/AUDIT_BUILD.txt)
-- [AI authorship and generation disclosure](AI_AUTHORSHIP.md)
+- [Conceptual authorship and AI-generation disclosure](AI_AUTHORSHIP.md)
 
 ## Provenance and scope
 
-The `audit/AUDIT_BUILD.txt` log states that the initial versions of five scientific
-files were copied from source commit
-`31ba1516aaefc5e2ef29aff902fed6af2cd43176` in
-`git@github.com:JohnDoe-collab-stack/meta.git`. Since that import, the two
-original French documents have undergone local editorial stabilization and
-their English translations have been added; a bilingual methodology document
-was added locally. No Lean module has been modified. The nine current scientific
-files match the hashes recorded in `MANIFEST.sha256`.
+This repository is a standalone artifact. It contains all Lean sources,
+documentation, pinned toolchain and build configuration, and verification
+scripts required to compile and audit the result. No earlier repository or
+external source history is required to reproduce the checks.
 
-The source commit is not publicly accessible at the stated address, and the local
-working copy does not contain its Git history. The manifest can therefore verify
-the integrity of the current package, but cannot by itself establish its remote
-provenance. For a reproducible external audit, these sources must be published in
-the repository referenced by `CITATION.cff` under a resolvable commit or tag.
+The nine current scientific files match the hashes recorded in
+`MANIFEST.sha256`. The current standalone build, toolchain versions, axiom audit,
+and reproduction commands are recorded in `audit/AUDIT_BUILD.txt`.
 
 The result is a first complete instance of a formal kernel for relative
 alignment. It establishes adequacy within the framework defined by

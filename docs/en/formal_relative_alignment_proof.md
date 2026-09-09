@@ -2,9 +2,11 @@
 
 **English** | [Français](../fr/preuve_formelle_alignement_relatif.md)
 
-> **AI-generation disclosure.** The project owner declares that this document
-> was written from start to finish by models in OpenAI's ChatGPT model series,
-> under human direction and through successive interactions. See the
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are
+> their own. This document was written from start to finish by models in
+> OpenAI's ChatGPT model series, under human direction and through successive
+> interactions. See the
 > [full bilingual declaration](../../AI_AUTHORSHIP.md).
 
 ## Status
@@ -796,8 +798,8 @@ Quot.sound                                 absent
 Classical                                  absent
 ```
 
-The current local reproduction was performed on Windows. `AUDIT_BUILD.txt` also
-records an earlier Linux build; both environments use Lean 4.33.1.
+The standalone audit recorded in `AUDIT_BUILD.txt` was reproduced on Windows
+with Lean 4.33.1. No earlier repository or build record is required.
 
 The final alignment declarations are also audited:
 

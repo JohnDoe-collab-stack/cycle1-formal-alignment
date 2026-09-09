@@ -4,9 +4,11 @@
 
 **English** | [Français](../fr/methode_roles_constitutifs_relationnels.md)
 
-> **AI-generation disclosure.** The project owner declares that this document
-> was written from start to finish by models in OpenAI's ChatGPT model series,
-> under human direction and through successive interactions. See the
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are
+> their own. This document was written from start to finish by models in
+> OpenAI's ChatGPT model series, under human direction and through successive
+> interactions. See the
 > [full bilingual declaration](../../AI_AUTHORSHIP.md).
 
 > **This document presents the method extracted from cycle 1: individuate

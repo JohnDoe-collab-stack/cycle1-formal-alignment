@@ -2,9 +2,11 @@
 
 [English](../en/formal_relative_alignment_proof.md) | **Français**
 
-> **Déclaration de génération par IA.** Le responsable du projet déclare que ce
-> document a été écrit de A à Z par des modèles de la série ChatGPT d'OpenAI,
-> sous la direction d'un humain et au cours d'interactions successives. Voir la
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
 
 ## Statut
@@ -821,9 +823,8 @@ Quot.sound                                 absent
 Classical                                  absent
 ```
 
-La reproduction locale courante a été effectuée sous Windows. Le journal
-`AUDIT_BUILD.txt` conserve en plus une compilation antérieure sous Linux; les
-deux environnements utilisent Lean 4.33.1.
+L'audit autonome consigné dans `AUDIT_BUILD.txt` a été reproduit sous Windows
+avec Lean 4.33.1. Aucun dépôt ni journal de compilation antérieur n'est requis.
 
 Les déclarations finales du raccord d'alignement sont également auditées:
 

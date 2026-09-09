@@ -2,10 +2,11 @@
 
 [English](README.md) | **Français**
 
-> **Déclaration de génération par IA.** Le responsable du projet déclare que
-> chaque élément de ce dépôt a été écrit de A à Z par des modèles de la série
-> ChatGPT d'OpenAI, sous la direction d'un humain et au cours d'interactions
-> successives. Voir la
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Chaque élément de ce dépôt a été écrit
+> de A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine
+> et au cours d'interactions successives. Voir la
 > [déclaration bilingue complète](AI_AUTHORSHIP.md).
 
 > **Ce projet construit et vérifie en Lean un noyau dépendamment typé pour
@@ -341,26 +342,20 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 - [Preuve formelle d'alignement relatif — français](docs/fr/preuve_formelle_alignement_relatif.md)
 - [Formal proof of relative alignment — English](docs/en/formal_relative_alignment_proof.md)
 - [Journal de compilation et d'audit](audit/AUDIT_BUILD.txt)
-- [Déclaration d'écriture et de génération par IA](AI_AUTHORSHIP.md)
+- [Déclaration de conception intellectuelle et de génération par IA](AI_AUTHORSHIP.md)
 
 ## Provenance et portée
 
-Le journal `audit/AUDIT_BUILD.txt` déclare que les versions initiales de cinq fichiers
-scientifiques ont été copiées depuis le commit source
-`31ba1516aaefc5e2ef29aff902fed6af2cd43176` du dépôt
-`git@github.com:JohnDoe-collab-stack/meta.git`. Depuis cette importation, les
-deux documents français d'origine ont fait l'objet d'une stabilisation
-documentaire locale et leurs traductions anglaises ont été ajoutées; un document
-méthodologique bilingue a été ajouté localement. Aucun module Lean n'a été
-modifié. Les neuf contenus scientifiques actuels correspondent aux empreintes
-enregistrées dans `MANIFEST.sha256`.
+Ce dépôt constitue un artefact autonome. Il contient l'ensemble des sources
+Lean, de la documentation, de la chaîne d'outils et de la configuration de
+compilation épinglées, ainsi que des scripts nécessaires pour compiler et
+auditer le résultat. Aucun dépôt antérieur ni historique source externe n'est
+requis pour reproduire les contrôles.
 
-Le commit source n'est pas accessible publiquement à l'adresse indiquée et la
-copie de travail locale ne contient pas son historique Git. Le manifeste permet
-donc de contrôler l'intégrité du paquet actuel, mais pas d'établir seul sa
-provenance distante. Pour un audit externe reproductible, ces sources devront
-être publiées dans le dépôt référencé par `CITATION.cff` avec un commit ou un tag
-résolvable.
+Les neuf contenus scientifiques actuels correspondent aux empreintes
+enregistrées dans `MANIFEST.sha256`. La compilation autonome courante, les
+versions des outils, l'audit des axiomes et les commandes de reproduction sont
+consignés dans `audit/AUDIT_BUILD.txt`.
 
 Le résultat est une première instance complète d'un noyau formel d'alignement
 relatif. Il établit l'adéquation dans le cadre défini par `CircularPresentation`;
