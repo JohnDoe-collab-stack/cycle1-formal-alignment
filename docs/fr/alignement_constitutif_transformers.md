@@ -443,6 +443,20 @@ Les adresses techniques peuvent retrouver les occurrences, mais elles ne sont
 pas leur identité. La computation doit rester équivariante sous renommage
 cohérent des adresses.
 
+L’instance finie ferme les obligations à un pas par une tête d’attention dure à
+deux clés. Les tokens forment l’activation ; la relation forme avec elle la
+requête ; l’attention sélectionne la valeur de mémoire effectivement utilisée
+par la prédiction. La proposition apprise devient exactement la relation du
+passage suivant, et son ablation modifie cette continuation. Un renommage
+cohérent des deux clés, de leurs valeurs et de la requête conserve le résultat.
+La proposition parent se décode en sortie opérationnelle du modèle de référence,
+tandis que la proposition apprise se décode en son candidat admis, normatif et
+associé à l’action gouvernée.
+
+Cette fermeture porte sur une réalisation constructive finie d’attention dure.
+Elle ne constitue ni un transformer entraîné, ni une implémentation numérique
+d’attention softmax, ni un résultat d’autonomie multicycle.
+
 Le modèle fini non neuronal précède cette instance. Il ferme les mêmes contrats
 sur un domaine calculable et sert de référence de test hors ligne, jamais de
 correcteur sur la voie causale du transformer.
@@ -487,7 +501,7 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `ReflectiveMachine.lean` | instance machine de la représentation exacte et de la non-clôture | démontré |
 | `ReferenceModel.lean` | certificat fini intégré, des histoires et de l’adéquation jusqu’à la succession causale, l’action gouvernée, les cycles liés et la sortie réflexive | démontré |
 | `NeuralRealization.lean` | contrat de fidélité neuronale et audit différé | défini et démontré sur une instance finie |
-| `TransformerRealization.lean` | contrat transformer et intervention parent–appris | démontré sur une instance finie d’un pas ; multicycle ouvert |
+| `TransformerRealization.lean` | contrat transformer, attention dure, consommation de la relation proposée et intervention parent–appris | gate finie à un pas démontrée ; multicycle ouvert |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -561,9 +575,11 @@ Le dépôt démontre actuellement :
   cycles liés et statut représenté avec diagonale extérieure ;
 - une interface neuronale à quatre plans, une élaboration sans réparation, une
   fidélité sur la trajectoire et un audit différé causalement silencieux ;
-- une interface de réalisation transformer et une instance finie d’un pas où
-  la relation est active, le contrôle sans relation est inerte et le renommage
-  cohérent des adresses mémoire conserve la prédiction.
+- une interface de réalisation transformer et une instance finie d’attention
+  dure où la proposition apprise est consommée comme relation suivante, la
+  relation est active, le contrôle sans relation est inerte, le renommage des
+  adresses conserve la prédiction et le raccord au modèle de référence est
+  exact.
 
 Le dépôt ne démontre pas encore :
 

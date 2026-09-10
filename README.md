@@ -180,7 +180,8 @@ failure of the independent norm.
   representation, diagonalization, and global non-closure.
 - [Constitutive neural architecture for relative alignment](docs/en/constitutive_transformer_alignment.md)
   — constructive contracts for causal memory, governed effectuation,
-  succession, neural realization, and a finite one-step transformer instance.
+  succession, neural realization, and a finite hard-attention transformer
+  instance that consumes its own proposed relation.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
@@ -232,7 +233,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles all three Lake libraries, audits 444 declarations through
+The pinned build compiles all three Lake libraries, audits 454 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
