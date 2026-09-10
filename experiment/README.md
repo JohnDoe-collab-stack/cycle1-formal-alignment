@@ -6,8 +6,12 @@ This directory contains the first numerical prototype corresponding to Gate K.
 The protocol keeps the neural producer, exact constitutive runtime, governed
 effector, immutable primary journal, and deferred auditor separate.
 
-The frozen protocol is `protocol_v1.json`; `protocol_v1.py` is its only
-executable implementation. The reference result must never be overwritten.
+The single canonical protocol is `protocol_v1.json`; `protocol_v1.py` is its
+only executable implementation. Its training set, smoke probe, and
+precommitted confirmatory probe are separate and are checked for identifier and
+authorized-view disjointness before training. Parent and learned paths consume
+the exact same probe selected for their mode. A smoke run never executes the
+confirmatory probe.
 
 Install the pinned dependency in an isolated Python environment:
 
@@ -21,19 +25,22 @@ Run a non-confirmatory smoke test:
 python experiment/protocol_v1.py --mode smoke --config experiment/protocol_v1.json
 ```
 
-Run the frozen confirmatory protocol once, choosing a new output path:
+After the script and configuration have been frozen by a source commit, run
+the confirmatory protocol once:
 
 ```text
 python experiment/protocol_v1.py --mode confirmatory --config experiment/protocol_v1.json --output experiment/results/confirmatory_v1.json
 ```
 
 The program refuses to overwrite an existing result. Every result records the
-script, configuration, and data hashes; all primary traces are sealed before
-the deferred audit. The report separates facts, interpretation, and limits.
+script, configuration, complete data, training-set, and probe-policy hashes;
+all primary traces are sealed before the deferred audit.
 
-The immutable reference run and its human-readable report are available as
-[`results/confirmatory_v1.json`](results/confirmatory_v1.json) and
-[`RESULTS_v1.md`](RESULTS_v1.md).
+The corrected canonical protocol has passed a smoke test only. Its
+confirmatory result, bilingual reports, and hash-pinned read-only verifier are
+intentionally absent until the corrected script and configuration are frozen
+in a commit. No result produced by the earlier, non-disjoint protocol is used
+as evidence for this protocol.
 
 This finite experiment is not a proof of general transformer alignment,
 unbounded-horizon autonomy, production-scale training, or natural-language

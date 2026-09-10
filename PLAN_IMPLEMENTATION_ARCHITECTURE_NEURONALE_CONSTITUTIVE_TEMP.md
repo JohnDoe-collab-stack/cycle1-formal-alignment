@@ -16,9 +16,11 @@ doit pas devenir une dépendance du résultat.
 État de reprise contrôlé :
 
 - branche de travail : `codex/constitutive-transformer` ;
-- état formel et expérimental de référence : commit `a7778ed` ;
-- les lots A à K ont produit un noyau fini compilé, une réalisation transformer
-  à deux cycles liés et un protocole confirmatoire v1 reproductible ;
+- dernier état gelé de la branche : commit `569701a` ; les corrections décrites
+  ci-dessous appartiennent encore à l’arbre de travail non gelé ;
+- les lots A à J ont produit un noyau fini compilé et une réalisation
+  transformer à deux cycles liés ; la Gate K a été réouverte afin de reconstruire
+  proprement la séparation entre apprentissage et évaluation ;
 - l’itération uniforme sur une profondeur naturelle et la conservation d’une
   obligation sous itération sont déjà génériques dans `Succession.lean` ;
 - la suite ne doit ni reconstruire ces acquis ni présenter les deux cycles finis
@@ -26,8 +28,8 @@ doit pas devenir une dépendance du résultat.
 - les documents canoniques actuels sont
   `docs/fr/alignement_constitutif_transformers.md` et
   `docs/en/constitutive_transformer_alignment.md` ;
-- toute extension doit préserver le résultat confirmatoire v1 sans modifier son
-  script, sa configuration ou son fichier de résultats.
+- l’ancien résultat confirmatoire ne satisfait pas la séparation désormais
+  exigée et ne fait plus partie de l’état scientifique candidat à l’intégration.
 
 ## 1. Objectif final
 
@@ -98,10 +100,10 @@ observé en théorème.
 ### 2.3 État de fermeture à la reprise
 
 La table suivante est l’autorité de pilotage pour la suite. Le futur employé
-dans les lots A à K enregistre leurs obligations initiales ; il ne signifie pas
+dans les lots A à M enregistre leurs obligations initiales ; il ne signifie pas
 qu’elles sont encore toutes ouvertes.
 
-| Lot | État au commit de référence | Portée exacte |
+| Lot | État actuel du chantier | Portée exacte |
 | --- | --- | --- |
 | A | fermé | documents français et anglais stabilisés et raccordés aux identifiants Lean |
 | B | fermé | machine constitutive abstraite et ponts avec le Cycle 1 |
@@ -111,11 +113,14 @@ qu’elles sont encore toutes ouvertes.
 | F | fermé | transport représentationnel et non-clôture réflexive distincte de la sortie opérationnelle |
 | G | fermé | modèle de référence fini, causalité parent–appris et deux cycles liés |
 | H | fermé | contrat neuronal, vue autorisée, trajectoire fidèle et audit différé |
-| I | fermé dans l’instance finie | transformer booléen à attention dure, intervention, contrôle inerte et renommage |
+| I | fermé dans l’instance finie | transformer booléen à attention dure, intervention, sonde fraîche fixée et anti-substitution, contrôle inerte et renommage |
 | J | fermé pour deux cycles | lien intercycle, ablation, mémoire d’attention, hallucination relative et confinement |
-| K | fermé pour le protocole v1 | prototype NumPy, protocole figé, trois graines et résultat confirmatoire immuable |
+| K | réouvert jusqu’au nouveau gel | le protocole canonique unique sépare entraînement, sonde de smoke test et sonde confirmatoire non exécutée ; le run confirmatoire doit attendre le commit de gel |
+| L | fermé dans l’instance finie | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique uniforme pour tout `n : Nat` |
+| M | partie Lean fermée, contrôle exécutable à régénérer | raffinement formel exact et séparateurs construits ; vérificateur à resceller sur l’unique résultat corrigé |
 
-Quatre obligations forment désormais le chemin critique :
+Les quatre obligations formelles qui formaient le chemin critique sont fermées
+dans leur portée déclarée :
 
 1. instancier à profondeur finie arbitraire la dynamique transformer, et non la
    seule transition abstraite ;
@@ -124,6 +129,11 @@ Quatre obligations forment désormais le chemin critique :
 3. définir les transformations admissibles de la machine et transporter
    explicitement l’adéquation ;
 4. raffiner la frontière exécutable vers le noyau formel.
+
+Le travail restant concerne le gel du protocole corrigé, son run confirmatoire
+unique, le rescellement du vérificateur, la synchronisation de la documentation
+et de l’audit, puis l’intégration contrôlée dans `main`. La Gate L et la partie
+Lean de la Gate M restent fermées.
 
 ## 3. Invariants non négociables
 
@@ -545,13 +555,13 @@ déjà construits.
 | effectuation gouvernée | `NormativeExecution.lean` | démontrée sous certificat et adéquation, puis instanciée |
 | succession constitutive | `Succession.lean` | itération uniforme et conservation générique démontrées pour tout `n : Nat` |
 | apprentissage causant la proposition suivante | lots E, G et I | contrat générique et instances finies démontrés |
-| autonomie multicycle finie | lots G et J | deux cycles transformer causalement liés démontrés ; profondeur arbitraire encore ouverte |
+| autonomie multicycle finie | lots G, J et L | deux cycles explicités puis même dynamique transformer construite pour tout `n : Nat` |
 | réalisation neuronale fidèle | `NeuralRealization.lean` | contrat formel et instance finie construits |
 | réalisation transformer | `TransformerRealization.lean` et `TransformerDynamics.lean` | instance finie construite et testée ; aucune garantie automatique issue du Cycle 1 |
-| invariant gouverné atteignable | extension `GovernedDynamics.lean` | ouvert : composer les garanties déjà séparées puis les préserver par itération |
-| transformation admissible | extension `GovernedDynamics.lean` | ouvert : transporter explicitement mémoire, régime, norme, certificats et adéquation |
-| raffinement exécutable–formel | extension `ExecutableRefinement.lean` et protocole | ouvert : relier les traces discrètes ; les calculs flottants restent observés |
-| comportement empirique | protocole v1 | observé et figé ; jamais promu automatiquement en théorème |
+| invariant gouverné atteignable | `GovernedDynamics.lean` | démontré sur l’instance finie pour tout `n : Nat` par préservation à un pas et itération existante |
+| transformation admissible | `GovernedDynamics.lean` | contrats séparés et transports explicites de l’adéquation, de l’exécution, des actions et certificats |
+| raffinement exécutable–formel | `ExecutableRefinement.lean` puis vérificateur à resceller | relation formelle exacte sur la frontière discrète ; contrôle exécutable à produire après le run confirmatoire gelé, sans formaliser les flottants |
+| comportement empirique | protocole canonique unique | smoke test frais réussi ; résultat confirmatoire à régénérer seulement après commit du protocole corrigé |
 
 Cette table doit être reprise dans les deux documents canoniques. Elle empêche à
 la fois de détacher l’application du Cycle 1 et d’attribuer au Cycle 1 des
@@ -898,21 +908,21 @@ profondeur `n : Nat`. Le même `UniformTransition` consomme littéralement la
 sortie du cycle précédent ; aucun `cycle0`, `cycle1` ni catalogue par profondeur
 n’intervient dans cette définition.
 
-Ce résultat ferme l’itération abstraite. Il ne ferme pas encore son instance
-transformer à profondeur arbitraire : `TransformerDynamics.lean` construit et
-sépare actuellement deux cycles causalement liés. La généralisation concrète
-est transférée au lot L.
+Ce résultat ferme l’itération abstraite. `TransformerDynamics.lean` construit
+deux cycles causalement liés, puis `GovernedDynamics.lean` instancie le même
+opérateur à toute profondeur finie et ferme la généralisation concrète du lot L.
 
-### E5. Conservation générique — fermée, agrégation ouverte
+### E5. Conservation générique et agrégation — fermées
 
 L’horizon est défini par composition de transitions constituées, non par nombre
 de tokens. `preservesAlongIteration` prouve déjà qu’une obligation préservée à
 un pas reste satisfaite après toute profondeur finie.
 
-Il reste à former l’obligation agrégée propre à la machine gouvernée — mémoire,
-adéquation, fidélité, certificat et confinement — puis à fournir sa loi de
-préservation à un pas. Ce travail relève du lot L, non d’une nouvelle définition
-de l’itération.
+`GovernedDynamics.lean` forme ensuite l’obligation agrégée propre à la machine
+gouvernée — mémoire, adéquation, fidélité, statut normatif, conservation de
+l’élaboration et confinement — et fournit sa loi constructive de préservation à
+un pas. Le théorème `invariantAt` la transporte à tout `n : Nat` par l’itération
+existante.
 
 ### Tests séparateurs
 
@@ -941,9 +951,8 @@ de l’itération.
 - arrêt explicite lorsque le prochain cycle est impossible.
 
 La Gate E est fermée pour les contrats et lois génériques. Les Gates G, I et J
-sont fermées dans leur portée finie déclarée. Aucun de ces niveaux ne vaut comme
-preuve de l’invariant transformer à toute profondeur, qui appartient à la
-Gate L.
+sont fermées dans leur portée finie déclarée, et la Gate L construit désormais
+l’invariant transformer à toute profondeur finie.
 
 ## 12. Lot F — Couche réflexive de la machine
 
@@ -1168,6 +1177,13 @@ doit pas devenir une identité sémantique cachée.
 - renommage technique sans modification sémantique ;
 - contrôle sans structure échouant sur la distinction ciblée.
 
+La fermeture stricte comprend aussi `FreshProbeCausality.lean` : le corpus
+d’entraînement et la sonde sont séparés, la sonde est liée par un engagement
+unique, sa non-appartenance au corpus est réfutée constructivement, et le même
+chemin parent–appris réutilise ensuite la consommation exacte et la succession
+déjà établies. Les poids ainsi acquis sont ceux employés par la dynamique à
+profondeur finie arbitraire.
+
 ## 16. Lot J — Mémoire, horizon long et rupture normative
 
 ### J1. Mémoire persistante
@@ -1176,7 +1192,7 @@ Démontrer sur l’instance que la mémoire conserve les différences requises p
 les questions et continuations déclarées. Toute compression devra être liée à
 un certificat de solidité causale dans cette portée.
 
-### J2. Deux cycles liés — fermé ; profondeur arbitraire — ouverte
+### J2. Deux cycles liés et profondeur finie arbitraire — fermés
 
 Exécuter plusieurs cycles avec le même opérateur, sans réintroduire les états
 corrects entre les étapes. Mesurer séparément :
@@ -1193,8 +1209,8 @@ indépendamment ne démontrent pas l’autonomie multicycle.
 
 `TransformerDynamics.lean` ferme cette obligation pour deux cycles : le second
 consomme la relation proposée au premier, et une ablation dédiée modifie sa
-prédiction et sa proposition. L’extension uniforme de ce même résultat à toute
-profondeur finie reste ouverte au lot L.
+prédiction et sa proposition. `GovernedDynamics.lean` étend uniformément ce même
+résultat à toute profondeur finie dans le lot L.
 
 ### J3. Rupture normative
 
@@ -1225,8 +1241,8 @@ Cela ne signifie pas que sa génération interne est impossible.
 - lien intercycle causal construit et détruit par une ablation dédiée ;
 - aucune revendication générale sur toutes les hallucinations linguistiques.
 
-La Gate J est fermée pour l’instance finie à deux cycles. Elle ne doit pas être
-relue comme la Gate L à profondeur arbitraire.
+La Gate J reste la fermeture de l’instance explicite à deux cycles. La Gate L,
+distincte, est maintenant fermée pour la quantification sur tout `n : Nat`.
 
 ## 17. Lot K — Prototype exécutable et protocole expérimental
 
@@ -1284,13 +1300,18 @@ rompue et ne déclenche aucun changement silencieux du protocole.
 - audit différé ;
 - rapport séparant faits, interprétation et limites.
 
-La Gate K est fermée pour le protocole v1. Son script, sa configuration et son
-résultat confirmatoire sont immuables ; toute expérience supplémentaire reçoit
-un nouveau numéro de version.
+La Gate K est temporairement réouverte. La version canonique unique est corrigée
+en place avant intégration afin de séparer le corpus d’entraînement, la sonde de
+smoke test et la sonde confirmatoire fixée. Le smoke test ne doit jamais
+exécuter cette dernière avant le commit de gel. Aucun protocole parallèle n’est
+créé. L’ancien résultat reste
+récupérable dans l’historique Git mais ne peut plus servir de résultat du
+protocole corrigé. Le nouveau run confirmatoire ne sera exécuté qu’après commit
+du script et de la configuration définitifs.
 
 ## 18. Lot L — Dynamique gouvernée à profondeur finie arbitraire
 
-Ce lot est la prochaine extension formelle. Il réutilise l’itération générique
+Ce lot est fermé dans `GovernedDynamics.lean`. Il réutilise l’itération générique
 déjà démontrée et ne crée aucune seconde notion d’histoire ou de cycle.
 
 ### L1. Atteignabilité proof-relevant
@@ -1389,6 +1410,10 @@ injecté ne le satisfait pas.
 - arrêt partiel représenté positivement ;
 - bloc `AXIOM_AUDIT` complet et vide de toute dépendance interdite.
 
+La Gate L est fermée : `gateLCertificate` agrège ces obligations, les cas
+séparateurs requis sont construits et l’audit axiomatique ne rapporte aucune
+dépendance.
+
 ## 19. Lot M — Raffinement de la frontière exécutable
 
 Ce lot relie l’exécution au noyau sans formaliser abusivement les calculs
@@ -1421,11 +1446,13 @@ de la fidélité. Il transfère les garanties du noyau à la trace discrète
 effectivement consommée ; il ne transforme ni les logits, ni l’entraînement, ni
 les performances numériques en théorèmes Lean.
 
-### M3. Vérificateur et version expérimentale
+### M3. Vérificateur et protocole expérimental unique
 
-Conserver intégralement le protocole v1. Toute modification du schéma ou de
-l’expérience crée une version v2 avec nouveaux fichiers, empreintes et résultat
-confirmatoire. Le vérificateur doit refuser :
+Conserver une seule version canonique du protocole dans l’arbre publié. Comme le
+projet n’est pas encore intégré dans `main`, corriger cette version en place,
+retirer son ancien résultat devenu incompatible, puis geler le protocole corrigé
+par commit avant d’exécuter son unique run confirmatoire. Le vérificateur doit
+refuser :
 
 - une empreinte incorrecte ;
 - un champ causal manquant ;
@@ -1442,11 +1469,20 @@ confirmatoire. Le vérificateur doit refuser :
 - aucune cible normative dans la vue du producteur ;
 - aucune génération de preuve par le réseau supposée fiable ;
 - séparation explicite entre théorèmes Lean et observations flottantes ;
-- protocole v1 et résultat confirmatoire v1 inchangés.
+- séparation vérifiée entre corpus d’entraînement et sonde fraîche fixée ;
+- séparation des sondes de smoke test et confirmatoire, sans exécution de la
+  seconde avant le gel ;
+- un seul protocole canonique et un seul résultat confirmatoire correspondant.
+
+La partie Lean de la Gate M est fermée : `gateMCertificate` fournit le
+raffinement exact et ses séparateurs formels. Sa partie exécutable sera refermée
+quand le protocole canonique corrigé aura été commité, exécuté une fois en mode
+confirmatoire, puis contrôlé en lecture seule. Aucun parseur JSON n’est invoqué
+par Lean et aucun calcul flottant n’est promu au rang de théorème.
 
 ## 20. Phase scientifique ultérieure — hors gates internes
 
-Après fermeture des Gates L et M et intégration vérifiée dans `main` :
+Après intégration vérifiée des Gates L et M dans `main` :
 
 1. faire relire les déclarations et preuves Lean par des lecteurs indépendants ;
 2. comparer précisément les contributions à la littérature pertinente ;
@@ -1530,14 +1566,15 @@ réutilisés, pas réécrits. Chaque nouveau commit doit fermer une unité véri
 1. dynamique gouvernée générique, atteignabilité et invariant à un pas ;
 2. préservation à toute profondeur et instance transformer uniforme ;
 3. transformations admissibles et transport de l’adéquation ;
-4. schéma exécutable v2 et relation formelle de raffinement ;
-5. vérificateur, tests négatifs et éventuel protocole confirmatoire v2 ;
+4. correction du schéma exécutable canonique et relation formelle de raffinement ;
+5. gel par commit, run confirmatoire unique, vérificateur et tests négatifs ;
 6. mise à jour symétrique des documents français et anglais, des README, de
    l’audit et du manifeste ;
 7. suppression du présent plan dans la demande de fusion vers `main`.
 
-Un résultat confirmatoire v2 ne sera exécuté qu’après commit du protocole v2.
-Son ajout au dépôt formera un commit ultérieur distinct du gel du protocole.
+Le résultat confirmatoire corrigé ne sera exécuté qu’après commit du protocole
+canonique. Son ajout au dépôt formera un commit ultérieur distinct du gel du
+protocole ; aucune version parallèle ne sera conservée dans l’arbre publié.
 
 Le plan temporaire peut apparaître dans l’historique de la branche de travail,
 mais sa suppression doit faire partie de la merge request vers `main` et il ne
@@ -1565,10 +1602,10 @@ une histoire constitue des occurrences
 Ce socle ne doit pas être présenté comme encore hypothétique, ni comme une
 preuve portant déjà sur tout transformer ou toute profondeur.
 
-### 24.2 Extension formelle à fermer
+### 24.2 Extension formelle fermée sur la branche
 
-L’extension est terminée uniquement lorsque le dépôt permet de vérifier la
-chaîne suivante sans ressource scientifique extérieure :
+L’extension implémentée sur la branche permet désormais de vérifier la chaîne
+suivante sans ressource scientifique extérieure :
 
 ```text
 une histoire constitue des occurrences

@@ -205,12 +205,12 @@ directe d'échec de la norme indépendante.
 - [Architecture neuronale constitutive pour l’alignement relatif](docs/fr/alignement_constitutif_transformers.md)
   — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
   la succession, la réalisation neuronale et une instance transformer finie à
-  attention dure avec rétroaction exacte sur deux cycles et confinement
-  normatif.
+  attention dure avec invariants gouvernés à toute profondeur finie.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique
-  figé, résultat confirmatoire immuable, contrôles, traces et audit différé.
+  candidat avec sondes de smoke test et confirmatoire séparées ; son run
+  confirmatoire de remplacement attend le commit de gel des sources.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 
@@ -239,11 +239,13 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`ConstitutiveAlignment/`](ConstitutiveAlignment) construit la machine
   abstraite, la mémoire causale, l’effectuation certifiée, les échecs typés, la
   succession, la causalité d’apprentissage à un pas, le pont réflexif, le modèle
-  de référence fini, les contrats de réalisation neuronale et transformer et la
-  dynamique transformer finie.
+  de référence fini, les contrats de réalisation neuronale et transformer, la
+  dynamique gouvernée à toute profondeur finie, le transport admissible de
+  l’adéquation, l’acquisition stricte sur sonde fraîche et le raffinement
+  exécutable discret.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
-- [`experiment/`](experiment) contient le protocole numérique versionné ; ses
+- [`experiment/`](experiment) contient le protocole numérique unique ; ses
   observations restent séparées des théorèmes Lean.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
@@ -269,7 +271,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les trois bibliothèques Lake, audite 468
+La compilation épinglée construit les trois bibliothèques Lake, audite 521
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans

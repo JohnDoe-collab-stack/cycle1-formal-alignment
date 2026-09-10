@@ -329,6 +329,15 @@ Cette chaîne respecte la distinction entre apprentissage et succession : le
 premier cause une prédiction qui participe à la proposition suivante ; il ne se
 confond pas avec l’incorporation ni avec le régime successeur.
 
+`FreshProbeCausality.lean` ferme en amont l’acquisition de cette intervention.
+Il sépare le corpus d’entraînement de la sonde d’évaluation, lie les deux par un
+engagement unique, construit la réfutation de l’appartenance de la sonde au
+corpus, puis exécute les états parent et appris sur la même vue autorisée de
+cette sonde. L’état appris produit par cette procédure est exactement l’état de
+poids fixe utilisé par la dynamique transformer à profondeur finie. Il s’agit
+d’une instance finie construite, non de l’hypothèse que des poids entraînés
+arbitraires satisfont ce contrat.
+
 Le résultat à un pas est une condition nécessaire de la machine recherchée. À
 lui seul, il ne démontre pas l’autonomie multicycle.
 
@@ -384,8 +393,22 @@ incorpore la proposition produite comme relation suivante, puis s’exécute à
 nouveau sur cette vue produite. Une ablation dédiée conserve tokens, cache,
 mémoire, budget, cœur et poids, mais omet cette seule incorporation ; la seconde
 prédiction et la seconde proposition changent alors. Cela établit une autonomie
-finie de deux cycles dans le modèle déclaré. L’autonomie d’un réseau entraîné ou
-sur un horizon non borné reste une obligation formelle et expérimentale.
+finie de deux cycles dans le modèle déclaré.
+
+`GovernedDynamics.lean` généralise ensuite cette dynamique à toute profondeur
+finie `n : Nat` sans introduire de catalogue de cycles. `viewAt n` est produit
+par le même opérateur ; `reachableTransformerAt n` porte l’histoire qui le
+forme ; et `proposalIsNextConsumedRelation n` établit que la proposition du
+rang `n` est exactement la relation consommée au rang `n + 1`.
+`GovernedInvariant` agrège sur chaque état atteint la fidélité de la trajectoire,
+l’exactitude et la conservation de la mémoire déclarée, l’adéquation
+régime–norme, le statut normatif du candidat, sa conservation dans
+l’élaboration et le confinement de son éventuel effet gouverné. Sa loi à un
+pas est composée par `preservesAlongIteration`, ce qui construit l’invariant
+pour tout horizon fini. Une ablation de la relation active modifie la
+prédiction, la proposition et donc l’état successeur produit à chaque profondeur
+de cette instance, tandis que l’arrêt borné reste un résultat constructif
+explicite.
 
 ## 10. Réalisation neuronale
 
@@ -461,8 +484,12 @@ tandis que la proposition apprise se décode en son candidat admis, normatif et
 associé à l’action gouvernée.
 
 Cette fermeture porte sur une réalisation constructive finie d’attention dure.
-Elle ne constitue ni un transformer entraîné, ni une implémentation numérique
-d’attention softmax, ni un résultat d’autonomie multicycle.
+Le module à un pas ne constitue pas isolément un résultat multicycle, mais sa
+composition dans `TransformerDynamics.lean` puis `GovernedDynamics.lean`
+construit respectivement deux cycles causalement liés et la dynamique gouvernée
+à toute profondeur finie. Elle ne constitue ni un transformer entraîné, ni une
+formalisation des tenseurs flottants de l’attention softmax, ni un résultat sur
+un horizon infini.
 
 Le modèle fini non neuronal précède cette instance. Il ferme les mêmes contrats
 sur un domaine calculable et sert de référence de test hors ligne, jamais de
@@ -522,7 +549,10 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `NeuralRealization.lean` | contrat de fidélité neuronale et audit différé | défini et démontré sur une instance finie |
 | `TransformerRealization.lean` | contrat transformer, attention dure, consommation de la relation proposée et intervention parent–appris | gate finie à un pas démontrée |
 | `TransformerDynamics.lean` | mémoire exacte d’attention, rétroaction uniforme sur deux cycles, ablation intercycle, rupture normative relative et confinement | démontré sur l’instance finie à attention dure |
-| `experiment/protocol_v1.py` | prototype numérique à attention softmax, apprentissage, traces immuables, contrôles et audit différé | run confirmatoire observé sur trois graines préengagées |
+| `FreshProbeCausality.lean` | séparation engagée entre entraînement et sonde, fraîcheur constructive et emploi exact des poids acquis | démontré sur l’instance finie à attention dure |
+| `GovernedDynamics.lean` | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique transformer à profondeur finie arbitraire | démontré constructivement pour tout `n : Nat` |
+| `ExecutableRefinement.lean` | frontière discrète canonique, raffinement exact, chaînage des traces et séparateurs négatifs | démontré constructivement pour tout `n : Nat` |
+| `experiment/protocol_v1.py` | prototype numérique à attention softmax, séparation entraînement/sonde, traces immuables, contrôles et audit différé | source canonique corrigée ; run confirmatoire en attente de son commit de gel |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -544,7 +574,10 @@ machine abstraite
 → modèle de référence fini
 → réalisation neuronale abstraite
 → instance transformer à un pas
-→ autonomie multicycle transformer
+→ dynamique transformer à deux cycles
+→ invariant gouverné à toute profondeur finie
+→ transformations admissibles et transport d’adéquation
+→ raffinement de la frontière discrète exécutable
 → protocole expérimental reproductible
 ```
 
@@ -554,11 +587,15 @@ et une norme indépendants, une paire parent–appris contrôlée, une branche
 rejetée, une succession exacte et deux cycles dont le second dépend réellement
 de l’état produit par le premier.
 
-Le protocole numérique figé vérifie :
+Le protocole numérique exige des sondes de smoke test et confirmatoire fixées,
+toutes deux disjointes de l’ensemble d’entraînement et l’une de l’autre par
+identifiant et par vue autorisée. Un smoke test n’exécute pas la sonde
+confirmatoire. Le protocole vérifie aussi :
 
 - absence de cible interdite dans la vue neuronale ;
 - identité entre prédiction produite et entrée constitutive consommée ;
-- différence de proposition sous intervention parent–appris ;
+- différence de proposition sous intervention parent–appris sur cette même
+  sonde ;
 - consommation du véritable état successeur ;
 - ablation du lien intercycle ;
 - conservation des candidats invalides ;
@@ -590,6 +627,10 @@ Le dépôt démontre actuellement :
   normative, et un arrêt constructif ;
 - un contrat causal à un pas reliant apprentissage, prédiction consommée,
   proposition différente, rejet parent et succession apprise ;
+- un témoin d’acquisition sur sonde fraîche fixée dont le corpus et la sonde
+  sont constructivement disjoints, dont l’engagement interdit la substitution
+  de la sonde et dont les poids acquis sont exactement ceux de la dynamique à
+  profondeur finie ;
 - un modèle de référence fini intégré avec occurrences de même lecture mais de
   formations différentes, mémoire exacte, régime et norme indépendants,
   branches parent et apprise fidèles, action gouvernée, sorties distinctes,
@@ -604,18 +645,38 @@ Le dépôt démontre actuellement :
 - une dynamique transformer finie de deux cycles sous un opérateur uniforme et
   des poids appris fixes, avec rétroaction exacte de la proposition vers la
   relation, mémoire d’attention exacte, ablation intercycle dédiée et rupture
-  normative relative confinée.
+  normative relative confinée ;
+- une dynamique transformer construite pour toute profondeur finie `n : Nat`,
+  dont chaque état porte son histoire de formation et dont chaque proposition
+  devient exactement la relation consommée au cycle suivant ;
+- un invariant gouverné préservé sur tous ces états atteignables, réunissant
+  sans les confondre fidélité, mémoire, adéquation, statut normatif,
+  conservation de l’élaboration et confinement de l’effet ;
+- un contrat de transformation admissible qui sépare apprentissage
+  paramétrique, incorporation, mise à jour mémoire, transport de l’adéquation et
+  transport injectif des actions et certificats ;
+- une frontière exécutable discrète raffinant exactement la trace formelle à
+  toute profondeur, avec rejet constructif d’un candidat réécrit, d’un effet
+  forgé et d’un lien intercycle absent ; les statuts du certificat et de
+  l’effectuation sont indexés par l’action exacte dérivée du candidat et par le
+  contexte constitutif.
 
-Séparément de ces théorèmes, le protocole numérique v1 figé observe sur les
-trois graines préengagées que son paramètre prédictif scalaire entraîné modifie
-la proposition, que la première proposition apprise devient la relation du
-second cycle, que l’ablation intercycle modifie la seconde proposition et que
-l’audit différé laisse chaque trace primaire scellée inchangée. Le résultat JSON
-immuable et son rapport bilingue se trouvent dans `experiment/`.
+Séparément de ces théorèmes, le protocole numérique corrigé a passé un run non
+confirmatoire sur sa sonde dédiée au smoke test. Son ensemble d’entraînement,
+sa sonde de smoke test et sa sonde confirmatoire fixée sont disjoints deux à
+deux, puis la comparaison parent–appris consomme la sonde sélectionnée sans
+substitution. La sonde confirmatoire n’a pas été exécutée. Le JSON
+confirmatoire, les rapports bilingues et le vérificateur en lecture seule
+épinglé par empreintes ne seront produits qu’après le gel du script et de la
+configuration dans un commit.
+Jusque-là, aucune revendication numérique confirmatoire n’est formulée. Lean ne
+lit pas le résultat JSON ; le théorème formel `TraceRefinement` et sa future
+acceptation exécutable restent distincts.
 
 Le dépôt ne démontre pas encore :
 
-- l’autonomie multicycle d’une réalisation transformer entraînée ou non bornée ;
+- une réalisation transformer entraînée à grande échelle ou une trajectoire
+  effectivement infinie ;
 - une réalisation fidèle par un réseau entraîné et ses tenseurs effectifs ;
 - un résultat expérimental sur les hallucinations linguistiques.
 
