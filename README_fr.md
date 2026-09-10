@@ -15,15 +15,6 @@
 > déterminés est compatible avec un statut diagonal construit hors de toute
 > clôture réflexive globale de l'évaluateur.
 
-## Unité théorique
-
-L’unité théorique de ce projet n’est ni une couche particulière ni un résultat
-final, mais la continuité démontrée d’une même détermination à travers plusieurs
-couches distinctes et interdépendantes. Les rôles sont établis avant leurs
-représentations, transportés sans fusion des couches, puis seulement ouverts à
-des lectures indépendantes. Cette organisation impose une interprétation
-globale des résultats locaux.
-
 ## Point d'entrée vérifié par la machine
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est le chemin le plus
@@ -34,44 +25,11 @@ l'injectivité est dérivée de l'accord exact plutôt que supposée. Un deuxiè
 point d'entrée réunit le périmètre canonique, son adéquation opérationnelle et
 normative, puis une continuation à une occurrence qui, comme toute histoire
 générée enracinée, admet une réalisation concrète exacte dans toute algèbre
-fournie et reste extérieure au régime comme à la spécification. Cette même
-continuation instancie l’interface indépendante du contenu
-`ExactOneStepConstitutiveAlignment` : son porteur d’occurrences se décompose
-exactement entre les occurrences antérieures et une occurrence nouvelle,
-tandis que chaque algèbre fournie en donne une réalisation exacte distincte de
-ses porteurs. À ce niveau abstrait, cela n'affirme aucune préservation
-indépendante des étiquettes, de l'ordre ou de la sémantique des pas ; l'instance
-canonique démontre en outre que ses éléments ancien et nouveau induits sont les
-occurrences concrètes natives. Les transports induits préservent les deux
-parties et composent ponctuellement sans raccord pair à pair ajouté
-indépendamment. Un troisième
+fournie et reste extérieure au régime comme à la spécification. Un troisième
 expose l'habitant canonique d'un bus structurel dont les correspondances sont
 mutuellement inverses ; l'interface elle-même n'affirme ni la canonicité ni
 l'unicité de son habitant. Les lectures arbitraires ne sont branchées qu'après
-la constitution de ce bus, indépendamment de leur type de valeurs. Deux
-réalisations concrètes fournies sont coordonnées par les mêmes identités
-périmétrales plutôt que par un raccord pair à pair supplémentaire ; on obtient
-ainsi une co-indexation exacte et un reindexage sans perte des lectures, mais
-aucune compatibilité sémantique automatique entre des valeurs fournies
-indépendamment. Les deux transports sont ponctuellement indépendants de toute
-réalisation intermédiaire.
-
-Le résultat à un pas est aussi itéré sur le producteur réel du Cycle 1 à toute
-profondeur finie. Chaque étape générée ajoute exactement une occurrence
-nouvelle tout en conservant les occurrences antérieures. Le prolongement à
-travers les étapes suivantes commute ponctuellement avec le changement de
-réalisation concrète exacte, et les transports verticaux comme horizontaux sont
-indépendants des étapes intermédiaires. Le prolongement vertical est aussi
-ponctuellement indépendant du témoin proof-relevant `DepthExtension`, y compris
-lorsque sa source et sa cible utilisent deux réalisations fournies distinctes.
-À la profondeur un, les deux directions du transport horizontal, l'identité
-nouvelle réalisée et l'application verticale `old` coïncident ponctuellement
-avec l'interface à un pas antérieure. Les lectures restent en aval : un
-exemple exécutable non constant conserve les valeurs `7` et `11` du périmètre,
-puis les valeurs nouvelles `10`, `20` et `30`, à travers trois étapes dans les
-réalisations libre et journalisée. Ce théorème fini ne formalise pas un
-transformer et n'impose aucun accord entre des lectures fournies
-indépendamment.
+la constitution de ce bus, indépendamment de leur type de valeurs.
 
 ## Architecture
 
@@ -117,11 +75,6 @@ S(H)   := CircularSpecificationSatisfaction P H
 `R(H)` est l'admission par le régime opérationnel. `S(H)` est la satisfaction
 d'une norme définie indépendamment de ce régime.
 
-Dans cette instance du Cycle 1, `R(H)` et `S(H)` sont chacune habitées
-exactement lorsque `H = perimeterDeployment P`. Elles sont donc coextensives
-sur les histoires, bien que leurs types de témoins, leurs définitions et leurs
-chemins de preuve restent distincts.
-
 La preuve construit deux applications entre les types de témoins :
 
 ```text
@@ -145,11 +98,7 @@ est une continuation stricte du déploiement canonique. Il reste localement
 exact, conserve la précédence et l'adjacence canoniques et possède une
 `ExactConcreteRealization A h⁺` pour toute
 `ConcreteContinuationAlgebra P` fournie, comme toute histoire générée
-enracinée. Une fois une telle algèbre fournie, la réalisation exacte est une
-garantie uniforme de préservation, non une condition sélectionnant les
-histoires ; l'obligation située en amont est de construire l'algèbre qui
-satisfait l'interface. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous deux
-constructivement réfutés.
+enracinée. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous deux constructivement réfutés.
 Ces réfutations sont relatives à la `CircularPresentation` fournie, en
 particulier à son champ explicite `rejectInitialContraction`. La réfutation
 normative est directe : elle ne déduit pas l'échec de la norme indépendante du
@@ -253,10 +202,10 @@ directe d'échec de la norme indépendante.
   — protocole réutilisable de construction, séparation, reconstruction et audit.
 - [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —
   représentation exacte, diagonalisation et non-clôture globale.
-- [Alignement constitutif des systèmes transformers](docs/fr/alignement_constitutif_transformers.md)
-  — transposition architecturale de la constitution relationnelle à la mémoire
-  persistante, au raisonnement à horizon long et aux sorties normatives
-  localisées.
+- [Architecture neuronale constitutive pour l’alignement relatif](docs/fr/alignement_constitutif_transformers.md)
+  — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
+  la succession, la réalisation neuronale et une instance transformer finie
+  d’un pas.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
@@ -270,29 +219,9 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   abstrait sur l'occurrence résiduelle.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) définit la
   classification exacte d'un régime et les sorties typées.
-- [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isole les transports
-  exacts constructifs à deux inverses, indépendamment du contenu du Cycle 1.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
-- [`Alignment/Constitutive.lean`](Alignment/Constitutive.lean) définit
-  l'alignement exact à un pas indépendant du contenu, puis dérive la naturalité,
-  la cohérence des chemins et l'unicité ponctuelle relative.
-- [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean)
-  dérive la persistance verticale finie, le transport horizontal entre
-  réalisations et leur carré commutatif depuis un même indice constitutif.
-- [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
-  attache ensuite les lectures finies et prouve la persistance de toute
-  distinction qu'elles établissent déjà.
-- [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
-  construit la persistance canonique à un pas et instancie l'alignement abstrait
-  en maintenant séparés l'admission et le statut relatif à la spécification.
-- [`Cycle1/IteratedConstitutivePersistence.lean`](Cycle1/IteratedConstitutivePersistence.lean)
-  instancie la persistance finie avec les histoires réellement produites par
-  `generate`/`appendGenerated` et leurs occurrences libres et concrètes natives.
-- [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
-  calcule et démontre une lecture non constante à travers trois étapes générées
-  et deux réalisations concrètes distinctes.
 - [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
   fournit une `ConcreteContinuationAlgebra` constructive, observable et non
   identitaire, sans devenir une dépendance du fondement structurel ni de la
@@ -304,6 +233,12 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   couche de représentation.
 - [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du Cycle 2, sans
   déclaration propre.
+- [`ConstitutiveAlignment/`](ConstitutiveAlignment) construit la machine
+  abstraite, la mémoire causale, l’effectuation certifiée, les échecs typés, la
+  succession, la causalité d’apprentissage à un pas, le pont réflexif, le modèle
+  de référence fini et les contrats de réalisation neuronale et transformer.
+- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
+  public de l’architecture constitutive.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 
@@ -322,33 +257,16 @@ Vérifier le manifeste des sources scientifiques sous Linux ou macOS :
 bash scripts/verify-manifest.sh
 ```
 
-Sous Windows, avec PowerShell 7 :
+Sous Windows PowerShell :
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-ou avec Windows PowerShell :
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
-```
-
-`MANIFEST.sha256` couvre les sources Lean publiées et les documents
-scientifiques canoniques qu'il énumère. Les métadonnées du dépôt et les
-documents d'accès, dont les présents README, sont extérieurs à ce manifeste des
-sources scientifiques. Plus précisément, le manifeste ne protège pas par
-empreinte `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, les scripts
-de vérification, le workflow CI, `audit/AUDIT_BUILD.txt`, le manifeste lui-même
-ni les deux README. Leur identité est donc fixée par le commit Git audité, et
-non par `MANIFEST.sha256`.
-
-La compilation épinglée construit les deux bibliothèques Lake et exécute 460
-commandes `#print axioms` portant sur 459 déclarations distinctes ; une
-déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`. Chaque
-rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
-L'environnement exact, les décomptes, les empreintes et les commandes sont
-consignés dans
+La compilation épinglée construit les trois bibliothèques Lake, audite 444
+déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
+dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
+les commandes sont consignés dans
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
 
 ## Portée, licence et citation
@@ -357,11 +275,11 @@ Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
 théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2
 est un argument diagonal sémantique abstrait, non une formalisation de la
 syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
-d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
-n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
-`noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
-toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 459 déclarations distinctes explicitement auditées ne dépend de
+d'incomplétude de Gödel. Les cycles formels et l’architecture constitutive sont
+constructifs et n’emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni
+déclaration `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`.
+Lean génère toutefois des déclarations auxiliaires `.injEq` qui dépendent de
+`propext` ; aucune des 444 déclarations explicitement auditées ne dépend de
 celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis

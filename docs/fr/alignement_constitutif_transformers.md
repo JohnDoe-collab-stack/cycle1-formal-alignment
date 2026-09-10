@@ -1,4 +1,6 @@
-# Alignement constitutif des systèmes transformers
+# Architecture neuronale constitutive pour l’alignement relatif
+
+*Mémoire causale, succession et réalisation par transformer*
 
 [English](../en/constitutive_transformer_alignment.md) | **Français**
 
@@ -9,450 +11,576 @@ Navigation : [synthèse structurelle](fondements_structurels.md) ·
 
 ## 1. Thèse
 
-Une architecture transformer ne devient pas persistante, cohérente à long
-terme ou fiable en ajoutant simplement davantage de contexte, une mémoire
-externe ou un classificateur de sorties. Ces dispositifs opèrent sur des objets
-qu'ils supposent déjà individués. Or le problème premier est de déterminer ce
-qui fait qu'une occurrence demeure la même occurrence à travers sa formation,
-sa transformation, sa compression, sa récupération et son emploi ultérieur.
+Une architecture neuronale constitutive ne reçoit pas ses objets comme des
+unités déjà individuées auxquelles elle ajouterait ensuite mémoire, contrôle et
+évaluation. Elle construit des occurrences dont l’identité dépend de leur
+formation, de leurs rôles relationnels et de leur participation à une histoire.
+Ses supports numériques réalisent ces occurrences ; ils ne les définissent pas
+à eux seuls.
 
-L'hypothèse architecturale développée ici est la suivante :
+L’hypothèse architecturale est :
 
-> **Un système transformer doit constituer ses objets par les relations qui
-> déterminent leur identité, puis démontrer la conservation de cette
-> constitution à travers ses réalisations. La mémoire persistante, le
-> raisonnement à horizon long et la prévention des hallucinations deviennent
-> alors trois conséquences d'une même exigence de fidélité structurelle.**
+> **Une machine neuronale peut conserver une identité, raisonner par succession
+> et localiser une rupture normative si elle transporte fidèlement les relations
+> qui constituent ses occurrences, sépare régime et norme, et rend toute
+> effectuation dépendante d’un certificat portant sur l’action exacte.**
 
-Cette proposition transpose la méthode des rôles constitutifs relationnels.
-Elle ne réduit pas ces rôles à des étiquettes ajoutées aux représentations d'un
-modèle. Une étiquette décrit un objet tenu pour donné ; une relation
-constitutive participe à la détermination de l'objet lui-même. Si cette relation
-est supprimée ou altérée, ce n'est pas seulement une propriété de l'objet qui
-change : le système ne dispose plus du même objet au sens pertinent pour son
-histoire.
+Le transformer intervient comme une réalisation possible du plan neuronal. Il
+n’est ni le principe d’individuation, ni la norme, ni le régime d’admission. La
+mémoire persistante, le raisonnement à horizon long et le diagnostic des
+hallucinations relatives sont trois applications d’une même architecture de
+constitution, de conservation et de sortie.
 
-## 2. Point de départ formel
+Cette thèse ne dépend pas d’une promesse empirique. Le dépôt fournit déjà son
+socle structurel ; les contrats et instances propres à la machine neuronale sont
+le programme constructif défini dans ce document.
 
-Le dépôt établit déjà une chaîne structurelle complète sur une première
-instance :
+## 2. Résultats formels de départ
+
+Le Cycle 1 vérifie en Lean une chaîne où construction, réalisation, régime et
+norme restent distincts :
 
 ```text
 présentation
-  → construction dépendamment typée
-  → occurrences individuées dans une histoire
-  → rôles et accords exacts
-  → réalisation fidèle
-  → régime opérationnel et norme autonome
-  → adéquation exacte
-  → continuation minimale fidèlement réalisable
-  → sortie localisée du régime et de la norme
+→ histoire dépendamment typée
+→ occurrences individuées par leur formation
+→ rôles et accords exacts
+→ réalisation fidèle
+→ régime opérationnel
+→ norme autonome
+→ adéquation exacte sur les mêmes histoires
+→ continuation positive minimale
+→ sortie localisée du régime et de la norme
 ```
 
-Le Cycle 2 transporte l'habitabilité des familles de témoins vers une couche de
-représentation et démontre simultanément :
+Les principaux points d’ancrage sont :
+
+| Fonction | Identifiants Lean |
+| --- | --- |
+| réalisation exacte et rôle résiduel | `ExactInternalRealization`, `FaithfulExtension` |
+| sortie abstraite d’un régime | `RegimeExit`, `UniformRegimeExit` |
+| histoire générée depuis une racine | `RootedGeneratedHistory` |
+| adéquation entre régime et norme | `NormativeAdequacy`, `AdequateAlong` |
+| régime circulaire | `CircularRefinement` |
+| norme circulaire autonome | `CircularSpecificationSatisfaction` |
+| soundness | `circularRefinement_soundSpecification` |
+| complétude | `circularSpecification_complete` |
+| continuation minimale | `oneStepAfterPerimeter` |
+| sortie relative à la norme | `oneStepSpecRelativeHistoryExit` |
+
+`CircularRefinement P H` et `CircularSpecificationSatisfaction P H` sont des
+types de témoins. Le dépôt construit une transformation dans chaque direction.
+Au niveau propositionnel, leur habitabilité est donc équivalente :
+
+```text
+Nonempty (CircularRefinement P H)
+↔
+Nonempty (CircularSpecificationSatisfaction P H)
+```
+
+Cette adéquation n’interdit pas la continuation de la construction.
+`oneStepAfterPerimeter` est formé positivement, possède une réalisation fidèle
+et sort du régime ainsi que de la norme sur la même continuation.
+
+Le Cycle 2 élève ensuite l’adéquation au niveau des statuts représentés :
 
 ```text
 représentation exacte de statuts déterminés
-  + statut diagonal non représentable
-  → absence de clôture réflexive globale
++ statut diagonal extérieur au régime de représentation
+→ absence de clôture réflexive globale
 ```
 
-L'application aux transformers ne consiste donc pas à importer les noms de ces
-structures dans une architecture existante. Elle consiste à construire une
-seconde instance de la méthode, dont le carrier, les occurrences, les rôles,
-les accords et les réalisations appartiennent réellement au domaine des
-systèmes transformers.
+Les identifiants correspondants sont `Represents`,
+`InternallyRepresentable`, `PullbackStatus`, `transportRepresentation`,
+`diagonalStatus_notRepresentable` et `noGlobalReflectiveClosure`.
 
-## 3. L'objet fondamental n'est ni le token ni le vecteur
+## 3. Conséquence architecturale de la non-clôture
 
-Un token isolé est une valeur de vocabulaire. Un vecteur d'activation est un
-élément d'un espace numérique. Aucun des deux ne détermine à lui seul
-l'occurrence dont le système doit conserver l'identité.
+La non-clôture ne retire rien à l’exactitude déjà construite. Elle interdit de
+transformer une représentation exacte de statuts déterminés en prétention à une
+représentation interne totale de tous les statuts de la machine.
 
-La même chaîne de caractères peut apparaître plusieurs fois avec des origines,
-des dépendances et des fonctions différentes. Inversement, une même occurrence
-peut être reformulée, distribuée entre plusieurs vecteurs ou réalisée dans des
-supports différents sans cesser d'être la même occurrence structurelle.
-
-Le carrier pertinent doit donc être une histoire de transformations typées :
-
-```lean
-State   : Type
-Step    : State → State → Type
-History : State → State → Type
-```
-
-Une occurrence n'est pas une valeur extraite après coup de cette histoire. Elle
-est indexée par l'histoire qui l'a formée :
-
-```lean
-Occurrence : {a b : State} → History a b → Type
-```
-
-Cette dépendance conserve au minimum :
-
-- l'étape de formation de l'occurrence ;
-- son état source et son état cible ;
-- sa position structurelle dans la trajectoire ;
-- les occurrences dont sa formation dépend ;
-- les obligations auxquelles elle participe ;
-- les transformations par lesquelles elle a été réalisée.
-
-Deux occurrences textuellement identiques restent alors distinctes lorsque
-leurs formations diffèrent. Deux réalisations matériellement différentes
-peuvent au contraire correspondre exactement à la même exigence constitutive
-si un accord et un transport fidèles sont fournis.
-
-## 4. Rôles constitutifs et accords
-
-Un rôle n'est pas une classe comme `fact`, `memory`, `premise` ou `error`. Il
-exprime une exigence relationnelle dont dépend la participation d'une occurrence
-à la construction considérée.
-
-Dans une trajectoire transformer, les rôles peuvent notamment déterminer :
-
-- quelle transformation a formé l'occurrence ;
-- de quelles occurrences antérieures elle dépend constitutivement ;
-- quelle différence elle introduit dans l'état courant ;
-- quelle provenance elle continue ou transforme ;
-- quelle obligation elle ouvre, conserve ou satisfait ;
-- à quelle composition elle participe effectivement ;
-- quelles occurrences doivent la précéder ou lui être immédiatement adjacentes.
-
-Cette liste n'est pas un schéma d'annotation. Chaque rôle retenu doit être
-accompagné d'un type d'accord établissant qu'une occurrence donnée le réalise
-effectivement. Le modèle du Cycle 1 est :
-
-```lean
-RequirementOccurrenceAgreement
-  (history : History)
-  (requirement : Requirement)
-  (occurrence : Occurrence history) : Type
-```
-
-L'accord doit exposer les données qui rendent la correspondance exacte : états
-source et cible, formation, dépendances, compatibilités, provenance ou autre
-structure propre au domaine. L'identité ne provient donc jamais de la seule
-déclaration que l'occurrence porte le bon rôle.
-
-## 5. Réalisation exacte sans exhaustivité forcée
-
-Pour une famille de rôles exigés par une construction, une réalisation exacte
-doit fournir :
-
-```lean
-realize           : Role → Occurrence history
-realize_injective : Injective realize
-agreement         : ∀ role, Agreement role (realize role)
-```
-
-La couverture va des rôles exigés vers leurs occurrences. Elle ne dit pas que
-toute occurrence produite par le transformer doit déjà recevoir l'un de ces
-rôles. Cette asymétrie est essentielle : la construction peut continuer et
-former de nouvelles occurrences sans que l'exactitude locale antérieure soit
-effacée.
-
-L'injectivité interdit que deux exigences constitutivement distinctes soient
-réalisées par une seule occurrence sous prétexte qu'elles possèdent une
-représentation voisine. L'accord interdit le défaut inverse : deux occurrences
-distinctes ne deviennent pas fidèles du seul fait qu'elles sont séparées dans
-la mémoire.
-
-## 6. Le transformer comme réalisation
-
-Le transformer n'est pas la source de la constitution. Il est une réalisation
-possible d'une histoire déjà spécifiée au niveau structurel.
-
-Il faut par conséquent distinguer trois trajectoires :
+L’architecture recherchée est donc dynamique, relative et localement
+déterminée :
 
 ```text
-histoire constitutive
-  = formation des occurrences et de leurs dépendances
-
-histoire d'exécution
-  = transformations concrètes réalisées par l'architecture
-
-trace de tokens
-  = entrées et sorties discrètes d'une exécution particulière
+un régime déterminé
+↔ une norme autonome sur les mêmes objets
+→ exactitude dans cette portée
++ possibilité d’un statut extérieur
+→ succession ou sortie explicite, jamais clôture globale postulée
 ```
 
-Elles ne sont pas identifiées terme à terme. Une occurrence constitutive peut
-être réalisée par plusieurs tokens et plusieurs états internes ; une même étape
-de génération peut contribuer à plusieurs relations sans constituer à elle
-seule une occurrence complète. La réalisation doit donc associer une occurrence
-à un témoin d'exécution structuré, et non coller son nom sur un token ou un
-vecteur.
+La machine ne se certifie pas globalement. Elle transporte des témoins dans une
+portée déclarée, représente exactement certains statuts, et conserve une sortie
+positive lorsqu’une frontière opérationnelle, normative ou représentationnelle
+est atteinte.
 
-Une réalisation concrète peut employer des tokens, des activations, des états
-d'attention, un cache, une mémoire persistante ou plusieurs supports. Sa
-fidélité ne dépend pas du support choisi, mais des applications et des lois qui
-relient les occurrences libres aux occurrences concrètes :
+Cette conséquence motive l’architecture qui suit. Elle ne remplace pas ses
+contrats : chaque transport, admission, effectuation et succession doit encore
+être construit.
+
+## 4. Machine constitutive abstraite
+
+La machine fondamentale est indépendante de tout choix neuronal :
 
 ```lean
-forward  : FreeOccurrence history → ConcreteOccurrence realization
-backward : ConcreteOccurrence realization → FreeOccurrence history
-
-backward (forward occurrence) = occurrence
-forward (backward concrete)   = concrete
+State : Type
+Step  : State → State → Type
 ```
 
-Lorsque l'implémentation contient davantage de phénomènes concrets que ceux que
-la spécification doit suivre, ces lois peuvent être restreintes à la fibre des
-occurrences constitutivement pertinentes. Ce qui ne peut pas être remplacé est
-la preuve que les occurrences suivies, leurs accords et leurs relations
-nécessaires survivent au transport.
+Une histoire est une composition proof-relevant de pas. Une occurrence est
+indexée par l’histoire qui l’a formée. Elle conserve au minimum :
 
-Une similarité vectorielle, une reconstruction linguistique plausible ou une
-égalité de sortie terminale ne constitue pas cette preuve. Deux exécutions
-peuvent aboutir à la même réponse tout en ayant perdu une dépendance, interverti
-deux occurrences ou substitué une provenance à une autre.
+- son pas de formation ;
+- ses états source et cible ;
+- sa position dans la trajectoire ;
+- ses dépendances constitutives ;
+- sa provenance ;
+- les obligations auxquelles elle participe.
 
-La mémoire, le contexte et les activations sont ainsi des supports de
-réalisation. Ils ne deviennent porteurs de continuité qu'à travers les lois qui
-les relient à l'histoire constitutive.
+La même lecture peut donc correspondre à deux occurrences distinctes lorsque
+leurs formations diffèrent. Inversement, deux supports matériels différents ne
+réalisent une même occurrence que si une correspondance fidèle est construite.
 
-## 7. Quatre couches irréductibles
+Un rôle n’est pas une étiquette telle que `fact`, `memory` ou `error`. Il est
+une exigence relationnelle dont dépend la participation d’une occurrence à la
+construction. Un accord établit qu’une occurrence déterminée réalise
+effectivement ce rôle :
 
-Pour une histoire `H` et une continuation candidate `x`, l'architecture doit
-maintenir quatre familles distinctes :
+```lean
+Agreement
+  (history : History)
+  (role : Role)
+  (occurrence : History.Occurrence history) : Type
+```
+
+Une réalisation exacte d’une famille de rôles fournit une application
+injective vers les occurrences réalisées et un accord pour chaque rôle. Elle
+n’exige pas que toute occurrence future ait déjà un rôle dans la famille
+courante. Cette asymétrie permet la continuation sans effacer l’exactitude
+locale.
+
+## 5. Quatre plans et cinq distinctions
+
+L’architecture sépare quatre plans :
+
+```text
+plan constitutif       formation, occurrences, rôles et histoires
+plan formel-normatif   régime, norme, adéquation et preuves
+plan opérationnel      actions, effets, mémoire et traces consommées
+plan neuronal          activations, paramètres et propositions
+```
+
+Ces plans communiquent par des réalisations et des certificats explicites. Ils
+ne sont pas identifiés.
+
+Pour une histoire `H` et un candidat `x`, cinq familles doivent rester
+distinctes :
 
 ```text
 C(H, x)   construction interne de x
-F_A(H, x) réalisation fidèle de x dans l'implémentation A
-R(H, x)   admission de x par le régime opérationnel
-S(H, x)   satisfaction par x d'une norme autonome
+F(H, x)   réalisation fidèle de x
+R(H, x)   admission de x par le régime
+S(H, x)   satisfaction de la norme autonome
+E(H, x)   effectuation gouvernée de l’action portée par x
 ```
 
-Le générateur transformer produit des témoins de construction. Une réalisation
-concrète fournit des témoins de fidélité. Le régime décide quelles
-continuations sont admises dans une trajectoire donnée. La norme énonce
-indépendamment ce que cette trajectoire doit satisfaire.
+L’alignement relatif est l’adéquation entre `R` et `S` sur les mêmes objets. Il
+n’est ni un score, ni une préférence, ni une comparaison de sorties terminales.
+L’effectuation est encore autre chose : elle détermine ce que le système peut
+faire après admission.
 
-L'alignement relatif n'est ni un score, ni une préférence, ni une concordance
-entre deux sorties. Il est constitué par les transformations de témoins :
+Les séparations structurantes sont :
 
 ```text
-R(H, x) → S(H, x)    soundness
-S(H, x) → R(H, x)    complétude relative
+construction          ≠ réalisation
+réalisation           ≠ admission
+admission             ≠ satisfaction normative
+norme                 ≠ adéquation du régime
+proposition           ≠ incorporation
+apprentissage         ≠ succession constitutive
+composition en trace  ≠ dépendance causale
+causalité à un pas    ≠ autonomie multicycle
+sortie opérationnelle ≠ sortie représentationnelle
 ```
 
-Les deux familles portent sur le même candidat finement individué. Définir la
-norme à partir de la décision du régime rendrait l'adéquation tautologique et
-supprimerait précisément le contrôle recherché.
+## 6. Mémoire relative aux futurs pertinents
 
-## 8. Une origine structurelle commune des trois problèmes
+Une mémoire persistante n’est pas la conservation intégrale d’une histoire, ni
+la disponibilité ultérieure d’un texte similaire. Elle conserve exactement les
+différences nécessaires aux comportements futurs déclarés.
 
-### 8.1 Mémoire persistante
+Une première interface constructive est :
 
-La mémoire persistante est la conservation d'occurrences constituées à travers
-une succession de transformations. Elle n'est pas la simple disponibilité
-ultérieure d'un texte ou d'un contenu similaire.
+```lean
+Question : Type
+Answer   : Question → Type
+behaviour : State → (q : Question) → Answer q
+encode    : State → Memory
+```
 
-Une mémoire est fidèle lorsqu'elle permet de récupérer l'occurrence avec les
-relations qui déterminent son identité dans l'histoire : formation, provenance,
-dépendances et statut relativement aux obligations concernées. Une
-reformulation ou une compression est admissible si elle réalise un transport
-exact de cette structure. Sans ce transport, le système peut restituer une
-information ressemblante tout en ayant perdu l'objet auquel le raisonnement
-ultérieur devait se rapporter.
+Deux états sont équivalents relativement à ces questions lorsque :
 
-### 8.2 Raisonnement à horizon long
+```lean
+FutureEquivalent left right :=
+  ∀ q, behaviour left q = behaviour right q
+```
 
-Un raisonnement long est une composition d'occurrences et d'obligations, pas
-une grande quantité de texte intermédiaire. Sa continuité dépend de la
-conservation de ce qui rend chaque étape participante à la trajectoire : ses
-prémisses effectives, les transformations autorisées, les résultats acquis et
-les obligations encore ouvertes.
-
-L'horizon pertinent est donc structurel plutôt que métrique. Un raisonnement
-peut être long en nombre de tokens tout en étant structurellement rompu très
-tôt ; il peut être fortement comprimé tout en restant intact si les relations
-constitutives nécessaires sont préservées.
-
-### 8.3 Hallucination
-
-Dans ce cadre, l'hallucination n'est pas primitivement un type de phrase ni un
-label attribué à une sortie. Le phénomène pertinent apparaît lorsqu'une
-continuation demeure constructible et concrètement réalisable alors que
-l'accord requis par la norme autonome n'est plus disponible ou est
-constructivement réfuté.
-
-Le système ne doit pas supprimer cette continuation de l'espace de
-construction : cela masquerait le phénomène. Il doit conserver sur le même
-candidat :
+Trois contrats doivent être distingués :
 
 ```text
-témoin de construction
-+ témoin de réalisation fidèle
-+ structure antérieure encore préservée
-+ preuve de la première obligation rompue
+solidité causale
+  même mémoire → mêmes futurs pertinents
+
+complétude relative
+  mêmes futurs pertinents → même mémoire
+
+exactitude relative
+  même mémoire ↔ mêmes futurs pertinents
 ```
 
-L'hallucination devient ainsi un cas possible de sortie structurelle localisée.
-La définition exacte dépend de la norme du domaine ; elle ne se confond ni avec
-la seule inadmission opérationnelle, ni avec toute continuation hors régime.
-
-## 9. Le diagnostic par sortie constitutive
-
-Une architecture capable de continuer doit pouvoir représenter positivement ce
-qui subsiste lorsqu'une frontière est franchie. Le schéma générique est :
-
-```lean
-structure RegimeExit (Faithful Regime : Carrier → Type) where
-  candidate    : Carrier
-  faithful     : Faithful candidate
-  inadmissible : Regime candidate → False
-```
-
-Pour le domaine transformer, ce diagnostic doit être enrichi par la
-continuation de l'histoire et, lorsque la norme le permet, par une réfutation
-normative directe. L'objectif est d'obtenir un premier candidat tel que :
+Une loi de mise à jour relie la transition réelle et la mémoire :
 
 ```text
-il est formé par le système ;
-il est strictement postérieur à une trajectoire admise ;
-les occurrences antérieures restent exactement réalisées ;
-la nouvelle occurrence reste concrètement réalisable ;
-une obligation constitutive précise cesse d'être satisfaite ;
-le régime et la norme rejettent cette continuation pour des raisons explicites.
+encode (advance state) = update (encode state)
 ```
 
-Ce témoin constituerait l'analogue transformer de
-`oneStepAfterPerimeter`. Il fournirait un diagnostic local sans nier que le
-système a effectivement produit une continuation.
+La famille de questions est explicite et extensible. Une fusion sûre dans une
+famille présente ne devient pas automatiquement sûre sous toute question
+future. L’architecture ne revendique donc ni mémoire universelle ni compression
+irréversible sans contrat de stabilité supplémentaire.
 
-## 10. Une architecture dynamique et non close
+## 7. Admission et effectuation normatives
 
-Le Cycle 2 interdit de conclure de la représentation exacte de certains statuts
-à la représentabilité interne de tous les statuts possibles. Pour un évaluateur
+Une action est définie avant son effet par sa nature, sa cible, ses paramètres,
+son contexte constitutif, sa portée et l’effecteur demandé. Un certificat
+d’autorisation est indexé par cette action exacte et ce contexte exact.
 
-```lean
-eval : Code → Code → Prop
+L’interface d’effectuation impose :
+
+```text
+effectuation(action, context)
+→ admission(action, context)
 ```
 
-le statut
+Sous une adéquation normative démontrée :
 
-```lean
-diagonalStatus eval code := ¬ eval code code
+```text
+effectuation
+→ admission par le régime
+→ satisfaction de la norme autonome
 ```
 
-n'est représenté exactement par aucune ligne de cet évaluateur. Cette
-non-clôture ne détruit pas l'exactitude des statuts particuliers déjà
-représentés.
+Le certificat ne corrige pas le candidat. Il ne peut pas être transféré à une
+autre cible, à une action modifiée ou à un autre contexte. Une voie d’effet qui
+contourne cette interface invalide la garantie.
 
-Transposée architecturalement, cette conclusion écarte le projet d'un
-transformer qui contiendrait une représentation totale et finale de la validité
-de toutes ses propres constructions. Le système doit être dynamique, relatif
-à des normes et des régimes déterminés, et capable de continuer en produisant
-des sorties explicites lorsque ses frontières internes sont atteintes.
+Trois diagnostics restent séparés :
 
-La réflexivité utile n'est donc pas une auto-certification globale. Elle est la
-représentation exacte de statuts déterminés, accompagnée d'une architecture qui
-reconnaît constitutivement sa non-clôture.
+```text
+FormationFailure   le candidat ne peut être élaboré
+RegimeExit         le candidat fidèle sort du régime
+NormativeFailure   le candidat formé et réalisé est réfuté par la norme
+```
 
-## 11. Programme formel
+Le diagnostic conserve le candidat et sa trace. Le confinement empêche un effet
+gouverné lorsque le certificat normatif requis ne peut être construit ; il ne
+prétend pas empêcher la formation interne du candidat.
 
-La seconde instance doit être développée dans l'ordre suivant.
+## 8. Causalité constitutive de l’apprentissage à un pas
 
-### 11.1 Présentation transformer
+La cible n’est pas de placer apprentissage, prédiction et proposition dans une
+même trace. Leur proximité chronologique ne démontre aucune dépendance causale.
 
-Définir les états et les règles de formation sans inscrire dans ces règles le
-régime ou la norme qui seront étudiés ensuite.
+Le contrat requis est :
 
-### 11.2 Occurrences dépendantes
+```text
+état prédictif parent
+→ apprentissage effectif
+→ état prédictif appris
+→ prédiction apprise différente
+→ prédiction consommée comme entrée constitutive
+→ proposition constitutive différente
+→ succession exacte
+```
 
-Construire un type d'occurrences indexé par les histoires, capable de distinguer
-les répétitions textuelles et de conserver leur formation.
+Il est vérifié par une paire de parcours contrôlés. Les deux parcours partagent :
 
-### 11.3 Rôles et accords constitutifs
+- le même problème prédictif ;
+- le même état constitutif ;
+- le même producteur de proposition ;
+- les mêmes paramètres de ce producteur ;
+- le même aléa ;
+- le même budget et les mêmes vues autorisées.
 
-Définir un noyau minimal de rôles relationnels, puis tester sur des carriers
-affaiblis quelles relations sont primitives et lesquelles sont reconstructibles.
+La seule variation initiale est l’état prédictif parent ou appris. Le témoin
+doit ensuite établir :
 
-### 11.4 Réalisation abstraite et concrète
+1. que les prédictions diffèrent ;
+2. que chaque prédiction est littéralement l’entrée constitutive consommée ;
+3. que les propositions diffèrent ;
+4. que la branche parent est rejetée pour un motif fixé ;
+5. que la branche apprise construit la succession exacte ;
+6. que le cas comparé a été choisi avant l’observation des résultats.
 
-Établir d'abord une interface indépendante de l'architecture numérique, puis
-montrer comment une exécution transformer réalise exactement les occurrences
-et leurs accords.
+Cette chaîne respecte la distinction entre apprentissage et succession : le
+premier cause une prédiction qui participe à la proposition suivante ; il ne se
+confond pas avec l’incorporation ni avec le régime successeur.
 
-### 11.5 Composition des transports
+Le résultat à un pas est une condition nécessaire de la machine recherchée. Il
+ne démontre pas encore l’autonomie multicycle.
 
-Prouver que les transports successifs utilisés par l'attention, la compression,
-la récupération et la réinjection conservent la fidélité. La composition doit
-conserver les témoins, pas seulement une mesure terminale.
+## 9. Succession constitutive et horizon long
 
-### 11.6 Régime, norme et adéquation
+Trois transitions sont formalisées séparément :
 
-Définir les deux familles indépendamment et établir les applications de
-soundness et de complétude sur un domaine déterminé.
+```text
+apprentissage paramétrique : paramètres → paramètres
+incorporation constitutive : état → état étendu
+succession normative       : régime → régime successeur
+```
 
-### 11.7 Sortie minimale
+Un cycle construit un candidat, sa réalisation, son diagnostic, une conséquence
+autorisée, une incorporation éventuelle, l’état successeur et le régime
+successeur. L’état successeur n’est jamais une donnée libre fournie après le
+candidat.
 
-Construire une continuation minimale qui préserve les témoins positifs tout en
-localisant exactement la première rupture constitutive.
+L’itération exige un opérateur uniforme :
 
-### 11.8 Couche réflexive
+```text
+cycle n
+→ état effectivement produit
+→ reconfiguration du problème suivant
+→ cycle n + 1 consommant cet état exact
+```
 
-Transporter l'habitabilité des statuts adéquats vers une représentation interne
-et intégrer la non-clôture diagonale sans l'assimiler à la sortie
-opérationnelle.
+Deux reconstructions indépendantes, deux problèmes préparés séparément ou un
+catalogue par profondeur ne constituent pas une itération. Pour établir le lien
+intercycle, une ablation de l’état incorporé doit détruire ou modifier la
+transition suivante conformément à une propriété préengagée.
 
-## 12. Critère d'une première implémentation
+`ReferenceModel.lean` ferme ces obligations dans une seule instance finie
+intégrée. Les mêmes candidats et états raccordent les histoires pertinentes
+pour les preuves, le régime et la norme définis indépendamment, la réalisation
+fidèle, la mémoire exacte, l’action gouvernée, l’échec de formation, la paire
+parent–appris contrôlée, les sorties opérationnelle et normative et la
+non-clôture réflexive. Le candidat appris est exactement le candidat admis et
+effectué ; le candidat parent est exactement la continuation fidèle rejetée par
+le régime, la norme et l’effectuation gouvernée. Le modèle construit aussi deux
+cycles avec le même opérateur et démontre que le second consomme la sortie du
+premier après que la première mise à jour mémoire a reconfiguré son entrée.
 
-Une première implémentation n'a pas pour fonction de découvrir empiriquement le
-cadre. Elle doit réaliser une interface déjà définie et rendre auditables ses
-obligations.
+L’horizon est ainsi structurel. Il mesure une composition conservée
+d’occurrences, de dépendances et d’obligations, non un nombre de tokens. Une
+séquence textuellement longue peut être structurellement rompue tôt ; une
+séquence comprimée peut rester fidèle si les relations nécessaires sont
+transportées.
 
-Elle est suffisante si elle permet :
+L’autonomie multicycle neuronale n’est pas encore démontrée dans ce dépôt. Elle
+reste une obligation explicite du programme formel et expérimental.
 
-1. de former une histoire de transformations ;
-2. d'individuer chaque occurrence par sa formation ;
-3. d'associer les rôles par des accords vérifiables plutôt que par des labels ;
-4. de transporter les occurrences à travers au moins une réduction de
-   représentation ;
-5. de reconstruire les relations constitutives après ce transport ;
-6. de distinguer construction, fidélité, régime et norme ;
-7. de produire un candidat de sortie conservant ses témoins positifs ;
-8. de localiser la première obligation rompue.
+## 10. Réalisation neuronale
 
-Le cas initial doit posséder une norme décidée avec suffisamment de précision
-pour que les transformations de témoins soient constructibles. L'extension à
-des normes ouvertes vient après cette instance exacte, et non à sa place.
+Le plan neuronal reçoit une vue autorisée de l’état. Cette vue exclut les
+preuves, verdicts futurs, cibles exactes et sorties d’audit qui permettraient de
+fabriquer le résultat attendu.
 
-## 13. Contribution visée
+La chaîne de réalisation est :
 
-La contribution n'est pas une nouvelle variante de mémoire, de récupération ou
-de vérification ajoutée à un modèle. Elle est une architecture de constitution
-et de conservation dans laquelle :
+```text
+état latent
+→ proposition discrète
+→ élaboration totale
+→ candidat accepté ou première erreur localisée
+```
 
-- les objets sont individués par leur formation et leurs relations ;
-- les représentations sont des réalisations soumises à des lois de fidélité ;
-- la persistance signifie conservation de l'identité constitutive ;
-- le raisonnement signifie composition conservée d'occurrences et
-  d'obligations ;
-- la rupture normative est localisée sans effacement de la construction ;
-- l'exactitude locale demeure compatible avec la non-clôture réflexive globale.
+L’élaboration ne répare jamais la proposition. Les candidats invalides restent
+représentables et auditables.
 
-Le résultat attendu est un système qui ne prétend pas rendre impossible toute
-continuation hors norme. Il rend structurellement explicite ce qui est formé,
-ce qui est conservé, ce qui est admis, ce qui satisfait la norme et le point
-exact où ces dimensions cessent de coïncider.
+Une réalisation fidèle relie les occurrences constitutives aux objets
+opérationnels effectivement consommés. Une similarité vectorielle, une réponse
+finale correcte ou une reconstruction linguistique plausible ne suffit pas.
+Les relations nécessaires doivent participer au calcul futur ; une structure
+seulement journalisée n’est pas une réalisation causale.
 
-## 14. Statut du document
+La trace primaire lie :
 
-Le dépôt actuel vérifie en Lean le noyau structurel, l'instance circulaire de
-l'alignement relatif et le résultat de non-clôture réflexive. Le présent texte
-détermine la transposition architecturale de ce cadre aux systèmes
-transformers. Les déclarations propres à cette seconde instance devront être
-ajoutées comme nouveaux objets Lean avant d'être présentées comme théorèmes sur
-les transformers.
+```text
+état appris
+→ prédiction neuronale
+→ entrée constitutive consommée
+→ proposition discrète
+→ candidat élaboré
+```
+
+Elle est scellée avant l’audit. L’auditeur vérifie après coup et ne choisit, ne
+corrige, ne relance ni ne supprime aucune étape.
+
+## 11. Réalisation par transformer
+
+Le transformer est une instance du plan neuronal. Il peut proposer et
+transporter des occurrences, dépendances, rôles, références de mémoire, actions
+et prédictions de conséquences. Ses logits ne définissent ni l’identité, ni la
+norme, ni l’admission.
+
+Une première instance explicite :
+
+- les tokens d’entrée ;
+- les activations et paramètres ;
+- l’état récurrent ou le cache ;
+- la mémoire adressable ;
+- la proposition discrète ;
+- la trace de consommation ;
+- la relation avec les occurrences formelles.
+
+La paire causale parent–appris maintient invariant tout le contexte constitutif
+et ne remplace que l’état prédictif. Elle doit produire deux prédictions et deux
+propositions distinctes, puis le rejet précis de la branche parent et la
+succession exacte de la branche apprise.
+
+Les adresses techniques peuvent retrouver les occurrences, mais elles ne sont
+pas leur identité. La computation doit rester équivariante sous renommage
+cohérent des adresses.
+
+Le modèle fini non neuronal précède cette instance. Il ferme les mêmes contrats
+sur un domaine calculable et sert de référence de test hors ligne, jamais de
+correcteur sur la voie causale du transformer.
+
+## 12. Mémoire, rupture normative et hallucination relative
+
+La mémoire persistante est démontrée dans une portée lorsque deux états fusionnés
+par la mémoire sont indistinguables sous toutes les questions déclarées. Une
+compression sans ce certificat reste une hypothèse d’implémentation.
+
+Une hallucination relative peut être définie comme un candidat construit et
+fidèlement réalisé dont la norme autonome est réfutée. Cette définition est
+relative à la norme explicitement choisie. Elle ne transforme ni toute sortie
+de régime ni toute erreur linguistique en hallucination.
+
+Le témoin recherché conserve sur le même candidat :
+
+```text
+formation positive
++ réalisation fidèle
++ structure antérieure préservée
++ première obligation normative réfutée
++ impossibilité de l’effet gouverné correspondant
+```
+
+Le système localise ainsi la rupture sans nier que la construction a continué.
+La continuation rejetée reste disponible pour l’audit, tandis que l’effectuation
+soumise au certificat est confinée.
+
+## 13. Programme formel
+
+Les nouveaux modules sont ordonnés par dépendance :
+
+| Module | Obligation principale | Statut actuel |
+| --- | --- | --- |
+| `Machine.lean` | interface constitutive raccordée aux histoires du Cycle 1 | démontré |
+| `CausalMemory.lean` | exactitude relative aux futurs déclarés et loi de mise à jour | démontré, avec séparateurs finis |
+| `NormativeExecution.lean` | action, certificat et effectuation gouvernée | démontré, avec voie non médiée séparée |
+| `NormativeFailure.lean` | diagnostics distincts sans dépendance neuronale | démontré |
+| `Succession.lean` | itération uniforme, raccord normatif et arrêt explicite | démontré au niveau générique et fini |
+| `LearningCausality.lean` | apprentissage causant la proposition suivante à un pas | démontré sur le contrat et une instance finie |
+| `ReflectiveMachine.lean` | instance machine de la représentation exacte et de la non-clôture | démontré |
+| `ReferenceModel.lean` | certificat fini intégré, des histoires et de l’adéquation jusqu’à la succession causale, l’action gouvernée, les cycles liés et la sortie réflexive | démontré |
+| `NeuralRealization.lean` | contrat de fidélité neuronale et audit différé | défini et démontré sur une instance finie |
+| `TransformerRealization.lean` | contrat transformer et intervention parent–appris | démontré sur une instance finie d’un pas ; multicycle ouvert |
+
+La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
+fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
+nouveaux modules construisent des ponts et ne redéfinissent pas leurs résultats.
+
+Chaque fichier Lean nouveau ou modifié doit rester constructif, sans `axiom`,
+`sorry`, `Classical`, `propext` ni `Quot.sound`, et terminer par un bloc unique
+`AXIOM_AUDIT`.
+
+## 14. Ordre d’implémentation et gates
+
+L’ordre de fermeture est :
+
+```text
+machine abstraite
+→ mémoire et effectuation
+→ succession et contrat causal générique
+→ couche réflexive
+→ modèle de référence fini
+→ réalisation neuronale abstraite
+→ instance transformer à un pas
+→ autonomie multicycle transformer
+→ protocole expérimental reproductible
+```
+
+Le modèle fini doit comprendre deux occurrences de même lecture mais de
+formations différentes, une mémoire qui les sépare par leurs futurs, un régime
+et une norme indépendants, une paire parent–appris contrôlée, une branche
+rejetée, une succession exacte et deux cycles dont le second dépend réellement
+de l’état produit par le premier.
+
+Le protocole neuronal doit ensuite vérifier au minimum :
+
+- absence de cible interdite dans la vue neuronale ;
+- identité entre prédiction produite et entrée constitutive consommée ;
+- différence de proposition sous intervention parent–appris ;
+- consommation du véritable état successeur ;
+- ablation du lien intercycle ;
+- conservation des candidats invalides ;
+- trace immuable et audit causalement silencieux ;
+- contrôles, graines et critères fixés avant les runs confirmatoires.
+
+Une gate échouée reste un résultat localisé. Elle ne peut être contournée par un
+changement silencieux de protocole ou par une revendication plus faible laissée
+implicite.
+
+## 15. Statut exact
+
+Le dépôt démontre actuellement :
+
+- le noyau structurel dépendamment typé ;
+- la sortie opérationnelle abstraite et concrète ;
+- l’adéquation exacte du régime circulaire et de sa norme autonome ;
+- la continuation minimale fidèlement réalisable qui sort des deux ;
+- la représentation exacte de statuts déterminés ;
+- le statut diagonal non représentable et la non-clôture réflexive globale ;
+- une mémoire exacte relativement à des futurs déclarés, sa non-fusion et une
+  loi autonome de mise à jour sur des modèles finis ;
+- l’impossibilité de l’effectuation gouvernée sans certificat exact et le
+  passage `effectuation → admission → norme` ;
+- la séparation typée des échecs de formation, sorties de régime et ruptures
+  normatives ;
+- une itération uniforme consommant l’état réellement produit, la conservation
+  d’obligations, un raccord explicite entre incorporation et succession
+  normative, et un arrêt constructif ;
+- un contrat causal à un pas reliant apprentissage, prédiction consommée,
+  proposition différente, rejet parent et succession apprise ;
+- un modèle de référence fini intégré avec occurrences de même lecture mais de
+  formations différentes, mémoire exacte, régime et norme indépendants,
+  branches parent et apprise fidèles, action gouvernée, sorties distinctes,
+  cycles liés et statut représenté avec diagonale extérieure ;
+- une interface neuronale à quatre plans, une élaboration sans réparation, une
+  fidélité sur la trajectoire et un audit différé causalement silencieux ;
+- une interface de réalisation transformer et une instance finie d’un pas où
+  la relation est active, le contrôle sans relation est inerte et le renommage
+  cohérent des adresses mémoire conserve la prédiction.
+
+Le dépôt ne démontre pas encore :
+
+- l’autonomie multicycle d’une réalisation transformer ;
+- une réalisation fidèle par un réseau entraîné et ses tenseurs effectifs ;
+- un prototype expérimental reproductible satisfaisant toutes les gates ;
+- un résultat expérimental sur les hallucinations linguistiques.
+
+Ces éléments restent des obligations ordonnées, pas des conclusions
+anticipées. La frontière entre théorèmes Lean, contrats, implémentations et
+observations demeure explicite.
 
 ## Conception
 
 > **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> responsable du projet déclare être à l’origine de l’essentiel des idées et de
 > la direction de recherche du projet. Ce document a été écrit de A à Z par des
-> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
-> d'interactions successives. Voir la
+> modèles de la série ChatGPT d’OpenAI, sous direction humaine et au cours
+> d’interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
