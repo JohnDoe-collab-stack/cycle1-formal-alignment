@@ -183,6 +183,8 @@ failure of the independent norm.
   succession, neural realization, and a finite hard-attention transformer
   instance with exact two-cycle feedback and normative confinement.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
+- [Finite experimental protocol](experiment/README.md) — frozen numerical
+  protocol, controls, traces, and deferred-audit procedure.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 
@@ -209,6 +211,8 @@ French counterparts are linked from the top of every scientific document.
   transformer realization contracts and finite transformer dynamics.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
+- [`experiment/`](experiment) contains the versioned numerical protocol; its
+  observations remain separate from the Lean theorems.
 
 No Cycle 1 module imports Cycle 2.
 

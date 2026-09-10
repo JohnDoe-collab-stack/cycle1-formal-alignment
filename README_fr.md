@@ -188,6 +188,8 @@ directe d'échec de la norme indépendante.
   normatif.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
+- [Protocole expérimental fini](experiment/README.md) — protocole numérique
+  figé, contrôles, traces et procédure d’audit différé.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 
@@ -216,6 +218,8 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   dynamique transformer finie.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
+- [`experiment/`](experiment) contient le protocole numérique versionné ; ses
+  observations restent séparées des théorèmes Lean.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 
