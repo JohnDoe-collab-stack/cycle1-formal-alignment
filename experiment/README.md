@@ -1,5 +1,7 @@
 # Finite constitutive-transformer experiment
 
+**English** | [Français](README_fr.md)
+
 This directory contains the first numerical prototype corresponding to Gate K.
 The protocol keeps the neural producer, exact constitutive runtime, governed
 effector, immutable primary journal, and deferred auditor separate.
@@ -29,6 +31,19 @@ The program refuses to overwrite an existing result. Every result records the
 script, configuration, and data hashes; all primary traces are sealed before
 the deferred audit. The report separates facts, interpretation, and limits.
 
+The immutable reference run and its human-readable report are available as
+[`results/confirmatory_v1.json`](results/confirmatory_v1.json) and
+[`RESULTS_v1.md`](RESULTS_v1.md).
+
 This finite experiment is not a proof of general transformer alignment,
 unbounded-horizon autonomy, production-scale training, or natural-language
 hallucination reduction.
+
+## Authorship
+
+> **Intellectual-design and AI-generation disclosure.** The project lead
+> states that the essential ideas and the research direction of this project
+> are their own. This document and the experimental implementation were written
+> from A to Z by models in OpenAI's ChatGPT series, under human direction and
+> through successive interactions. See the
+> [full bilingual disclosure](../AI_AUTHORSHIP.md).
