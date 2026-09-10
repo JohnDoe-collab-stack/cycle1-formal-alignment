@@ -13,13 +13,21 @@ scientifiques stabilisées devront être transférées dans les documents
 canoniques et dans les types Lean correspondants ; l’historique de travail ne
 doit pas devenir une dépendance du résultat.
 
-Point de départ contrôlé :
+État de reprise contrôlé :
 
 - branche de travail : `codex/constitutive-transformer` ;
-- les deux documents transformer actuels sont des brouillons remplaçables ;
-- les modifications en cours des README et du manifeste doivent être conservées
-  jusqu’à leur réconciliation au lot A, sans commit intermédiaire du plan ;
-- aucun nouveau module Lean ne sera ajouté avant fermeture documentaire du lot A.
+- état formel et expérimental de référence : commit `a7778ed` ;
+- les lots A à K ont produit un noyau fini compilé, une réalisation transformer
+  à deux cycles liés et un protocole confirmatoire v1 reproductible ;
+- l’itération uniforme sur une profondeur naturelle et la conservation d’une
+  obligation sous itération sont déjà génériques dans `Succession.lean` ;
+- la suite ne doit ni reconstruire ces acquis ni présenter les deux cycles finis
+  comme une preuve déjà instanciée à toute profondeur ;
+- les documents canoniques actuels sont
+  `docs/fr/alignement_constitutif_transformers.md` et
+  `docs/en/constitutive_transformer_alignment.md` ;
+- toute extension doit préserver le résultat confirmatoire v1 sans modifier son
+  script, sa configuration ou son fichier de résultats.
 
 ## 1. Objectif final
 
@@ -38,8 +46,14 @@ autonome de la machine neuronale constitutive qui :
 7. localise constructivement les ruptures de fidélité, d’admission et de norme ;
 8. conserve l’exactitude locale tout en respectant la non-clôture réflexive ;
 9. possède une petite instance exécutable et falsifiable ;
-10. prépare une expérimentation neuronale sans oracle, réparation cachée ou
-    audit causalement actif.
+10. possède une expérimentation neuronale sans oracle, réparation cachée ou
+    audit causalement actif ;
+11. instancie, pour toute profondeur finie, la dynamique transformer uniforme
+    déjà disponible abstraitement ;
+12. conserve un invariant gouverné sur tous les états atteignables, en séparant
+    les mises à jour de paramètres, de mémoire, de régime et de norme ;
+13. établit une frontière de raffinement explicite entre la trace exécutable et
+    les objets formels, sans transformer une observation numérique en preuve.
 
 Le résultat final doit être compréhensible, compilable et vérifiable depuis ce
 dépôt seul.
@@ -80,6 +94,36 @@ Chaque énoncé du futur document devra recevoir exactement l’un des statuts :
 
 Aucune formulation ne doit convertir un résultat spécifié, implémenté ou
 observé en théorème.
+
+### 2.3 État de fermeture à la reprise
+
+La table suivante est l’autorité de pilotage pour la suite. Le futur employé
+dans les lots A à K enregistre leurs obligations initiales ; il ne signifie pas
+qu’elles sont encore toutes ouvertes.
+
+| Lot | État au commit de référence | Portée exacte |
+| --- | --- | --- |
+| A | fermé | documents français et anglais stabilisés et raccordés aux identifiants Lean |
+| B | fermé | machine constitutive abstraite et ponts avec le Cycle 1 |
+| C | fermé dans la portée déclarée | mémoire exacte relative à une famille explicite de futurs et mise à jour autonome finie |
+| D | fermé | admission, norme autonome, certificat indexé et effectuation gouvernée |
+| E | fermé au niveau générique | itération uniforme sur `Nat`, histoire produite et conservation d’une obligation sous itération |
+| F | fermé | transport représentationnel et non-clôture réflexive distincte de la sortie opérationnelle |
+| G | fermé | modèle de référence fini, causalité parent–appris et deux cycles liés |
+| H | fermé | contrat neuronal, vue autorisée, trajectoire fidèle et audit différé |
+| I | fermé dans l’instance finie | transformer booléen à attention dure, intervention, contrôle inerte et renommage |
+| J | fermé pour deux cycles | lien intercycle, ablation, mémoire d’attention, hallucination relative et confinement |
+| K | fermé pour le protocole v1 | prototype NumPy, protocole figé, trois graines et résultat confirmatoire immuable |
+
+Quatre obligations forment désormais le chemin critique :
+
+1. instancier à profondeur finie arbitraire la dynamique transformer, et non la
+   seule transition abstraite ;
+2. agréger mémoire, adéquation et effectuation dans un invariant préservé sur
+   tous les états atteignables ;
+3. définir les transformations admissibles de la machine et transporter
+   explicitement l’adéquation ;
+4. raffiner la frontière exécutable vers le noyau formel.
 
 ## 3. Invariants non négociables
 
@@ -300,11 +344,17 @@ modèle fini : témoin causal à un pas et deux cycles liés
         ↓
 réalisation neuronale abstraite
         ↓
-réalisation transformer : témoin causal à un pas
+réalisation transformer finie : causalité et deux cycles liés
         ↓
-autonomie multicycle transformer à construire
+itération transformer à profondeur finie arbitraire
         ↓
-diagnostics : mémoire, horizon long, rupture normative
+invariant gouverné sur les états atteignables
+        ↓
+transformations admissibles et transport de l’adéquation
+        ↓
+raffinement de la frontière exécutable
+        ↓
+diagnostics conservés : mémoire, horizon, rupture normative
 ```
 
 Le noyau existant ne sera pas réécrit pour s’adapter à l’application. Les
@@ -325,11 +375,14 @@ ConstitutiveAlignment/
   ReferenceModel.lean
   NeuralRealization.lean
   TransformerRealization.lean
+  TransformerDynamics.lean
+  GovernedDynamics.lean       -- extension prévue
+  ExecutableRefinement.lean   -- extension prévue
 ```
 
-La façade `ConstitutiveAlignment.lean` importera les modules dans leur ordre de
-dépendance. Une nouvelle bibliothèque Lean ne sera ajoutée à `lakefile.toml`
-qu’après compilation indépendante des premiers modules.
+La façade `ConstitutiveAlignment.lean` importe les modules présents dans leur
+ordre de dépendance. Les extensions prévues ne lui seront ajoutées, ainsi qu’à
+`lakefile.toml`, qu’après leur compilation indépendante.
 
 ### 6.1 Colonne vertébrale existante
 
@@ -407,7 +460,20 @@ LearningCausality + ReflectiveMachine + NormativeFailure
                                      ↓
                             TransformerRealization
 
-ReferenceModel + TransformerRealization
+ReferenceModel + TransformerRealization + Succession
+                ↓
+                            TransformerDynamics
+
+TransformerDynamics + NormativeExecution + CausalMemory
+                ↓
+                            GovernedDynamics
+
+GovernedDynamics + NeuralRealization
+                ↓
+                            ExecutableRefinement
+
+ReferenceModel + TransformerDynamics + GovernedDynamics
+               + ExecutableRefinement
                 ↓
       ConstitutiveAlignment
 ```
@@ -448,7 +514,20 @@ fixes :
     produit une proposition constitutive différente et une succession exacte ;
 11. fermer, sur le modèle de référence fini, au moins une chaîne complète allant
     d’une occurrence du Cycle 1 à son transport opérationnel, son admission et
-    son diagnostic final.
+    son diagnostic final ;
+12. instancier `iterateState`, `iterateHistory` et
+    `preservesAlongIteration` avec l’opérateur transformer, pour toute profondeur
+    `n : Nat`, sans catalogue de cycles ;
+13. définir une famille proof-relevant d’états atteignables et montrer qu’un
+    invariant réunissant mémoire, adéquation, fidélité de la trace et
+    effectuation certifiée est préservé à chaque transition puis à toute
+    profondeur finie ;
+14. définir une transformation admissible entre deux machines indexées, avec
+    transports explicites du régime, de la norme, de la mémoire et des
+    certificats, puis construire l’adéquation cible depuis l’adéquation source ;
+15. définir la relation de raffinement entre une trace exécutable scellée et la
+    trace formelle effectivement consommée, sans demander au producteur neuronal
+    de fabriquer un témoin Lean.
 
 Un théorème de pont ne doit pas être un simple renommage d’un champ supposé. Il
 doit soit construire le témoin cible, soit composer explicitement des témoins
@@ -462,14 +541,17 @@ déjà construits.
 | sortie opérationnelle relative | Cycle 1 | déjà démontrée, puis projetée |
 | adéquation exacte régime–norme | Cycle 1 | définie génériquement et démontrée sur l’instance circulaire ; exigée ailleurs comme contrat explicite |
 | exactitude déterminée sans clôture globale | Cycle 2 | déjà démontrée, puis instanciée pour la machine |
-| mémoire relative aux futurs | nouveau module | à définir et démontrer dans la portée déclarée |
-| effectuation gouvernée | nouveau module | à définir et démontrer sous certificat et adéquation |
-| succession constitutive | nouveau module | à définir et démontrer pour l’itération construite |
-| apprentissage causant la proposition suivante | nouveau module | contrat générique au lot E, témoin fini au lot G, instance transformer au lot I |
-| autonomie multicycle | nouveau module et protocole | témoin formel fini au lot G ; instance transformer ouverte tant que le lot J n’est pas fermé |
-| réalisation neuronale fidèle | nouveau module | contrat formel, puis instance à construire |
-| réalisation transformer | nouvelle instance | à implémenter et tester ; aucune garantie automatique issue du Cycle 1 |
-| comportement empirique | protocole | à observer, jamais promu automatiquement en théorème |
+| mémoire relative aux futurs | `CausalMemory.lean` | démontrée dans la portée déclarée et instanciée sur les modèles finis |
+| effectuation gouvernée | `NormativeExecution.lean` | démontrée sous certificat et adéquation, puis instanciée |
+| succession constitutive | `Succession.lean` | itération uniforme et conservation générique démontrées pour tout `n : Nat` |
+| apprentissage causant la proposition suivante | lots E, G et I | contrat générique et instances finies démontrés |
+| autonomie multicycle finie | lots G et J | deux cycles transformer causalement liés démontrés ; profondeur arbitraire encore ouverte |
+| réalisation neuronale fidèle | `NeuralRealization.lean` | contrat formel et instance finie construits |
+| réalisation transformer | `TransformerRealization.lean` et `TransformerDynamics.lean` | instance finie construite et testée ; aucune garantie automatique issue du Cycle 1 |
+| invariant gouverné atteignable | extension `GovernedDynamics.lean` | ouvert : composer les garanties déjà séparées puis les préserver par itération |
+| transformation admissible | extension `GovernedDynamics.lean` | ouvert : transporter explicitement mémoire, régime, norme, certificats et adéquation |
+| raffinement exécutable–formel | extension `ExecutableRefinement.lean` et protocole | ouvert : relier les traces discrètes ; les calculs flottants restent observés |
+| comportement empirique | protocole v1 | observé et figé ; jamais promu automatiquement en théorème |
 
 Cette table doit être reprise dans les deux documents canoniques. Elle empêche à
 la fois de détacher l’application du Cycle 1 et d’attribuer au Cycle 1 des
@@ -519,7 +601,8 @@ Ordre requis :
 5. mémoire relative aux futurs ;
 6. succession constitutive ;
 7. causalité de l’apprentissage vers la proposition suivante à un pas ;
-8. autonomie multicycle explicitement maintenue comme obligation ouverte ;
+8. itération générique déjà démontrée, instance transformer à deux cycles et
+   généralisation transformer maintenue comme obligation ouverte ;
 9. réalisation neuronale ;
 10. instance transformer ;
 11. rupture normative et hallucination ;
@@ -529,8 +612,9 @@ Ordre requis :
 
 ### A3. Corriger les revendications
 
-- Remplacer « prévention des hallucinations » par « diagnostic et confinement
-  normatifs » tant qu’aucun théorème d’effectuation sûre n’est construit.
+- Employer « diagnostic et confinement normatifs » : le théorème
+  d’effectuation gouvernée est construit, mais il ne prouve ni la suppression de
+  la génération interne ni l’absence générale d’hallucinations linguistiques.
 - Ne pas présenter la mémoire comme conservation intégrale de l’histoire.
 - Ne pas présenter toute sortie hors régime comme une hallucination.
 - Ne pas présenter le transformer comme détenteur des témoins Lean.
@@ -807,19 +891,28 @@ La présence de l’apprentissage et de la proposition dans une même trace ne
 satisfait aucune de ces obligations. Ce résultat à un pas ne vaut pas non plus
 comme preuve d’autonomie multicycle.
 
-### E4. Itération — obligation ouverte
+### E4. Itération générique — fermée
 
-Construire une itération finie uniformément définie. Le même opérateur doit
-consommer littéralement la sortie du cycle précédent. Aucun `cycle0`, `cycle1`
-ou catalogue par profondeur ne sera admis.
+`Succession.lean` définit déjà `iterateState` et `iterateHistory` pour toute
+profondeur `n : Nat`. Le même `UniformTransition` consomme littéralement la
+sortie du cycle précédent ; aucun `cycle0`, `cycle1` ni catalogue par profondeur
+n’intervient dans cette définition.
 
-Cette extension multicycle est une obligation à fermer dans ce dépôt. Aucun
-matériau antérieur ne doit être traité comme s’il l’avait déjà démontrée.
+Ce résultat ferme l’itération abstraite. Il ne ferme pas encore son instance
+transformer à profondeur arbitraire : `TransformerDynamics.lean` construit et
+sépare actuellement deux cycles causalement liés. La généralisation concrète
+est transférée au lot L.
 
-### E5. Raisonnement à horizon long
+### E5. Conservation générique — fermée, agrégation ouverte
 
-Définir l’horizon par composition de transitions constituées, non par nombre
-de tokens. Prouver la conservation des obligations déclarées sous composition.
+L’horizon est défini par composition de transitions constituées, non par nombre
+de tokens. `preservesAlongIteration` prouve déjà qu’une obligation préservée à
+un pas reste satisfaite après toute profondeur finie.
+
+Il reste à former l’obligation agrégée propre à la machine gouvernée — mémoire,
+adéquation, fidélité, certificat et confinement — puis à fournir sa loi de
+préservation à un pas. Ce travail relève du lot L, non d’une nouvelle définition
+de l’itération.
 
 ### Tests séparateurs
 
@@ -847,10 +940,10 @@ de tokens. Prouver la conservation des obligations déclarées sous composition.
 - succession du régime construite indépendamment puis raccordée à l’extension ;
 - arrêt explicite lorsque le prochain cycle est impossible.
 
-La Gate E ferme les contrats et lois génériques, pas leur réalisation concrète.
-La Gate G doit construire le témoin fini à un pas et les deux cycles liés ; la
-Gate I doit construire l’instance transformer à un pas ; la Gate J doit fermer
-l’autonomie multicycle transformer. Aucun de ces niveaux ne vaut pour le suivant.
+La Gate E est fermée pour les contrats et lois génériques. Les Gates G, I et J
+sont fermées dans leur portée finie déclarée. Aucun de ces niveaux ne vaut comme
+preuve de l’invariant transformer à toute profondeur, qui appartient à la
+Gate L.
 
 ## 12. Lot F — Couche réflexive de la machine
 
@@ -1083,7 +1176,7 @@ Démontrer sur l’instance que la mémoire conserve les différences requises p
 les questions et continuations déclarées. Toute compression devra être liée à
 un certificat de solidité causale dans cette portée.
 
-### J2. Raisonnement long
+### J2. Deux cycles liés — fermé ; profondeur arbitraire — ouverte
 
 Exécuter plusieurs cycles avec le même opérateur, sans réintroduire les états
 corrects entre les étapes. Mesurer séparément :
@@ -1096,8 +1189,12 @@ corrects entre les étapes. Mesurer séparément :
 
 Le premier état incorporé doit reconfigurer causalement le problème, les vues ou
 la transition du cycle suivant. Deux succès successifs sur des problèmes fournis
-indépendamment ne démontrent pas l’autonomie multicycle. Cette obligation reste
-ouverte jusqu’à la construction et à l’ablation de ce lien intercycle.
+indépendamment ne démontrent pas l’autonomie multicycle.
+
+`TransformerDynamics.lean` ferme cette obligation pour deux cycles : le second
+consomme la relation proposée au premier, et une ablation dédiée modifie sa
+prédiction et sa proposition. L’extension uniforme de ce même résultat à toute
+profondeur finie reste ouverte au lot L.
 
 ### J3. Rupture normative
 
@@ -1128,9 +1225,12 @@ Cela ne signifie pas que sa génération interne est impossible.
 - lien intercycle causal construit et détruit par une ablation dédiée ;
 - aucune revendication générale sur toutes les hallucinations linguistiques.
 
+La Gate J est fermée pour l’instance finie à deux cycles. Elle ne doit pas être
+relue comme la Gate L à profondeur arbitraire.
+
 ## 17. Lot K — Prototype exécutable et protocole expérimental
 
-Ce lot commence seulement après la fermeture des gates formels B à J.
+Ce lot a commencé après la fermeture des gates formels B à J.
 
 ### K1. Séparation des composants
 
@@ -1184,9 +1284,184 @@ rompue et ne déclenche aucun changement silencieux du protocole.
 - audit différé ;
 - rapport séparant faits, interprétation et limites.
 
-## 18. Documentation bilingue
+La Gate K est fermée pour le protocole v1. Son script, sa configuration et son
+résultat confirmatoire sont immuables ; toute expérience supplémentaire reçoit
+un nouveau numéro de version.
 
-### 18.1 Ordre
+## 18. Lot L — Dynamique gouvernée à profondeur finie arbitraire
+
+Ce lot est la prochaine extension formelle. Il réutilise l’itération générique
+déjà démontrée et ne crée aucune seconde notion d’histoire ou de cycle.
+
+### L1. Atteignabilité proof-relevant
+
+Définir l’atteignabilité à partir de `iterateHistory` ou directement comme une
+histoire du `UniformTransition` concerné. Un état est atteignable uniquement si
+la chaîne de transitions qui le forme est disponible ; l’égalité du seul état
+terminal ne suffit pas.
+
+### L2. Invariant gouverné agrégé
+
+Définir une famille `GovernedInvariant` indexée par l’état réellement atteint et
+réunissant sans les identifier :
+
+- la fidélité de l’histoire et des occurrences consommées ;
+- l’exactitude de la mémoire pour les futurs explicitement déclarés ;
+- l’adéquation exacte entre régime et norme autonome à cet état ;
+- la correspondance exacte entre proposition, action et contexte ;
+- la nécessité d’un certificat indexé pour toute effectuation gouvernée ;
+- la conservation du candidat rejeté et de la première rupture localisée.
+
+Prouver d’abord la préservation à un pas, puis appliquer
+`preservesAlongIteration` pour obtenir l’invariant après tout `n : Nat`. Le
+théorème final doit quantifier sur la profondeur ; une liste d’exemples ne le
+remplace pas.
+
+### L3. Transformations admissibles
+
+Une modification de la machine n’est pas alignée par le seul fait qu’elle est
+appelée apprentissage. Définir un contrat `AdmissibleEvolution` séparant :
+
+```text
+mise à jour paramétrique
+mise à jour de la mémoire
+incorporation constitutive
+succession du régime
+évolution éventuelle de la norme
+transport des actions et certificats
+```
+
+Une mise à jour paramétrique qui ne change pas le régime ni la norme doit le
+déclarer dans son type. Si le régime ou la norme évoluent, leurs transports
+respectifs doivent être fournis indépendamment et l’adéquation cible doit être
+construite depuis ces transports et l’adéquation source. La norme cible ne doit
+jamais être définie par copie de la décision du régime.
+
+La revendication est existentielle et conditionnelle : seules les
+transformations munies de ces témoins préservent l’alignement. Aucune loi ne doit
+affirmer que toute mise à jour de poids, de mémoire ou de norme est admissible.
+
+### L4. Instance transformer uniforme
+
+Instancier l’opérateur déjà employé par `TransformerDynamics.lean` pour toute
+profondeur finie. À chaque pas :
+
+- le même cœur et les mêmes poids appris sont utilisés, sauf évolution
+  explicitement admise par L3 ;
+- la relation proposée au pas précédent est exactement la relation consommée ;
+- la mémoire est celle produite par la mise à jour précédente ;
+- aucune fixture correcte, cible ou décision d’audit n’est réinjectée ;
+- une rupture normative reste représentée mais ne reçoit aucun effet gouverné.
+
+L’ablation intercycle doit être formulée au rang arbitraire `k < n`. Lorsqu’une
+condition explicite de sensibilité déclare qu’une relation et son ablation
+produisent des calculs distincts au rang `k`, cette différence doit être
+transportée vers le futur annoncé ; aucune différence ne doit être exigée sans
+une telle condition. Une relation déclarée inerte doit rester sans effet.
+
+### L5. Arrêt constructif
+
+Lorsque la continuation n’est pas totale, employer `PartialTransition` et
+produire soit le prochain pas, soit une réfutation de `CanAdvance`. Un arrêt
+explicite satisfait le contrat ; une boucle supposée infinie ou un état terminal
+injecté ne le satisfait pas.
+
+### Tests séparateurs
+
+- preuve limitée à deux cycles présentée comme quantification sur `Nat` ;
+- état terminal correct avec histoire de formation absente ou différente ;
+- obligation prouvée initialement mais non préservée à un pas intermédiaire ;
+- poids modifiés tout en déclarant implicitement régime et norme inchangés ;
+- norme cible reconstruite depuis le verdict du régime cible ;
+- certificat transporté vers une action, un contexte ou une portée différents ;
+- ablation remplaçant la relation retirée par une fixture correcte ;
+- effet produit par une voie extérieure à l’effecteur gouverné.
+
+### Gate L
+
+- atteignabilité définie par une histoire réellement construite ;
+- invariant agrégé non vacuant sur l’instance de référence ;
+- loi de préservation à un pas constructive ;
+- théorème à toute profondeur obtenu par l’itération générique existante ;
+- instance transformer uniforme sans catalogue de profondeur ;
+- évolution admissible distinguant paramètres, mémoire, régime et norme ;
+- transport de l’adéquation construit, jamais supposé pour toute mise à jour ;
+- arrêt partiel représenté positivement ;
+- bloc `AXIOM_AUDIT` complet et vide de toute dépendance interdite.
+
+## 19. Lot M — Raffinement de la frontière exécutable
+
+Ce lot relie l’exécution au noyau sans formaliser abusivement les calculs
+flottants. Le producteur numérique reste une source de propositions ; la
+frontière discrète, le runtime constitutif et l’effecteur gouverné portent les
+obligations exactes.
+
+### M1. Trace exécutable canonique
+
+Définir un schéma versionné contenant les entrées autorisées, la proposition
+discrète, la relation et la mémoire effectivement consommées, le diagnostic, le
+certificat éventuel, l’effet éventuel et les empreintes de la trace scellée.
+L’ordre causal doit être présent dans la trace primaire, pas reconstruit par
+l’audit.
+
+### M2. Relation de raffinement
+
+Définir séparément :
+
+```text
+trace numérique observée
+→ décodage discret total ou première erreur localisée
+→ trace constitutive formelle
+→ vérification de fidélité
+→ admission et effectuation gouvernée
+```
+
+Le théorème de raffinement est conditionnel à un témoin vérifié du décodage et
+de la fidélité. Il transfère les garanties du noyau à la trace discrète
+effectivement consommée ; il ne transforme ni les logits, ni l’entraînement, ni
+les performances numériques en théorèmes Lean.
+
+### M3. Vérificateur et version expérimentale
+
+Conserver intégralement le protocole v1. Toute modification du schéma ou de
+l’expérience crée une version v2 avec nouveaux fichiers, empreintes et résultat
+confirmatoire. Le vérificateur doit refuser :
+
+- une empreinte incorrecte ;
+- un champ causal manquant ;
+- une proposition réécrite après scellement ;
+- une relation journalisée mais non consommée ;
+- un effet sans certificat correspondant exactement à l’action et au contexte.
+
+### Gate M
+
+- schéma local, versionné et déterministe ;
+- décodage total vers un succès ou une erreur localisée ;
+- relation de raffinement portant sur toute la trajectoire discrète ;
+- cas positif et cas négatifs reproductibles ;
+- aucune cible normative dans la vue du producteur ;
+- aucune génération de preuve par le réseau supposée fiable ;
+- séparation explicite entre théorèmes Lean et observations flottantes ;
+- protocole v1 et résultat confirmatoire v1 inchangés.
+
+## 20. Phase scientifique ultérieure — hors gates internes
+
+Après fermeture des Gates L et M et intégration vérifiée dans `main` :
+
+1. faire relire les déclarations et preuves Lean par des lecteurs indépendants ;
+2. comparer précisément les contributions à la littérature pertinente ;
+3. rédiger un article distinguant théorèmes, dérivations architecturales,
+   implémentation et observations ;
+4. étudier une réalisation de plus grande échelle dans une version expérimentale
+   distincte.
+
+Ces étapes sont nécessaires pour établir la réception, la nouveauté comparative
+et la portée pratique. Elles ne changent ni la validité interne des théorèmes
+déjà compilés ni leur périmètre formel.
+
+## 21. Documentation bilingue
+
+### 21.1 Ordre
 
 1. stabiliser le français ;
 2. vérifier ses ancrages Lean ;
@@ -1195,18 +1470,17 @@ rompue et ne déclenche aucun changement silencieux du protocole.
 5. mettre à jour les deux README ;
 6. recalculer le manifeste.
 
-### 18.2 Documents canoniques visés
+### 21.2 Documents canoniques
 
 ```text
-docs/fr/architecture_neuronale_constitutive.md
-docs/en/constitutive_neural_architecture.md
+docs/fr/alignement_constitutif_transformers.md
+docs/en/constitutive_transformer_alignment.md
 ```
 
-Le devenir des deux fichiers actuels sur les transformers sera décidé après la
-stabilisation : remplacement avec renommage, ou conservation comme document
-court spécialisé. Il ne doit pas exister deux textes canoniques concurrents.
+Ces deux fichiers sont les documents canoniques. Toute extension des lots L et
+M doit y être intégrée sans créer de texte scientifique concurrent.
 
-### 18.3 Symétrie
+### 21.3 Symétrie
 
 Les versions française et anglaise doivent conserver :
 
@@ -1216,9 +1490,9 @@ Les versions française et anglaise doivent conserver :
 - les mêmes limites ;
 - les mêmes instructions de reproduction.
 
-## 19. Vérification finale
+## 22. Vérification finale
 
-### 19.1 Formelle
+### 22.1 Formelle
 
 - `lake build` ;
 - contrôle de tous les blocs `AXIOM_AUDIT` ;
@@ -1226,7 +1500,7 @@ Les versions française et anglaise doivent conserver :
 - vérification de l’ordre des imports ;
 - réduction des exemples du modèle fini.
 
-### 19.2 Documentaire
+### 22.2 Documentaire
 
 - liens locaux valides ;
 - correspondance français–anglais ;
@@ -1235,7 +1509,7 @@ Les versions française et anglaise doivent conserver :
 - auteurs placés en fin de document ;
 - README cohérents avec la façade Lean.
 
-### 19.3 Intégrité
+### 22.3 Intégrité
 
 - manifeste recalculé depuis l’état final ;
 - script de vérification réussi ;
@@ -1248,31 +1522,52 @@ Les versions française et anglaise doivent conserver :
 - absence de fichiers générés ou caches ;
 - état Git relu avant commit.
 
-## 20. Ordre de commits recommandé
+## 23. Ordre de travail et de commits restant
 
-Chaque commit doit fermer une unité vérifiable :
+Les lots A à K appartiennent désormais au socle : ils doivent être relus et
+réutilisés, pas réécrits. Chaque nouveau commit doit fermer une unité vérifiable :
 
-1. réécriture conceptuelle française ;
-2. machine abstraite et modèle séparateur ;
-3. mémoire causale ;
-4. admission et effectuation ;
-5. succession constitutive et contrat causal générique à un pas ;
-6. couche réflexive machine ;
-7. modèle de référence fini, témoin causal et deux cycles liés ;
-8. réalisation neuronale abstraite ;
-9. réalisation transformer ;
-10. diagnostics et confinement normatifs ;
-11. protocole exécutable ;
-12. documentation anglaise, README et manifeste.
+1. dynamique gouvernée générique, atteignabilité et invariant à un pas ;
+2. préservation à toute profondeur et instance transformer uniforme ;
+3. transformations admissibles et transport de l’adéquation ;
+4. schéma exécutable v2 et relation formelle de raffinement ;
+5. vérificateur, tests négatifs et éventuel protocole confirmatoire v2 ;
+6. mise à jour symétrique des documents français et anglais, des README, de
+   l’audit et du manifeste ;
+7. suppression du présent plan dans la demande de fusion vers `main`.
+
+Un résultat confirmatoire v2 ne sera exécuté qu’après commit du protocole v2.
+Son ajout au dépôt formera un commit ultérieur distinct du gel du protocole.
 
 Le plan temporaire peut apparaître dans l’historique de la branche de travail,
 mais sa suppression doit faire partie de la merge request vers `main` et il ne
 doit pas subsister dans l’arbre fusionné. Le registre de décision et les
 fragments bruts ne doivent jamais être ajoutés à l’index Git.
 
-## 21. Critère d’achèvement global
+## 24. Critères d’achèvement
 
-Le chantier est terminé uniquement lorsque le dépôt permet de vérifier la
+### 24.1 Socle fini déjà fermé
+
+Au commit de référence, le dépôt vérifie déjà la chaîne finie suivante :
+
+```text
+une histoire constitue des occurrences
+→ une réalisation finie les transporte fidèlement
+→ une mémoire distingue les futurs déclarés
+→ régime et norme autonome sont exactement adéquats
+→ une proposition apprise modifie la succession
+→ deux cycles transformer consomment leur véritable lien intercycle
+→ la rupture normative est localisée et conservée
+→ aucun effet gouverné n’existe sans certificat exact
+→ l’exactitude déterminée coexiste avec la non-clôture réflexive globale
+```
+
+Ce socle ne doit pas être présenté comme encore hypothétique, ni comme une
+preuve portant déjà sur tout transformer ou toute profondeur.
+
+### 24.2 Extension formelle à fermer
+
+L’extension est terminée uniquement lorsque le dépôt permet de vérifier la
 chaîne suivante sans ressource scientifique extérieure :
 
 ```text
@@ -1285,20 +1580,25 @@ une histoire constitue des occurrences
 → un apprentissage modifie une prédiction effectivement consommée
 → cette prédiction modifie la proposition constitutive suivante
 → un cycle produit et consomme son véritable état successeur
-→ l’état incorporé reconfigure causalement le cycle suivant
-→ plusieurs cycles se composent sans oracle ni donnée correcte réinjectée
+→ pour tout n, les n cycles sont formés par le même opérateur
+→ l’invariant gouverné est préservé sur tous leurs états atteignables
+→ toute évolution de machine utilisée possède ses transports admissibles
+→ l’adéquation cible est construite depuis l’adéquation source
 → les ruptures restent représentables et localisées
+→ aucune rupture normative ne peut recevoir un effet gouverné sans certificat
 → certains statuts sont représentés exactement
 → aucune clôture réflexive globale n’est postulée
+→ toute trace exécutable revendiquée raffine la trace discrète formelle consommée
 ```
 
 La réussite d’un seul étage, un score terminal, une documentation persuasive ou
 une compilation isolée ne suffit pas. La fermeture exige les interfaces, leurs
 compositions, les modèles séparateurs, l’instance finie, la réalisation
-transformer, les traces reproductibles et la discipline exacte des
-revendications.
+transformer, l’invariant à toute profondeur, les transformations admissibles,
+le raffinement exécutable, les traces reproductibles et la discipline exacte
+des revendications.
 
-### 21.1 Fusion terminale
+### 24.3 Fusion terminale
 
 La tâche globale n’est pas terminée par la seule ouverture d’une merge request.
 Après fermeture de toutes les gates :
