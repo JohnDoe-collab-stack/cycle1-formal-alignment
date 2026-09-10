@@ -1,6 +1,10 @@
 name = "StructuralFoundations"
 version = "2.0.0"
-defaultTargets = ["Cycle1Alignment", "Cycle2ReflectiveExtension"]
+defaultTargets = [
+  "Cycle1Alignment",
+  "Cycle2ReflectiveExtension",
+  "ConstitutiveArchitecture"
+]
 
 [[lean_lib]]
 name = "Cycle1Alignment"
@@ -15,3 +19,7 @@ roots = [
 [[lean_lib]]
 name = "Cycle2ReflectiveExtension"
 roots = ["Cycle2"]
+
+[[lean_lib]]
+name = "ConstitutiveArchitecture"
+roots = ["ConstitutiveAlignment"]

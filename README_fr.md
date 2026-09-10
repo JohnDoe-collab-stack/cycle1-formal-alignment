@@ -202,10 +202,10 @@ directe d'échec de la norme indépendante.
   — protocole réutilisable de construction, séparation, reconstruction et audit.
 - [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —
   représentation exacte, diagonalisation et non-clôture globale.
-- [Alignement constitutif des systèmes transformers](docs/fr/alignement_constitutif_transformers.md)
-  — transposition architecturale de la constitution relationnelle à la mémoire
-  persistante, au raisonnement à horizon long et aux sorties normatives
-  localisées.
+- [Architecture neuronale constitutive pour l’alignement relatif](docs/fr/alignement_constitutif_transformers.md)
+  — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
+  la succession, la réalisation neuronale et une instance transformer finie
+  d’un pas.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
@@ -233,6 +233,12 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   couche de représentation.
 - [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du Cycle 2, sans
   déclaration propre.
+- [`ConstitutiveAlignment/`](ConstitutiveAlignment) construit la machine
+  abstraite, la mémoire causale, l’effectuation certifiée, les échecs typés, la
+  succession, la causalité d’apprentissage à un pas, le pont réflexif, le modèle
+  de référence fini et les contrats de réalisation neuronale et transformer.
+- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
+  public de l’architecture constitutive.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 
@@ -257,7 +263,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 353
+La compilation épinglée construit les trois bibliothèques Lake, audite 444
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -269,12 +275,12 @@ Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
 théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2
 est un argument diagonal sémantique abstrait, non une formalisation de la
 syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
-d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
-n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
-`noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
-toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 353 déclarations explicitement auditées ne dépend de celles-ci ni
-d'un autre axiome.
+d'incomplétude de Gödel. Les cycles formels et l’architecture constitutive sont
+constructifs et n’emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni
+déclaration `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`.
+Lean génère toutefois des déclarations auxiliaires `.injEq` qui dépendent de
+`propext` ; aucune des 444 déclarations explicitement auditées ne dépend de
+celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
 pour le compiler ou l'auditer. Le code et la documentation sont distribués sous

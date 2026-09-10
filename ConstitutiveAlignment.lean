@@ -1,0 +1,35 @@
+import ConstitutiveAlignment.Machine
+import ConstitutiveAlignment.CausalMemory
+import ConstitutiveAlignment.NormativeExecution
+import ConstitutiveAlignment.NormativeFailure
+import ConstitutiveAlignment.Succession
+import ConstitutiveAlignment.LearningCausality
+import ConstitutiveAlignment.ReflectiveMachine
+import ConstitutiveAlignment.ReferenceModel
+import ConstitutiveAlignment.NeuralRealization
+import ConstitutiveAlignment.TransformerRealization
+
+/-!
+# Constitutive alignment architecture
+
+This facade exports only modules that have passed their constructive build and
+dependency audits.  Further layers are added in dependency order.
+-/
+
+/- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveAlignment.oneStepNormativeFailure
+#print axioms ConstitutiveAlignment.MemoryExamples.richMemoryExact
+#print axioms ConstitutiveAlignment.MemoryExamples.richMemoryUpdate
+#print axioms ConstitutiveAlignment.CertifiedEffectuation.normative
+#print axioms ConstitutiveAlignment.SuccessionExamples.twoLinkedToggles
+#print axioms ConstitutiveAlignment.SuccessionExamples.explicitStop
+#print axioms ConstitutiveAlignment.LearningExamples.causalWitness
+#print axioms ConstitutiveAlignment.exactMachineStatusRepresentation_hasDiagonalOutside
+#print axioms ConstitutiveAlignment.ReferenceModel.architectureCertificate
+#print axioms ConstitutiveAlignment.ReferenceModel.secondCycle_consumesReconfiguredMemory
+#print axioms ConstitutiveAlignment.NeuralExamples.intervention
+#print axioms ConstitutiveAlignment.TransformerExamples.oneStepIntervention
+#print axioms ConstitutiveAlignment.TransformerExamples.causalSuccession
+#print axioms ConstitutiveAlignment.TransformerExamples.predictionInvariant_underAddressRenaming
+#print axioms ConstitutiveAlignment.TransformerExamples.acceptedLearnedProposal_isPreserved
+/- AXIOM_AUDIT_END -/
