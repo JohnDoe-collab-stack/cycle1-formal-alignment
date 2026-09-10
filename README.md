@@ -178,6 +178,9 @@ failure of the independent norm.
   — reusable construction, separation, reconstruction, and audit protocol.
 - [Cycle 2 — Reflective alignment](docs/en/reflective_alignment.md) — exact
   representation, diagonalization, and global non-closure.
+- [Constitutive alignment of transformer systems](docs/en/constitutive_transformer_alignment.md)
+  — architectural transposition of relational constitution to persistent
+  memory, long-horizon reasoning, and localized normative exits.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
