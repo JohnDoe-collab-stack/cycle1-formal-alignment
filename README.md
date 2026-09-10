@@ -178,9 +178,9 @@ failure of the independent norm.
   — reusable construction, separation, reconstruction, and audit protocol.
 - [Cycle 2 — Reflective alignment](docs/en/reflective_alignment.md) — exact
   representation, diagonalization, and global non-closure.
-- [Constitutive alignment of transformer systems](docs/en/constitutive_transformer_alignment.md)
-  — architectural transposition of relational constitution to persistent
-  memory, long-horizon reasoning, and localized normative exits.
+- [Constitutive neural architecture for relative alignment](docs/en/constitutive_transformer_alignment.md)
+  — constructive contracts for causal memory, governed effectuation,
+  succession, neural realization, and a finite one-step transformer instance.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
@@ -202,6 +202,12 @@ French counterparts are linked from the top of every scientific document.
   Cycle 1 statuses by `Nonempty` and transports their adequacy into the
   representation layer.
 - [`Cycle2.lean`](Cycle2.lean) is the import-only public aggregator for Cycle 2.
+- [`ConstitutiveAlignment/`](ConstitutiveAlignment) builds the abstract machine,
+  causal memory, certified effectuation, typed failures, succession, one-step
+  learning causality, reflective bridge, finite reference model, and neural and
+  transformer realization contracts.
+- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
+  aggregator for the constitutive architecture.
 
 No Cycle 1 module imports Cycle 2.
 
@@ -226,7 +232,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles both Lake libraries, audits 325 declarations through
+The pinned build compiles all three Lake libraries, audits 444 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
@@ -236,9 +242,9 @@ environment, counts, hashes, and commands are recorded in
 Cycle 1 is complete relative to `CircularPresentation`; it is not a universal
 theory of every norm or alignment problem. Cycle 2 is an abstract semantic
 diagonal argument, not a formalization of syntax, provability, arithmetization,
-or Gödel's incompleteness theorems. The two formal cycles are constructive and
-use no `sorry`, `admit`, declared `axiom`, `Classical`, `propext`, or
-`Quot.sound`.
+or Gödel's incompleteness theorems. The formal cycles and constitutive
+architecture are constructive and use no `sorry`, `admit`, declared `axiom`,
+`Classical`, `propext`, or `Quot.sound`.
 
 The repository is a standalone artifact: no private source history is required
 to build or audit it. Code and documentation are distributed under Apache-2.0.

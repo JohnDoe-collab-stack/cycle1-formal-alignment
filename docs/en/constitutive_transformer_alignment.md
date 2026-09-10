@@ -1,442 +1,500 @@
-# Constitutive alignment of transformer systems
+# Constitutive neural architecture for relative alignment
+
+*Causal memory, succession, and transformer realization*
 
 **English** | [Français](../fr/alignement_constitutif_transformers.md)
 
 Navigation: [structural synthesis](structural_foundations.md) ·
-[method](relational_constitutive_roles_method.md) ·
-[Cycle 1 — relative alignment](relative_alignment.md) ·
-[Cycle 2 — reflective alignment](reflective_alignment.md)
+[relative alignment](relative_alignment.md) ·
+[reflective alignment](reflective_alignment.md) ·
+[relational constitutive roles](relational_constitutive_roles_method.md)
 
 ## 1. Thesis
 
-A transformer architecture does not become persistent, long-horizon coherent,
-or reliable merely by adding more context, an external memory, or an output
-classifier. Such devices operate on objects they take as already individuated.
-The prior problem is to determine what makes an occurrence remain the same
-occurrence through its formation, transformation, compression, retrieval, and
-later use.
+A constitutive neural architecture does not receive already individuated
+objects and subsequently attach memory, control, and evaluation to them. It
+constructs occurrences whose identity depends on their formation, relational
+roles, and participation in a history. Numerical supports realize these
+occurrences; they do not define them by themselves.
 
-The architectural hypothesis developed here is:
+The architectural hypothesis is:
 
-> **A transformer system must constitute its objects through the relations that
-> determine their identity, then prove that this constitution is preserved
-> across its realizations. Persistent memory, long-horizon reasoning, and the
-> prevention of hallucinations then become three consequences of one structural
-> fidelity requirement.**
+> **A neural machine can preserve identity, reason through succession, and
+> localize a normative break if it faithfully transports the relations that
+> constitute its occurrences, separates regime from norm, and makes every
+> effectuation depend on a certificate indexed by the exact action.**
 
-This proposal transposes the method of relational constitutive roles. It does
-not reduce those roles to labels attached to model representations. A label
-describes an object taken as already given; a constitutive relation participates
-in determining the object itself. If that relation is removed or altered, it is
-not merely one property of the object that changes: the system no longer has
-the same object in the sense relevant to its history.
+The transformer is one possible realization of the neural plane. It is neither
+the principle of individuation, nor the norm, nor the admission regime.
+Persistent memory, long-horizon reasoning, and the diagnosis of relative
+hallucinations are applications of one architecture of constitution,
+preservation, and exit.
 
-## 2. Formal starting point
+This thesis is not grounded in an empirical promise. The repository already
+provides its structural base. The machine-specific contracts and finite
+instances are constructed in Lean; trained-network and experimental claims
+remain separately identified.
 
-The repository already establishes a complete structural chain on a first
-instance:
+## 2. Starting formal results
+
+Cycle 1 verifies in Lean a chain in which construction, realization, regime,
+and norm remain distinct:
 
 ```text
 presentation
-  → dependently typed construction
-  → occurrences individuated within a history
-  → roles and exact agreements
-  → faithful realization
-  → operational regime and autonomous norm
-  → exact adequacy
-  → faithfully realizable minimal continuation
-  → localized exit from regime and norm
+→ dependently typed history
+→ occurrences individuated by formation
+→ exact roles and agreements
+→ faithful realization
+→ operational regime
+→ autonomous norm
+→ exact adequacy on the same histories
+→ minimal positive continuation
+→ localized exit from regime and norm
 ```
 
-Cycle 2 transports the inhabitability of witness families into a
-representation layer and proves simultaneously:
+The main anchors are:
+
+| Function | Lean identifiers |
+| --- | --- |
+| exact realization and residual role | `ExactInternalRealization`, `FaithfulExtension` |
+| abstract regime exit | `RegimeExit`, `UniformRegimeExit` |
+| history generated from a root | `RootedGeneratedHistory` |
+| regime–norm adequacy | `NormativeAdequacy`, `AdequateAlong` |
+| circular regime | `CircularRefinement` |
+| autonomous circular norm | `CircularSpecificationSatisfaction` |
+| soundness | `circularRefinement_soundSpecification` |
+| completeness | `circularSpecification_complete` |
+| minimal continuation | `oneStepAfterPerimeter` |
+| norm-relative exit | `oneStepSpecRelativeHistoryExit` |
+
+`CircularRefinement P H` and `CircularSpecificationSatisfaction P H` are
+witness types. The repository constructs a transformation in each direction.
+At the propositional level, their inhabitance is therefore equivalent:
+
+```text
+Nonempty (CircularRefinement P H)
+↔
+Nonempty (CircularSpecificationSatisfaction P H)
+```
+
+This adequacy does not prevent construction from continuing.
+`oneStepAfterPerimeter` is positively formed, has a faithful realization, and
+leaves both the regime and the norm on the same continuation.
+
+Cycle 2 then lifts adequacy to represented statuses:
 
 ```text
 exact representation of determined statuses
-  + non-representable diagonal status
-  → absence of global reflective closure
++ a diagonal status outside the representation regime
+→ no global reflective closure
 ```
 
-The application to transformers is therefore not an import of these structure
-names into an existing architecture. It is the construction of a second
-instance of the method whose carrier, occurrences, roles, agreements, and
-realizations genuinely belong to transformer systems.
+The corresponding identifiers are `Represents`, `InternallyRepresentable`,
+`PullbackStatus`, `transportRepresentation`,
+`diagonalStatus_notRepresentable`, and `noGlobalReflectiveClosure`.
 
-## 3. The fundamental object is neither a token nor a vector
+## 3. Architectural consequence of non-closure
 
-An isolated token is a vocabulary value. An activation vector is an element of
-a numerical space. Neither by itself determines the occurrence whose identity
-the system must preserve.
+Non-closure removes nothing from the exactness already constructed. It forbids
+turning exact representation of determined statuses into a claim that every
+status of the machine has one total internal representation.
 
-The same string can occur several times with different origins, dependencies,
-and functions. Conversely, one occurrence may be paraphrased, distributed
-across several vectors, or realized on different supports without ceasing to be
-the same structural occurrence.
-
-The relevant carrier must therefore be a history of typed transformations:
-
-```lean
-State   : Type
-Step    : State → State → Type
-History : State → State → Type
-```
-
-An occurrence is not a value extracted from that history after the fact. It is
-indexed by the history that formed it:
-
-```lean
-Occurrence : {a b : State} → History a b → Type
-```
-
-This dependency preserves at least:
-
-- the occurrence's formation step;
-- its source and target states;
-- its structural position in the trajectory;
-- the occurrences on which its formation depends;
-- the obligations in which it participates;
-- the transformations through which it was realized.
-
-Two textually identical occurrences remain distinct when their formations
-differ. Two materially different realizations can, conversely, correspond
-exactly to the same constitutive requirement when faithful agreement and
-transport are supplied.
-
-## 4. Constitutive roles and agreements
-
-A role is not a class such as `fact`, `memory`, `premise`, or `error`. It
-expresses a relational requirement on which an occurrence's participation in
-the construction depends.
-
-Within a transformer trajectory, roles may determine:
-
-- which transformation formed the occurrence;
-- which earlier occurrences it constitutively depends on;
-- which difference it introduces into the current state;
-- which provenance it continues or transforms;
-- which obligation it opens, preserves, or satisfies;
-- which composition it effectively participates in;
-- which occurrences must precede it or be immediately adjacent to it.
-
-This is not an annotation schema. Each retained role must have an agreement
-type establishing that a given occurrence actually realizes it. The Cycle 1
-model is:
-
-```lean
-RequirementOccurrenceAgreement
-  (history : History)
-  (requirement : Requirement)
-  (occurrence : Occurrence history) : Type
-```
-
-The agreement must expose the data that make the correspondence exact: source
-and target states, formation, dependencies, compatibilities, provenance, or
-other domain structure. Identity never follows merely from declaring that an
-occurrence bears the correct role.
-
-## 5. Exact realization without forced exhaustiveness
-
-For a family of roles required by a construction, an exact realization must
-supply:
-
-```lean
-realize           : Role → Occurrence history
-realize_injective : Injective realize
-agreement         : ∀ role, Agreement role (realize role)
-```
-
-Coverage runs from required roles to their occurrences. It does not state that
-every occurrence produced by the transformer must already receive one of those
-roles. This asymmetry is essential: construction may continue and form new
-occurrences without erasing prior local exactness.
-
-Injectivity prevents two constitutively distinct requirements from being
-realized by one occurrence merely because their representations are nearby.
-Agreement prevents the converse defect: two distinct occurrences do not become
-faithful merely because they occupy separate memory locations.
-
-## 6. The transformer as a realization
-
-The transformer is not the source of constitution. It is one possible
-realization of a history already specified at the structural level.
-
-Three trajectories must consequently be distinguished:
+The target architecture is therefore dynamic, relative, and locally
+determined:
 
 ```text
-constitutive history
-  = formation of occurrences and their dependencies
-
-execution history
-  = concrete transformations performed by the architecture
-
-token trace
-  = discrete inputs and outputs of one particular execution
+a determined regime
+↔ an autonomous norm on the same objects
+→ exactness within that scope
++ the possibility of an outside status
+→ succession or explicit exit, never postulated global closure
 ```
 
-They are not identified term by term. One constitutive occurrence may be
-realized by several tokens and internal states; one generation step may
-contribute to several relations without by itself constituting a complete
-occurrence. Realization must therefore associate an occurrence with a
-structured execution witness rather than attach its name to a token or vector.
+The machine does not certify itself globally. It transports witnesses within a
+declared scope, exactly represents some statuses, and preserves a positive exit
+when an operational, normative, or representational boundary is reached.
 
-A concrete realization may use tokens, activations, attention states, a cache,
-persistent memory, or several supports. Its fidelity does not depend on the
-chosen support but on the maps and laws connecting free occurrences with
-concrete occurrences:
+This consequence motivates the architecture below but does not replace its
+contracts. Every transport, admission, effectuation, and succession must still
+be constructed.
+
+## 4. Abstract constitutive machine
+
+The fundamental machine is independent of any neural implementation:
 
 ```lean
-forward  : FreeOccurrence history → ConcreteOccurrence realization
-backward : ConcreteOccurrence realization → FreeOccurrence history
-
-backward (forward occurrence) = occurrence
-forward (backward concrete)   = concrete
+State : Type
+Step  : State → State → Type
 ```
 
-When an implementation contains more concrete phenomena than the specification
-must track, these laws can be restricted to the fibre of constitutively
-relevant occurrences. What cannot be replaced is the proof that tracked
-occurrences, their agreements, and their necessary relations survive transport.
+A history is a proof-relevant composition of steps. An occurrence is indexed by
+the history that formed it and can retain its formation step, source and target
+states, structural position, constitutive dependencies, provenance, and open
+obligations.
 
-Vector similarity, plausible linguistic reconstruction, or equality of the
-terminal output does not constitute such a proof. Two executions may reach the
-same answer while losing a dependency, reversing two occurrences, or
-substituting one provenance for another.
+The same reading may therefore correspond to two different occurrences when
+their formations differ. Conversely, two material supports realize the same
+occurrence only when a faithful correspondence is constructed.
 
-Memory, context, and activations are therefore realization supports. They carry
-continuity only through the laws that relate them to the constitutive history.
+A role is not a label such as `fact`, `memory`, or `error`. It is a relational
+requirement on which participation in the construction depends. An agreement
+states that a determined occurrence realizes that role:
 
-## 7. Four irreducible layers
+```lean
+Agreement
+  (history : History)
+  (role : Role)
+  (occurrence : History.Occurrence history) : Type
+```
 
-For a history `H` and candidate continuation `x`, the architecture must keep
-four families distinct:
+An exact realization supplies an injective map from required roles to realized
+occurrences and an agreement for every role. It does not require every future
+occurrence to have a role in the current family. That asymmetry permits
+continuation without erasing established local exactness.
+
+`ConstitutiveMachine` reuses Cycle 1 histories and occurrences directly.
+`circularMachine` is an adapter over the existing circular construction, and
+`circularMachineAdequacy` transports its soundness and completeness without
+redefining either regime or norm.
+
+## 5. Four planes and five distinctions
+
+The architecture separates four planes:
+
+```text
+constitutive plane       formation, occurrences, roles, histories
+formal-normative plane   regime, norm, adequacy, proofs
+operational plane        actions, effects, memory, consumed traces
+neural plane             activations, parameters, predictions, proposals
+```
+
+The planes communicate through explicit realizations and certificates. They
+are not identified.
+
+For a history `H` and candidate `x`, five families remain distinct:
 
 ```text
 C(H, x)   internal construction of x
-F_A(H, x) faithful realization of x in implementation A
-R(H, x)   admission of x by the operational regime
-S(H, x)   satisfaction by x of an autonomous norm
+F(H, x)   faithful realization of x
+R(H, x)   admission of x by the regime
+S(H, x)   satisfaction of the autonomous norm
+E(H, x)   governed effectuation of the action carried by x
 ```
 
-The transformer generator produces construction witnesses. A concrete
-realization supplies fidelity witnesses. The regime decides which continuations
-are admitted in a given trajectory. The norm independently states what that
-trajectory must satisfy.
+Relative alignment is adequacy between `R` and `S` on the same objects. It is
+not a score, a preference, or a comparison of terminal outputs. Effectuation is
+different again: it determines what the system may do after admission.
 
-Relative alignment is not a score, a preference, or agreement between two
-outputs. It is constituted by witness transformations:
+The structuring separations are:
 
 ```text
-R(H, x) → S(H, x)    soundness
-S(H, x) → R(H, x)    relative completeness
+construction          ≠ realization
+realization           ≠ admission
+admission             ≠ normative satisfaction
+norm                  ≠ adequacy of the regime
+proposal              ≠ incorporation
+learning              ≠ constitutive succession
+trace composition     ≠ causal dependence
+one-step causality    ≠ multicycle autonomy
+operational exit      ≠ representational exit
 ```
 
-Both families concern the same finely individuated candidate. Defining the norm
-from the regime's decision would make adequacy tautological and remove the very
-control being sought.
+## 6. Memory relative to relevant futures
 
-## 8. One structural origin for three problems
+Persistent memory is neither complete storage of a history nor later access to
+similar text. It preserves exactly those differences required by declared
+future behaviours.
 
-### 8.1 Persistent memory
+```lean
+Question : Type
+Answer : Question → Type
+behaviour : State → (q : Question) → Answer q
+```
 
-Persistent memory is the preservation of constituted occurrences through a
-succession of transformations. It is not merely the later availability of a
-text or similar content.
+Two states are future-equivalent when every declared question receives the same
+answer. `MemorySound` says that equal memory implies this equivalence.
+`MemoryComplete` says that future-equivalent states share a memory value.
+`ExactCausalMemory` keeps both directions separate and then packages them.
 
-A memory is faithful when it recovers an occurrence together with the relations
-that determine its identity in the history: formation, provenance,
-dependencies, and status relative to the relevant obligations. Paraphrase or
-compression is admissible when it realizes an exact transport of this
-structure. Without that transport, a system may retrieve similar information
-while losing the object to which later reasoning was meant to refer.
+Consequently:
 
-### 8.2 Long-horizon reasoning
+- equal memory licenses contraction only for the declared future family;
+- one declared future distinction prevents fusion by a sound memory;
+- retaining the whole state can be sound without being complete relative to a
+  coarser future;
+- changing the question family can invalidate a formerly exact contraction.
 
-Long reasoning is a composition of occurrences and obligations, not a large
-quantity of intermediate text. Its continuity depends on preserving what makes
-each step participate in the trajectory: its effective premises, permitted
-transformations, acquired results, and still-open obligations.
+`AutonomousMemoryUpdate` requires the memory update to commute with the actual
+state transition. The next memory value is computed from the previous memory;
+it is not supplied as a correct external fixture.
 
-The relevant horizon is therefore structural rather than metric. A line of
-reasoning may be long in tokens yet structurally broken near its beginning; it
-may be heavily compressed yet remain intact if its necessary constitutive
-relations are preserved.
+## 7. Normative admission and effectuation
 
-### 8.3 Hallucination
+An action is a value before it is an effect. `ConstitutiveAction` records its
+nature, target, parameters, declared constitutive context, scope, and requested
+effector.
 
-Within this framework, hallucination is not primitively a sentence type or a
-label assigned to an output. The relevant phenomenon appears when a
-continuation remains constructible and concretely realizable while the
-agreement required by the autonomous norm is no longer available or is
-constructively refuted.
-
-The system must not remove this continuation from the construction space, as
-that would conceal the phenomenon. It must retain on the same candidate:
+`NormativeExecutor` keeps three indexed families distinct:
 
 ```text
-construction witness
-+ faithful-realization witness
-+ previously preserved structure
-+ proof of the first broken obligation
+Admission context action
+Norm context action
+Certificate context action
 ```
 
-Hallucination thereby becomes one possible case of a localized structural exit.
-Its exact definition depends on the domain norm; it is identical neither to
-operational inadmissibility alone nor to every continuation outside the regime.
-
-## 9. Diagnosis through constitutive exit
-
-An architecture capable of continuing must positively represent what remains
-when a boundary is crossed. The generic schema is:
-
-```lean
-structure RegimeExit (Faithful Regime : Carrier → Type) where
-  candidate    : Carrier
-  faithful     : Faithful candidate
-  inadmissible : Regime candidate → False
-```
-
-For the transformer domain, this diagnostic must be enriched with historical
-continuation and, where the norm permits, a direct normative refutation. The
-target is a first candidate such that:
+The certificate is indexed by the exact action and context. A certified
+effectuation yields an admission witness and, through soundness, a normative
+witness:
 
 ```text
-it is formed by the system;
-it is strictly later than an admitted trajectory;
-prior occurrences remain exactly realized;
-the new occurrence remains concretely realizable;
-one precise constitutive obligation ceases to be satisfied;
-regime and norm reject the continuation for explicit reasons.
+effectuation → admission → norm
 ```
 
-Such a witness would be the transformer analogue of
-`oneStepAfterPerimeter`. It would supply a local diagnosis without denying that
-the system actually produced a continuation.
+Without a certificate, no value of `CertifiedEffectuation` can be built. The
+finite separators show that another target, an expired context, or a modified
+action cannot reuse the valid certificate. A deliberately unmediated bypass is
+represented separately to demonstrate why diagnosis alone cannot prevent an
+effect.
 
-## 10. A dynamic, non-closed architecture
+`FormationFailure`, `OperationalExit`, and `NormativeFailure` are also distinct
+types. Under explicit adequacy, operational and normative exits can be
+transported in either direction without identifying the underlying notions.
 
-Cycle 2 prevents exact representation of some statuses from implying internal
-representability of all possible statuses. For an evaluator
+## 8. One-step constitutive learning causality
 
-```lean
-eval : Code → Code → Prop
+Placing learning, prediction, and proposal in the same log establishes no
+causal dependence. The required contract is:
+
+```text
+parent predictive state
+→ effective learning
+→ learned predictive state
+→ changed learned prediction
+→ prediction consumed as a constitutive input
+→ changed constitutive proposal
+→ exact succession
 ```
 
-the status
+Two controlled trajectories share the problem, constitutive state, proposal
+producer, randomness, budget, and authorized view. Their only initial variation
+is the parent or learned predictive state.
 
-```lean
-diagonalStatus eval code := ¬ eval code code
+`OneStepLearningCausality` then requires distinct predictions, exact
+consumption of each prediction, distinct proposals, a fixed parent rejection
+reason, and a constructed learned succession. A constant-proposal separator
+shows that changed predictions alone do not establish influence on the
+proposal.
+
+This one-step result is a necessary condition of the target machine. It is not
+a proof of multicycle autonomy.
+
+## 9. Constitutive succession and long horizon
+
+Three transitions are formalized separately:
+
+```text
+parametric learning        parameters → parameters
+constitutive incorporation state → extended state
+normative succession       regime → successor regime
 ```
 
-is exactly represented by no row of that evaluator. This non-closure does not
-destroy the exactness of the particular statuses already represented.
+`ConstitutiveSuccession` explicitly witnesses the agreement between
+independently defined incorporation and normative succession.
+`UniformTransition` defines one operator for every depth, while `iterateState`
+and `iterateHistory` recursively consume the state actually produced by the
+previous step.
 
-As an architectural consequence, this rules out the project of a transformer
-containing a total and final representation of the validity of all its own
-constructions. The system must be dynamic, relative to determined norms and
-regimes, and able to continue by producing explicit exits when it reaches its
-internal boundaries.
+Declared obligations are preserved under finite composition.
+`PartialTransition` represents either a constructed next step or a positive
+refutation that the next step can be formed; stopping is therefore explicit and
+inspectable.
 
-Useful reflectivity is therefore not global self-certification. It is exact
-representation of determined statuses within an architecture that
-constitutively recognizes its non-closure.
+`ReferenceModel.lean` closes these obligations in one integrated finite
+instance. The same candidates and states connect proof-relevant histories,
+independently defined regime and norm, faithful realization, exact memory,
+governed action, formation failure, the controlled parent–learned pair,
+operational and normative exit, and reflective non-closure. Its learned
+candidate is exactly the admitted and effectuated candidate; its parent
+candidate is exactly the faithful continuation rejected by the regime, the
+norm, and governed effectuation. The model also constructs two cycles with the
+same operator and proves that the second consumes the first output after the
+first memory update has reconfigured its input.
 
-## 11. Formal program
+The relevant horizon is structural rather than token-count based. A long token
+sequence may break early at the structural level, while a compressed sequence
+may remain faithful if the required relations are transported.
 
-The second instance must be developed in the following order.
+Transformer multicycle autonomy is not yet established in this repository. It
+remains a separate formal and experimental obligation.
 
-### 11.1 Transformer presentation
+## 10. Neural realization
 
-Define states and formation rules without encoding in them the regime or norm
-that will later be studied.
+The neural plane receives an authorized view. Proofs, future verdicts, exact
+targets, and audit outputs are not fields of that view.
 
-### 11.2 Dependent occurrences
+The realization chain is:
 
-Construct a history-indexed occurrence type capable of distinguishing textual
-repetitions while retaining their formation.
+```text
+latent state
+→ discrete proposal
+→ total elaboration
+→ accepted candidate or first localized error
+```
 
-### 11.3 Constitutive roles and agreements
+Elaboration never repairs a proposal. Invalid candidates remain representable
+and auditable.
 
-Define a minimal kernel of relational roles, then use weakened carriers to test
-which relations are primitive and which can be reconstructed.
+`FullTrajectoryRealization` links every constitutive occurrence to an actually
+consumed operational occurrence through an injective map. Terminal equality or
+vector similarity is insufficient.
 
-### 11.4 Abstract and concrete realization
+`NeuralCausalTrace` records the learned state, produced prediction, exact
+consumed prediction, proposal, and elaboration as primary causal data. The
+trace is sealed before `DeferredAudit`; the audit returns a report without
+modifying the primary trace.
 
-First establish an interface independent of numerical architecture, then show
-how a transformer execution exactly realizes occurrences and their agreements.
+## 11. Transformer realization
 
-### 11.5 Composition of transports
+`TransformerCore` instantiates the neural plane with explicit tokens,
+activations, cache, addressable memory, constitutive relation, weights,
+prediction, proposal, and total elaboration. Its logits do not define identity,
+norm, or admission.
 
-Prove that successive transports used by attention, compression, retrieval,
-and reinjection preserve fidelity. Composition must retain witnesses, not only
-a terminal measurement.
+The finite one-step instance proves:
 
-### 11.6 Regime, norm, and adequacy
+- effective learning changes the prediction;
+- the produced prediction is the one consumed by proposal construction;
+- the proposal changes under the controlled parent–learned intervention;
+- the parent proposal is rejected for a fixed reason;
+- the learned proposal is accepted and has an exact succession witness;
+- changing an active constitutive relation changes the future prediction;
+- removing that relation from the control computation makes the intervention
+  inert;
+- coherently renaming a memory address and its store preserves the prediction;
+- the rejected proposal remains present in the elaboration trace.
 
-Define both families independently and construct soundness and completeness
-maps on a determined domain.
+This is a finite constructive instance of the transformer realization
+contract. It is not a trained transformer, an attention implementation, or a
+multicycle autonomy result.
 
-### 11.7 Minimal exit
+## 12. Memory, normative break, and relative hallucination
 
-Construct a minimal continuation that preserves positive witnesses while
-localizing the first constitutive break exactly.
+Memory is established within a scope when states fused by memory are
+indistinguishable under every declared question. Compression without that
+certificate remains an implementation hypothesis.
 
-### 11.8 Reflective layer
+A relative hallucination may be defined as a constructed and faithfully
+realized candidate whose autonomous norm is refuted. The definition is relative
+to the explicitly selected norm. It does not turn every regime exit or every
+linguistic error into a hallucination.
 
-Transport inhabitability of adequate statuses into an internal representation
-and integrate diagonal non-closure without identifying it with the operational
-exit.
+The target witness retains on the same candidate:
 
-## 12. Criterion for a first implementation
+```text
+positive formation
++ faithful realization
++ preserved prior structure
++ refuted first normative obligation
++ impossibility of the corresponding governed effect
+```
 
-A first implementation is not meant to discover the framework empirically. It
-must realize an already defined interface and make its obligations auditable.
+The machine thereby localizes the break without denying that construction
+continued. The rejected continuation remains available to audit, while
+certificate-governed effectuation is confined.
 
-It is sufficient if it can:
+## 13. Formal program
 
-1. form a history of transformations;
-2. individuate each occurrence by its formation;
-3. associate roles through verifiable agreements rather than labels;
-4. transport occurrences through at least one representation reduction;
-5. reconstruct constitutive relations after that transport;
-6. distinguish construction, fidelity, regime, and norm;
-7. produce an exit candidate retaining its positive witnesses;
-8. localize the first broken obligation.
+The new modules follow their dependency order:
 
-The initial case must have a sufficiently precise decidable norm for witness
-transformations to be constructed. Extension to open norms follows this exact
-instance rather than replacing it.
+| Module | Main obligation | Current status |
+| --- | --- | --- |
+| `Machine.lean` | constitutive interface connected to Cycle 1 histories | proved |
+| `CausalMemory.lean` | exactness relative to declared futures and update law | proved, with finite separators |
+| `NormativeExecution.lean` | action, certificate, and governed effectuation | proved, with separate unmediated path |
+| `NormativeFailure.lean` | non-neural, distinct failure diagnostics | proved |
+| `Succession.lean` | uniform iteration, normative connection, explicit stop | proved generically and finitely |
+| `LearningCausality.lean` | learning causes the next proposal at one step | contract and finite instance proved |
+| `ReflectiveMachine.lean` | machine instance of exact representation and non-closure | proved |
+| `ReferenceModel.lean` | one integrated finite certificate from histories and adequacy to causal succession, governed action, linked cycles, and reflective exit | proved |
+| `NeuralRealization.lean` | neural fidelity contract and deferred audit | defined and proved on a finite instance |
+| `TransformerRealization.lean` | transformer contract and parent–learned intervention | finite one-step instance proved; multicycle open |
 
-## 13. Intended contribution
+The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
+1 and Cycle 2 files remain the formal authority; the new modules construct
+bridges and do not redefine their results.
 
-The contribution is not a new memory, retrieval, or verification variant added
-to a model. It is an architecture of constitution and preservation in which:
+Every new Lean file is constructive, contains no `axiom`, `sorry`, `Classical`,
+`propext`, or `Quot.sound`, and ends in one `AXIOM_AUDIT` block.
 
-- objects are individuated by their formation and relations;
-- representations are realizations subject to fidelity laws;
-- persistence means preservation of constitutive identity;
-- reasoning means preserved composition of occurrences and obligations;
-- normative break is localized without erasing construction;
-- local exactness remains compatible with global reflective non-closure.
+## 14. Implementation order and gates
 
-The intended result is a system that does not claim to make every
-out-of-norm continuation impossible. It makes structurally explicit what is
-formed, what is preserved, what is admitted, what satisfies the norm, and the
-exact point at which these dimensions cease to coincide.
+The closure order is:
 
-## 14. Status of this document
+```text
+abstract machine
+→ memory and effectuation
+→ succession and generic causal contract
+→ reflective layer
+→ finite reference model
+→ abstract neural realization
+→ one-step transformer instance
+→ transformer multicycle autonomy
+→ reproducible experimental protocol
+```
 
-The current repository machine-checks the structural kernel, the circular
-instance of relative alignment, and the reflective non-closure result. This
-document determines the architectural transposition of that framework to
-transformer systems. Declarations specific to this second instance must be
-added as new Lean objects before they are presented as theorems about
-transformers.
+The neural protocol must eventually check at least: absence of forbidden
+targets from the neural view; identity between produced and consumed
+prediction; proposal change under the parent–learned intervention; consumption
+of the true successor state; intercycle ablation; preservation of invalid
+candidates; immutable traces and causally silent audit; and controls, seeds,
+and criteria fixed before confirmatory runs.
 
-## Conception
+A failed gate remains a localized result. It may not be bypassed through a
+silent protocol change or an implicit weakening of the claim.
 
-> **Statement of intellectual conception and AI generation.** The project lead
-> states that the essential ideas and research direction of the project are
-> their own. This document was written from beginning to end by models in
-> OpenAI's ChatGPT series, under human direction and through successive
-> interactions. See the
-> [full bilingual statement](../../AI_AUTHORSHIP.md).
+## 15. Exact status
+
+The repository currently proves:
+
+- the dependently typed structural kernel;
+- abstract and concrete operational exit;
+- exact adequacy between the circular regime and its autonomous norm;
+- a minimal faithfully realizable continuation that leaves both;
+- exact representation of determined statuses together with a nonrepresentable
+  diagonal status and global reflective non-closure;
+- future-relative exact memory, non-fusion, and an autonomous finite update;
+- impossibility of governed effectuation without an exact certificate and the
+  chain `effectuation → admission → norm`;
+- typed separation of formation failure, regime exit, and normative failure;
+- uniform iteration, obligation preservation, explicit stopping, and an
+  explicit connection between incorporation and normative succession;
+- one-step causality from learning through consumed prediction and changed
+  proposal to parent rejection and learned succession;
+- one integrated finite reference model with same-reading/different-formation
+  occurrences, exact memory, independent regime and norm, faithful parent and
+  learned branches, governed action, distinct exits, linked cycles, and a
+  represented status with the diagonal outside;
+- a four-plane neural interface, non-repairing elaboration, trajectory
+  fidelity, and causally silent deferred audit;
+- a transformer realization interface and finite one-step instance with an
+  active relation, inert control, and address-renaming invariance.
+
+The repository does not yet prove:
+
+- multicycle autonomy of a transformer realization;
+- faithful realization by a trained network and its actual tensors;
+- a reproducible experimental prototype satisfying every gate;
+- an empirical result about linguistic hallucinations.
+
+These remain ordered obligations, not anticipated conclusions. The boundary
+between Lean theorems, contracts, implementations, and observations remains
+explicit.
+
+## Design
+
+> **Intellectual-design and AI-generation disclosure.** The project lead
+> states that the essential ideas and the research direction of this project
+> are their own. This document was written from A to Z by models in OpenAI's
+> ChatGPT series, under human direction and through successive interactions.
+> See the [full bilingual disclosure](../../AI_AUTHORSHIP.md).
