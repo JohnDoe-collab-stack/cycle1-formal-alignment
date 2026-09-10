@@ -191,8 +191,8 @@ failure of the independent norm.
   protocol with separate smoke and confirmatory probes, an immutable
   confirmatory result, and read-only verification.
 - [Typed-program executable protocol](experiment/typed_program/README.md) —
-  separate dynamic-probe protocol; smoke and negative tests pass, while its
-  confirmatory run awaits a source-freeze commit.
+  separate dynamic-probe protocol with one confirmatory result produced after
+  source freeze and accepted by the read-only verifier.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 
@@ -229,8 +229,8 @@ French counterparts are linked from the top of every scientific document.
   aggregator for the constitutive architecture.
 - [`experiment/`](experiment) contains two scientifically distinct executable
   protocols: the frozen numerical transformer result and the typed-program
-  witness awaiting its confirmatory run. Their observations remain separate
-  from the Lean theorems.
+  witness with its post-freeze confirmatory result. Their observations remain
+  separate from the Lean theorems.
 
 No Cycle 1 module imports Cycle 2.
 

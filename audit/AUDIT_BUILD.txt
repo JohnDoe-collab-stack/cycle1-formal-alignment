@@ -74,8 +74,8 @@ Strict fresh-probe gate
 
 No field of this certificate is discharged by an external assumption.
 
-Typed-program self-extension gate, preconfirmatory state
----------------------------------------------------------
+Typed-program self-extension gate
+---------------------------------
 
 `ConstitutiveAlignment/TypedProgramDomain.lean` and
 `ConstitutiveAlignment/EndogenousTypedSuccession.lean` constructively provide:
@@ -103,12 +103,39 @@ Results:
   Linked transitions accepted: 2 / 2
   Cumulative exposed-input/training/probe signatures unique: 6 / 6
   Negative mutations rejected: 12 / 12
-  Confirmatory output produced: no
+  Confirmatory output produced before source freeze: no
   Dirty-worktree confirmatory attempt blocked before output: yes
 
-This gate is intentionally preconfirmatory. Its runner requires a clean source
-freeze commit and a new path under `experiment/typed_program/results/`. No
-confirmatory observation is claimed in this audit state.
+The scientific sources and protocol were then frozen in commit:
+
+  16219a6040af7bf3af47cad96b6350f3c5a07ae9
+
+Confirmatory command:
+
+  py experiment/typed_program/run.py --mode confirmatory --output experiment/typed_program/results/confirmatory_v1.json
+
+Read-only verification command:
+
+  py experiment/typed_program/verify.py experiment/typed_program/results/confirmatory_v1.json --self-test
+
+Confirmatory results:
+
+  Exit code: 0
+  Source freeze recorded by result: 16219a6040af7bf3af47cad96b6350f3c5a07ae9
+  Source clean at execution: yes
+  Linked transitions accepted: 2 / 2
+  Causal events recorded: 18
+  Cumulative ledger signatures unique: 6 / 6
+  Corpus sizes: 1 -> 2 -> 3
+  Acquired capacities: 1 -> 2 -> 3
+  Incorporation counterfactual diverged: yes
+  Restored-weight counterfactual diverged: yes
+  Address-renaming normalization preserved the probe: yes
+  Negative mutations rejected: 12 / 12
+  Reference-result SHA-256: 5fc922dfc3af2a05469fff52208e92acdf6b792ca6852b87473cb7c809835fc6
+
+This is a finite executable observation. It is not used as a premise by Lean
+and does not enlarge the scope of the formal theorems.
 
 Numerical protocol and source freeze
 ------------------------------------

@@ -195,8 +195,8 @@ directe d'échec de la norme indépendante.
   avec sondes de smoke test et confirmatoire séparées, résultat confirmatoire
   immuable et vérification en lecture seule.
 - [Protocole exécutable de programmes typés](experiment/typed_program/README_fr.md)
-  — protocole séparé à sonde dynamique ; le smoke test et les tests négatifs
-  passent, tandis que le run confirmatoire attend le commit de gel des sources.
+  — protocole séparé à sonde dynamique, avec un résultat confirmatoire produit
+  après gel des sources et accepté par le vérificateur en lecture seule.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 
@@ -235,8 +235,8 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   public de l’architecture constitutive.
 - [`experiment/`](experiment) contient deux protocoles exécutables
   scientifiquement distincts : le résultat transformer numérique gelé et le
-  témoin de programmes typés en attente de son run confirmatoire. Leurs
-  observations restent séparées des théorèmes Lean.
+  témoin de programmes typés avec son résultat confirmatoire postérieur au gel.
+  Leurs observations restent séparées des théorèmes Lean.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 

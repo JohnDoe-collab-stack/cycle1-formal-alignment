@@ -121,10 +121,11 @@ and probes; any collision stops the run without resampling. The normalizer
 erases technical addresses only, so coherent renaming preserves the generator
 key and probe without making a prior exposure fresh again.
 
-The development smoke test and twelve negative mutations pass. No confirmatory
-result exists yet: the runner refuses that mode until the sources have been
-frozen by a clean commit. Gate N will be declared closed only after that freeze,
-one confirmatory run to a new path, and read-only verification.
+The development smoke test and twelve negative mutations pass. The sources were
+then frozen in commit `16219a6`. One confirmatory execution produced
+`results/confirmatory_v1.json` at a new path; read-only verification and all
+twelve negative mutations pass. Gate N is therefore closed within its declared
+finite scope.
 
 ## 7. Exact scope
 
