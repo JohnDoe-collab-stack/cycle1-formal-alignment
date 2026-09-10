@@ -476,7 +476,7 @@ The new modules follow their dependency order:
 | `EndogenousTypedSuccession.lean` | one operator over two transitions, actual successor-corpus consumption, two counterfactuals, generated probe, and exact refinement | constructively proved on the finite instance |
 | `experiment/protocol_v1.py` | numerical softmax-attention prototype, disjoint training/probe split, immutable traces, controls, and deferred audit | confirmatory run passed on three precommitted seeds after source freeze |
 | `experiment/verify_refinement_v1.py` | read-only frozen-hash, probe-identity, trace, boundary, and negative-mutation verification | 3 runs and 24 traces accepted; 8 mutations rejected |
-| `experiment/typed_program/` | separate executable typed self-extension witness, cumulative ledger, and exact worker requests | smoke test and 12 negative mutations passed; confirmatory run awaits the freeze commit |
+| `experiment/typed_program/` | separate executable typed self-extension witness, cumulative ledger, and exact worker requests | one confirmatory run passed after source freeze; 12 negative mutations rejected |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -587,10 +587,12 @@ verifier accepts all 24 traces and rejects eight negative mutations. Lean does
 not parse the JSON result: formal `TraceRefinement` and executable acceptance
 remain distinct controls.
 
-The separate `experiment/typed_program/` executable protocol has passed its
-smoke test and twelve negative mutations. It has no confirmatory result yet:
-that run is technically blocked until the new sources are frozen by a clean
-commit.
+The separate `experiment/typed_program/` protocol was frozen in commit
+`16219a6` before its single confirmatory execution. Its two linked transitions,
+six-entry cumulative ledger, incorporation and learning counterfactuals, exact
+worker requests, and address-renaming control are accepted by the read-only
+verifier, which also rejects twelve negative mutations. This observation
+remains separate from the Lean theorems.
 
 The repository does not yet prove:
 

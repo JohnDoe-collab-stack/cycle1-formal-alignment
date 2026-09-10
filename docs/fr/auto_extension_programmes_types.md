@@ -136,11 +136,11 @@ retirage. Le normaliseur efface uniquement les adresses techniques : un
 renommage cohérent conserve la clé et la sonde, sans rendre fraîche une
 exposition antérieure.
 
-Le smoke test de développement et douze mutations négatives passent. Le run
-confirmatoire reste volontairement absent : le programme le refuse tant que
-les sources n’ont pas été gelées par un commit propre. La Gate N ne sera donc
-déclarée fermée qu’après ce gel, un run confirmatoire unique dans un chemin neuf
-et sa vérification en lecture seule.
+Le smoke test de développement et douze mutations négatives passent. Les
+sources ont ensuite été gelées au commit `16219a6`. Un unique run confirmatoire
+a produit `results/confirmatory_v1.json` dans un chemin neuf ; sa vérification
+en lecture seule et les douze mutations négatives réussissent. La Gate N est
+donc fermée dans sa portée finie déclarée.
 
 ## 7. Portée exacte
 
