@@ -181,10 +181,11 @@ failure of the independent norm.
 - [Constitutive neural architecture for relative alignment](docs/en/constitutive_transformer_alignment.md)
   — constructive contracts for causal memory, governed effectuation,
   succession, neural realization, and a finite hard-attention transformer
-  instance with exact two-cycle feedback and normative confinement.
+  instance with governed invariants at every finite depth.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
-- [Finite experimental protocol](experiment/README.md) — frozen numerical
-  protocol, immutable confirmatory result, controls, traces, and deferred audit.
+- [Finite experimental protocol](experiment/README.md) — precommitted numerical
+  protocol with separate smoke and confirmatory probes; its replacement
+  confirmatory run is pending the source-freeze commit.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 
@@ -208,10 +209,12 @@ French counterparts are linked from the top of every scientific document.
 - [`ConstitutiveAlignment/`](ConstitutiveAlignment) builds the abstract machine,
   causal memory, certified effectuation, typed failures, succession, one-step
   learning causality, reflective bridge, finite reference model, and neural and
-  transformer realization contracts and finite transformer dynamics.
+  transformer realization contracts, arbitrary-finite-depth governed dynamics,
+  admissible adequacy transport, strict fresh-probe acquisition, and discrete
+  executable refinement.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
-- [`experiment/`](experiment) contains the versioned numerical protocol; its
+- [`experiment/`](experiment) contains the single numerical protocol; its
   observations remain separate from the Lean theorems.
 
 No Cycle 1 module imports Cycle 2.
@@ -237,7 +240,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles all three Lake libraries, audits 468 declarations through
+The pinned build compiles all three Lake libraries, audits 521 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).

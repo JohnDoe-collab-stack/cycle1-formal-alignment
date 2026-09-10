@@ -65,6 +65,9 @@ class NeuralOutput:
 class PrimaryTrace:
     seed: int
     cycle: str
+    probe_role: str
+    probe_id: str
+    probe_ordinal: int
     view: AuthorizedView
     parameters: Parameters
     neural: NeuralOutput
@@ -173,22 +176,35 @@ def journal_hash(journal: tuple[PrimaryTrace, ...]) -> str:
 def train_bias(
     producer: NeuralProducer,
     initial: Parameters,
-    view: AuthorizedView,
-    target: float,
+    examples: tuple[tuple[AuthorizedView, float], ...],
     learning_rate: float,
     steps: int,
 ) -> Parameters:
     bias = initial.predictive_bias
     for _step in range(steps):
-        output = producer.predict(Parameters(bias), view)
-        gradient = output.probability - target
-        bias -= learning_rate * gradient
+        for view, target in examples:
+            output = producer.predict(Parameters(bias), view)
+            gradient = output.probability - target
+            bias -= learning_rate * gradient
     return Parameters(bias)
+
+
+def case_view(case: dict[str, Any], memory: AttentionMemory) -> AuthorizedView:
+    return AuthorizedView(
+        tokens=tuple(float(token) for token in case["tokens"]),
+        cache=float(case["cache"]),
+        memory=memory,
+        relation=int(case["initial_relation"]),
+        budget=int(case["budget"]),
+    )
 
 
 def produce_trace(
     seed: int,
     cycle: str,
+    probe_role: str,
+    probe_id: str,
+    probe_ordinal: int,
     producer: NeuralProducer,
     runtime: ConstitutiveRuntime,
     effector: GovernedEffector,
@@ -208,6 +224,9 @@ def produce_trace(
     return PrimaryTrace(
         seed=seed,
         cycle=cycle,
+        probe_role=probe_role,
+        probe_id=probe_id,
+        probe_ordinal=probe_ordinal,
         view=view,
         parameters=parameters,
         neural=neural,
@@ -241,10 +260,12 @@ def exact_memory_check(memory: AttentionMemory, tolerance: float) -> bool:
     return True
 
 
-def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
+def run_seed(config: dict[str, Any], seed: int, mode: str) -> dict[str, Any]:
     architecture = config["architecture"]
     training = config["training"]
     data = config["data"]
+    training_cases = data["training_cases"]
+    probe_policy = data["probe_policy"]
     criteria = config["criteria"]
     tolerance = float(criteria["float_tolerance"])
 
@@ -257,13 +278,42 @@ def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
         keys=tuple(float(value) for value in architecture["memory_keys"]),
         values=tuple(float(value) for value in architecture["memory_values"]),
     )
-    initial_view = AuthorizedView(
-        tokens=tuple(float(token) for token in data["tokens"]),
-        cache=float(data["cache"]),
-        memory=memory,
-        relation=int(data["initial_relation"]),
-        budget=int(data["budget"]),
+    if not training_cases:
+        raise ValueError("training set must be nonempty")
+    training_ids = tuple(str(case["case_id"]) for case in training_cases)
+    if len(set(training_ids)) != len(training_ids):
+        raise ValueError("training case identifiers must be unique")
+    declared_training_ids = tuple(
+        str(value) for value in probe_policy["training_case_ids"]
     )
+    if declared_training_ids != training_ids:
+        raise ValueError("probe policy does not bind the exact training set")
+    training_views = tuple(case_view(case, memory) for case in training_cases)
+    training_examples = tuple(
+        (view, float(case["target_prediction"]))
+        for case, view in zip(training_cases, training_views)
+    )
+
+    probes = probe_policy["probes"]
+    probe_ids = tuple(str(probe["probe_id"]) for probe in probes)
+    if len(set(probe_ids)) != len(probe_ids):
+        raise ValueError("held-out probe identifiers must be unique")
+    if set(training_ids).intersection(probe_ids):
+        raise ValueError("training and held-out identifiers are not disjoint")
+    probe_views = tuple(case_view(probe, memory) for probe in probes)
+    if len(set(probe_views)) != len(probe_views):
+        raise ValueError("held-out probe views must be unique")
+    if set(training_views).intersection(probe_views):
+        raise ValueError("a held-out probe duplicates a training view")
+    if probe_policy["smoke_ordinal"] == probe_policy["confirmatory_ordinal"]:
+        raise ValueError("smoke and confirmatory probes must be different")
+    ordinal_field = f"{mode}_ordinal"
+    selected_ordinal = int(probe_policy[ordinal_field])
+    if selected_ordinal < 0 or selected_ordinal >= len(probes):
+        raise ValueError("precommitted probe ordinal is outside the probe policy")
+    selected_probe = probes[selected_ordinal]
+    probe_id = str(selected_probe["probe_id"])
+    initial_view = probe_views[selected_ordinal]
 
     producer = NeuralProducer(architecture)
     runtime = ConstitutiveRuntime(float(architecture["proposal_threshold"]))
@@ -271,17 +321,18 @@ def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
     learned_parameters = train_bias(
         producer,
         parent_parameters,
-        initial_view,
-        float(data["target_prediction"]),
+        training_examples,
         float(training["learning_rate"]),
         int(training["steps"]),
     )
 
     parent = produce_trace(
-        seed, "parent", producer, runtime, effector, parent_parameters, initial_view
+        seed, "parent", mode, probe_id, selected_ordinal,
+        producer, runtime, effector, parent_parameters, initial_view
     )
     learned = produce_trace(
-        seed, "learned-cycle-1", producer, runtime, effector, learned_parameters, initial_view
+        seed, "learned-cycle-1", mode, probe_id, selected_ordinal,
+        producer, runtime, effector, learned_parameters, initial_view
     )
     second_view = dataclasses.replace(
         initial_view,
@@ -289,28 +340,34 @@ def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
         budget=initial_view.budget - 1,
     )
     second = produce_trace(
-        seed, "learned-cycle-2", producer, runtime, effector, learned_parameters, second_view
+        seed, "learned-cycle-2", mode, probe_id, selected_ordinal,
+        producer, runtime, effector, learned_parameters, second_view
     )
     ablated_view = dataclasses.replace(initial_view, budget=initial_view.budget - 1)
     ablated = produce_trace(
-        seed, "intercycle-ablation", producer, runtime, effector, learned_parameters, ablated_view
+        seed, "intercycle-ablation", mode, probe_id, selected_ordinal,
+        producer, runtime, effector, learned_parameters, ablated_view
     )
     relation_flipped_view = dataclasses.replace(initial_view, relation=1 - initial_view.relation)
     relation_active = produce_trace(
-        seed, "active-relation-control", producer, runtime, effector,
+        seed, "active-relation-control", mode, probe_id, selected_ordinal,
+        producer, runtime, effector,
         learned_parameters, relation_flipped_view
     )
     inert_initial = produce_trace(
-        seed, "inert-original", producer, runtime, effector,
+        seed, "inert-original", mode, probe_id, selected_ordinal,
+        producer, runtime, effector,
         learned_parameters, initial_view, consume_relation=False
     )
     inert_flipped = produce_trace(
-        seed, "inert-flipped", producer, runtime, effector,
+        seed, "inert-flipped", mode, probe_id, selected_ordinal,
+        producer, runtime, effector,
         learned_parameters, relation_flipped_view, consume_relation=False
     )
     renamed_view = dataclasses.replace(initial_view, memory=initial_view.memory.renamed())
     renamed = produce_trace(
-        seed, "address-renamed", producer, runtime, effector,
+        seed, "address-renamed", mode, probe_id, selected_ordinal,
+        producer, runtime, effector,
         learned_parameters, renamed_view
     )
 
@@ -335,6 +392,25 @@ def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
     }
     authorized_fields = {field.name for field in dataclasses.fields(AuthorizedView)}
     checks = {
+        "probe_selection_is_precommitted": (
+            selected_ordinal == int(probe_policy[ordinal_field])
+            and probe_policy["smoke_ordinal"] != probe_policy["confirmatory_ordinal"]
+            and probe_policy["commitment_id"] == "fixed-held-out-probe-policy"
+        ),
+        "selected_probe_is_fresh": (
+            probe_id not in set(training_ids)
+            and initial_view not in training_views
+        ),
+        "training_and_probe_splits_are_exactly_bound": (
+            declared_training_ids == training_ids
+            and not set(training_ids).intersection(probe_ids)
+        ),
+        "parent_and_learned_share_exact_probe": (
+            parent.probe_id == learned.probe_id == probe_id
+            and parent.probe_role == learned.probe_role == mode
+            and parent.probe_ordinal == learned.probe_ordinal == selected_ordinal
+            and parent.view == learned.view == initial_view
+        ),
         "target_absent_from_authorized_view": not bool(
             forbidden_view_fields.intersection(authorized_fields)
         ),
@@ -404,6 +480,17 @@ def run_seed(config: dict[str, Any], seed: int) -> dict[str, Any]:
 
     return {
         "seed": seed,
+        "training_case_ids": list(training_ids),
+        "probe_role": mode,
+        "probe_commitment_id": probe_policy["commitment_id"],
+        "selected_probe_id": probe_id,
+        "selected_probe_ordinal": selected_ordinal,
+        "training_views_sha256": sha256_bytes(
+            canonical_bytes([dataclasses.asdict(view) for view in training_views])
+        ),
+        "probe_view_sha256": sha256_bytes(
+            canonical_bytes(dataclasses.asdict(initial_view))
+        ),
         "initial_parameters": dataclasses.asdict(parent_parameters),
         "learned_parameters": dataclasses.asdict(learned_parameters),
         "sealed_primary_trace_sha256": sealed_hash,
@@ -417,7 +504,7 @@ def run_protocol(config_path: Path, mode: str) -> dict[str, Any]:
     config = json.loads(config_bytes)
     script_path = Path(__file__).resolve()
     seeds = [int(seed) for seed in config["seeds"]]
-    runs = [run_seed(config, seed) for seed in seeds]
+    runs = [run_seed(config, seed, mode) for seed in seeds]
     every_seed_passed = all(run["deferred_audit"]["all_passed"] for run in runs)
     return {
         "protocol": config["protocol"],
@@ -426,6 +513,12 @@ def run_protocol(config_path: Path, mode: str) -> dict[str, Any]:
             "script_sha256": sha256_bytes(script_path.read_bytes()),
             "config_sha256": sha256_bytes(config_bytes),
             "data_sha256": sha256_bytes(canonical_bytes(config["data"])),
+            "training_sha256": sha256_bytes(
+                canonical_bytes(config["data"]["training_cases"])
+            ),
+            "probe_policy_sha256": sha256_bytes(
+                canonical_bytes(config["data"]["probe_policy"])
+            ),
             "python": platform.python_version(),
             "numpy": np.__version__,
             "platform": platform.platform(),
@@ -437,7 +530,7 @@ def run_protocol(config_path: Path, mode: str) -> dict[str, Any]:
         },
         "interpretation": {
             "supported": (
-                "Within this frozen finite task, learned prediction changes the "
+                "Within this finite task, learned prediction changes the "
                 "constitutive proposal, the proposal is consumed by the next cycle, "
                 "and the governed effect is confined on normative rejection."
             )

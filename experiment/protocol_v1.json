@@ -18,12 +18,38 @@
     "steps": 50
   },
   "data": {
-    "split": "fixed-train-case",
-    "tokens": [0.0],
-    "cache": 0.0,
-    "initial_relation": 0,
-    "budget": 2,
-    "target_prediction": 1.0
+    "training_cases": [
+      {
+        "case_id": "training-0",
+        "tokens": [0.0],
+        "cache": 0.0,
+        "initial_relation": 0,
+        "budget": 2,
+        "target_prediction": 1.0
+      }
+    ],
+    "probe_policy": {
+      "commitment_id": "fixed-held-out-probe-policy",
+      "smoke_ordinal": 0,
+      "confirmatory_ordinal": 1,
+      "training_case_ids": ["training-0"],
+      "probes": [
+        {
+          "probe_id": "smoke-0",
+          "tokens": [1.0, 0.0],
+          "cache": 0.0,
+          "initial_relation": 0,
+          "budget": 2
+        },
+        {
+          "probe_id": "confirmatory-0",
+          "tokens": [0.75, -0.25],
+          "cache": 0.0,
+          "initial_relation": 0,
+          "budget": 2
+        }
+      ]
+    }
   },
   "criteria": {
     "float_tolerance": 1e-12,

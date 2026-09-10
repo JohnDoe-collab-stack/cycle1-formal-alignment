@@ -4,7 +4,8 @@ Structural foundations artifact — reproducible build and axiom audit
 Audit date: 2026-09-10
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
 Release version: 2.0.0
-Audit scope: Cycle 1, Cycle 2, the constitutive neural architecture, and the finite numerical experiment
+Audit scope: Cycle 1, Cycle 2, constitutive neural dynamics through arbitrary
+finite depth, strict fresh-probe acquisition, and discrete executable refinement
 Scientific-source identity: MANIFEST.sha256
 
 This repository contains every source and configuration file required for the
@@ -32,19 +33,20 @@ Results:
 
   Exit code: 0
   Build completed successfully: yes
+  Build jobs: 25
   Warnings: 0
-  Axiom audit declarations: 468
+  Lean files with one final AXIOM_AUDIT block: 21 / 21
+  Axiom audit declarations: 521
   Unexpected axiom lines: 0
 
-The sixteen declaration-bearing Lean modules contain the axiom-reporting
-declarations used by the build; `Cycle2.lean` and `ConstitutiveAlignment.lean`
-are public aggregators. Every one of the 468 reports states that the named
-declaration does not depend on any axioms.
+Every one of the 521 reports states that the named declaration does not depend
+on any axioms.
 
 Source-policy scan
 ------------------
 
-The audited Lean sources contain none of the following forbidden constructs:
+The audited Lean sources contain no occurrence of the following forbidden
+constructs:
 
   sorry
   admit
@@ -55,73 +57,56 @@ The audited Lean sources contain none of the following forbidden constructs:
   propext
   Quot.sound
 
-Scientific source SHA-256
-------------------------
+Strict fresh-probe gate
+-----------------------
 
-1200d2b820747a1220adbbe0e3723d7f8c4332b88747831fea38d5b17168d12c  SegmentedResidualRole.lean
-c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
-51fd2c4b2e09c2e2a9443e9cd5adc23c98cdfde232d5a24d0248c620ec0b2d17  StrongPerimetralTurning.lean
-c1ece0bc5d8d39a53a8149c3e753214abdb1f2d290a3e339aac131cd3ba44b2f  Cycle2.lean
-78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
-08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-c3053603504f24b42b9a394dcdf8768d156fe1d89031b66a96f31aa16bf8771e  ConstitutiveAlignment.lean
-ee1c04021d7a9762d0801a6bbac2e8b8abfed0d3daebcb6ff879f6302ec00bde  ConstitutiveAlignment/CausalMemory.lean
-bf56380d07a2d60dcfe67b584c24f27bb08d9d347894b0e0e0d2cb79a4ff964c  ConstitutiveAlignment/LearningCausality.lean
-f096d8da1b53695317573c7d811fcc8290f9f17ba489c9f4d6f3c9afca399b73  ConstitutiveAlignment/Machine.lean
-2ab51891777d3d3a7fad6883d3ad9be417e4f4d800e32434a182471a6d42c5e5  ConstitutiveAlignment/NeuralRealization.lean
-5b9d290065969abc269d66a468091da7bf6406b2db279f8456719b2d2414434f  ConstitutiveAlignment/NormativeExecution.lean
-fa1be673d11e4d380eeea34523bc3206e6b7adf4a3d13a6775e908df09ac3092  ConstitutiveAlignment/NormativeFailure.lean
-f5fdba157ad55fe0ebe7222fde52a124d3de15bd7104c3ba28080368f2c5892e  ConstitutiveAlignment/ReferenceModel.lean
-20072c6a3f392180154792fdab05da4093cbf9ecb04ee6c76a51edf9608b3688  ConstitutiveAlignment/ReflectiveMachine.lean
-cdaab12e4c4d35ccaa0a45d0185ce12a9a3091e41136d340ca122d9df5fc55c6  ConstitutiveAlignment/Succession.lean
-1d622d9751b2c5d3958f0eaa5ecc93983d9c0dcfc56324c5f926fd6548aa0308  ConstitutiveAlignment/TransformerDynamics.lean
-678db423c270b014c229ae1d977916dcdd41018b727b3446c074d6ec083afcfa  ConstitutiveAlignment/TransformerRealization.lean
-6a5acec1f61d313ce65fea5f18a8d894d0e539ea746ead635d36c9b2da6c255b  docs/fr/alignement_relatif.md
-52043f423367bc4747448d031b507aabfed81d8d49a0f53e5158de529781ee70  docs/en/relative_alignment.md
-a60f19d6a2798f4dea75c89280f214e848730a77f16f878f8e69ae0f98021032  docs/fr/fondements_structurels.md
-73ca87fae8144fb523ff89c4e73b5acc0e31082a7c3055be4acfb0d5611ec79c  docs/en/structural_foundations.md
-eb2ee470b7fa839c57e609742ea9ecc9f3f8f1f69dbfd9b742145cdc7413919c  docs/fr/methode_roles_constitutifs_relationnels.md
-acf6a27e56ea000148373b922cd60d390bf354d97ce2f648c25921b7ead31f6f  docs/en/relational_constitutive_roles_method.md
-15612509045be91cd0cc28d7d30cbd92a6c026f12740693f7c44fbb9a3366e7e  docs/fr/alignement_reflexif.md
-6541b17b52b7b08c7163a8e702c183f1d2693dad5f32cc86ea2f791daa15b3e9  docs/en/reflective_alignment.md
-ede4e921098b990093963c718007d0232df757d3411b85800dc25dc86306335b  docs/fr/alignement_constitutif_transformers.md
-6ddedf9764ada2c365ec0a888f0046d3ba9af3c8b47269bdfeb0e592f301de71  docs/en/constitutive_transformer_alignment.md
-c0af00fd1d33e2e45e2e8f3936ed7d2b7f8373aa82837cf5d9aff1accdd2f4af  experiment/README.md
-68734f0eaffd762efe06983dc64a31dd41b72677e87159f22aa19dcb34f63db3  experiment/README_fr.md
-20acb15c3f31736cf76544c7b2eba5265da3a1569ea41c828bbd89b3e78b81f5  experiment/RESULTS_v1.md
-57addf1c2ac1ad6227e9f03682be4f85e38a35042783d17d1c3185a9e2fc0627  experiment/RESULTATS_v1.md
-149ab76af8db75f9ee79af24188ecefa7aad434bb26ecc735f414df7921d96f9  experiment/protocol_v1.json
-e9fa57cf9859d3373adb63a466aa37aad99ee3f85ca5fd492e5244f364253493  experiment/protocol_v1.py
-7bd6b8946940b79948c548c8048e545684b91c8edc9444d8dfc0c8f76a97c0a7  experiment/requirements-v1.txt
-397c7bf5b39dd5f08ab565588314a9466538a5aaebb836d43b202ce6925c5648  experiment/results/confirmatory_v1.json
+`ConstitutiveAlignment/FreshProbeCausality.lean` constructively provides:
 
-Confirmatory numerical protocol
--------------------------------
+  - a training corpus and a held-out probe with distinct roles;
+  - a refutation that the held-out probe belongs to the training corpus;
+  - a refutation that its authorized view equals the training view;
+  - a unique commitment preventing corpus or probe substitution;
+  - parent and learned traces over exactly the same held-out view;
+  - exact consumption of the learned prediction by the proposal;
+  - exact identity between acquired weights and those used by the governed
+    finite-depth transformer dynamics.
 
-Frozen-protocol commit: 7aba368
-Command:
+No field of this certificate is discharged by an external assumption.
 
-  python experiment/protocol_v1.py --mode confirmatory --config experiment/protocol_v1.json --output experiment/results/confirmatory_v1.json
+Pre-freeze numerical checks
+---------------------------
+
+Smoke command:
+
+  python experiment/protocol_v1.py --mode smoke --config experiment/protocol_v1.json
 
 Results:
 
   Exit code: 0
-  Precommitted seeds passed: 3 / 3 (11, 29, 47)
-  Primary traces recorded: 24
+  Seeds passed: 3 / 3 (11, 29, 47)
+  Primary traces exercised: 24
   Deferred audits passed: 3 / 3
-  Primary traces unchanged by audit: yes
-  Script and configuration hashes matched the frozen inputs: yes
+  Parent and learned paths used the same smoke probe: yes
+  Training and probe identifiers were disjoint: yes
+  Training, smoke, and confirmatory authorized views were pairwise distinct: yes
+  Confirmatory probe executed before source freeze: no
 
-This is a finite numerical observation. It is not an additional Lean theorem,
-a general transformer-alignment result, or an empirical claim about natural-
-language hallucinations.
+Four pre-training negative mutations were also checked and rejected: an
+incorrect training-set binding, an identifier collision, a held-out probe
+duplicating the training view, and identical smoke and confirmatory selectors.
+
+This smoke test is explicitly non-confirmatory. The corrected canonical script
+and configuration must first be frozen in a commit. Only then may the unique
+confirmatory result be generated, followed by its hash-pinned read-only
+verifier and bilingual reports. The earlier result and verifier were removed
+because they corresponded to a protocol without the required strict split.
 
 Manifest verification
 ---------------------
 
-The manifest was verified successfully with all three supported commands:
+The pre-freeze scientific-source manifest was verified successfully with both
+Windows commands:
 
-  bash scripts/verify-manifest.sh
   pwsh -NoProfile -File scripts/verify-manifest.ps1
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
@@ -130,6 +115,7 @@ Reproduction
 
 From the repository root:
 
+  lake clean
   lake build
 
 Then verify scientific-source integrity on Linux or macOS:
@@ -140,6 +126,7 @@ Or on Windows:
 
   powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-This file is a convenience record of one successful clean reproduction. The
-authoritative check consists in rerunning these commands with the pinned
-toolchain on the repository contents matched by MANIFEST.sha256.
+This record describes the source candidate before its confirmatory freeze.
+After the source-freeze commit and confirmatory run, the audit and manifest must
+be extended with the immutable result, verifier, bilingual reports, exact
+hashes, commands, and observed outcomes.

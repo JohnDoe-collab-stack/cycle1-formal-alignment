@@ -286,6 +286,15 @@ reason, and a constructed learned succession. A constant-proposal separator
 shows that changed predictions alone do not establish influence on the
 proposal.
 
+`FreshProbeCausality.lean` closes the acquisition side of this intervention.
+It separates the training corpus from the evaluation probe, binds both by one
+unique commitment, constructs a refutation that the probe belongs to the
+training corpus, and runs parent and learned states on the same authorized
+probe view. The learned state produced by that training procedure is exactly
+the fixed weight state used by the finite-depth transformer dynamics. This is
+a constructive finite instance, not an assumption that arbitrary trained
+weights satisfy the contract.
+
 This one-step result is a necessary condition of the target machine. By itself,
 it is not a proof of multicycle autonomy.
 
@@ -331,8 +340,21 @@ incorporates the produced proposal as the next relation, and runs again on that
 produced view. A dedicated ablation keeps tokens, cache, memory, budget, core,
 and weights fixed while omitting only this incorporation; both the second
 prediction and the second proposal then change. This establishes finite
-two-cycle autonomy in the declared model. Trained-network and unbounded-horizon
-autonomy remain separate formal and experimental obligations.
+two-cycle autonomy in the declared model.
+
+`GovernedDynamics.lean` then generalizes this dynamic to every finite depth
+`n : Nat` without introducing a cycle catalogue. `viewAt n` is produced by the
+same operator; `reachableTransformerAt n` carries its forming history; and
+`proposalIsNextConsumedRelation n` establishes that the proposal at rank `n`
+is exactly the relation consumed at rank `n + 1`. `GovernedInvariant` aggregates
+at every reached state trajectory fidelity, exactness and retention of the
+declared memory, regime–norm adequacy, the candidate's normative status,
+retention of its elaboration, and confinement of any governed effect. Its
+one-step law is composed by `preservesAlongIteration`, constructing the
+invariant for every finite horizon. Ablating the active relation changes the
+prediction, the proposal, and therefore the next produced state at every depth
+of this instance, while bounded stopping remains an explicit constructive
+result.
 
 ## 10. Neural realization
 
@@ -387,8 +409,12 @@ The finite one-step instance proves:
 - the rejected proposal remains present in the elaboration trace.
 
 This closes the stated one-step obligations on a finite constructive
-hard-attention realization. It is not a trained transformer, a floating-point
-softmax-attention implementation, or a multicycle autonomy result.
+hard-attention realization. The one-step module alone is not a multicycle
+result, but its composition in `TransformerDynamics.lean` and then
+`GovernedDynamics.lean` constructs, respectively, two causally linked cycles
+and governed dynamics at every finite depth. It is not a trained transformer, a
+formalization of floating-point softmax-attention tensors, or an infinite-horizon
+result.
 
 ## 12. Memory, normative break, and relative hallucination
 
@@ -443,7 +469,10 @@ The new modules follow their dependency order:
 | `NeuralRealization.lean` | neural fidelity contract and deferred audit | defined and proved on a finite instance |
 | `TransformerRealization.lean` | transformer contract, hard attention, proposed-relation consumption, and parent–learned intervention | finite one-step gate proved; multicycle developed in `TransformerDynamics.lean` |
 | `TransformerDynamics.lean` | exact attention memory, uniform two-cycle feedback, intercycle ablation, relative normative break, and confinement | proved on the finite hard-attention instance |
-| `experiment/protocol_v1.py` | numerical softmax-attention prototype, training, immutable traces, controls, and deferred audit | confirmatory run observed on three precommitted seeds |
+| `FreshProbeCausality.lean` | committed training/probe split, constructive freshness, and exact use of the acquired weights | proved on the finite hard-attention instance |
+| `GovernedDynamics.lean` | proof-relevant reachability, governed invariant, admissible evolution, and arbitrary-finite-depth transformer dynamics | constructively proved for every `n : Nat` |
+| `ExecutableRefinement.lean` | canonical discrete boundary, exact refinement, linked traces, and negative separators | constructively proved for every `n : Nat` |
+| `experiment/protocol_v1.py` | numerical softmax-attention prototype, disjoint training/probe split, immutable traces, controls, and deferred audit | corrected canonical source; confirmatory run pending its freeze commit |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -464,16 +493,22 @@ abstract machine
 → finite reference model
 → abstract neural realization
 → one-step transformer instance
-→ transformer multicycle autonomy
+→ two-cycle transformer dynamics
+→ governed invariant at every finite depth
+→ admissible evolution and adequacy transport
+→ refinement of the executable discrete boundary
 → reproducible experimental protocol
 ```
 
-The frozen numerical protocol checks absence of forbidden targets from the
-neural view; identity between produced and consumed prediction; proposal change
-under the parent–learned intervention; consumption of the true successor state;
-intercycle ablation; preservation of invalid candidates; immutable traces and
-causally silent audit; and controls, seeds, and criteria fixed before its
-confirmatory run.
+The numerical protocol requires separate fixed smoke and confirmatory probes,
+both disjoint from the training set and from each other by identifier and
+authorized view. A smoke run does not execute the confirmatory probe. The
+protocol also checks absence of
+forbidden targets from the neural view; identity between produced and consumed
+prediction; proposal change under the parent–learned intervention on that same
+probe; consumption of the true successor state; intercycle ablation;
+preservation of invalid candidates; immutable traces and causally silent audit;
+and controls, seeds, and criteria fixed before its confirmatory run.
 
 A failed gate remains a localized result. It may not be bypassed through a
 silent protocol change or an implicit weakening of the claim.
@@ -496,6 +531,9 @@ The repository currently proves:
   explicit connection between incorporation and normative succession;
 - one-step causality from learning through consumed prediction and changed
   proposal to parent rejection and learned succession;
+- a fixed fresh-probe acquisition witness whose training corpus and probe are
+  constructively disjoint, whose commitment prevents probe substitution, and
+  whose acquired weights are exactly those used by the finite-depth dynamics;
 - one integrated finite reference model with same-reading/different-formation
   occurrences, exact memory, independent regime and norm, faithful parent and
   learned branches, governed action, distinct exits, linked cycles, and a
@@ -509,18 +547,35 @@ The repository currently proves:
 - finite two-cycle transformer dynamics under one uniform operator and fixed
   learned weights, with exact proposal-to-relation feedback, exact attention
   memory, a dedicated intercycle ablation, and confined relative normative
-  failure.
+  failure;
+- transformer dynamics constructed for every finite depth `n : Nat`, where
+  every state carries its forming history and every proposal becomes exactly
+  the relation consumed by the next cycle;
+- a governed invariant preserved at every such reachable state, combining
+  without identifying them fidelity, memory, adequacy, normative status,
+  elaboration retention, and effect confinement;
+- an admissible-evolution contract separating parametric learning,
+  incorporation, memory update, adequacy transport, and injective action and
+  certificate transport;
+- a discrete executable boundary exactly refining the formal trace at every
+  finite depth, with constructive rejection of a rewritten candidate, a forged
+  effect, and a missing intercycle link; certificate and effectuation statuses
+  are indexed by the exact candidate-derived action and constitutive context.
 
-Separately from these theorems, the frozen numerical protocol v1 observes on
-all three precommitted seeds that its trained scalar predictive parameter
-changes the proposal, that the first learned proposal is consumed as the second
-relation, that intercycle ablation changes the second proposal, and that the
-deferred audit leaves each sealed primary trace unchanged. The immutable JSON
-result and bilingual report are stored in `experiment/`.
+Separately from these theorems, the corrected numerical protocol has passed a
+non-confirmatory run on its dedicated smoke probe. Its training set, smoke
+probe, and fixed confirmatory probe are pairwise disjoint, and the
+parent–learned comparison consumes the selected probe without substitution.
+The confirmatory probe has not been executed. The confirmatory JSON, bilingual
+reports, and hash-pinned read-only verifier will be produced only after the
+corrected script and configuration have been frozen in a commit. Until then,
+no confirmatory numerical claim is made. Lean does not parse the JSON result; the formal
+`TraceRefinement` theorem and future executable acceptance remain distinct.
 
 The repository does not yet prove:
 
-- multicycle autonomy of a trained or unbounded transformer realization;
+- a production-scale trained transformer realization or an actually infinite
+  trajectory;
 - faithful realization by a trained network and its actual tensors;
 - an empirical result about linguistic hallucinations.
 
