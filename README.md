@@ -203,10 +203,17 @@ failure of the independent norm.
   — constructive contracts for causal memory, governed effectuation,
   succession, neural realization, and a finite hard-attention transformer
   instance with governed invariants at every finite depth.
+- [Typed-program constitutive self-extension](docs/en/typed_program_self_extension.md)
+  — total finite typed language, rank-free frontier, two linked invocations of
+  one operator, generated fresh probe, causal counterfactuals, and exact trace
+  refinement.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Finite experimental protocol](experiment/README.md) — precommitted numerical
   protocol with separate smoke and confirmatory probes, an immutable
   confirmatory result, and read-only verification.
+- [Typed-program executable protocol](experiment/typed_program/README.md) —
+  separate dynamic-probe protocol; smoke and negative tests pass, while its
+  confirmatory run awaits a source-freeze commit.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 
@@ -237,11 +244,18 @@ French counterparts are linked from the top of every scientific document.
   transformer realization contracts, arbitrary-finite-depth governed dynamics,
   admissible adequacy transport, strict fresh-probe acquisition, and discrete
   executable refinement.
+- [`ConstitutiveAlignment/TypedProgramDomain.lean`](ConstitutiveAlignment/TypedProgramDomain.lean)
+  defines the finite intrinsically typed program domain, total semantics, and
+  rank-free frontier.
+- [`ConstitutiveAlignment/EndogenousTypedSuccession.lean`](ConstitutiveAlignment/EndogenousTypedSuccession.lean)
+  constructs the two linked typed transitions, causal separators, generated
+  probe protocol, and exact typed refinement.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
-- [`experiment/`](experiment) contains the single numerical protocol, immutable
-  result, and read-only verifier; its observations remain separate from the
-  Lean theorems.
+- [`experiment/`](experiment) contains two scientifically distinct executable
+  protocols: the frozen numerical transformer result and the typed-program
+  witness awaiting its confirmatory run. Their observations remain separate
+  from the Lean theorems.
 
 No Cycle 1 module imports Cycle 2.
 
@@ -266,7 +280,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles all three Lake libraries, audits 521 declarations through
+The pinned build compiles all three Lake libraries, audits 565 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).

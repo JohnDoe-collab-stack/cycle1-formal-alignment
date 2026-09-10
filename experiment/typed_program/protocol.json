@@ -1,0 +1,30 @@
+{
+  "protocol": "typed-program-self-extension-v1",
+  "status": "precommitted-before-confirmatory-run",
+  "language": {
+    "carrier": "bit",
+    "initial_capacity": 1,
+    "capacity_increment": 1,
+    "maximum_composition_depth": 3,
+    "probe_width": 16
+  },
+  "frontier": {
+    "rule": "first-missing-well-typed-pairwise-composition",
+    "order": "corpus-left-major-then-right-major",
+    "cycle_ordinal_input": false
+  },
+  "generator": {
+    "algorithm": "sha256-counter-bits-v1",
+    "normalizer": "erase-technical-addresses-v1",
+    "smoke_seed": "smoke-not-confirmatory-20260910",
+    "confirmatory_seed": "confirmatory-20260910-typed-program"
+  },
+  "criteria": {
+    "required_transitions": 2,
+    "require_exact_worker_request_log": true,
+    "require_cumulative_freshness": true,
+    "require_incorporation_counterfactual": true,
+    "require_learning_counterfactual": true,
+    "require_address_renaming_invariance": true
+  }
+}

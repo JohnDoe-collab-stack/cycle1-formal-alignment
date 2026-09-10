@@ -18,6 +18,9 @@ doit pas devenir une dépendance du résultat.
 - branche de travail : `codex/constitutive-transformer` ;
 - protocole canonique corrigé et gelé : commit `a4b9a44` ;
 - les lots A à M sont fermés dans leur portée déclarée ;
+- la partie Lean du Lot N et son protocole exécutable sont implémentés ; le
+  smoke test et douze mutations négatives passent, mais la Gate N reste ouverte
+  jusqu’au commit de gel et au run confirmatoire ;
 - l’itération uniforme sur une profondeur naturelle et la conservation d’une
   obligation sous itération sont déjà génériques dans `Succession.lean` ;
 - la suite ne doit ni reconstruire ces acquis ni présenter les deux cycles finis
@@ -25,8 +28,9 @@ doit pas devenir une dépendance du résultat.
 - les documents canoniques actuels sont
   `docs/fr/alignement_constitutif_transformers.md` et
   `docs/en/constitutive_transformer_alignment.md` ;
-- l’ancien résultat confirmatoire ne satisfait pas la séparation désormais
-  exigée et ne fait plus partie de l’état scientifique candidat à l’intégration.
+- le résultat confirmatoire corrigé a été exécuté après le gel, puis enregistré
+  au commit `2e6c4b4` ; il constitue l’unique résultat de référence du protocole
+  numérique actuel.
 
 ## 1. Objectif final
 
@@ -53,6 +57,10 @@ autonome de la machine neuronale constitutive qui :
     les mises à jour de paramètres, de mémoire, de régime et de norme ;
 13. établit une frontière de raffinement explicite entre la trace exécutable et
     les objets formels, sans transformer une observation numérique en preuve.
+14. construit un témoin compact d’auto-extension typée dans lequel une première
+    abstraction certifiée modifie le régime effectivement atteint, lequel
+    détermine ensuite une nouvelle obligation et une seconde transition sous le
+    même opérateur.
 
 Le résultat final doit être compréhensible, compilable et vérifiable depuis ce
 dépôt seul.
@@ -115,6 +123,7 @@ qu’elles sont encore toutes ouvertes.
 | K | fermé | le protocole canonique unique sépare entraînement, smoke test et sonde confirmatoire ; le run passé après gel réussit sur les trois graines |
 | L | fermé dans l’instance finie | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique uniforme pour tout `n : Nat` |
 | M | fermé | raffinement formel exact et séparateurs construits ; vérificateur en lecture seule validé sur 24 traces et huit mutations négatives |
+| N | implémenté, pré-confirmatoire | langage typé total, frontière endogène, deux transitions sous le même opérateur, deux contrefactuels, sonde générée après scellement et raffinement exact ; smoke validé, commit de gel et run confirmatoire encore requis |
 
 Les quatre obligations formelles qui formaient le chemin critique sont fermées
 dans leur portée déclarée :
@@ -127,8 +136,10 @@ dans leur portée déclarée :
    explicitement l’adéquation ;
 4. raffiner la frontière exécutable vers le noyau formel.
 
-Le travail restant concerne la synchronisation finale de la documentation, de
-l’audit et du manifeste, puis l’intégration contrôlée dans `main`.
+Le nouveau travail scientifique concerne le Lot N. Les lots A à M ne doivent
+pas être rouverts pour le réaliser. Après sa fermeture viendront la
+synchronisation finale de la documentation, de l’audit et du manifeste, puis
+l’intégration contrôlée dans `main`.
 
 ## 3. Invariants non négociables
 
@@ -359,6 +370,12 @@ transformations admissibles et transport de l’adéquation
         ↓
 raffinement de la frontière exécutable
         ↓
+auto-extension typée compacte
+  abstraction certifiée produite
+  → incorporation dans le corpus courant
+  → nouvelle frontière déterminée par le régime atteint
+  → seconde transition sous le même opérateur
+        ↓
 diagnostics conservés : mémoire, horizon, rupture normative
 ```
 
@@ -381,8 +398,11 @@ ConstitutiveAlignment/
   NeuralRealization.lean
   TransformerRealization.lean
   TransformerDynamics.lean
-  GovernedDynamics.lean       -- extension prévue
-  ExecutableRefinement.lean   -- extension prévue
+  FreshProbeCausality.lean
+  GovernedDynamics.lean
+  ExecutableRefinement.lean
+  TypedProgramDomain.lean             -- domaine total et frontière du Lot N
+  EndogenousTypedSuccession.lean      -- succession, causalité et raffinement du Lot N
 ```
 
 La façade `ConstitutiveAlignment.lean` importe les modules présents dans leur
@@ -477,8 +497,16 @@ GovernedDynamics + NeuralRealization
                 ↓
                             ExecutableRefinement
 
+Machine
+        ↓
+                    TypedProgramDomain
+
+TypedProgramDomain + FreshProbeCausality
+                ↓
+                    EndogenousTypedSuccession
+
 ReferenceModel + TransformerDynamics + GovernedDynamics
-               + ExecutableRefinement
+               + ExecutableRefinement + EndogenousTypedSuccession
                 ↓
       ConstitutiveAlignment
 ```
@@ -533,6 +561,19 @@ fixes :
 15. définir la relation de raffinement entre une trace exécutable scellée et la
     trace formelle effectivement consommée, sans demander au producteur neuronal
     de fabriquer un témoin Lean.
+16. définir un petit langage typé à sémantique totale et une abstraction
+    certifiée dont l’identité de formation reste distincte de sa seule
+    équivalence extensionnelle ;
+17. calculer la frontière suivante depuis le corpus et le régime courants par
+    une règle uniforme qui ne lit ni le rang du cycle ni une table de solutions ;
+18. construire deux appels du même opérateur, où la première abstraction est
+    incorporée positivement et où le second appel consomme littéralement le
+    corpus ainsi produit ;
+19. prouver qu’en retirant seulement la première incorporation, la seconde
+    obligation change ou devient inconstructible avant toute génération de
+    sonde ;
+20. raccorder la proposition typée au poids réellement acquis, puis raffiner la
+    trace exécutable correspondante sans formaliser les flottants.
 
 Un théorème de pont ne doit pas être un simple renommage d’un champ supposé. Il
 doit soit construire le témoin cible, soit composer explicitement des témoins
@@ -557,6 +598,7 @@ déjà construits.
 | transformation admissible | `GovernedDynamics.lean` | contrats séparés et transports explicites de l’adéquation, de l’exécution, des actions et certificats |
 | raffinement exécutable–formel | `ExecutableRefinement.lean` et `verify_refinement_v1.py` | relation formelle exacte sur la frontière discrète ; contrôle exécutable validé séparément, sans formaliser les flottants |
 | comportement empirique | protocole canonique unique | run confirmatoire passé après le gel `a4b9a44`, réussi sur trois graines préengagées |
+| auto-extension typée compacte | `TypedProgramDomain.lean`, `EndogenousTypedSuccession.lean` et expérience dédiée | formel et smoke fermés ; confirmatoire ouvert jusqu’au gel des sources |
 
 Cette table doit être reprise dans les deux documents canoniques. Elle empêche à
 la fois de détacher l’application du Cycle 1 et d’attribuer au Cycle 1 des
@@ -1440,11 +1482,9 @@ les performances numériques en théorèmes Lean.
 
 ### M3. Vérificateur et protocole expérimental unique
 
-Conserver une seule version canonique du protocole dans l’arbre publié. Comme le
-projet n’est pas encore intégré dans `main`, corriger cette version en place,
-retirer son ancien résultat devenu incompatible, puis geler le protocole corrigé
-par commit avant d’exécuter son unique run confirmatoire. Le vérificateur doit
-refuser :
+Une seule version canonique du protocole actuel est conservée dans l’arbre. Sa
+correction, le retrait du résultat incompatible, son gel par commit et l’unique
+run confirmatoire ont été effectués. Le vérificateur refuse :
 
 - une empreinte incorrecte ;
 - un champ causal manquant ;
@@ -1471,9 +1511,326 @@ séparateurs formels ; le vérificateur en lecture seule accepte les 24 traces d
 résultat gelé et rejette huit mutations négatives. Aucun parseur JSON n’est
 invoqué par Lean et aucun calcul flottant n’est promu au rang de théorème.
 
-## 20. Phase scientifique ultérieure — hors gates internes
+## 20. Lot N — Auto-extension typée compacte
 
-Après intégration vérifiée des Gates L et M dans `main` :
+### N0. Cible exacte et contrainte de taille
+
+Ce lot construit le témoin scientifique minimal suivant :
+
+```text
+corpus typé initial T₀
+→ frontière calculée depuis T₀
+→ abstraction certifiée C₀ proposée
+→ incorporation positive de C₀
+→ corpus et régime effectivement atteints T₁, R(T₁)
+→ nouvelle frontière calculée par la même règle
+→ nouvelle obligation δ₁
+→ seconde proposition et seconde transition
+```
+
+Le contrefactuel retire seulement l’incorporation de `C₀`. Sous les mêmes
+règles, le même budget et les mêmes autres données, `δ₁` doit changer ou devenir
+inconstructible avant la génération de sa sonde. Un changement de nom, de
+digest, d’adresse ou de rang ne ferme pas cette obligation.
+
+La réalisation reste volontairement compacte : deux nouveaux modules Lean, une
+petite expérience Python autonome, une paire scientifique français–anglais et
+une paire de README expérimentaux courts. Elle n’introduit ni service, ni base
+de données, ni orchestration distribuée, ni runtime Rust. Ces extensions
+pourront être étudiées plus tard ; elles ne sont pas nécessaires au témoin
+central.
+
+Le protocole numérique actuel est figé. Aucun fichier de
+`experiment/protocol_v1.*`, aucun résultat existant et aucune empreinte gelée ne
+sera modifié. La nouvelle expérience occupe un sous-dossier distinct parce
+qu’elle porte sur un autre domaine et une autre revendication, non parce qu’elle
+constitue une version concurrente du même protocole.
+
+### N1. Domaine typé fini et sémantique totale
+
+Créer `ConstitutiveAlignment/TypedProgramDomain.lean` avec les objets minimaux :
+
+```text
+ProgramType
+TypedProgram source target
+ProgramFormation
+ProgramSemantics
+CertifiedProgramAbstraction
+ProgramCorpus
+ProgramRegime
+ProgramNorm
+```
+
+Le langage ne contient que les constructeurs nécessaires au témoin : identités,
+primitives finies et composition typée. L’évaluation est totale dans la portée
+finie. Une abstraction certifiée contient sa formation, son interface, sa
+sémantique et la preuve que son corps possède cette interface. Son identité
+constitutive dépend de sa formation ; une égalité de comportement seule ne
+l’identifie pas.
+
+Le corpus est une donnée positive réellement reconstruite après incorporation.
+Le régime décide l’admission depuis ce corpus. La norme est définie séparément
+depuis l’interface typée et la sémantique, puis l’adéquation requise est
+construite sur l’instance finie ; elle n’est pas obtenue en définissant la norme
+comme copie du verdict du régime.
+
+Pour rendre la recherche exécutable sans choix classique, les programmes
+hétérogènes sont emballés dans un type existentiel positif portant explicitement
+leurs types source et cible. Le corpus fournit une liste finie canonique, une
+égalité décidable constructive et les preuves de typage nécessaires. La
+complétude de l’énumération dans la portée publiée permet de construire soit la
+première obligation, soit le certificat de saturation, sans oracle ni hypothèse
+de finitude laissée ouverte.
+
+### N2. Frontière endogène sans catalogue
+
+Définir une seule fonction totale :
+
+```text
+programFrontier : ProgramCorpus → ProgramFrontierResult
+```
+
+Elle recherche, dans l’ordre canonique du corpus, une paire de programmes
+typés composables dont les sous-formations sont présentes mais dont la formation
+jointe certifiée est absente. Elle retourne soit cette obligation positive,
+soit un certificat fini de saturation. La règle ne reçoit aucun ordinal de
+cycle et ne compare aucun identifiant à `first`, `second`, `C₀` ou `δ₁`.
+
+La proposition candidate est la composition typée déterminée par l’obligation.
+L’élaborateur est total : il construit l’abstraction certifiée ou localise la
+première erreur ; il ne répare jamais un candidat rejeté. Une règle de coût
+fixée avant l’exécution peut rendre l’abstraction incorporée disponible comme
+unité, mais le budget reste identique dans le parcours factuel et le
+contrefactuel.
+
+Tests séparateurs obligatoires :
+
+- une frontière indexée par le rang du cycle est impossible à fournir à
+  l’interface canonique ;
+- une formation jointe déjà présente ne peut être déclarée fraîche ;
+- une composition mal typée est rejetée avec son erreur ;
+- deux formations distinctes mais extensionnellement égales restent
+  distinctes ;
+- le renommage cohérent des seules adresses techniques ne change ni
+  l’obligation ni la sémantique.
+
+### N3. Un seul opérateur, deux transitions et contrefactuel
+
+Créer `ConstitutiveAlignment/EndogenousTypedSuccession.lean`. Le seul opérateur
+de succession est :
+
+```text
+typedStep : TypedStage → TypedStepResult
+```
+
+`TypedStage` porte le corpus réel, son régime, la mémoire nécessaire, les poids
+prédictifs entrants et son histoire de formation. `TypedStepResult` contient
+soit le stade reconstruit, les poids acquis sortants et tous leurs témoins, soit
+une raison d’arrêt positive. Aucun `cycle0`, `cycle1` ou sélecteur par
+profondeur n’est autorisé.
+
+L’instance finie doit construire :
+
+1. `T₀`, sa frontière et sa première proposition ;
+2. la certification et l’incorporation de `C₀` ;
+3. `T₁` comme corpus positif réellement produit ;
+4. la frontière de `T₁` et la nouvelle obligation `δ₁` ;
+5. la seconde proposition, sa certification et `T₂` ;
+6. l’histoire attestant que le second appel consomme exactement `T₁` ;
+7. le contrefactuel issu du même `T₀`, avec les mêmes poids acquis et sans la
+   seule incorporation de `C₀` ;
+8. la première divergence sémantique entre la frontière factuelle et la
+   frontière contrefactuelle ;
+9. un second contrefactuel qui conserve `T₁` mais restaure les poids antérieurs,
+   afin de séparer la causalité de l’incorporation de celle de l’apprentissage.
+
+Les théorèmes cibles, dont les noms seront stabilisés à la compilation, sont :
+
+```text
+firstCertifiedAbstraction_isFresh
+firstStep_reconstructsCorpus
+secondStep_consumesFirstSuccessor
+firstIncorporation_changesNextFrontier
+renaming_preservesNextFrontier
+compactTypedSelfExtension
+```
+
+`compactTypedSelfExtension` agrège des témoins déjà construits ; il ne reçoit
+pas la première ou la seconde obligation comme hypothèses externes.
+
+### N4. Raccord neuronal et causalité acquise
+
+La vue autorisée du producteur contient la frontière, les interfaces et le
+budget, mais ni l’AST certifié attendu, ni le verdict final, ni la sonde future,
+ni sa cible. Le décodage de la proposition neuronale est total et produit soit
+un programme brut, soit une erreur localisée. Le runtime formel reste seul
+responsable de la certification, de l’admission et de l’incorporation.
+
+Construire une instance locale de `TransformerCore` dont `Proposal` est un
+véritable type positif de proposition de programme brut. La prédiction peut
+rester finie, mais aucun `Bool` ne doit être décodé par une table dépendant du
+cycle vers l’AST attendu.
+
+Réutiliser sans les dupliquer :
+
+- `TransformerTrainingProcedure` et la séparation corpus–sonde ;
+- `StrictFreshProbeCausality` pour la consommation exacte de la prédiction ;
+- `ReachableAt` et l’itération existante pour l’histoire formée ;
+- `MachineAdequacyTransport` pour tout changement de machine revendiqué ;
+- la discipline de `TraceRefinement` — égalité exacte à une trace canonique —
+  au moyen d’une instanciation typée locale ; le type spécialisé du Lot M reste
+  inchangé.
+
+Le nouveau module construit le pont entre l’état prédictif acquis et
+l’élaborateur typé total. Les poids sortant du premier passage
+doivent être définitionnellement ou propositionnellement ceux produits par la
+procédure d’apprentissage, et le second passage doit consommer exactement ces
+poids. Restaurer les poids entrants tout en conservant `T₁` doit modifier la
+prédiction consommée et la seconde proposition selon le contraste fixé. Aucun
+champ libre `learnedWeights` n’est admis dans le certificat final.
+
+Définir dans ce même module un adaptateur positif
+`GeneratedFreshProbeProtocol` qui porte le descripteur scellé, l’engagement de
+graine, le générateur total, sa sortie et l’égalité établissant que la sonde du
+`FixedFreshProbeProtocol` sous-jacent est exactement cette sortie. Il doit aussi
+prouver que le descripteur et la graine déterminent uniquement cette sonde et
+que celle-ci est absente du corpus d’entraînement et du ledger antérieur. Une
+sonde inscrite à l’avance dans une liste de cas ne satisfait pas cette gate.
+
+### N5. Sonde générée après scellement
+
+Créer une expérience distincte dans :
+
+```text
+experiment/typed_program/
+  protocol.json
+  run.py
+  worker.py
+  verify.py
+  README.md
+  README_fr.md
+  results/                 -- vide avant le run confirmatoire
+```
+
+Le protocole engage avant le run le générateur, le budget, les règles de score,
+les graines et le normaliseur de renommage. Un ledger cumulatif contient les
+signatures des données d’entraînement, des sondes déjà réservées et des entrées
+exposées. Toute collision bloque le passage sans nouveau tirage. Pendant chaque
+stade, l’ordre est :
+
+```text
+proposition depuis les poids entrants
+→ élaboration
+→ scellement du descripteur de compétence
+→ intervention et source causale d’apprentissage
+→ révélation de la graine engagée au générateur
+→ génération déterministe de la sonde
+→ vérification de fraîcheur et réservation
+→ apprentissage sans accès au contenu de la sonde
+→ mesure parent–appris sur la même sonde
+→ publication du stade successeur avec les poids acquis
+```
+
+`worker.py` reçoit pour l’apprentissage uniquement la vue d’entraînement et
+les bornes publiques. Pour la mesure, une nouvelle invocation reçoit uniquement
+l’entrée de sonde, sans cible, sans droit de mise à jour et sans état récurrent
+de production. Les réponses attendues sont calculées par la sémantique totale du
+langage, jamais copiées depuis le modèle.
+
+Les données d’apprentissage du premier passage sont dérivées uniquement de
+l’intervention, de sa conséquence calculée et des activations autorisées déjà
+produites. Elles ne contiennent ni la sonde réservée, ni sa cible, ni l’AST exact
+attendu au passage suivant. Sur la vue exacte de `T₁`, restaurer les poids
+entrants doit produire le contraste parent–appris préengagé ; un modèle qui
+résolvait déjà la seconde proposition avant cet apprentissage ne ferme pas la
+causalité revendiquée.
+
+Le journal primaire enregistre l’ordre causal, les empreintes, le corpus source,
+le corpus reconstruit, le descripteur scellé, la sonde réservée, les deux
+prédictions, les deux propositions, l’incorporation et la première divergence
+du contrefactuel. Il enregistre aussi la requête exacte envoyée à chaque
+invocation du worker, afin que l’absence de cible et de contenu de sonde pendant
+l’apprentissage soit vérifiable. `verify.py` est en lecture seule et ne rappelle
+ni l’apprentissage ni le producteur.
+
+Le normaliseur retire seulement les adresses techniques. Une loi et ses tests
+établissent qu’un renommage cohérent conserve la clé de tirage et transporte la
+sonde générée, tandis qu’un changement de type, de formation, d’obligation ou de
+provenance modifie cette clé. Le ledger est normalisé par la même règle ; un
+renommage ne peut rendre fraîche une exposition déjà consommée.
+
+Le smoke test utilise des graines et une identité explicitement non
+confirmatoires. Après fermeture de tous les tests de développement, les sources
+et la configuration sont gelées par commit. Un seul run confirmatoire est alors
+autorisé vers un chemin neuf ; il ne doit jamais écraser un résultat.
+
+### N6. Raffinement et critères négatifs
+
+La relation formelle typée porte sur la frontière discrète : types, programme brut,
+formation, candidat certifié, corpus source et cible, obligation suivante,
+admission, norme et effet gouverné. Les tenseurs et probabilités numériques
+restent des observations. Elle reprend l’égalité exacte de `TraceRefinement`
+sans réutiliser son porteur booléen ni modifier le Lot M.
+
+Le vérificateur et les tests Lean doivent rejeter au minimum :
+
+- une solution sélectionnée par l’ordinal du cycle ;
+- une liste dans le protocole, la configuration ou le worker contenant les AST
+  attendus des deux passages ;
+- un candidat exact injecté après la proposition ;
+- un corpus cible qui n’est pas celui produit par l’incorporation ;
+- une seconde étape consommant une copie ou un fixture au lieu de `T₁` ;
+- une obligation suivante calculée avant l’incorporation ;
+- une sonde identique à une donnée d’entraînement ou substituée après mesure ;
+- une sonde du second passage en collision avec le ledger cumulatif du premier ;
+- une cible de sonde transmise au worker ;
+- des poids différents entre l’acquisition et la dynamique ;
+- une divergence causée seulement par un nom, une adresse, un digest ou une
+  nouvelle graine ;
+- une seconde proposition inchangée après restauration des poids antérieurs
+  lorsque le contraste d’apprentissage est revendiqué ;
+- un effet gouverné sans certificat exact.
+
+### Gate N
+
+La Gate N est fermée uniquement si :
+
+- le langage et sa sémantique sont totaux dans la portée publiée ;
+- `typedStep` est l’unique opérateur des deux transitions ;
+- `T₁` est le corpus réellement produit puis consommé ;
+- la nouvelle frontière dépend de l’incorporation de `C₀` et non du rang ;
+- l’obligation `δ₁` et son AST solution ne sont présents ni dans le protocole,
+  ni dans la configuration, ni dans les données d’apprentissage ;
+- le contrefactuel retire seulement cette incorporation et produit la divergence
+  sémantique préengagée ;
+- la seconde proposition vient des poids effectivement acquis au premier
+  passage sur une vue autorisée ;
+- la sonde est générée après scellement depuis une graine engagée avant le run,
+  réservée avant apprentissage et absente de sa vue ;
+- le ledger cumulatif empêche toute réutilisation exacte ou sous renommage
+  technique d’une exposition antérieure ;
+- les parcours parent et appris mesurent exactement la même sonde ;
+- le raffinement discret et tous les séparateurs sont construits ;
+- les deux fichiers Lean terminent chacun par un unique bloc `AXIOM_AUDIT` et
+  n’emploient aucun axiome, `sorry`, `Classical`, `propext` ou `Quot.sound` ;
+- le run confirmatoire n’a lieu qu’après le commit de gel ;
+- les documents français et anglais décrivent exactement la même portée.
+
+La revendication autorisée après fermeture est :
+
+> Dans le petit langage typé et les bornes déclarées, une abstraction proposée,
+> certifiée et incorporée au premier passage reconfigure le régime effectivement
+> atteint ; la même règle de frontière y détermine une nouvelle obligation et
+> une seconde transition qui ne sont pas obtenues dans le contrefactuel privé de
+> cette incorporation.
+
+Cette gate ne revendique ni synthèse générale de programmes, ni découverte de
+primitives depuis rien, ni autonomie non bornée, ni alignement général des
+transformers.
+
+## 21. Phase scientifique ultérieure — hors gates internes
+
+Après intégration vérifiée des Gates L, M et N dans `main` :
 
 1. faire relire les déclarations et preuves Lean par des lecteurs indépendants ;
 2. comparer précisément les contributions à la littérature pertinente ;
@@ -1486,9 +1843,9 @@ Ces étapes sont nécessaires pour établir la réception, la nouveauté compara
 et la portée pratique. Elles ne changent ni la validité interne des théorèmes
 déjà compilés ni leur périmètre formel.
 
-## 21. Documentation bilingue
+## 22. Documentation bilingue
 
-### 21.1 Ordre
+### 22.1 Ordre
 
 1. stabiliser le français ;
 2. vérifier ses ancrages Lean ;
@@ -1497,17 +1854,20 @@ déjà compilés ni leur périmètre formel.
 5. mettre à jour les deux README ;
 6. recalculer le manifeste.
 
-### 21.2 Documents canoniques
+### 22.2 Documents canoniques
 
 ```text
 docs/fr/alignement_constitutif_transformers.md
 docs/en/constitutive_transformer_alignment.md
+docs/fr/auto_extension_programmes_types.md
+docs/en/typed_program_self_extension.md
 ```
 
-Ces deux fichiers sont les documents canoniques. Toute extension des lots L et
-M doit y être intégrée sans créer de texte scientifique concurrent.
+Les deux premiers fichiers restent la synthèse canonique de l’architecture
+neuronale. Les deux derniers documentent précisément la Gate N. Les README et
+la synthèse doivent les relier sans recopier leur démonstration complète.
 
-### 21.3 Symétrie
+### 22.3 Symétrie
 
 Les versions française et anglaise doivent conserver :
 
@@ -1517,17 +1877,21 @@ Les versions française et anglaise doivent conserver :
 - les mêmes limites ;
 - les mêmes instructions de reproduction.
 
-## 22. Vérification finale
+## 23. Vérification finale
 
-### 22.1 Formelle
+### 23.1 Formelle
 
 - `lake build` ;
 - contrôle de tous les blocs `AXIOM_AUDIT` ;
 - recherche de `sorry`, axiomes et principes interdits ;
 - vérification de l’ordre des imports ;
-- réduction des exemples du modèle fini.
+- réduction des exemples du modèle fini ;
+- réduction exhaustive du petit langage typé dans ses bornes ;
+- vérification que `programFrontier` ne reçoit ni ordinal ni identité de cycle ;
+- construction de `compactTypedSelfExtension` et de tous ses séparateurs sans
+  hypothèse externe laissée ouverte.
 
-### 22.2 Documentaire
+### 23.2 Documentaire
 
 - liens locaux valides ;
 - correspondance français–anglais ;
@@ -1536,10 +1900,14 @@ Les versions française et anglaise doivent conserver :
 - auteurs placés en fin de document ;
 - README cohérents avec la façade Lean.
 
-### 22.3 Intégrité
+### 23.3 Intégrité
 
 - manifeste recalculé depuis l’état final ;
 - script de vérification réussi ;
+- identité octet par octet des sources de l’expérience typée entre le commit de
+  gel et le commit du résultat ;
+- vérification en lecture seule du ledger, des requêtes worker, des sondes
+  générées et des deux contrefactuels ;
 - plan et documents temporaires supprimés dans la merge request vers `main` ;
 - registre temporaire, fragments bruts et espaces d’extraction absents ;
 - aucun identifiant, chemin, import ou lien issu du corpus de travail interne ;
@@ -1549,32 +1917,42 @@ Les versions française et anglaise doivent conserver :
 - absence de fichiers générés ou caches ;
 - état Git relu avant commit.
 
-## 23. Ordre de travail et de commits restant
+## 24. Ordre de travail et de commits restant
 
-Les lots A à K appartiennent désormais au socle : ils doivent être relus et
-réutilisés, pas réécrits. Chaque nouveau commit doit fermer une unité vérifiable :
+Les lots A à M appartiennent désormais au socle : ils doivent être relus et
+réutilisés, pas réécrits. Le Lot N suit cet ordre strict :
 
-1. dynamique gouvernée générique, atteignabilité et invariant à un pas ;
-2. préservation à toute profondeur et instance transformer uniforme ;
-3. transformations admissibles et transport de l’adéquation ;
-4. correction du schéma exécutable canonique et relation formelle de raffinement ;
-5. gel par commit, run confirmatoire unique, vérificateur et tests négatifs ;
-6. mise à jour symétrique des documents français et anglais, des README, de
-   l’audit et du manifeste ;
-7. suppression du présent plan dans la demande de fusion vers `main`.
+1. stabiliser `TypedProgramDomain.lean`, sa sémantique totale, son corpus, son
+   régime, sa norme et ses séparateurs ;
+2. construire `EndogenousTypedSuccession.lean`, l’opérateur unique, les deux
+   transitions et le contrefactuel sans première incorporation ;
+3. raccorder les poids acquis, la proposition typée, l’itération et le
+   raffinement exécutable aux interfaces existantes ;
+4. compiler, auditer les axiomes et fermer tous les tests formels négatifs ;
+5. implémenter l’expérience dédiée, le worker isolé, le vérificateur en lecture
+   seule et tous les tests de développement, sans toucher au protocole numérique
+   déjà gelé ;
+6. geler par commit les nouvelles sources et la nouvelle configuration avant
+   toute exécution confirmatoire ;
+7. exécuter une seule fois le run confirmatoire vers un résultat neuf, puis
+   ajouter seulement le résultat immuable et son rapport factuel ; le
+   vérificateur et ses critères ne changent pas après observation ;
+8. mettre à jour symétriquement les documents français et anglais, les README,
+   l’audit et le manifeste ;
+9. supprimer le présent plan dans la demande de fusion vers `main`.
 
-Le résultat confirmatoire corrigé a été exécuté après le commit de gel du
-protocole canonique. Son ajout au dépôt forme un commit ultérieur distinct ;
-aucune version parallèle n’est conservée dans l’arbre publié.
+Chaque commit ferme une unité vérifiable. En particulier, le commit de gel ne
+contient aucun résultat confirmatoire et le commit de résultat ne modifie aucun
+octet des sources gelées.
 
 Le plan temporaire peut apparaître dans l’historique de la branche de travail,
 mais sa suppression doit faire partie de la merge request vers `main` et il ne
 doit pas subsister dans l’arbre fusionné. Le registre de décision et les
 fragments bruts ne doivent jamais être ajoutés à l’index Git.
 
-## 24. Critères d’achèvement
+## 25. Critères d’achèvement
 
-### 24.1 Socle fini déjà fermé
+### 25.1 Socle fini déjà fermé
 
 Au commit de référence, le dépôt vérifie déjà la chaîne finie suivante :
 
@@ -1593,7 +1971,7 @@ une histoire constitue des occurrences
 Ce socle ne doit pas être présenté comme encore hypothétique, ni comme une
 preuve portant déjà sur tout transformer ou toute profondeur.
 
-### 24.2 Extension formelle fermée sur la branche
+### 25.2 Extension formelle fermée sur la branche
 
 L’extension implémentée sur la branche permet désormais de vérifier la chaîne
 suivante sans ressource scientifique extérieure :
@@ -1626,7 +2004,30 @@ transformer, l’invariant à toute profondeur, les transformations admissibles,
 le raffinement exécutable, les traces reproductibles et la discipline exacte
 des revendications.
 
-### 24.3 Fusion terminale
+### 25.3 Extension d’auto-extension typée à fermer
+
+La Gate N ajoute la chaîne suivante sans modifier la vérité des résultats déjà
+fermés :
+
+```text
+un corpus contient des programmes typés et leurs formations
+→ une règle uniforme détermine une composition jointe absente
+→ une prédiction acquise produit une proposition de programme
+→ l’élaboration la certifie sans la remplacer
+→ l’incorporation reconstruit positivement le corpus successeur
+→ la même règle détermine depuis ce corpus une nouvelle obligation
+→ le même opérateur et les poids acquis construisent une seconde transition
+→ retirer la première incorporation change ou bloque cette obligation
+→ restaurer séparément les poids antérieurs modifie la seconde proposition
+→ un renommage purement technique ne la change pas
+→ une sonde générée après scellement confirme la causalité sans fuite
+```
+
+Cette section reste une cible tant que `compactTypedSelfExtension`, ses
+séparateurs, l’expérience gelée et son vérificateur ne sont pas présents et
+validés. La seule existence du plan ne change aucun statut scientifique.
+
+### 25.4 Fusion terminale
 
 La tâche globale n’est pas terminée par la seule ouverture d’une merge request.
 Après fermeture de toutes les gates :
