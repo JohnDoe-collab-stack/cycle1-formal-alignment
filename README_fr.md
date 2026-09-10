@@ -209,8 +209,8 @@ directe d'échec de la norme indépendante.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique
-  candidat avec sondes de smoke test et confirmatoire séparées ; son run
-  confirmatoire de remplacement attend le commit de gel des sources.
+  avec sondes de smoke test et confirmatoire séparées, résultat confirmatoire
+  immuable et vérification en lecture seule.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 
@@ -245,8 +245,9 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   exécutable discret.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
-- [`experiment/`](experiment) contient le protocole numérique unique ; ses
-  observations restent séparées des théorèmes Lean.
+- [`experiment/`](experiment) contient le protocole numérique unique, son
+  résultat immuable et son vérificateur en lecture seule ; ses observations
+  restent séparées des théorèmes Lean.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 

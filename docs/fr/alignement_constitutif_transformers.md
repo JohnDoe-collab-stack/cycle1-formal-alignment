@@ -552,7 +552,8 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `FreshProbeCausality.lean` | séparation engagée entre entraînement et sonde, fraîcheur constructive et emploi exact des poids acquis | démontré sur l’instance finie à attention dure |
 | `GovernedDynamics.lean` | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique transformer à profondeur finie arbitraire | démontré constructivement pour tout `n : Nat` |
 | `ExecutableRefinement.lean` | frontière discrète canonique, raffinement exact, chaînage des traces et séparateurs négatifs | démontré constructivement pour tout `n : Nat` |
-| `experiment/protocol_v1.py` | prototype numérique à attention softmax, séparation entraînement/sonde, traces immuables, contrôles et audit différé | source canonique corrigée ; run confirmatoire en attente de son commit de gel |
+| `experiment/protocol_v1.py` | prototype numérique à attention softmax, séparation entraînement/sonde, traces immuables, contrôles et audit différé | run confirmatoire réussi sur trois graines préengagées après gel des sources |
+| `experiment/verify_refinement_v1.py` | vérification en lecture seule des empreintes, de l’identité de sonde, des traces, de la frontière et des mutations négatives | 3 runs et 24 traces acceptés ; 8 mutations rejetées |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -661,17 +662,16 @@ Le dépôt démontre actuellement :
   l’effectuation sont indexés par l’action exacte dérivée du candidat et par le
   contexte constitutif.
 
-Séparément de ces théorèmes, le protocole numérique corrigé a passé un run non
-confirmatoire sur sa sonde dédiée au smoke test. Son ensemble d’entraînement,
-sa sonde de smoke test et sa sonde confirmatoire fixée sont disjoints deux à
-deux, puis la comparaison parent–appris consomme la sonde sélectionnée sans
-substitution. La sonde confirmatoire n’a pas été exécutée. Le JSON
-confirmatoire, les rapports bilingues et le vérificateur en lecture seule
-épinglé par empreintes ne seront produits qu’après le gel du script et de la
-configuration dans un commit.
-Jusque-là, aucune revendication numérique confirmatoire n’est formulée. Lean ne
-lit pas le résultat JSON ; le théorème formel `TraceRefinement` et sa future
-acceptation exécutable restent distincts.
+Séparément de ces théorèmes, le protocole numérique canonique a été gelé dans le
+commit `a4b9a44` avant l’exécution de sa sonde confirmatoire. L’ensemble
+d’entraînement, la sonde de smoke test et la sonde confirmatoire sont disjoints
+deux à deux. Sur les trois graines préengagées, l’apprentissage modifie la
+proposition sur `confirmatory-0`, la première proposition devient la relation du
+second cycle, l’ablation intercycle modifie la seconde proposition et l’audit
+différé conserve les traces scellées. Le vérificateur en lecture seule accepte
+les 24 traces et rejette huit mutations négatives. Lean ne lit pas le résultat
+JSON : `TraceRefinement` et l’acceptation exécutable restent des contrôles
+distincts.
 
 Le dépôt ne démontre pas encore :
 

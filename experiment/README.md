@@ -36,11 +36,21 @@ The program refuses to overwrite an existing result. Every result records the
 script, configuration, complete data, training-set, and probe-policy hashes;
 all primary traces are sealed before the deferred audit.
 
-The corrected canonical protocol has passed a smoke test only. Its
-confirmatory result, bilingual reports, and hash-pinned read-only verifier are
-intentionally absent until the corrected script and configuration are frozen
-in a commit. No result produced by the earlier, non-disjoint protocol is used
-as evidence for this protocol.
+The protocol was frozen in commit `a4b9a44` before the confirmatory probe was
+executed. Its immutable result and bilingual report are available as
+[`results/confirmatory_v1.json`](results/confirmatory_v1.json) and
+[`RESULTS_v1.md`](RESULTS_v1.md).
+
+Verify the frozen artifacts without rerunning training or modifying them:
+
+```text
+python experiment/verify_refinement_v1.py --script experiment/protocol_v1.py --config experiment/protocol_v1.json --result experiment/results/confirmatory_v1.json
+```
+
+The read-only verifier checks all frozen hashes, the exact confirmatory probe,
+24 primary traces, the discrete constitutive boundary, intercycle consumption,
+effect confinement, and eight negative mutations. Lean separately proves the
+canonical discrete refinement relation; it does not parse the JSON result.
 
 This finite experiment is not a proof of general transformer alignment,
 unbounded-horizon autonomy, production-scale training, or natural-language
