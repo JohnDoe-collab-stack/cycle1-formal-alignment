@@ -8,6 +8,9 @@ import ConstitutiveAlignment.ReflectiveMachine
 import ConstitutiveAlignment.ReferenceModel
 import ConstitutiveAlignment.NeuralRealization
 import ConstitutiveAlignment.TransformerDynamics
+import ConstitutiveAlignment.FreshProbeCausality
+import ConstitutiveAlignment.GovernedDynamics
+import ConstitutiveAlignment.ExecutableRefinement
 
 /-!
 # Constitutive alignment architecture
@@ -37,4 +40,14 @@ dependency audits.  Further layers are added in dependency order.
 #print axioms ConstitutiveAlignment.TransformerDynamics.twoLinkedTransformerCycles
 #print axioms ConstitutiveAlignment.TransformerDynamics.intercycleAblation_changesSecondProposal
 #print axioms ConstitutiveAlignment.TransformerDynamics.finiteGateJCertificate
+#print axioms ConstitutiveAlignment.FreshProbeExamples.strictFreshProbeGateCertificate
+#print axioms ConstitutiveAlignment.TransformerGovernedDynamics.invariantAt
+#print axioms ConstitutiveAlignment.TransformerGovernedDynamics.proposalIsNextConsumedRelation
+#print axioms ConstitutiveAlignment.TransformerGovernedDynamics.relationAblation_changesPredictionAtEveryDepth
+#print axioms ConstitutiveAlignment.TransformerGovernedDynamics.gateLCertificate
+#print axioms ConstitutiveAlignment.ExecutableRefinement.refinementAt
+#print axioms ConstitutiveAlignment.ExecutableRefinement.nextExecutableConsumesPreviousProposal
+#print axioms ConstitutiveAlignment.ExecutableRefinement.rewrittenParentCandidate_hasNoRefinement
+#print axioms ConstitutiveAlignment.ExecutableRefinement.forgedParentEffect_hasNoRefinement
+#print axioms ConstitutiveAlignment.ExecutableRefinement.gateMCertificate
 /- AXIOM_AUDIT_END -/

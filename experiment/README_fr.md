@@ -6,8 +6,13 @@ Ce dossier contient le premier prototype numérique correspondant à la Gate K.
 Le protocole maintient séparés le producteur neuronal, le runtime constitutif
 exact, l’effecteur gouverné, le journal primaire immuable et l’auditeur différé.
 
-Le protocole figé est `protocol_v1.json` ; `protocol_v1.py` en est l’unique
-implémentation exécutable. Le résultat de référence ne doit jamais être écrasé.
+Le protocole canonique unique est `protocol_v1.json` ; `protocol_v1.py` en est
+l’unique implémentation exécutable. Son ensemble d’entraînement, sa sonde de
+smoke test et sa sonde confirmatoire préengagée sont séparés, puis leur
+disjonction par identifiants et par vues autorisées est vérifiée avant
+l’entraînement. Les parcours parent et appris consomment exactement la même
+sonde sélectionnée pour leur mode. Un smoke test n’exécute jamais la sonde
+confirmatoire.
 
 Installer la dépendance épinglée dans un environnement Python isolé :
 
@@ -21,20 +26,23 @@ Exécuter un smoke test non confirmatoire :
 python experiment/protocol_v1.py --mode smoke --config experiment/protocol_v1.json
 ```
 
-Exécuter une fois le protocole confirmatoire figé vers un nouveau chemin :
+Après le gel du script et de la configuration par un commit source, exécuter
+une seule fois le protocole confirmatoire :
 
 ```text
 python experiment/protocol_v1.py --mode confirmatory --config experiment/protocol_v1.json --output experiment/results/confirmatory_v1.json
 ```
 
 Le programme refuse d’écraser un résultat existant. Chaque résultat enregistre
-les empreintes du script, de la configuration et des données ; toutes les
-traces primaires sont scellées avant l’audit différé. Le rapport sépare faits,
-interprétation et limites.
+les empreintes du script, de la configuration, des données complètes, de
+l’ensemble d’entraînement et de la politique de sonde ; toutes les traces
+primaires sont scellées avant l’audit différé.
 
-Le run de référence immuable et son rapport lisible sont disponibles dans
-[`results/confirmatory_v1.json`](results/confirmatory_v1.json) et
-[`RESULTATS_v1.md`](RESULTATS_v1.md).
+Le protocole canonique corrigé n’a passé qu’un smoke test. Son résultat
+confirmatoire, ses rapports bilingues et son vérificateur en lecture seule
+épinglé par empreintes sont volontairement absents jusqu’au gel du script et de
+la configuration dans un commit. Aucun résultat produit par l’ancien protocole
+sans séparation stricte n’est utilisé comme preuve pour celui-ci.
 
 Cette expérience finie ne prouve ni l’alignement général des transformers, ni
 l’autonomie sur un horizon non borné, ni l’entraînement à l’échelle de la
