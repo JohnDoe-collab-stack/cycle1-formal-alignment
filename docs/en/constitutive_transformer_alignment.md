@@ -372,11 +372,17 @@ The finite one-step instance proves:
 - removing that relation from the control computation makes the intervention
   inert;
 - coherently renaming a memory address and its store preserves the prediction;
+- the learned proposal becomes the exact relation consumed by a second run of
+  the same core, and ablating that relation changes the continuation;
+- the Boolean relation forms the query of a two-key hard-attention head whose
+  address renaming is proved equivariant;
+- the rejected proposal decodes to the reference-model operational exit, while
+  the learned proposal decodes to its admitted, normative, governed action;
 - the rejected proposal remains present in the elaboration trace.
 
-This is a finite constructive instance of the transformer realization
-contract. It is not a trained transformer, an attention implementation, or a
-multicycle autonomy result.
+This closes the stated one-step obligations on a finite constructive
+hard-attention realization. It is not a trained transformer, a floating-point
+softmax-attention implementation, or a multicycle autonomy result.
 
 ## 12. Memory, normative break, and relative hallucination
 
@@ -418,7 +424,7 @@ The new modules follow their dependency order:
 | `ReflectiveMachine.lean` | machine instance of exact representation and non-closure | proved |
 | `ReferenceModel.lean` | one integrated finite certificate from histories and adequacy to causal succession, governed action, linked cycles, and reflective exit | proved |
 | `NeuralRealization.lean` | neural fidelity contract and deferred audit | defined and proved on a finite instance |
-| `TransformerRealization.lean` | transformer contract and parent–learned intervention | finite one-step instance proved; multicycle open |
+| `TransformerRealization.lean` | transformer contract, hard attention, proposed-relation consumption, and parent–learned intervention | finite one-step gate proved; multicycle open |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -477,8 +483,10 @@ The repository currently proves:
   represented status with the diagonal outside;
 - a four-plane neural interface, non-repairing elaboration, trajectory
   fidelity, and causally silent deferred audit;
-- a transformer realization interface and finite one-step instance with an
-  active relation, inert control, and address-renaming invariance.
+- a transformer realization interface and finite hard-attention one-step
+  instance whose learned proposal is consumed as the next relation, with active
+  relation, inert control, address-renaming invariance, and an exact bridge to
+  the reference-model exit, norm, and governed action.
 
 The repository does not yet prove:
 

@@ -148,6 +148,24 @@ theorem TwoCellMemory.read_rename (memory : TwoCellMemory) :
   | mk left right focus =>
       cases focus <;> rfl
 
+/- A finite hard-attention head with the Boolean keys `false` and `true`.
+   The query selects exactly one value; no target or verdict is available. -/
+def attentionQuery (activation relation : Bool) : Bool :=
+  Bool.xor activation relation
+
+def TwoCellMemory.attend (memory : TwoCellMemory) (query : Bool) : Bool :=
+  match query with
+  | false => memory.left
+  | true => memory.right
+
+theorem TwoCellMemory.attend_rename
+    (memory : TwoCellMemory)
+    (query : Bool) :
+    memory.rename.attend (Bool.not query) = memory.attend query := by
+  cases memory with
+  | mk left right focus =>
+      cases query <;> rfl
+
 def tokenParity : List Bool → Bool
   | [] => false
   | token :: remaining => Bool.xor token (tokenParity remaining)
@@ -157,7 +175,11 @@ inductive LearningEvidence : Bool → Bool → Type
   | trueToFalse : LearningEvidence true false
 
 inductive ErrorReason : Type
-  | rejectedFalse
+  | outsideRegime
+
+def proposalCandidate : Bool → ReferenceModel.Candidate
+  | false => .outside
+  | true => .admitted
 
 def core : TransformerCore where
   Token := Bool
@@ -175,18 +197,17 @@ def core : TransformerCore where
     · exact .trueToFalse
   Prediction := Bool
   Proposal := Bool
-  Candidate := Bool
+  Candidate := ReferenceModel.Candidate
   Error := LocalizedError ErrorReason
   activate := tokenParity
   predict := fun weights activation view =>
     Bool.xor weights
-      (Bool.xor activation
-        (Bool.xor view.cache
-          (Bool.xor view.memory.read view.relation)))
+      (Bool.xor view.cache
+        (view.memory.attend (attentionQuery activation view.relation)))
   propose := fun _view prediction => prediction
   elaborate
-    | false => .rejected ⟨0, .rejectedFalse⟩
-    | true => .accepted true
+    | false => .rejected ⟨0, .outsideRegime⟩
+    | true => .accepted .admitted
 
 def fixedView : TransformerAuthorizedView Bool Bool TwoCellMemory Bool where
   tokens := [false]
@@ -261,7 +282,7 @@ def renameMemoryInView
   tokens := view.tokens
   cache := view.cache
   memory := view.memory.rename
-  relation := view.relation
+  relation := Bool.not view.relation
   budget := view.budget
 
 theorem predictionInvariant_underAddressRenaming
@@ -273,7 +294,7 @@ theorem predictionInvariant_underAddressRenaming
   | mk tokens cache memory relation budget =>
       cases memory with
       | mk left right focus =>
-          cases focus <;> rfl
+          cases activation <;> cases relation <;> rfl
 
 /- Removing the relation from the control computation makes the targeted
    relation intervention inert. -/
@@ -288,9 +309,66 @@ theorem inertRelationControl_doesNotChangePrediction :
       inertRelationPrediction false false relationAblatedView :=
   rfl
 
+/- The learned proposal is not merely logged.  It becomes the exact relation
+   field consumed by the next invocation of the same core. -/
+def withRelation
+    (view : TransformerAuthorizedView Bool Bool TwoCellMemory Bool)
+    (relation : Bool) :
+    TransformerAuthorizedView Bool Bool TwoCellMemory Bool where
+  tokens := view.tokens
+  cache := view.cache
+  memory := view.memory
+  relation := relation
+  budget := view.budget
+
+def proposedRelationView :
+    TransformerAuthorizedView Bool Bool TwoCellMemory Bool :=
+  withRelation fixedView learnedTrace.causal.proposal
+
+structure ProposedRelationConsumption where
+  producer : TransformerPrimaryTrace core true fixedView
+  continuationView :
+    TransformerAuthorizedView Bool Bool TwoCellMemory Bool
+  consumedExactly :
+    continuationView.relation = producer.causal.proposal
+  consumer : TransformerPrimaryTrace core false continuationView
+
+def proposedRelationConsumption : ProposedRelationConsumption :=
+  { producer := learnedTrace
+    continuationView := proposedRelationView
+    consumedExactly := rfl
+    consumer := core.run false proposedRelationView }
+
+theorem consumedProposedRelation_changesContinuation :
+    proposedRelationConsumption.consumer.causal.predicted =
+      (core.run false fixedView).causal.predicted → False := by
+  intro impossible
+  nomatch impossible
+
+theorem parentProposal_decodesToReferenceExit :
+    proposalCandidate parentTrace.causal.proposal =
+      ReferenceModel.operationalExit.candidate :=
+  rfl
+
+def learnedProposalReferenceAdmission :
+    ReferenceModel.machine.Regime
+      (proposalCandidate learnedTrace.causal.proposal) :=
+  .admits
+
+def learnedProposalReferenceNorm :
+    ReferenceModel.machine.Norm
+      (proposalCandidate learnedTrace.causal.proposal) :=
+  ReferenceModel.adequacy.sound _ learnedProposalReferenceAdmission
+
+theorem learnedProposal_determinesReferenceAction :
+    ReferenceModel.actionOfCandidate
+        (proposalCandidate learnedTrace.causal.proposal) =
+      ReferenceModel.admittedAction :=
+  rfl
+
 def occurrenceRealization : FullTrajectoryRealization
-    ReferenceModel.machine .outside
-    (StrongPerimetralTurning.History.Occurrence ReferenceModel.outsideHistory)
+    ReferenceModel.machine .admitted
+    (StrongPerimetralTurning.History.Occurrence ReferenceModel.admittedHistory)
     (fun _occurrence => Unit) :=
   { occurrenceMap :=
       { toFun := fun occurrence => occurrence
@@ -301,13 +379,45 @@ def occurrenceRealization : FullTrajectoryRealization
 
 theorem rejectedParentProposal_isPreserved :
     parentTrace.causal.elaboration =
-      ElaborationOutcome.rejected ⟨0, .rejectedFalse⟩ :=
+      ElaborationOutcome.rejected ⟨0, .outsideRegime⟩ :=
   rfl
 
 theorem acceptedLearnedProposal_isPreserved :
     learnedTrace.causal.elaboration =
-      ElaborationOutcome.accepted true :=
+      ElaborationOutcome.accepted ReferenceModel.Candidate.admitted :=
   rfl
+
+structure FiniteGateICertificate where
+  intervention : TransformerLearningIntervention core false fixedView
+  succession : TransformerCausalSuccession core succession intervention
+  proposedRelation : ProposedRelationConsumption
+  proposedRelationChangesContinuation :
+    proposedRelation.consumer.causal.predicted =
+      (core.run false fixedView).causal.predicted → False
+  parentDecodesToExit :
+    proposalCandidate parentTrace.causal.proposal =
+      ReferenceModel.operationalExit.candidate
+  learnedAdmission :
+    ReferenceModel.machine.Regime
+      (proposalCandidate learnedTrace.causal.proposal)
+  learnedNorm :
+    ReferenceModel.machine.Norm
+      (proposalCandidate learnedTrace.causal.proposal)
+  learnedAction :
+    ReferenceModel.actionOfCandidate
+        (proposalCandidate learnedTrace.causal.proposal) =
+      ReferenceModel.admittedAction
+
+def finiteGateICertificate : FiniteGateICertificate :=
+  { intervention := oneStepIntervention
+    succession := causalSuccession
+    proposedRelation := proposedRelationConsumption
+    proposedRelationChangesContinuation :=
+      consumedProposedRelation_changesContinuation
+    parentDecodesToExit := parentProposal_decodesToReferenceExit
+    learnedAdmission := learnedProposalReferenceAdmission
+    learnedNorm := learnedProposalReferenceNorm
+    learnedAction := learnedProposal_determinesReferenceAction }
 
 end TransformerExamples
 
@@ -318,10 +428,18 @@ end ConstitutiveAlignment
 #print axioms ConstitutiveAlignment.TransformerCore.run
 #print axioms ConstitutiveAlignment.TransformerExamples.oneStepIntervention
 #print axioms ConstitutiveAlignment.TransformerExamples.causalSuccession
+#print axioms ConstitutiveAlignment.TransformerExamples.TwoCellMemory.attend_rename
 #print axioms ConstitutiveAlignment.TransformerExamples.consumedRelation_changesFuturePrediction
 #print axioms ConstitutiveAlignment.TransformerExamples.predictionInvariant_underAddressRenaming
 #print axioms ConstitutiveAlignment.TransformerExamples.inertRelationControl_doesNotChangePrediction
+#print axioms ConstitutiveAlignment.TransformerExamples.proposedRelationConsumption
+#print axioms ConstitutiveAlignment.TransformerExamples.consumedProposedRelation_changesContinuation
+#print axioms ConstitutiveAlignment.TransformerExamples.parentProposal_decodesToReferenceExit
+#print axioms ConstitutiveAlignment.TransformerExamples.learnedProposalReferenceAdmission
+#print axioms ConstitutiveAlignment.TransformerExamples.learnedProposalReferenceNorm
+#print axioms ConstitutiveAlignment.TransformerExamples.learnedProposal_determinesReferenceAction
 #print axioms ConstitutiveAlignment.TransformerExamples.occurrenceRealization
 #print axioms ConstitutiveAlignment.TransformerExamples.rejectedParentProposal_isPreserved
 #print axioms ConstitutiveAlignment.TransformerExamples.acceptedLearnedProposal_isPreserved
+#print axioms ConstitutiveAlignment.TransformerExamples.finiteGateICertificate
 /- AXIOM_AUDIT_END -/
