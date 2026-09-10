@@ -38,11 +38,22 @@ les empreintes du script, de la configuration, des données complètes, de
 l’ensemble d’entraînement et de la politique de sonde ; toutes les traces
 primaires sont scellées avant l’audit différé.
 
-Le protocole canonique corrigé n’a passé qu’un smoke test. Son résultat
-confirmatoire, ses rapports bilingues et son vérificateur en lecture seule
-épinglé par empreintes sont volontairement absents jusqu’au gel du script et de
-la configuration dans un commit. Aucun résultat produit par l’ancien protocole
-sans séparation stricte n’est utilisé comme preuve pour celui-ci.
+Le protocole a été gelé dans le commit `a4b9a44` avant l’exécution de la sonde
+confirmatoire. Son résultat immuable et son rapport bilingue sont disponibles
+dans [`results/confirmatory_v1.json`](results/confirmatory_v1.json) et
+[`RESULTATS_v1.md`](RESULTATS_v1.md).
+
+Vérifier les artefacts figés sans réexécuter l’entraînement ni les modifier :
+
+```text
+python experiment/verify_refinement_v1.py --script experiment/protocol_v1.py --config experiment/protocol_v1.json --result experiment/results/confirmatory_v1.json
+```
+
+Le vérificateur en lecture seule contrôle toutes les empreintes gelées, la sonde
+confirmatoire exacte, les 24 traces primaires, la frontière constitutive
+discrète, la consommation intercycle, le confinement des effets et huit
+mutations négatives. Lean démontre séparément la relation canonique de
+raffinement discret ; il ne lit pas le résultat JSON.
 
 Cette expérience finie ne prouve ni l’alignement général des transformers, ni
 l’autonomie sur un horizon non borné, ni l’entraînement à l’échelle de la

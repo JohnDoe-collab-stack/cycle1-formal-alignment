@@ -472,7 +472,8 @@ The new modules follow their dependency order:
 | `FreshProbeCausality.lean` | committed training/probe split, constructive freshness, and exact use of the acquired weights | proved on the finite hard-attention instance |
 | `GovernedDynamics.lean` | proof-relevant reachability, governed invariant, admissible evolution, and arbitrary-finite-depth transformer dynamics | constructively proved for every `n : Nat` |
 | `ExecutableRefinement.lean` | canonical discrete boundary, exact refinement, linked traces, and negative separators | constructively proved for every `n : Nat` |
-| `experiment/protocol_v1.py` | numerical softmax-attention prototype, disjoint training/probe split, immutable traces, controls, and deferred audit | corrected canonical source; confirmatory run pending its freeze commit |
+| `experiment/protocol_v1.py` | numerical softmax-attention prototype, disjoint training/probe split, immutable traces, controls, and deferred audit | confirmatory run passed on three precommitted seeds after source freeze |
+| `experiment/verify_refinement_v1.py` | read-only frozen-hash, probe-identity, trace, boundary, and negative-mutation verification | 3 runs and 24 traces accepted; 8 mutations rejected |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -562,15 +563,15 @@ The repository currently proves:
   effect, and a missing intercycle link; certificate and effectuation statuses
   are indexed by the exact candidate-derived action and constitutive context.
 
-Separately from these theorems, the corrected numerical protocol has passed a
-non-confirmatory run on its dedicated smoke probe. Its training set, smoke
-probe, and fixed confirmatory probe are pairwise disjoint, and the
-parent–learned comparison consumes the selected probe without substitution.
-The confirmatory probe has not been executed. The confirmatory JSON, bilingual
-reports, and hash-pinned read-only verifier will be produced only after the
-corrected script and configuration have been frozen in a commit. Until then,
-no confirmatory numerical claim is made. Lean does not parse the JSON result; the formal
-`TraceRefinement` theorem and future executable acceptance remain distinct.
+Separately from these theorems, the canonical numerical protocol was frozen in
+commit `a4b9a44` before its confirmatory probe was executed. Its training set,
+smoke probe, and confirmatory probe are pairwise disjoint. On all three
+precommitted seeds, learning changes the proposal on `confirmatory-0`; the first
+proposal is consumed as the second relation; intercycle ablation changes the
+second proposal; and deferred audit preserves the sealed traces. The read-only
+verifier accepts all 24 traces and rejects eight negative mutations. Lean does
+not parse the JSON result: formal `TraceRefinement` and executable acceptance
+remain distinct controls.
 
 The repository does not yet prove:
 
