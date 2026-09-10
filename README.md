@@ -1,4 +1,4 @@
-# Cycle 1 — A formal proof of relative alignment
+# Structural foundations — relative and reflective alignment
 
 **English** | [Français](README_fr.md)
 
@@ -9,8 +9,8 @@
 > successive interactions. See the
 > [full bilingual declaration](AI_AUTHORSHIP.md).
 
-> **This project builds and machine-checks in Lean a dependently typed kernel
-> for relative alignment.** It formally separates construction, faithful
+> **This project builds and machine-checks in Lean constructive kernels for
+> relative and reflective alignment.** Cycle 1 formally separates construction, faithful
 > realization, admission by an operational regime, and satisfaction of a norm
 > defined independently of that regime. In the circular instance, it proves that
 > the norm and the regime accept exactly the same histories. It then constructs
@@ -18,9 +18,13 @@
 > implementation satisfying the interface, yet is rejected by both the regime
 > and the norm. The result therefore establishes that the ability to continue
 > and local faithfulness do not imply global normative alignment, while precisely
-> locating the point at which alignment is lost.
+> locating the point at which alignment is lost. Cycle 2 derives an abstract
+> diagonal status from an evaluator, proves that this status is not internally
+> representable by that evaluator, and connects the resulting failure of global
+> reflective closure to the proposition-level statuses of the Cycle 1 norm and
+> regime without identifying operational and representational exits.
 
-## Central contribution
+## Cycle 1 — Central contribution
 
 For a circular presentation `P` and a constituted history `H`, the development
 distinguishes three families of witnesses:
@@ -224,7 +228,7 @@ The underlying constructions and refutations are verified in Lean. The term
 not yet a generic Lean definition. See the full treatment in
 [Structural foundations](docs/en/structural_foundations.md).
 
-## Abstract kernel and normative interface
+## Cycle 1 — Abstract kernel and normative interface
 
 The architecture has two distinct levels of generality.
 
@@ -254,6 +258,38 @@ proofs of their adequacy, and boundary diagnostics that preserve the object whil
 locating exactly which property is lost. The more abstract `RegimeExit` kernel is
 directly reusable on other carriers; extending the entire normative interface to
 an arbitrary carrier would require an additional generalization.
+
+## Cycle 2 — Reflective non-closure
+
+Cycle 2 adds a separate representation layer. For an evaluator
+`eval : Code → Code → Prop`, it constructs
+
+```text
+diagonalStatus eval code := ¬ eval code code
+```
+
+and proves constructively that no code evaluated by `eval` represents this
+predicate exactly. Consequently, no evaluator of this shape represents every
+predicate on its own code space. The proof is an abstract diagonal argument; it
+does not formalize syntax, arithmetization, provability, the diagonal lemma, or
+Gödel's incompleteness theorems.
+
+The bridge module observes the Cycle 1 regime and norm only through
+proposition-level inhabitation. Their proved soundness and completeness yield
+an exact equivalence of these statuses, and representation of either status is
+transported to the other. A particular aligned status may therefore be
+represented exactly while the evaluator still fails to be globally closed.
+
+Operational OOD and representational diagonal exit remain distinct:
+
+```text
+oneStepAfterPerimeter : operational regime exit on a history
+diagonalStatus        : representation exit on a predicate of codes
+```
+
+No theorem identifies the two. See
+[Reflective alignment and diagonal non-closure](docs/en/reflective_alignment_cycle2.md)
+for the exact statements and their limits.
 
 ## Conceptual foundations
 
@@ -299,7 +335,14 @@ occurrence without a corresponding occurrence within the interface.
   regime classification, typed exits, and the abstract segmented-turning theorem;
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) constructs free
   histories, perimeter realization, the independent norm, the circular regime,
-  concrete interpretations, and the complete alignment instance.
+  concrete interpretations, and the complete alignment instance;
+- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
+  constructs the abstract diagonal predicate and proves representational
+  non-closure using only `Init`;
+- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) transports
+  Cycle 1 status adequacy through exact representation and keeps it separate
+  from the diagonal exit;
+- [`Cycle2.lean`](Cycle2.lean) is the import-only public aggregator for Cycle 2.
 
 ## Reproduction and audit
 
@@ -310,11 +353,13 @@ Prerequisite: `elan`, or an equivalent installation capable of reading
 lake build
 ```
 
-This command compiles the three modules in the order
-`SegmentedResidualRole → AbstractSegmentedTurning → StrongPerimetralTurning` and
-runs their final `#print axioms` blocks.
+This command builds two separate Lake libraries. `Cycle1Alignment` compiles
+`SegmentedResidualRole → AbstractSegmentedTurning → StrongPerimetralTurning`.
+`Cycle2ReflectiveExtension` then compiles the independent diagonal kernel, the
+bridge to Cycle 1, and the import-only `Cycle2` aggregator. The five
+declaration-bearing modules run their final `#print axioms` blocks.
 
-From the repository root, verify the integrity of the nine scientific files in
+From the repository root, verify the integrity of the fourteen scientific files in
 the current package on Linux or macOS:
 
 ```bash
@@ -335,6 +380,8 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 - [Méthode des rôles constitutifs relationnels — français](docs/fr/methode_roles_constitutifs_relationnels.md)
 - [Formal proof of relative alignment — English](docs/en/formal_relative_alignment_proof.md)
 - [Preuve formelle d'alignement relatif — français](docs/fr/preuve_formelle_alignement_relatif.md)
+- [Reflective alignment and diagonal non-closure — English](docs/en/reflective_alignment_cycle2.md)
+- [Alignement réflexif et non-clôture diagonale — français](docs/fr/alignement_reflexif_cycle2.md)
 - [Build and audit log](audit/AUDIT_BUILD.txt)
 - [Conceptual authorship and AI-generation disclosure](AI_AUTHORSHIP.md)
 
@@ -345,15 +392,16 @@ documentation, pinned toolchain and build configuration, and verification
 scripts required to compile and audit the result. No earlier repository or
 external source history is required to reproduce the checks.
 
-The nine current scientific files match the hashes recorded in
+The fourteen current scientific files match the hashes recorded in
 `MANIFEST.sha256`. The current standalone build, toolchain versions, axiom audit,
 and reproduction commands are recorded in `audit/AUDIT_BUILD.txt`.
 
-The result is a first complete instance of a formal kernel for relative
-alignment. It establishes adequacy within the framework defined by
-`CircularPresentation`; by itself, it does not formalize every possible norm or
-system. The proof is constructive, and its audit must not depend on any axioms,
-`Classical`, `propext`, or `Quot.sound`.
+Cycle 1 provides a complete instance of a formal kernel for relative alignment
+inside the framework defined by `CircularPresentation`. Cycle 2 adds an abstract
+kernel of reflective non-closure and a limited bridge to the Cycle 1 statuses.
+Neither cycle formalizes every possible norm or system, and Cycle 2 is not a
+formalization of Gödelian incompleteness. The development is constructive, and
+its audit must not depend on any axioms, `Classical`, `propext`, or `Quot.sound`.
 
 ## License and citation
 

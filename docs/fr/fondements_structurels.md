@@ -39,6 +39,46 @@ dans l'application périmétrale. Elles ne sont pas revendiquées comme quatre
 théorèmes universels indépendants. La notion d'OOD structurel introduite plus bas
 est une proposition conceptuelle; elle n'est pas encore une définition Lean.
 
+## Motivation architecturale
+
+> **Thèse architecturale — motivation conceptuelle dont la réalisation concrète
+> est vérifiée mécaniquement dans Lean.** Dans la lecture architecturale adoptée
+> ici, l'argument diagonal qui sous-tend l'incomplétude de Gödel contraint la
+> clôture globale statique: sous les hypothèses de Gödel, un système formel
+> cohérent, effectivement axiomatisé et suffisamment expressif ne peut être
+> complet pour ses propres énoncés arithmétiques. La réponse architecturale
+> explorée ici consiste à maintenir la conception dynamique, relative et
+> déterminée localement.
+
+Le motif décisif est diagonal: des ressources internes à une construction
+peuvent produire un cas qui échappe à une clôture globale proposée. Cette sortie
+n'est pas une anomalie extérieure et n'abolit pas la construction qui la
+produit. L'**OOD structurel** désigne la forme opérationnelle de ce motif: le
+candidat reste engendré de l'intérieur et fidèlement réalisable tout en sortant
+de la classe admise par le régime.
+
+Cette thèse fournit la motivation architecturale du programme de recherche, non
+une prémisse formelle du développement Lean. Le cycle 1 ne formalise ni
+l'arithmétisation syntaxique, ni le lemme diagonal, ni l'autoréférence, ni
+l'incomplétude gödelienne; il ne déduit pas davantage l'OOD structurel des
+théorèmes de Gödel. En particulier, `oneStepAfterPerimeter` est un carrier
+constructible et réfutable, non une proposition gödelienne indécidable.
+
+Ce que le cycle 1 vérifie mécaniquement est le motif architectural concret
+correspondant. Le même carrier `oneStepAfterPerimeter P` est engendré de
+l'intérieur comme continuation constitutive stricte, exactement réalisable dans
+toute instance de `ConcreteContinuationAlgebra P`, extérieur à
+`CircularRefinement P`, et insatisfaisant pour la spécification circulaire
+autonome. L'échec est localisé dans la clôture trajectorielle tandis que
+l'exactitude locale et la continuation constructive demeurent disponibles.
+
+Les quatre distinctions suivantes constituent la première décomposition
+structurelle de cette thèse. La priorité de l'individuation soutient la
+détermination locale; la séparation de la totalité locale et de la globalité
+empêche une clôture globale prématurée; la succession fournit une dynamique
+interne sans horloge extérieure; enfin, le temps et le global sont dérivés des
+trajectoires plutôt que présupposés comme cadre achevé.
+
 ## 1. Les quatre distinctions
 
 ### 1.1 L'individuation précède définitionnellement l'identité
@@ -515,8 +555,10 @@ ni avec une erreur de construction ni avec une absence de détermination.
 
 L'application circulaire fournit un témoin du schéma correspondant:
 `oneStepAfterPerimeter P` existe, est une extension constitutive stricte du
-déploiement périmétral et reste exactement interprétable dans toute algèbre
-concrète fournie, alors que `CircularRefinement P` est réfuté sur ce candidat.
+déploiement périmétral et reste exactement interprétable dans toute instance de
+`ConcreteContinuationAlgebra P`, alors que `CircularRefinement P` est réfuté sur
+ce candidat. C'est le point précis où le motif architectural diagonal est
+réalisé: la construction produit elle-même son témoin de sortie du régime.
 
 ```text
 sortie de régime

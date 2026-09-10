@@ -1,4 +1,4 @@
-# Cycle 1 — Preuve formelle d'alignement relatif
+# Fondements structurels — alignement relatif et réflexif
 
 [English](README.md) | **Français**
 
@@ -9,8 +9,8 @@
 > et au cours d'interactions successives. Voir la
 > [déclaration bilingue complète](AI_AUTHORSHIP.md).
 
-> **Ce projet construit et vérifie en Lean un noyau dépendamment typé pour
-> l'alignement relatif.** Il sépare formellement la construction, la réalisation
+> **Ce projet construit et vérifie en Lean des noyaux constructifs pour
+> l'alignement relatif et réflexif.** Le cycle 1 sépare formellement la construction, la réalisation
 > fidèle, l'admission par un régime opérationnel et la satisfaction d'une norme
 > définie indépendamment de ce régime. Dans l'instance circulaire, il démontre que
 > la norme et le régime acceptent exactement les mêmes histoires. Il construit
@@ -18,9 +18,13 @@
 > implémentation concrète conforme à l'interface, mais qui est rejetée par le
 > régime et par la norme. Le résultat établit ainsi que la capacité de continuer
 > et la fidélité locale n'impliquent pas l'alignement normatif global, tout en
-> localisant précisément le point où celui-ci est perdu.
+> localisant précisément le point où celui-ci est perdu. Le cycle 2 dérive un
+> statut diagonal abstrait à partir d'un évaluateur, démontre que cet évaluateur
+> ne peut pas le représenter intérieurement, puis relie cette absence de clôture
+> réflexive globale aux statuts propositionnels de la norme et du régime du
+> cycle 1 sans identifier sortie opérationnelle et sortie représentationnelle.
 
-## Contribution centrale
+## Cycle 1 — Contribution centrale
 
 Pour une présentation circulaire `P` et une histoire constituée `H`, le
 développement distingue trois familles de témoins:
@@ -227,7 +231,7 @@ proposition conceptuelle, et non encore une définition Lean générique. Voir l
 développement complet dans les
 [Fondements structurels](docs/fr/fondements_structurels.md).
 
-## Noyau abstrait et interface normative
+## Cycle 1 — Noyau abstrait et interface normative
 
 L'architecture possède deux niveaux de généralité distincts.
 
@@ -258,6 +262,39 @@ diagnostics de frontière qui préservent l'objet et localisent exactement la
 propriété perdue. Le noyau `RegimeExit`, plus abstrait, est directement
 réutilisable sur d'autres carriers; étendre toute l'interface normative à un
 carrier arbitraire demanderait une généralisation supplémentaire.
+
+## Cycle 2 — Non-clôture réflexive
+
+Le cycle 2 ajoute une couche de représentation séparée. Pour un évaluateur
+`eval : Code → Code → Prop`, il construit
+
+```text
+diagonalStatus eval code := ¬ eval code code
+```
+
+et démontre constructivement qu'aucun code évalué par `eval` ne représente
+exactement ce prédicat. Par conséquent, aucun évaluateur de cette forme ne
+représente tous les prédicats sur son propre espace de codes. Il s'agit d'un
+argument diagonal abstrait; il ne formalise ni syntaxe, ni arithmétisation, ni
+prouvabilité, ni lemme diagonal, ni théorème d'incomplétude de Gödel.
+
+Le module de raccordement observe le régime et la norme du cycle 1 uniquement
+par l'existence propositionnelle de leurs témoins. Leur soundness et leur
+complétude déjà démontrées donnent une équivalence exacte de ces statuts, et la
+représentation de l'un se transporte vers l'autre. Un statut aligné déterminé
+peut donc être représenté exactement sans que l'évaluateur soit globalement
+clos.
+
+L'OOD opérationnel et la sortie diagonale représentationnelle restent distincts:
+
+```text
+oneStepAfterPerimeter : sortie opérationnelle de régime sur une histoire
+diagonalStatus        : sortie représentationnelle sur un prédicat de codes
+```
+
+Aucun théorème ne les identifie. Voir
+[Alignement réflexif et non-clôture diagonale](docs/fr/alignement_reflexif_cycle2.md)
+pour les énoncés exacts et leurs limites.
 
 ## Fondements conceptuels
 
@@ -305,7 +342,15 @@ occurrence sans correspondant dans le cadre de l'interface.
   de tournant segmenté;
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) construit les
   histoires libres, la réalisation périmétrale, la norme indépendante, le régime
-  circulaire, les interprétations concrètes et l'instance complète d'alignement.
+  circulaire, les interprétations concrètes et l'instance complète d'alignement;
+- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
+  construit le prédicat diagonal abstrait et démontre la non-clôture
+  représentationnelle en n'important que `Init`;
+- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) transporte
+  l'adéquation des statuts du cycle 1 à travers leur représentation exacte et la
+  maintient distincte de la sortie diagonale;
+- [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du cycle 2 et ne contient
+  que des imports.
 
 ## Reproduction et audit
 
@@ -316,11 +361,14 @@ Prérequis: `elan`, ou une installation équivalente capable de lire
 lake build
 ```
 
-Cette commande compile les trois modules dans l'ordre
-`SegmentedResidualRole → AbstractSegmentedTurning → StrongPerimetralTurning` et
-exécute leurs blocs finaux `#print axioms`.
+Cette commande construit deux bibliothèques Lake séparées. `Cycle1Alignment`
+compile `SegmentedResidualRole → AbstractSegmentedTurning →
+StrongPerimetralTurning`. `Cycle2ReflectiveExtension` compile ensuite le noyau
+diagonal indépendant, le raccordement au cycle 1 et l'agrégateur `Cycle2` qui ne
+contient que des imports. Les cinq modules porteurs de déclarations exécutent
+leurs blocs finaux `#print axioms`.
 
-Depuis la racine du dépôt, vérifier l'intégrité des neuf fichiers scientifiques
+Depuis la racine du dépôt, vérifier l'intégrité des quatorze fichiers scientifiques
 du paquet courant sous Linux ou macOS:
 
 ```bash
@@ -341,6 +389,8 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 - [Method of relational constitutive roles — English](docs/en/relational_constitutive_roles_method.md)
 - [Preuve formelle d'alignement relatif — français](docs/fr/preuve_formelle_alignement_relatif.md)
 - [Formal proof of relative alignment — English](docs/en/formal_relative_alignment_proof.md)
+- [Alignement réflexif et non-clôture diagonale — français](docs/fr/alignement_reflexif_cycle2.md)
+- [Reflective alignment and diagonal non-closure — English](docs/en/reflective_alignment_cycle2.md)
 - [Journal de compilation et d'audit](audit/AUDIT_BUILD.txt)
 - [Déclaration de conception intellectuelle et de génération par IA](AI_AUTHORSHIP.md)
 
@@ -352,16 +402,18 @@ compilation épinglées, ainsi que des scripts nécessaires pour compiler et
 auditer le résultat. Aucun dépôt antérieur ni historique source externe n'est
 requis pour reproduire les contrôles.
 
-Les neuf contenus scientifiques actuels correspondent aux empreintes
+Les quatorze contenus scientifiques actuels correspondent aux empreintes
 enregistrées dans `MANIFEST.sha256`. La compilation autonome courante, les
 versions des outils, l'audit des axiomes et les commandes de reproduction sont
 consignés dans `audit/AUDIT_BUILD.txt`.
 
-Le résultat est une première instance complète d'un noyau formel d'alignement
-relatif. Il établit l'adéquation dans le cadre défini par `CircularPresentation`;
-il ne prétend pas, à lui seul, formaliser toutes les normes ni tous les systèmes
-possibles. La preuve est constructive et son audit ne doit dépendre d'aucun
-axiome, de `Classical`, de `propext` ou de `Quot.sound`.
+Le cycle 1 fournit une instance complète d'un noyau formel d'alignement relatif
+dans le cadre défini par `CircularPresentation`. Le cycle 2 ajoute un noyau
+abstrait de non-clôture réflexive et un raccordement limité aux statuts du cycle
+1. Aucun des deux cycles ne formalise toutes les normes ni tous les systèmes
+possibles, et le cycle 2 n'est pas une formalisation de l'incomplétude
+gödelienne. Le développement est constructif et son audit ne doit dépendre
+d'aucun axiome, de `Classical`, de `propext` ou de `Quot.sound`.
 
 ## Licence et citation
 

@@ -39,6 +39,44 @@ perimetral application. They are not claimed as four independent universal
 theorems. The notion of structural OOD introduced below is a conceptual
 proposal; it is not yet a Lean definition.
 
+## Architectural motivation
+
+> **Architectural thesis — conceptual motivation whose concrete realization is
+> machine-checked in Lean.** On the architectural reading adopted here, the
+> diagonal argument underlying Gödelian incompleteness constrains static global
+> closure: under Gödel's hypotheses, a consistent, effectively axiomatized, and
+> sufficiently expressive formal system cannot be complete for its own
+> arithmetical sentences. The architectural response explored here is to keep
+> the design dynamic, relative, and locally determined.
+
+The decisive pattern is diagonal: resources internal to a construction can
+produce a case that escapes a proposed global closure. The escape is not an
+external anomaly and does not abolish the construction that produces it.
+**Structural OOD** names the operational form of this pattern: the candidate
+remains internally generated and faithfully realizable while falling outside
+the class admitted by the regime.
+
+This thesis supplies the architectural motivation of the research program, not
+a formal premise of the Lean development. Cycle 1 does not formalize syntactic
+arithmetization, the diagonal lemma, self-reference, or Gödelian incompleteness;
+nor does it derive structural OOD from Gödel's theorems. In particular,
+`oneStepAfterPerimeter` is a constructible and refutable carrier, not an
+undecidable Gödel sentence.
+
+What Cycle 1 does machine-check is the corresponding concrete architectural
+pattern. The same carrier `oneStepAfterPerimeter P` is generated internally as
+a strict constitutive continuation, is exactly realizable in every
+`ConcreteContinuationAlgebra P`, lies outside `CircularRefinement P`, and fails
+the autonomous circular specification. The failure is localized to trajectory
+closure while local exactness and constructive continuation remain available.
+
+The four distinctions below form the first structural decomposition of this
+thesis. Priority of individuation supports local determination; the separation
+of local totality from globality prevents premature global closure; succession
+provides an internal dynamics without an external clock; and time and the
+global are derived from trajectories rather than presupposed as a completed
+framework.
+
 ## 1. The four distinctions
 
 ### 1.1 Individuation definitionally precedes identity
@@ -518,8 +556,10 @@ construction error nor an absence of determination.
 
 The circular application provides a witness of the corresponding schema:
 `oneStepAfterPerimeter P` exists, is a strict constitutive extension of the
-perimetral deployment, and remains exactly interpretable in every supplied
-concrete algebra, while `CircularRefinement P` is refuted for this candidate.
+perimetral deployment, and remains exactly interpretable in every
+`ConcreteContinuationAlgebra P`, while `CircularRefinement P` is refuted for
+this candidate. This is the precise point at which the diagonal architectural
+motif is realized: the construction produces its own regime-exit witness.
 
 ```text
 regime exit

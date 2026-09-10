@@ -1,7 +1,15 @@
-name = "Cycle1Alignment"
-version = "1.0.0"
-defaultTargets = ["Cycle1Alignment"]
+name = "StructuralFoundations"
+version = "2.0.0"
+defaultTargets = ["Cycle1Alignment", "Cycle2ReflectiveExtension"]
 
 [[lean_lib]]
 name = "Cycle1Alignment"
-roots = ["SegmentedResidualRole", "AbstractSegmentedTurning", "StrongPerimetralTurning"]
+roots = [
+  "SegmentedResidualRole",
+  "AbstractSegmentedTurning",
+  "StrongPerimetralTurning"
+]
+
+[[lean_lib]]
+name = "Cycle2ReflectiveExtension"
+roots = ["Cycle2"]
