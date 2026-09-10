@@ -11,6 +11,8 @@ import ConstitutiveAlignment.TransformerDynamics
 import ConstitutiveAlignment.FreshProbeCausality
 import ConstitutiveAlignment.GovernedDynamics
 import ConstitutiveAlignment.ExecutableRefinement
+import ConstitutiveAlignment.TypedProgramDomain
+import ConstitutiveAlignment.EndogenousTypedSuccession
 
 /-!
 # Constitutive alignment architecture
@@ -50,4 +52,11 @@ dependency audits.  Further layers are added in dependency order.
 #print axioms ConstitutiveAlignment.ExecutableRefinement.rewrittenParentCandidate_hasNoRefinement
 #print axioms ConstitutiveAlignment.ExecutableRefinement.forgedParentEffect_hasNoRefinement
 #print axioms ConstitutiveAlignment.ExecutableRefinement.gateMCertificate
+#print axioms ConstitutiveAlignment.TypedProgram.programAdequacy
+#print axioms ConstitutiveAlignment.TypedProgram.firstFrontier_isDoubleNegate
+#print axioms ConstitutiveAlignment.TypedProgram.secondFrontier_isTripleNegate
+#print axioms ConstitutiveAlignment.EndogenousTypedSuccession.firstStep_reconstructsCorpus
+#print axioms ConstitutiveAlignment.EndogenousTypedSuccession.secondStep_consumesFirstSuccessor
+#print axioms ConstitutiveAlignment.EndogenousTypedSuccession.strictGeneratedCausality
+#print axioms ConstitutiveAlignment.EndogenousTypedSuccession.compactTypedSelfExtension
 /- AXIOM_AUDIT_END -/

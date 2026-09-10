@@ -6,7 +6,7 @@ Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignme
 Release version: 2.0.0
 Audit scope: Cycle 1, Cycle 2, constitutive neural dynamics through arbitrary
 finite depth, strict fresh-probe acquisition, discrete executable refinement,
-and the frozen finite numerical experiment
+typed-program self-extension, and the frozen finite numerical experiment
 Scientific-source identity: MANIFEST.sha256
 
 This repository contains every source and configuration file required for the
@@ -34,13 +34,13 @@ Results:
 
   Exit code: 0
   Build completed successfully: yes
-  Build jobs: 25
+  Build jobs: 27
   Warnings: 0
-  Lean files with one final AXIOM_AUDIT block: 21 / 21
-  Axiom audit declarations: 521
+  Lean files with one final AXIOM_AUDIT block: 23 / 23
+  Axiom audit declarations: 565
   Unexpected axiom lines: 0
 
-Every one of the 521 reports states that the named declaration does not depend
+Every one of the 565 reports states that the named declaration does not depend
 on any axioms.
 
 Source-policy scan
@@ -73,6 +73,42 @@ Strict fresh-probe gate
     finite-depth transformer dynamics.
 
 No field of this certificate is discharged by an external assumption.
+
+Typed-program self-extension gate, preconfirmatory state
+---------------------------------------------------------
+
+`ConstitutiveAlignment/TypedProgramDomain.lean` and
+`ConstitutiveAlignment/EndogenousTypedSuccession.lean` constructively provide:
+
+  - an intrinsically typed finite language with total semantics;
+  - a rank-free exhaustive frontier returning a fresh composition or a finite
+    saturation certificate;
+  - independently declared regime and norm witnesses, adequacy maps, and a
+    total semantic witness for every normative admission;
+  - two transitions through the same `typedStep`, where the second consumes
+    exactly the first produced successor corpus;
+  - separate incorporation and acquired-capacity counterfactuals;
+  - a generated fresh-probe certificate bound to a sealed descriptor and
+    reserved seed, with constructive absence from training and prior ledger;
+  - exact typed-trace refinement and negative separators.
+
+Development commands:
+
+  py experiment/typed_program/run.py --mode smoke --output <fresh-temp-path>
+  py experiment/typed_program/verify.py <fresh-temp-path> --self-test
+
+Results:
+
+  Smoke exit code: 0
+  Linked transitions accepted: 2 / 2
+  Cumulative exposed-input/training/probe signatures unique: 6 / 6
+  Negative mutations rejected: 12 / 12
+  Confirmatory output produced: no
+  Dirty-worktree confirmatory attempt blocked before output: yes
+
+This gate is intentionally preconfirmatory. Its runner requires a clean source
+freeze commit and a new path under `experiment/typed_program/results/`. No
+confirmatory observation is claimed in this audit state.
 
 Numerical protocol and source freeze
 ------------------------------------

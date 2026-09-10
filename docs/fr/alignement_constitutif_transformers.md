@@ -552,8 +552,11 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `FreshProbeCausality.lean` | séparation engagée entre entraînement et sonde, fraîcheur constructive et emploi exact des poids acquis | démontré sur l’instance finie à attention dure |
 | `GovernedDynamics.lean` | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique transformer à profondeur finie arbitraire | démontré constructivement pour tout `n : Nat` |
 | `ExecutableRefinement.lean` | frontière discrète canonique, raffinement exact, chaînage des traces et séparateurs négatifs | démontré constructivement pour tout `n : Nat` |
+| `TypedProgramDomain.lean` | langage intrinsèquement typé total, frontière finie sans rang, régime, norme et adéquation | démontré constructivement sur l’instance finie |
+| `EndogenousTypedSuccession.lean` | même opérateur sur deux transitions, corpus successeur réellement consommé, deux contrefactuels, sonde générée et raffinement exact | démontré constructivement sur l’instance finie |
 | `experiment/protocol_v1.py` | prototype numérique à attention softmax, séparation entraînement/sonde, traces immuables, contrôles et audit différé | run confirmatoire réussi sur trois graines préengagées après gel des sources |
 | `experiment/verify_refinement_v1.py` | vérification en lecture seule des empreintes, de l’identité de sonde, des traces, de la frontière et des mutations négatives | 3 runs et 24 traces acceptés ; 8 mutations rejetées |
+| `experiment/typed_program/` | témoin exécutable séparé d’auto-extension typée, ledger cumulatif et requêtes exactes au worker | smoke test et 12 mutations négatives réussis ; run confirmatoire en attente du commit de gel |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -580,6 +583,8 @@ machine abstraite
 → transformations admissibles et transport d’adéquation
 → raffinement de la frontière discrète exécutable
 → protocole expérimental reproductible
+→ auto-extension typée par deux passages du même opérateur
+→ protocole dynamique à sonde générée et ledger cumulatif
 ```
 
 Le modèle fini doit comprendre deux occurrences de même lecture mais de
@@ -661,6 +666,15 @@ Le dépôt démontre actuellement :
   forgé et d’un lien intercycle absent ; les statuts du certificat et de
   l’effectuation sont indexés par l’action exacte dérivée du candidat et par le
   contexte constitutif.
+- un langage fini intrinsèquement typé à sémantique totale, une frontière
+  calculée sans rang et deux transitions par le même `typedStep`, dont la
+  seconde consomme exactement le corpus produit par la première ;
+- la divergence de la seconde obligation lorsque la première incorporation est
+  retirée, et la disparition de la seconde proposition lorsque `T₁` est
+  conservé mais que les poids antérieurs sont restaurés ;
+- un protocole formel de sonde générée depuis un descripteur scellé et une
+  graine réservée, ainsi qu’un raffinement exact qui rejette la proposition
+  réécrite et le corpus cible amputé.
 
 Séparément de ces théorèmes, le protocole numérique canonique a été gelé dans le
 commit `a4b9a44` avant l’exécution de sa sonde confirmatoire. L’ensemble
@@ -672,6 +686,11 @@ différé conserve les traces scellées. Le vérificateur en lecture seule accep
 les 24 traces et rejette huit mutations négatives. Lean ne lit pas le résultat
 JSON : `TraceRefinement` et l’acceptation exécutable restent des contrôles
 distincts.
+
+Le protocole exécutable séparé `experiment/typed_program/` a passé son smoke
+test et douze mutations négatives. Il ne possède encore aucun résultat
+confirmatoire : ce run est techniquement bloqué jusqu’au gel des nouvelles
+sources par un commit propre.
 
 Le dépôt ne démontre pas encore :
 
