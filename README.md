@@ -184,7 +184,7 @@ failure of the independent norm.
   instance with exact two-cycle feedback and normative confinement.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Finite experimental protocol](experiment/README.md) — frozen numerical
-  protocol, controls, traces, and deferred-audit procedure.
+  protocol, immutable confirmatory result, controls, traces, and deferred audit.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 

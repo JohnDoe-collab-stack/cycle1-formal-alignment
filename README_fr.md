@@ -188,8 +188,8 @@ directe d'échec de la norme indépendante.
   normatif.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
-- [Protocole expérimental fini](experiment/README.md) — protocole numérique
-  figé, contrôles, traces et procédure d’audit différé.
+- [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique
+  figé, résultat confirmatoire immuable, contrôles, traces et audit différé.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 

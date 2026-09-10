@@ -1,0 +1,1245 @@
+{
+  "facts": {
+    "every_seed_passed": true,
+    "runs": [
+      {
+        "deferred_audit": {
+          "all_passed": true,
+          "checked_after_seal": true,
+          "checks": {
+            "active_relation_changes_prediction": true,
+            "address_renaming_is_invariant": true,
+            "attention_memory_exact_for_declared_queries": true,
+            "first_proposal_is_second_relation": true,
+            "inert_relation_control_is_unchanged": true,
+            "invalid_candidate_preserved": true,
+            "learned_first_cycle_accepted": true,
+            "learning_changes_parameters": true,
+            "parent_rejected_for_fixed_reason": true,
+            "prediction_changes_parent_to_learned": true,
+            "produced_prediction_consumed_exactly": true,
+            "proposal_changes_parent_to_learned": true,
+            "regime_norm_adequacy_on_finite_carrier": true,
+            "rejected_effect_is_confined": true,
+            "second_cycle_depends_on_incorporation": true,
+            "second_cycle_uses_same_learned_parameters": true,
+            "target_absent_from_authorized_view": true
+          },
+          "primary_trace_unchanged": true
+        },
+        "initial_parameters": {
+          "predictive_bias": -1.53714297972308
+        },
+        "learned_parameters": {
+          "predictive_bias": 1.0075780560394538
+        },
+        "sealed_primary_trace_sha256": "bb89959679926def61ceb809dc036c814817c0c1ad1904c4a84e07e9e9209858",
+        "seed": 11,
+        "traces": [
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.1762319131878351,
+            "cycle": "parent",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": -1.5420882260363495,
+              "probability": 0.1762319131878351,
+              "query": -3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": -1.53714297972308
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7315759054341899,
+            "cycle": "learned-cycle-1",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0026328097261843,
+              "probability": 0.7315759054341899,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.27141076511697837,
+            "cycle": "learned-cycle-2",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.9874766976472769,
+              "probability": 0.27141076511697837,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 11,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7315759054341899,
+            "cycle": "intercycle-ablation",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0026328097261843,
+              "probability": 0.7315759054341899,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 11,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.27141076511697837,
+            "cycle": "active-relation-control",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.9874766976472769,
+              "probability": 0.27141076511697837,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5018945049435714,
+            "cycle": "inert-original",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.007578056039453829,
+              "probability": 0.5018945049435714,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5018945049435714,
+            "cycle": "inert-flipped",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.007578056039453829,
+              "probability": 0.5018945049435714,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7315759054341899,
+            "cycle": "address-renamed",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0026328097261843,
+              "probability": 0.7315759054341899,
+              "query": 3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0075780560394538
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 11,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": -1.0,
+                "keys": [
+                  1.0,
+                  -1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "deferred_audit": {
+          "all_passed": true,
+          "checked_after_seal": true,
+          "checks": {
+            "active_relation_changes_prediction": true,
+            "address_renaming_is_invariant": true,
+            "attention_memory_exact_for_declared_queries": true,
+            "first_proposal_is_second_relation": true,
+            "inert_relation_control_is_unchanged": true,
+            "invalid_candidate_preserved": true,
+            "learned_first_cycle_accepted": true,
+            "learning_changes_parameters": true,
+            "parent_rejected_for_fixed_reason": true,
+            "prediction_changes_parent_to_learned": true,
+            "produced_prediction_consumed_exactly": true,
+            "proposal_changes_parent_to_learned": true,
+            "regime_norm_adequacy_on_finite_carrier": true,
+            "rejected_effect_is_confined": true,
+            "second_cycle_depends_on_incorporation": true,
+            "second_cycle_uses_same_learned_parameters": true,
+            "target_absent_from_authorized_view": true
+          },
+          "primary_trace_unchanged": true
+        },
+        "initial_parameters": {
+          "predictive_bias": -1.544995302964593
+        },
+        "learned_parameters": {
+          "predictive_bias": 1.0050118077881987
+        },
+        "sealed_primary_trace_sha256": "d48391945f9fd1a4e6a857ccdce9bccb96c8a04f2b2b08954c17a4fb3fc88f9c",
+        "seed": 29,
+        "traces": [
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.17509485486112517,
+            "cycle": "parent",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": -1.5499405492778626,
+              "probability": 0.17509485486112517,
+              "query": -3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": -1.544995302964593
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7310716652089989,
+            "cycle": "learned-cycle-1",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0000665614749291,
+              "probability": 0.7310716652089989,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.27090359511507733,
+            "cycle": "learned-cycle-2",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.990042945898532,
+              "probability": 0.27090359511507733,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 29,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7310716652089989,
+            "cycle": "intercycle-ablation",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0000665614749291,
+              "probability": 0.7310716652089989,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 29,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.27090359511507733,
+            "cycle": "active-relation-control",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.990042945898532,
+              "probability": 0.27090359511507733,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5012529493243963,
+            "cycle": "inert-original",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.005011807788198652,
+              "probability": 0.5012529493243963,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5012529493243963,
+            "cycle": "inert-flipped",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.005011807788198652,
+              "probability": 0.5012529493243963,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7310716652089989,
+            "cycle": "address-renamed",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0000665614749291,
+              "probability": 0.7310716652089989,
+              "query": 3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.0050118077881987
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 29,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": -1.0,
+                "keys": [
+                  1.0,
+                  -1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "deferred_audit": {
+          "all_passed": true,
+          "checked_after_seal": true,
+          "checks": {
+            "active_relation_changes_prediction": true,
+            "address_renaming_is_invariant": true,
+            "attention_memory_exact_for_declared_queries": true,
+            "first_proposal_is_second_relation": true,
+            "inert_relation_control_is_unchanged": true,
+            "invalid_candidate_preserved": true,
+            "learned_first_cycle_accepted": true,
+            "learning_changes_parameters": true,
+            "parent_rejected_for_fixed_reason": true,
+            "prediction_changes_parent_to_learned": true,
+            "produced_prediction_consumed_exactly": true,
+            "proposal_changes_parent_to_learned": true,
+            "regime_norm_adequacy_on_finite_carrier": true,
+            "rejected_effect_is_confined": true,
+            "second_cycle_depends_on_incorporation": true,
+            "second_cycle_uses_same_learned_parameters": true,
+            "target_absent_from_authorized_view": true
+          },
+          "primary_trace_unchanged": true
+        },
+        "initial_parameters": {
+          "predictive_bias": -1.475819800535744
+        },
+        "learned_parameters": {
+          "predictive_bias": 1.027573254980769
+        },
+        "sealed_primary_trace_sha256": "53418e828a6db02d9648827665f47e386a310e78506e3fec64456f57722a845a",
+        "seed": 47,
+        "traces": [
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.1853118912956648,
+            "cycle": "parent",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": -1.4807650468490134,
+              "probability": 0.1853118912956648,
+              "query": -3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": -1.475819800535744
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7354841874917395,
+            "cycle": "learned-cycle-1",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0226280086674995,
+              "probability": 0.7354841874917395,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.2753827774461717,
+            "cycle": "learned-cycle-2",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.9674814987059617,
+              "probability": 0.2753827774461717,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 47,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7354841874917395,
+            "cycle": "intercycle-ablation",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0226280086674995,
+              "probability": 0.7354841874917395,
+              "query": -3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 47,
+            "view": {
+              "budget": 1,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "outside",
+            "certificate_issued": false,
+            "consumed_prediction": 0.2753827774461717,
+            "cycle": "active-relation-control",
+            "error_position": 0,
+            "error_reason": "outside-regime-and-norm",
+            "governed_effect": null,
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.0024726231566347748,
+                0.9975273768433653
+              ],
+              "context": 0.9975273768433653,
+              "logit": -0.9674814987059617,
+              "probability": 0.2753827774461717,
+              "query": 3.0
+            },
+            "norm_satisfied": false,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 0,
+            "regime_admitted": false,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5068928770384912,
+            "cycle": "inert-original",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.027573254980769013,
+              "probability": 0.5068928770384912,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.5068928770384912,
+            "cycle": "inert-flipped",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.5,
+                0.5
+              ],
+              "context": 0.5,
+              "logit": 0.027573254980769013,
+              "probability": 0.5068928770384912,
+              "query": 0.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": 1.0,
+                "keys": [
+                  -1.0,
+                  1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 1,
+              "tokens": [
+                0.0
+              ]
+            }
+          },
+          {
+            "candidate": "admitted",
+            "certificate_issued": true,
+            "consumed_prediction": 0.7354841874917395,
+            "cycle": "address-renamed",
+            "error_position": null,
+            "error_reason": null,
+            "governed_effect": "relation-incorporated",
+            "neural": {
+              "activation": 0.0,
+              "attention": [
+                0.9975273768433653,
+                0.0024726231566347748
+              ],
+              "context": 0.0024726231566347748,
+              "logit": 1.0226280086674995,
+              "probability": 0.7354841874917395,
+              "query": 3.0
+            },
+            "norm_satisfied": true,
+            "parameters": {
+              "predictive_bias": 1.027573254980769
+            },
+            "proposal": 1,
+            "regime_admitted": true,
+            "seed": 47,
+            "view": {
+              "budget": 2,
+              "cache": 0.0,
+              "memory": {
+                "address_polarity": -1.0,
+                "keys": [
+                  1.0,
+                  -1.0
+                ],
+                "values": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "relation": 0,
+              "tokens": [
+                0.0
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "interpretation": {
+    "supported": "Within this frozen finite task, learned prediction changes the constitutive proposal, the proposal is consumed by the next cycle, and the governed effect is confined on normative rejection."
+  },
+  "limits": {
+    "not_established": [
+      "general transformer alignment",
+      "unbounded-horizon autonomy",
+      "natural-language hallucination reduction",
+      "scaling to trained production models"
+    ]
+  },
+  "mode": "confirmatory",
+  "precommitted_seeds": [
+    11,
+    29,
+    47
+  ],
+  "protocol": "constitutive-transformer-v1",
+  "provenance": {
+    "config_sha256": "149ab76af8db75f9ee79af24188ecefa7aad434bb26ecc735f414df7921d96f9",
+    "data_sha256": "5a46f24b76e81eead471980e85733d3ec8eaa40312446f4a98334a0dd2caeb94",
+    "numpy": "2.3.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "script_sha256": "e9fa57cf9859d3373adb63a466aa37aad99ee3f85ca5fd492e5244f364253493"
+  }
+}
