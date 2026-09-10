@@ -377,8 +377,14 @@ séquence textuellement longue peut être structurellement rompue tôt ; une
 séquence comprimée peut rester fidèle si les relations nécessaires sont
 transportées.
 
-L’autonomie multicycle neuronale n’est pas encore démontrée dans ce dépôt. Elle
-reste une obligation explicite du programme formel et expérimental.
+`TransformerDynamics.lean` instancie la même discipline sur le cœur fini à
+attention dure. Un opérateur uniforme s’exécute avec les mêmes poids appris,
+incorpore la proposition produite comme relation suivante, puis s’exécute à
+nouveau sur cette vue produite. Une ablation dédiée conserve tokens, cache,
+mémoire, budget, cœur et poids, mais omet cette seule incorporation ; la seconde
+prédiction et la seconde proposition changent alors. Cela établit une autonomie
+finie de deux cycles dans le modèle déclaré. L’autonomie d’un réseau entraîné ou
+sur un horizon non borné reste une obligation formelle et expérimentale.
 
 ## 10. Réalisation neuronale
 
@@ -467,10 +473,22 @@ La mémoire persistante est démontrée dans une portée lorsque deux états fus
 par la mémoire sont indistinguables sous toutes les questions déclarées. Une
 compression sans ce certificat reste une hypothèse d’implémentation.
 
+La mémoire finie du transformer est exacte pour les deux requêtes de l’attention
+dure et reste conservée par l’incorporation relationnelle. Son résumé retient
+les deux valeurs nécessaires à ces futurs tout en excluant l’adresse technique
+de focus.
+
 Une hallucination relative peut être définie comme un candidat construit et
 fidèlement réalisé dont la norme autonome est réfutée. Cette définition est
 relative à la norme explicitement choisie. Elle ne transforme ni toute sortie
 de régime ni toute erreur linguistique en hallucination.
+
+Le témoin fini d’hallucination relative contient un seul et même candidat, son
+histoire construite, sa réalisation injective fidèle, sa proposition rejetée
+conservée et la réfutation de la norme autonome. Ce candidat est exactement la
+sortie opérationnelle et normative, et l’action gouvernée correspondante ne
+peut être effectuée. La construction interne demeure ; seul l’effet externe
+certifié est confiné.
 
 Le témoin recherché conserve sur le même candidat :
 
@@ -501,7 +519,8 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `ReflectiveMachine.lean` | instance machine de la représentation exacte et de la non-clôture | démontré |
 | `ReferenceModel.lean` | certificat fini intégré, des histoires et de l’adéquation jusqu’à la succession causale, l’action gouvernée, les cycles liés et la sortie réflexive | démontré |
 | `NeuralRealization.lean` | contrat de fidélité neuronale et audit différé | défini et démontré sur une instance finie |
-| `TransformerRealization.lean` | contrat transformer, attention dure, consommation de la relation proposée et intervention parent–appris | gate finie à un pas démontrée ; multicycle ouvert |
+| `TransformerRealization.lean` | contrat transformer, attention dure, consommation de la relation proposée et intervention parent–appris | gate finie à un pas démontrée |
+| `TransformerDynamics.lean` | mémoire exacte d’attention, rétroaction uniforme sur deux cycles, ablation intercycle, rupture normative relative et confinement | démontré sur l’instance finie à attention dure |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -579,11 +598,15 @@ Le dépôt démontre actuellement :
   dure où la proposition apprise est consommée comme relation suivante, la
   relation est active, le contrôle sans relation est inerte, le renommage des
   adresses conserve la prédiction et le raccord au modèle de référence est
-  exact.
+  exact ;
+- une dynamique transformer finie de deux cycles sous un opérateur uniforme et
+  des poids appris fixes, avec rétroaction exacte de la proposition vers la
+  relation, mémoire d’attention exacte, ablation intercycle dédiée et rupture
+  normative relative confinée.
 
 Le dépôt ne démontre pas encore :
 
-- l’autonomie multicycle d’une réalisation transformer ;
+- l’autonomie multicycle d’une réalisation transformer entraînée ou non bornée ;
 - une réalisation fidèle par un réseau entraîné et ses tenseurs effectifs ;
 - un prototype expérimental reproductible satisfaisant toutes les gates ;
 - un résultat expérimental sur les hallucinations linguistiques.
