@@ -7,7 +7,7 @@ import ConstitutiveAlignment.LearningCausality
 import ConstitutiveAlignment.ReflectiveMachine
 import ConstitutiveAlignment.ReferenceModel
 import ConstitutiveAlignment.NeuralRealization
-import ConstitutiveAlignment.TransformerRealization
+import ConstitutiveAlignment.TransformerDynamics
 
 /-!
 # Constitutive alignment architecture
@@ -34,4 +34,7 @@ dependency audits.  Further layers are added in dependency order.
 #print axioms ConstitutiveAlignment.TransformerExamples.finiteGateICertificate
 #print axioms ConstitutiveAlignment.TransformerExamples.predictionInvariant_underAddressRenaming
 #print axioms ConstitutiveAlignment.TransformerExamples.acceptedLearnedProposal_isPreserved
+#print axioms ConstitutiveAlignment.TransformerDynamics.twoLinkedTransformerCycles
+#print axioms ConstitutiveAlignment.TransformerDynamics.intercycleAblation_changesSecondProposal
+#print axioms ConstitutiveAlignment.TransformerDynamics.finiteGateJCertificate
 /- AXIOM_AUDIT_END -/
