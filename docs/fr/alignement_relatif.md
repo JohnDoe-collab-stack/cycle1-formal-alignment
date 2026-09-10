@@ -1,6 +1,6 @@
-# Cycle 1 — Preuve formelle d'alignement relatif à une spécification indépendante
+# Cycle 1 — Alignement relatif à une spécification indépendante
 
-[English](../en/formal_relative_alignment_proof.md) | **Français**
+[English](../en/relative_alignment.md) | **Français**
 
 > **Déclaration de conception intellectuelle et de génération par IA.** Le
 > responsable du projet déclare être à l'origine de l'essentiel des idées et de
@@ -8,6 +8,10 @@
 > modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
 > d'interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
+
+Navigation : [synthèse structurelle](fondements_structurels.md) ·
+[méthode](methode_roles_constitutifs_relationnels.md) ·
+[Cycle 2 — alignement réflexif](alignement_reflexif.md)
 
 ## Statut
 
@@ -137,35 +141,35 @@ sans modèle.
 La documentation du cycle 1 doit conserver explicitement les distinctions suivantes:
 
 ```text
-réalisation != norme
+réalisation ≠ norme
 
-norme != régime
+norme ≠ régime
 
-régime != adéquation du régime
+régime ≠ adéquation du régime
 
-diagnostic du candidat != diagnostic du régime
+diagnostic du candidat ≠ diagnostic du régime
 ```
 
-### 2.1 Réalisation != norme
+### 2.1 Réalisation ≠ norme
 
 Un candidat peut être exactement constitué et fidèlement interprété tout en ne satisfaisant pas la norme indépendante.
 
 La fidélité de réalisation garantit que la structure demandée est correctement réalisée. Elle ne détermine pas à elle seule le statut normatif du candidat.
 
-### 2.2 Norme != régime
+### 2.2 Norme ≠ régime
 
 `CircularSpecificationSatisfaction` est construite avant sa comparaison à `CircularRefinement`.
 
 La norme possède son propre modèle positif et son propre contre-exemple
 canonique. Son contenu ne provient donc pas d'une simple traduction du régime.
 
-### 2.3 Régime != adéquation du régime
+### 2.3 Régime ≠ adéquation du régime
 
 `CircularRefinement` est un régime de données opérationnelles riches.
 
 `NormativeAdequacy` exprime séparément la relation entre ce régime et une spécification indépendante. L'adéquation n'est pas un champ caché du régime.
 
-### 2.4 Diagnostic du candidat != diagnostic du régime
+### 2.4 Diagnostic du candidat ≠ diagnostic du régime
 
 Pour `oneStepAfterPerimeter P`, deux résultats différents sont disponibles:
 
@@ -765,66 +769,69 @@ Il ne faut pas non plus dire que le régime est désaligné avec `S` dans ce cas
 
 ---
 
-## 13. API publique optionnelle
+## 13. Réflexion propositionnelle dans le Cycle 2
 
-Une API propositionnelle compacte peut être ajoutée pendant la stabilisation:
+Les déclarations du Cycle 1 ci-dessus sont des applications entre types de
+témoins porteurs d'information de preuve :
 
-```lean
-theorem circularRefinement_nonempty_iff_specification_nonempty
-    {P : CircularPresentation}
-    {history : RootedGeneratedHistory P} :
-    Nonempty (CircularRefinement P history) ↔
-      Nonempty (CircularSpecificationSatisfaction P history) := by
-  constructor
-  · rintro ⟨refinement⟩
-    exact ⟨circularRefinement_soundSpecification refinement⟩
-  · rintro ⟨satisfaction⟩
-    exact ⟨circularSpecification_complete satisfaction⟩
+```text
+CircularRefinement P H
+  → CircularSpecificationSatisfaction P H
+
+CircularSpecificationSatisfaction P H
+  → CircularRefinement P H
 ```
 
-Cette formulation exprime une équivalence d'habitabilité.
+Le Cycle 2 observe explicitement leur habitabilité :
 
-Elle ne revendique pas un `Equiv` entre les structures.
+```text
+CircularRegimeStatus P H
+  := Nonempty (CircularRefinement P H)
 
-**Statut:** API de consolidation optionnelle. Elle n'est pas nécessaire au contenu mathématique du cycle 1.
+CircularSpecificationStatus P H
+  := Nonempty (CircularSpecificationSatisfaction P H)
+```
+
+`Cycle2.ReflectiveAlignment.circularStatusAdequacy` démontre alors la véritable
+équivalence propositionnelle :
+
+```text
+CircularRegimeStatus P H
+  ↔ CircularSpecificationStatus P H
+```
+
+Ce raccord est implémenté et constructif. Il est dérivé des deux applications du
+Cycle 1 ; il ne modifie pas le Cycle 1 et ne revendique ni `Equiv` ni égalité
+entre les structures de témoins originelles. C'est le point formel depuis lequel
+le Cycle 2 transporte l'adéquation établie dans la couche de représentation.
 
 ---
 
 ## 14. Audit et reproductibilité
 
-État reproduit le 9 septembre 2026 sur les artefacts Lean actuels du cycle 1:
+Depuis la racine du dépôt, reproduire la compilation épinglée avec :
 
-```text
-Lean                                      4.33.1 (Release)
-cible Lake                                Cycle1Alignment
-dépendances externes dans lake-manifest   aucune
-
+```bash
+lake clean
 lake build
-  exit                                    0
-
-lake env lean SegmentedResidualRole.lean
-  exit                                    0
-
-lake env lean AbstractSegmentedTurning.lean
-  exit                                    0
-
-lake env lean StrongPerimetralTurning.lean
-  exit                                    0
-
-déclarations citées                       présentes
-signatures citées                         concordantes
-liens documentaires locaux                résolus
-empreintes de MANIFEST.sha256              concordantes
-
-résultat des #print axioms                 aucune dépendance axiomatique
-sorry / admit / axiom explicite            absents
-propext                                    absent
-Quot.sound                                 absent
-Classical                                  absent
 ```
 
-L'audit autonome consigné dans `AUDIT_BUILD.txt` a été reproduit sous Windows
-avec Lean 4.33.1. Aucun dépôt ni journal de compilation antérieur n'est requis.
+Puis vérifier le manifeste des sources scientifiques avec :
+
+```bash
+bash scripts/verify-manifest.sh
+```
+
+ou :
+
+```powershell
+pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+L'environnement complet, les empreintes des sources, les décomptes de
+compilation et le résultat de l'audit axiomatique sont consignés dans
+[`audit/AUDIT_BUILD.txt`](../../audit/AUDIT_BUILD.txt). Aucun dépôt antérieur ni
+historique source privé n'est requis.
 
 Les déclarations finales du raccord d'alignement sont également auditées:
 
@@ -890,8 +897,9 @@ l'absence de pont ajouté entre norme et régime
 les résultats d'audit axiomatique
 ```
 
-L'API propositionnelle de la section 13 reste une consolidation optionnelle et
-n'est pas requise par le contenu mathématique clos.
+Le raccord propositionnel de la section 13 appartient au Cycle 2. Il observe le
+résultat clos du Cycle 1 sans modifier ses types de témoins ni son contenu
+mathématique.
 
 ### Énoncé de publication
 

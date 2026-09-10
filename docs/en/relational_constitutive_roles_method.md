@@ -11,6 +11,10 @@
 > interactions. See the
 > [full bilingual declaration](../../AI_AUTHORSHIP.md).
 
+Navigation: [structural synthesis](structural_foundations.md) ·
+[Cycle 1 — relative alignment](relative_alignment.md) ·
+[Cycle 2 — reflective alignment](reflective_alignment.md)
+
 > **This document presents the method extracted from cycle 1: individuate
 > occurrences before their readings, determine their roles through the
 > relations that constitute them, test the independence of properties on
@@ -21,10 +25,12 @@
 
 Complementary documents:
 
-- [formal proof of relative alignment — English](formal_relative_alignment_proof.md);
-- [preuve formelle d'alignement relatif — français](../fr/preuve_formelle_alignement_relatif.md);
+- [formal proof of relative alignment — English](relative_alignment.md);
+- [preuve formelle d'alignement relatif — français](../fr/alignement_relatif.md);
 - [structural foundations — English](structural_foundations.md);
-- [fondements structurels — français](../fr/fondements_structurels.md).
+- [fondements structurels — français](../fr/fondements_structurels.md);
+- [reflective alignment — English](reflective_alignment.md);
+- [alignement réflexif — français](../fr/alignement_reflexif.md).
 
 ## Abstract
 
@@ -80,7 +86,7 @@ The argument is organized into five complementary parts:
 | **Foundations** | 1–6 | delimit the method, its statuses, its vocabulary, and exact agreement between role and occurrence |
 | **Separation and reconstruction** | 7–10 | test dependencies on weakened carriers, then reconstruct order, adjacency, and participation |
 | **Preservation** | 11–12 | define faithful transport and derive structural and numerical invariants |
-| **Normative diagnosis** | 13–14 | separate norm and regime, prove their adequacy, and analyze the canonical witness |
+| **Normative diagnosis** | 13–14 | separate norm and regime, prove their adequacy, and summarize the canonical witness |
 | **Reuse and audit** | 15–20 | provide a protocol, failure criteria, explicit scope, and Lean anchors |
 
 Sections 1 through 14 reconstruct the argument. Sections 15 through 19 turn
@@ -157,81 +163,11 @@ extension to another domain or more general carrier
 This convention makes it possible to state the method strongly without
 attributing to the Lean kernel a scope it does not yet have.
 
-## 3. The collapses the method must prevent
-
-The methodological need appears when an abstraction that is correct for one
-task becomes destructive for another. Four collapses are especially important.
-
-### 3.1 Reading and occurrence
-
-A reading assigns a value to an occurrence:
-
-```text
-ρ : Occurrence → Value
-```
-
-The equality `ρ(x) = ρ(y)` is not sufficient to conclude `x = y`. The two
-occurrences may differ through their formation, provenance, position, or role
-in a composition. Identifying them through their reading would destroy exactly
-the data needed to audit their trajectory.
-
-The problem is not the use of a reading. It is its retrospective use as a
-principle of individuation. A reading may be relevant after the occurrence has
-been constructed; it must not replace without proof the relations that
-constituted that occurrence.
-
-### 3.2 Position and participation
-
-An occurrence may be situated between two others in a list without
-participating in a generated history that connects their states. An order
-relation gives positional information; constitutive participation requires a
-correspondence with the occurrences of an effectively typed composition.
-
-```text
-intermediate position
-≠ occurrence of a constitutive bridge
-```
-
-Conflating these notions would allow any interleaved datum to be treated as part
-of the construction connecting its neighbors, even when its sources, targets,
-or generation mode are incompatible with that composition.
-
-### 3.3 Coverage and exhaustiveness
-
-Exactly realizing all requirements of a locality does not mean that the history
-contains nothing else.
-
-```text
-every requirement has an exact witness
-≠
-every occurrence is the witness of a requirement
-```
-
-The first proposition is coverage. The second is an exhaustive classification.
-Identifying them would exclude by definition every continuation beyond the
-covered domain and make the phenomenon under diagnosis disappear.
-
-### 3.4 Constructibility and admissibility
-
-A generator may produce a step that the regime rejects. This situation is
-neither contradictory nor incomplete if construction and regime have been
-defined separately.
-
-```text
-Constructible(x)
-≠ Admissible(x)
-```
-
-Collapsing the two notions turns every regime exit either into an inability to
-construct or into an unlocalized error. Separating them instead preserves the
-produced object, the properties it still satisfies, and the proof of the exact
-property it no longer satisfies.
-
-## 4. Structural vocabulary
+## 3. Structural vocabulary
 
 The method rests on a vocabulary whose levels must remain distinct.
 
-### 4.1 Presentation
+### 3.1 Presentation
 
 A presentation fixes the types and rules from which constructions may be
 formed. In the cycle 1 application, `CircularPresentation` provides, among other
@@ -241,7 +177,7 @@ provenances, perimeter, and obstruction to a total loop.
 The presentation does not yet classify every history as admitted or rejected.
 It supplies the conditions of their constitution.
 
-### 4.2 Constitution and formation
+### 3.2 Constitution and formation
 
 A constitution is an object whose construction records the data that formed it.
 `FreeConstitution` does not represent only a value reached: it preserves the
@@ -256,7 +192,7 @@ by which typed act was this object constituted?
 
 It precedes the external readings that may subsequently be applied to it.
 
-### 4.3 Step and occurrence
+### 3.3 Step and occurrence
 
 A `GeneratedStep` connects a source and a target according to the rules of the
 presentation. An occurrence is an individuated appearance of such a step in a
@@ -266,7 +202,7 @@ The distinction is essential: two occurrences may carry steps whose readings
 coincide while remaining different positions in the history.
 `History.Occurrence` preserves that individuation.
 
-### 4.4 Relational constitutive role
+### 3.4 Relational constitutive role
 
 A **relational constitutive role** is the determination of an occurrence by the
 structural relations in which it participates within a constitution.
@@ -306,7 +242,7 @@ This notation is a methodological presentation, not a new Lean declaration. In
 cycle 1, its content is realized by several types and relations rather than by a
 single structure named `Role`.
 
-### 4.5 Carrier
+### 3.5 Carrier
 
 The carrier is the type of objects over which a property is studied. Changing
 the carrier changes the available relations and therefore what can be proved.
@@ -315,6 +251,76 @@ A `SemanticTrace` and a `RootedGeneratedHistory` may carry similar steps, but
 only the latter imposes the global composability of a generated history. The
 choice of carrier is therefore not a representational detail: it is part of the
 hypotheses of the argument.
+
+## 4. The collapses the method must prevent
+
+The methodological need appears when an abstraction that is correct for one
+task becomes destructive for another. Four collapses are especially important.
+
+### 4.1 Reading and occurrence
+
+A reading assigns a value to an occurrence:
+
+```text
+ρ : Occurrence → Value
+```
+
+The equality `ρ(x) = ρ(y)` is not sufficient to conclude `x = y`. The two
+occurrences may differ through their formation, provenance, position, or role
+in a composition. Identifying them through their reading would destroy exactly
+the data needed to audit their trajectory.
+
+The problem is not the use of a reading. It is its retrospective use as a
+principle of individuation. A reading may be relevant after the occurrence has
+been constructed; it must not replace without proof the relations that
+constituted that occurrence.
+
+### 4.2 Position and participation
+
+An occurrence may be situated between two others in a list without
+participating in a generated history that connects their states. An order
+relation gives positional information; constitutive participation requires a
+correspondence with the occurrences of an effectively typed composition.
+
+```text
+intermediate position
+≠ occurrence of a constitutive bridge
+```
+
+Conflating these notions would allow any interleaved datum to be treated as part
+of the construction connecting its neighbors, even when its sources, targets,
+or generation mode are incompatible with that composition.
+
+### 4.3 Coverage and exhaustiveness
+
+Exactly realizing all requirements of a locality does not mean that the history
+contains nothing else.
+
+```text
+every requirement has an exact witness
+≠
+every occurrence is the witness of a requirement
+```
+
+The first proposition is coverage. The second is an exhaustive classification.
+Identifying them would exclude by definition every continuation beyond the
+covered domain and make the phenomenon under diagnosis disappear.
+
+### 4.4 Constructibility and admissibility
+
+A generator may produce a step that the regime rejects. This situation is
+neither contradictory nor incomplete if construction and regime have been
+defined separately.
+
+```text
+Constructible(x)
+≠ Admissible(x)
+```
+
+Collapsing the two notions turns every regime exit either into an inability to
+construct or into an unlocalized error. Separating them instead preserves the
+produced object, the properties it still satisfies, and the proof of the exact
+property it no longer satisfies.
 
 ## 5. Order of dependence
 
@@ -1015,7 +1021,7 @@ rejection may permit it to be derived in some frameworks, but the method favors
 retaining a direct proof when available, so as to localize the exact normative
 obligation that fails.
 
-## 14. Complete study of the canonical witness
+## 14. Condensed study of the canonical witness
 
 The candidate:
 
@@ -1023,106 +1029,37 @@ The candidate:
 h⁺ := oneStepAfterPerimeter P
 ```
 
-condenses the entire method on one object.
-
-### 14.1 Preserved construction
-
-`oneStepAfterPerimeter P` is a `RootedGeneratedHistory P`. Its existence does
-not result from an external tolerance: it is produced by the free generator
-itself.
-
-`oneStepAfterPerimeterStrict` establishes:
+condenses the method on one object. The detailed constructions and signatures
+belong to the [Cycle 1 proof](relative_alignment.md); the method retains only
+the dependency pattern needed for reuse:
 
 ```text
-StrictConstitutivePrefix
-  (perimeterDeployment P)
-  (oneStepAfterPerimeter P)
+constructed strict continuation
+  `oneStepAfterPerimeterStrict`
+
++ exact local realization and reconstructed order
+  `oneStepAfterPerimeter_nonClosingRealization`
+
++ exact concrete realization in every supplied algebra
+  `oneStepUniformPerimetralRegimeExit`
+
++ exact adequacy between regime and independent norm
+  `circularNormativeAdequacy`, `circularRefinement_adequateAlong`
+
++ operational rejection
+  `oneStepAfterPerimeter_notCircularRefinement`
+
++ direct failure of the trajectory obligation
+  `oneStepAfterPerimeter_notSpecificationSatisfaction`
+
+= relative diagnosis retaining both positive and negative evidence
+  `oneStepSpecRelativeHistoryExit`
 ```
 
-The candidate is therefore a strict constitutive continuation of the perimetral
-deployment.
-
-### 14.2 Preserved local exactness
-
-`oneStepAfterPerimeter_nonClosingRealization` provides:
-
-```text
-ExactNonClosingRealization P (oneStepAfterPerimeter P)
-```
-
-All non-closing requirements remain exactly realized. By the reconstruction
-theorems, their canonical precedence and adjacency remain preserved as well.
-
-### 14.3 Uniform concrete faithfulness
-
-`oneStepUniformPerimetralRegimeExit` fixes this same candidate and provides, for
-every given `ConcreteContinuationAlgebra P`, an
-`ExactConcreteRealization A (oneStepAfterPerimeter P)`.
-
-The exit therefore does not depend on one particular concrete representation
-among those satisfying the interface. It erases neither the free occurrences
-nor their concrete counterparts.
-
-### 14.4 Operational rejection
-
-`oneStepAfterPerimeter_notCircularRefinement` refutes:
-
-```text
-CircularRefinement P (oneStepAfterPerimeter P)
-```
-
-The construction exists, but it no longer belongs to the circular regime.
-
-### 14.5 Direct normative failure
-
-`oneStepAfterPerimeter_notSpecificationSatisfaction` directly refutes:
-
-```text
-CircularSpecificationSatisfaction P
-  (oneStepAfterPerimeter P)
-```
-
-The local component remains available. The trajectory component fails: the
-strict continuation would force `P.TotalLoop`, contradicted by
-`rejectTotalLoop`.
-
-The localization is therefore exact:
-
-```text
-construction                    preserved
-exact local realization         preserved
-order and adjacency             preserved
-exact concrete interpretation   preserved
-regime admission                lost
-trajectory obligation           impossible
-```
-
-### 14.6 Relative diagnosis
-
-`oneStepSpecRelativeHistoryExit` composes faithfulness, regime exit, and
-normative adequacy. `oneStepSpecRelativeHistoryExit_notSpecification` also
-retains the direct refutation of the norm on the candidate carried by the
-diagnosis.
-
-The result does not merely say:
-
-```text
-the candidate is rejected
-```
-
-It says:
-
-```text
-here is the constructed candidate
-here are the occurrences and agreements it preserves
-here is its realization in every supplied algebra
-here is the regime that rejects it
-here is the independent norm adequate to that regime
-here is the exact obligation of that norm that becomes impossible
-```
-
-It is this preservation of positive information that turns a refutation into a
-structural diagnosis.
+The candidate remains constructed, locally exact, correctly ordered, and
+faithfully realizable. What is lost is operational admission and the
+trajectory-level normative obligation. Preserving this positive information is
+what turns a refutation into a structural diagnosis.
 
 ## 15. Reuse protocol
 
@@ -1363,7 +1300,7 @@ A methodological extraction or proposed generalization is presented as a Lean
 theorem. Every important claim must be connected to its status and, when formal,
 to a precise declaration.
 
-## 17. Scope and generalization program
+## 17. Scope after Cycles 1 and 2
 
 ### 17.1 What cycle 1 actually establishes
 
@@ -1381,7 +1318,19 @@ Cycle 1 provides a formal instance in which:
   while failing the norm and the regime;
 - the break is localized without erasing the construction.
 
-### 17.2 What cycle 1 does not yet establish
+### 17.2 What Cycle 2 adds — and does not add
+
+Cycle 2 observes the Cycle 1 regime and norm through `Nonempty`, transports
+their proposition-level equivalence through exact representation, and combines
+that determined exactness with a diagonal status outside global reflective
+closure. This confirms that the method's discipline of preservation before
+projection remains relevant at the reflective level.
+
+Cycle 2 is not, however, a second non-perimetral instance of the method. It
+reuses the Cycle 1 adequacy and adds a representation layer; it does not supply
+a new domain with independently reconstructed relational constitutive roles.
+
+### 17.3 What the current development does not yet establish
 
 It does not prove:
 
@@ -1396,7 +1345,7 @@ It does not prove:
 These limits do not weaken the proved result. They define the work required to
 turn the methodological extraction into a more general theory.
 
-### 17.3 Future formal steps
+### 17.4 Future formal steps
 
 A natural program would include:
 
@@ -1524,7 +1473,9 @@ The method can be condensed as follows:
 > diagnose a break by retaining on the same object the positive witnesses of
 > what remains and the negative proof of what ceases to be satisfied.**
 
-Cycle 1 verifies one complete instance of this method. Generalizing it now
-requires formalizing the methodological interface itself and testing it on
-other domains, without erasing the distinction between Lean result, derived
+Cycle 1 verifies one complete instance of this method. Cycle 2 transports one
+of its established adequacy results into a reflective representation layer but
+does not constitute a second domain instance. Generalizing the method therefore
+still requires formalizing the methodological interface itself and testing it
+on other domains, without erasing the distinction between Lean result, derived
 consequence, and theoretical proposal.

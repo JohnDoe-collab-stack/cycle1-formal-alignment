@@ -11,6 +11,10 @@
 > d'interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
 
+Navigation : [synthèse structurelle](fondements_structurels.md) ·
+[Cycle 1 — alignement relatif](alignement_relatif.md) ·
+[Cycle 2 — alignement réflexif](alignement_reflexif.md)
+
 > **Ce document expose la méthode dégagée par le cycle 1 : individuer les
 > occurrences avant leurs lectures, déterminer leurs rôles par les relations qui
 > les constituent, éprouver l'indépendance des propriétés sur des carriers
@@ -21,10 +25,12 @@
 
 Documents complémentaires :
 
-- [preuve formelle d'alignement relatif — français](preuve_formelle_alignement_relatif.md) ;
-- [formal proof of relative alignment — English](../en/formal_relative_alignment_proof.md) ;
+- [preuve formelle d'alignement relatif — français](alignement_relatif.md) ;
+- [formal proof of relative alignment — English](../en/relative_alignment.md) ;
 - [fondements structurels — français](fondements_structurels.md) ;
-- [structural foundations — English](../en/structural_foundations.md).
+- [structural foundations — English](../en/structural_foundations.md) ;
+- [alignement réflexif — français](alignement_reflexif.md) ;
+- [reflective alignment — English](../en/reflective_alignment.md).
 
 ## Résumé
 
@@ -81,7 +87,7 @@ Le raisonnement est organisé en cinq parties complémentaires :
 | **Fondations** | 1 à 6 | délimiter la méthode, ses statuts, son vocabulaire et l'accord exact entre rôle et occurrence |
 | **Séparation et reconstruction** | 7 à 10 | tester les dépendances sur des carriers affaiblis, puis reconstruire ordre, adjacence et participation |
 | **Conservation** | 11 et 12 | définir le transport fidèle et dériver les invariants structurels et numériques |
-| **Diagnostic normatif** | 13 et 14 | séparer norme et régime, prouver leur adéquation et analyser le témoin canonique |
+| **Diagnostic normatif** | 13 et 14 | séparer norme et régime, prouver leur adéquation et résumer le témoin canonique |
 | **Réemploi et audit** | 15 à 20 | fournir un protocole, des critères d'échec, une portée explicite et les ancrages Lean |
 
 Les sections 1 à 14 reconstruisent l'argument. Les sections 15 à 19 transforment
@@ -160,84 +166,11 @@ extension à un autre domaine ou à un carrier plus général
 Cette convention permet de formuler la méthode avec force sans attribuer au
 noyau Lean une portée qu'il n'a pas encore.
 
-## 3. Les effondrements que la méthode doit empêcher
-
-Le besoin méthodologique apparaît lorsqu'une abstraction correcte pour une
-tâche devient destructrice pour une autre. Quatre effondrements sont
-particulièrement importants.
-
-### 3.1 Lecture et occurrence
-
-Une lecture associe une valeur à une occurrence :
-
-```text
-ρ : Occurrence → Value
-```
-
-L'égalité `ρ(x) = ρ(y)` ne suffit pas à conclure `x = y`. Les deux occurrences
-peuvent différer par leur formation, leur provenance, leur position ou leur rôle
-dans une composition. Les identifier par leur lecture détruirait précisément
-les données nécessaires à l'audit de leur trajectoire.
-
-Le problème n'est pas l'usage d'une lecture. Il est son emploi rétroactif comme
-principe d'individuation. Une lecture peut être pertinente après la construction
-de l'occurrence ; elle ne doit pas remplacer sans preuve les relations qui ont
-constitué cette occurrence.
-
-### 3.2 Position et participation
-
-Une occurrence peut être située entre deux autres dans une liste sans participer
-à une histoire générée qui relie leurs états. La relation d'ordre renseigne sur
-la position ; la participation constitutive exige une correspondance avec les
-occurrences d'une composition effectivement typée.
-
-```text
-position intermédiaire
-≠ occurrence d'un pont constitutif
-```
-
-Confondre ces notions permettrait de traiter toute donnée intercalée comme une
-partie de la construction qui joint ses voisines, alors que ses sources, ses
-cibles ou son mode de génération peuvent être incompatibles avec cette
-composition.
-
-### 3.3 Couverture et exhaustivité
-
-Réaliser exactement toutes les exigences d'une localité ne signifie pas que
-l'histoire ne contient rien d'autre.
-
-```text
-chaque exigence possède un témoin exact
-≠
-chaque occurrence est le témoin d'une exigence
-```
-
-La première proposition est une couverture. La seconde est une classification
-exhaustive. Les identifier interdirait par définition toute continuation au-delà
-du domaine couvert et ferait disparaître le phénomène que l'analyse cherche à
-diagnostiquer.
-
-### 3.4 Constructibilité et admissibilité
-
-Un générateur peut produire un pas que le régime rejette. Cette situation n'est
-ni contradictoire ni incomplète si construction et régime ont été définis
-séparément.
-
-```text
-Constructible(x)
-≠ Admissible(x)
-```
-
-L'effondrement des deux notions transforme toute sortie de régime soit en
-impossibilité de construire, soit en erreur non localisée. Leur séparation
-permet au contraire de conserver l'objet produit, les propriétés qu'il satisfait
-encore et la preuve de la propriété exacte qu'il ne satisfait plus.
-
-## 4. Vocabulaire structurel
+## 3. Vocabulaire structurel
 
 La méthode repose sur un vocabulaire dont les niveaux doivent rester distincts.
 
-### 4.1 Présentation
+### 3.1 Présentation
 
 Une présentation fixe les types et les règles à partir desquels des
 constructions peuvent être formées. Dans l'application du cycle 1,
@@ -248,7 +181,7 @@ compatibilités, les différences, les provenances, le périmètre et l'obstruct
 La présentation ne classe pas encore toutes les histoires comme admises ou
 rejetées. Elle fournit les conditions de leur constitution.
 
-### 4.2 Constitution et formation
+### 3.2 Constitution et formation
 
 Une constitution est un objet dont la construction enregistre les données qui
 l'ont formé. `FreeConstitution` ne représente pas seulement une valeur atteinte :
@@ -263,7 +196,7 @@ par quel acte typé cet objet a-t-il été constitué ?
 
 Elle précède les lectures externes qui pourront ensuite lui être appliquées.
 
-### 4.3 Pas et occurrence
+### 3.3 Pas et occurrence
 
 Un `GeneratedStep` relie une source et une cible selon les règles de la
 présentation. Une occurrence est une apparition individuée d'un tel pas dans
@@ -273,7 +206,7 @@ La distinction est essentielle : deux occurrences peuvent porter des pas dont
 les lectures coïncident tout en restant des positions différentes dans
 l'histoire. `History.Occurrence` conserve cette individuation.
 
-### 4.4 Rôle constitutif relationnel
+### 3.4 Rôle constitutif relationnel
 
 Un **rôle constitutif relationnel** est la détermination d'une occurrence par les
 relations structurelles dans lesquelles elle intervient au sein d'une
@@ -314,7 +247,7 @@ Cette notation est une présentation méthodologique, non une nouvelle
 déclaration Lean. Dans le cycle 1, son contenu est réalisé par plusieurs types
 et relations plutôt que par une structure unique nommée `Role`.
 
-### 4.5 Carrier (type porteur)
+### 3.5 Carrier (type porteur)
 
 Le carrier — ou type porteur — est le type d'objets sur lequel une propriété est
 étudiée. Changer de carrier change les relations disponibles et donc ce qui peut
@@ -324,6 +257,79 @@ Une `SemanticTrace` et une `RootedGeneratedHistory` peuvent porter des pas
 similaires, mais seule la seconde impose la composabilité globale d'une histoire
 générée. Le choix du carrier n'est donc pas un détail de représentation : il
 fait partie des hypothèses du raisonnement.
+
+## 4. Les effondrements que la méthode doit empêcher
+
+Le besoin méthodologique apparaît lorsqu'une abstraction correcte pour une
+tâche devient destructrice pour une autre. Quatre effondrements sont
+particulièrement importants.
+
+### 4.1 Lecture et occurrence
+
+Une lecture associe une valeur à une occurrence :
+
+```text
+ρ : Occurrence → Value
+```
+
+L'égalité `ρ(x) = ρ(y)` ne suffit pas à conclure `x = y`. Les deux occurrences
+peuvent différer par leur formation, leur provenance, leur position ou leur rôle
+dans une composition. Les identifier par leur lecture détruirait précisément
+les données nécessaires à l'audit de leur trajectoire.
+
+Le problème n'est pas l'usage d'une lecture. Il est son emploi rétroactif comme
+principe d'individuation. Une lecture peut être pertinente après la construction
+de l'occurrence ; elle ne doit pas remplacer sans preuve les relations qui ont
+constitué cette occurrence.
+
+### 4.2 Position et participation
+
+Une occurrence peut être située entre deux autres dans une liste sans participer
+à une histoire générée qui relie leurs états. La relation d'ordre renseigne sur
+la position ; la participation constitutive exige une correspondance avec les
+occurrences d'une composition effectivement typée.
+
+```text
+position intermédiaire
+≠ occurrence d'un pont constitutif
+```
+
+Confondre ces notions permettrait de traiter toute donnée intercalée comme une
+partie de la construction qui joint ses voisines, alors que ses sources, ses
+cibles ou son mode de génération peuvent être incompatibles avec cette
+composition.
+
+### 4.3 Couverture et exhaustivité
+
+Réaliser exactement toutes les exigences d'une localité ne signifie pas que
+l'histoire ne contient rien d'autre.
+
+```text
+chaque exigence possède un témoin exact
+≠
+chaque occurrence est le témoin d'une exigence
+```
+
+La première proposition est une couverture. La seconde est une classification
+exhaustive. Les identifier interdirait par définition toute continuation au-delà
+du domaine couvert et ferait disparaître le phénomène que l'analyse cherche à
+diagnostiquer.
+
+### 4.4 Constructibilité et admissibilité
+
+Un générateur peut produire un pas que le régime rejette. Cette situation n'est
+ni contradictoire ni incomplète si construction et régime ont été définis
+séparément.
+
+```text
+Constructible(x)
+≠ Admissible(x)
+```
+
+L'effondrement des deux notions transforme toute sortie de régime soit en
+impossibilité de construire, soit en erreur non localisée. Leur séparation
+permet au contraire de conserver l'objet produit, les propriétés qu'il satisfait
+encore et la preuve de la propriété exacte qu'il ne satisfait plus.
 
 ## 5. Ordre de dépendance
 
@@ -1034,7 +1040,7 @@ rejet du régime peuvent permettre de la dériver dans certains cadres, mais la
 méthode préfère conserver une preuve directe lorsqu'elle est disponible, afin de
 localiser exactement l'obligation normative qui échoue.
 
-## 14. Étude complète du témoin canonique
+## 14. Étude condensée du témoin canonique
 
 Le candidat :
 
@@ -1042,107 +1048,38 @@ Le candidat :
 h⁺ := oneStepAfterPerimeter P
 ```
 
-condense toute la méthode sur un même objet.
-
-### 14.1 Construction conservée
-
-`oneStepAfterPerimeter P` est une `RootedGeneratedHistory P`. Son existence ne
-résulte pas d'une tolérance extérieure : elle est produite par le générateur
-libre lui-même.
-
-`oneStepAfterPerimeterStrict` établit :
+condense la méthode sur un même objet. Les constructions et signatures
+détaillées appartiennent à la [preuve du Cycle 1](alignement_relatif.md) ; le
+document de méthode conserve seulement le schéma de dépendances nécessaire au
+réemploi :
 
 ```text
-StrictConstitutivePrefix
-  (perimeterDeployment P)
-  (oneStepAfterPerimeter P)
+continuation stricte construite
+  `oneStepAfterPerimeterStrict`
+
++ réalisation locale exacte et ordre reconstruit
+  `oneStepAfterPerimeter_nonClosingRealization`
+
++ réalisation concrète exacte dans toute algèbre fournie
+  `oneStepUniformPerimetralRegimeExit`
+
++ adéquation exacte entre régime et norme indépendante
+  `circularNormativeAdequacy`, `circularRefinement_adequateAlong`
+
++ rejet opérationnel
+  `oneStepAfterPerimeter_notCircularRefinement`
+
++ échec direct de l'obligation trajectorielle
+  `oneStepAfterPerimeter_notSpecificationSatisfaction`
+
+= diagnostic relatif conservant les preuves positives et négatives
+  `oneStepSpecRelativeHistoryExit`
 ```
 
-Le candidat est donc une continuation constitutive stricte du déploiement
-périmétral.
-
-### 14.2 Exactitude locale conservée
-
-`oneStepAfterPerimeter_nonClosingRealization` fournit :
-
-```text
-ExactNonClosingRealization P (oneStepAfterPerimeter P)
-```
-
-Toutes les exigences non fermantes restent réalisées exactement. Par les
-théorèmes de reconstruction, leur précédence et leur adjacence canoniques restent
-également préservées.
-
-### 14.3 Fidélité concrète uniforme
-
-`oneStepUniformPerimetralRegimeExit` fixe ce même candidat et fournit, pour toute
-`ConcreteContinuationAlgebra P` donnée, une
-`ExactConcreteRealization A (oneStepAfterPerimeter P)`.
-
-La sortie ne dépend donc pas d'une représentation concrète particulière parmi
-celles qui satisfont l'interface. Elle n'efface ni les occurrences libres ni
-leurs correspondants concrets.
-
-### 14.4 Rejet opérationnel
-
-`oneStepAfterPerimeter_notCircularRefinement` réfute :
-
-```text
-CircularRefinement P (oneStepAfterPerimeter P)
-```
-
-La construction existe, mais elle n'appartient plus au régime circulaire.
-
-### 14.5 Insatisfaction normative directe
-
-`oneStepAfterPerimeter_notSpecificationSatisfaction` réfute directement :
-
-```text
-CircularSpecificationSatisfaction P
-  (oneStepAfterPerimeter P)
-```
-
-La composante locale reste disponible. C'est la composante trajectorielle qui
-échoue : la continuation stricte forcerait `P.TotalLoop`, contredit par
-`rejectTotalLoop`.
-
-La localisation est donc exacte :
-
-```text
-construction                    conservée
-réalisation locale exacte       conservée
-ordre et adjacence              conservés
-interprétation concrète exacte  conservée
-admission par le régime         perdue
-obligation trajectorielle       impossible
-```
-
-### 14.6 Diagnostic relatif
-
-`oneStepSpecRelativeHistoryExit` compose la fidélité, la sortie de régime et
-l'adéquation normative. `oneStepSpecRelativeHistoryExit_notSpecification`
-conserve en plus la réfutation directe de la norme sur le candidat porté par le
-diagnostic.
-
-Le résultat ne dit pas seulement :
-
-```text
-le candidat est rejeté
-```
-
-Il dit :
-
-```text
-voici le candidat construit
-voici les occurrences et accords qu'il conserve
-voici sa réalisation dans chaque algèbre fournie
-voici le régime qui le rejette
-voici la norme indépendante adéquate à ce régime
-voici l'obligation exacte de cette norme qui devient impossible
-```
-
-C'est cette conservation de l'information positive qui transforme une
-réfutation en diagnostic structurel.
+Le candidat reste construit, localement exact, correctement ordonné et
+fidèlement réalisable. Ce qui est perdu est l'admission opérationnelle et
+l'obligation normative trajectorielle. La conservation de cette information
+positive transforme la réfutation en diagnostic structurel.
 
 ## 15. Protocole de réemploi
 
@@ -1387,7 +1324,7 @@ Une extraction méthodologique ou une généralisation proposée est présentée
 comme un théorème Lean. Chaque affirmation importante doit pouvoir être reliée à
 son statut et, lorsqu'elle est formelle, à une déclaration précise.
 
-## 17. Portée et programme de généralisation
+## 17. Portée après les Cycles 1 et 2
 
 ### 17.1 Ce que le cycle 1 établit effectivement
 
@@ -1406,7 +1343,20 @@ Le cycle 1 fournit une instance formelle dans laquelle :
   fournie tout en échouant à la norme et au régime ;
 - la rupture est localisée sans suppression de la construction.
 
-### 17.2 Ce que le cycle 1 n'établit pas encore
+### 17.2 Ce que le Cycle 2 ajoute — et n'ajoute pas
+
+Le Cycle 2 observe le régime et la norme du Cycle 1 par `Nonempty`, transporte
+leur équivalence propositionnelle à travers la représentation exacte et combine
+cette exactitude déterminée avec un statut diagonal hors de la clôture réflexive
+globale. Cela confirme que la discipline méthodologique de conservation avant
+projection reste pertinente au niveau réflexif.
+
+Le Cycle 2 n'est toutefois pas une seconde instance non périmétrale de la
+méthode. Il réemploie l'adéquation du Cycle 1 et ajoute une couche de
+représentation ; il ne fournit pas un nouveau domaine muni de rôles constitutifs
+relationnels reconstruits indépendamment.
+
+### 17.3 Ce que le développement actuel n'établit pas encore
 
 Il ne démontre pas :
 
@@ -1422,7 +1372,7 @@ Il ne démontre pas :
 Ces limites ne réduisent pas le résultat démontré. Elles définissent le travail
 nécessaire pour transformer l'extraction méthodologique en théorie plus générale.
 
-### 17.3 Étapes formelles futures
+### 17.4 Étapes formelles futures
 
 Un programme naturel comprendrait :
 
@@ -1554,7 +1504,9 @@ La formulation condensée de la méthode est donc :
 > témoins positifs de ce qui subsiste et la preuve négative de ce qui cesse
 > d'être satisfait.**
 
-Le cycle 1 vérifie une instance complète de cette méthode. Sa généralisation
-demande désormais de formaliser l'interface méthodologique elle-même et de
-l'éprouver sur d'autres domaines, sans effacer la distinction entre résultat
+Le Cycle 1 vérifie une instance complète de cette méthode. Le Cycle 2 transporte
+l'un de ses résultats d'adéquation vers une couche réflexive de représentation,
+mais ne constitue pas une seconde instance de domaine. La généralisation de la
+méthode demande donc encore de formaliser l'interface méthodologique elle-même et
+de l'éprouver sur d'autres domaines, sans effacer la distinction entre résultat
 Lean, conséquence dérivée et proposition théorique.

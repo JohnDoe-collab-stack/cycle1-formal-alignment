@@ -1,6 +1,6 @@
-# Cycle 1 — A formal proof of relative alignment to an independent specification
+# Cycle 1 — Relative alignment to an independent specification
 
-**English** | [Français](../fr/preuve_formelle_alignement_relatif.md)
+**English** | [Français](../fr/alignement_relatif.md)
 
 > **Conceptual-authorship and AI-generation disclosure.** The project owner
 > declares that the project's essential ideas and research direction are
@@ -8,6 +8,10 @@
 > OpenAI's ChatGPT model series, under human direction and through successive
 > interactions. See the
 > [full bilingual declaration](../../AI_AUTHORSHIP.md).
+
+Navigation: [structural synthesis](structural_foundations.md) ·
+[method](relational_constitutive_roles_method.md) ·
+[Cycle 2 — reflective alignment](reflective_alignment.md)
 
 ## Status
 
@@ -740,66 +744,67 @@ The precise statement is therefore:
 
 ---
 
-## 13. Optional public API
+## 13. Proposition-level reflection in Cycle 2
 
-A compact propositional API may be added during stabilization:
+The Cycle 1 declarations above are maps between proof-relevant witness types:
 
-```lean
-theorem circularRefinement_nonempty_iff_specification_nonempty
-    {P : CircularPresentation}
-    {history : RootedGeneratedHistory P} :
-    Nonempty (CircularRefinement P history) ↔
-      Nonempty (CircularSpecificationSatisfaction P history) := by
-  constructor
-  · rintro ⟨refinement⟩
-    exact ⟨circularRefinement_soundSpecification refinement⟩
-  · rintro ⟨satisfaction⟩
-    exact ⟨circularSpecification_complete satisfaction⟩
+```text
+CircularRefinement P H
+  → CircularSpecificationSatisfaction P H
+
+CircularSpecificationSatisfaction P H
+  → CircularRefinement P H
 ```
 
-This formulation expresses an equivalence of inhabitability. It does not claim
-an `Equiv` between the witness structures.
+Cycle 2 observes their inhabitability explicitly:
 
-**Status:** optional consolidation API. It is not required by the mathematical
-content of Cycle 1.
+```text
+CircularRegimeStatus P H
+  := Nonempty (CircularRefinement P H)
+
+CircularSpecificationStatus P H
+  := Nonempty (CircularSpecificationSatisfaction P H)
+```
+
+`Cycle2.ReflectiveAlignment.circularStatusAdequacy` then proves the genuine
+proposition-level equivalence:
+
+```text
+CircularRegimeStatus P H
+  ↔ CircularSpecificationStatus P H
+```
+
+This bridge is implemented and constructive. It is derived from the two Cycle 1
+maps; it neither changes Cycle 1 nor claims an `Equiv` or equality between the
+original witness structures. It is the formal point from which Cycle 2
+transports established adequacy into the representation layer.
 
 ---
 
 ## 14. Audit and reproducibility
 
-State reproduced on September 9, 2026, using the current Cycle 1 Lean artifacts:
+From the repository root, reproduce the pinned build with:
 
-```text
-Lean                                      4.33.1 (Release)
-Lake target                               Cycle1Alignment
-external dependencies in lake-manifest   none
-
+```bash
+lake clean
 lake build
-  exit                                    0
-
-lake env lean SegmentedResidualRole.lean
-  exit                                    0
-
-lake env lean AbstractSegmentedTurning.lean
-  exit                                    0
-
-lake env lean StrongPerimetralTurning.lean
-  exit                                    0
-
-cited declarations                        present
-cited signatures                          matching
-local documentation links                 resolved
-MANIFEST.sha256 entries                    matching
-
-#print axioms results                      no axiomatic dependencies
-explicit sorry / admit / axiom             absent
-propext                                    absent
-Quot.sound                                 absent
-Classical                                  absent
 ```
 
-The standalone audit recorded in `AUDIT_BUILD.txt` was reproduced on Windows
-with Lean 4.33.1. No earlier repository or build record is required.
+Then verify the scientific-source manifest with either:
+
+```bash
+bash scripts/verify-manifest.sh
+```
+
+or:
+
+```powershell
+pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+The complete environment, source hashes, build counts, and axiom-audit result
+are recorded in [`audit/AUDIT_BUILD.txt`](../../audit/AUDIT_BUILD.txt). No
+earlier repository or private source history is required.
 
 The final alignment declarations are also audited:
 
@@ -866,8 +871,8 @@ the absence of an added bridge between norm and regime
 the axiomatic-audit results
 ```
 
-The propositional API in Section 13 remains an optional consolidation and is not
-required by the closed mathematical content.
+The proposition-level bridge in Section 13 belongs to Cycle 2. It observes the
+closed Cycle 1 result without altering its witness types or mathematical content.
 
 ### Publication statement
 

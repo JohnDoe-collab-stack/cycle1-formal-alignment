@@ -1,6 +1,17 @@
 # Cycle 2 — Reflective alignment and diagonal non-closure
 
-[Français](../fr/alignement_reflexif_cycle2.md) | **English**
+[Français](../fr/alignement_reflexif.md) | **English**
+
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are their
+> own. This document was written from start to finish by models in OpenAI's
+> ChatGPT model series, under human direction and through successive
+> interactions. See the
+> [full bilingual declaration](../../AI_AUTHORSHIP.md).
+
+Navigation: [structural synthesis](structural_foundations.md) ·
+[Cycle 1 — relative alignment](relative_alignment.md) ·
+[method](relational_constitutive_roles_method.md)
 
 ## Status
 
@@ -15,6 +26,26 @@ Four levels of claim are kept separate:
 2. **derived consequence** — a direct mathematical reading of proved declarations;
 3. **architectural interpretation** — a proposed use of the formal pattern;
 4. **future Gödelian connection** — not established by this cycle.
+
+## Place in the overall architecture
+
+Cycle 2 is not an independent branch attached directly to the structural base.
+It begins from the adequacy already established by the two Cycle 1 witness maps,
+observes that adequacy at proposition level through `Nonempty`, and only then
+transports it into the representation layer:
+
+```text
+Cycle 1 witness maps
+  → exact relative adequacy
+  → `Nonempty` status equivalence
+  → pullback to codes
+  → exact representation transport
+  + evaluator diagonalization
+  → determined exact representation with global non-closure
+```
+
+The operational continuation `oneStepAfterPerimeter` belongs to another branch
+after Cycle 1 adequacy. It is not an input to the diagonal proof.
 
 ## 1. Purpose
 
@@ -36,14 +67,11 @@ not an operational history boundary.
 ## 2. Dependency boundary
 
 ```text
-Cycle2.DiagonalizationKernel ── imports only Init
-              │
-              ├───────────────┐
-              ▼               ▼
-StrongPerimetralTurning ──→ Cycle2.ReflectiveAlignment
-                                  │
-                                  ▼
-                                Cycle2
+Cycle2.DiagonalizationKernel ── imports only Init ──┐
+                                                    ├─→ Cycle2.ReflectiveAlignment
+StrongPerimetralTurning ────────────────────────────┘             │
+                                                                  ▼
+                                                                Cycle2
 ```
 
 `Cycle2.DiagonalizationKernel` contains no circular presentation, history,
@@ -186,7 +214,7 @@ representation of the circular regime status
 This transport uses the already proved normative adequacy. It does not define
 the norm from the regime and does not assume universal representability.
 
-## 9. Local exactness with global non-closure
+## 9. Exact representation of determined statuses with global non-closure
 
 `ReflectiveCircularStatusView P Code` contains a decoder, an evaluator, one
 program, and a proof that this program exactly represents the pulled-back
@@ -203,8 +231,9 @@ the evaluator's diagonal status is not internally representable
 ```
 
 `exactCircularStatusRepresentation_notGloballyClosed` states the corresponding
-failure of global reflective closure. Local exact representation and normative
-adequacy therefore coexist with a precisely located representational exterior.
+failure of global reflective closure. Exact representation of these determined
+statuses and normative adequacy therefore coexist with a precisely located
+representational exterior.
 
 The closed `Unit` model `canonicalUnitCircularStatusView` verifies that this
 interface is inhabited: a particular circular status can be represented by a
@@ -278,7 +307,7 @@ pwsh -NoProfile -File scripts/verify-manifest.ps1
 
 Cycle 2 machine-checks a minimal constructive kernel of reflective non-closure.
 It constructs the escaping status, proves its non-representability, transports
-Cycle 1 normative adequacy through exact local representation, and demonstrates
-that such local exactness does not collapse into global closure. Its formal
+Cycle 1 normative adequacy through exact representation of determined statuses,
+and demonstrates that this exactness does not collapse into global closure. Its formal
 scope is intentionally narrower than Gödelian incompleteness and does not merge
 the operational exit of Cycle 1 with the representational exit of Cycle 2.

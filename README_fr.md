@@ -4,30 +4,55 @@
 
 > **Déclaration de conception intellectuelle et de génération par IA.** Le
 > responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Chaque élément de ce dépôt a été écrit
-> de A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine
-> et au cours d'interactions successives. Voir la
+> la direction de recherche du projet. Chaque élément de ce dépôt a été écrit de
+> A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et
+> au cours d'interactions successives. Voir la
 > [déclaration bilingue complète](AI_AUTHORSHIP.md).
 
-> **Ce projet construit et vérifie en Lean des noyaux constructifs pour
-> l'alignement relatif et réflexif.** Le cycle 1 sépare formellement la construction, la réalisation
-> fidèle, l'admission par un régime opérationnel et la satisfaction d'une norme
-> définie indépendamment de ce régime. Dans l'instance circulaire, il démontre que
-> la norme et le régime acceptent exactement les mêmes histoires. Il construit
-> ensuite une continuation minimale qui reste exactement réalisable sous toute
-> implémentation concrète conforme à l'interface, mais qui est rejetée par le
-> régime et par la norme. Le résultat établit ainsi que la capacité de continuer
-> et la fidélité locale n'impliquent pas l'alignement normatif global, tout en
-> localisant précisément le point où celui-ci est perdu. Le cycle 2 dérive un
-> statut diagonal abstrait à partir d'un évaluateur, démontre que cet évaluateur
-> ne peut pas le représenter intérieurement, puis relie cette absence de clôture
-> réflexive globale aux statuts propositionnels de la norme et du régime du
-> cycle 1 sans identifier sortie opérationnelle et sortie représentationnelle.
+> **Ce dépôt construit et vérifie en Lean un fondement constructif et
+> dépendamment typé pour l'alignement relatif et réflexif.** Il démontre d'abord
+> l'adéquation exacte entre un régime opérationnel et une norme définie
+> indépendamment de ce régime sur les mêmes histoires constituées. À partir de
+> cette adéquation établie, une branche construit une sortie opérationnelle
+> minimale et fidèlement réalisable ; l'autre observe propositionnellement les
+> deux familles de témoins, transporte leur équivalence dans une couche de
+> représentation et démontre que la représentation exacte de ces statuts
+> déterminés est compatible avec un statut diagonal construit hors de toute
+> clôture réflexive globale de l'évaluateur.
 
-## Cycle 1 — Contribution centrale
+## Architecture
 
-Pour une présentation circulaire `P` et une histoire constituée `H`, le
-développement distingue trois familles de témoins:
+```text
+socle structurel
+  constitution relationnelle
+  → construction dépendamment typée
+  → réalisation fidèle
+  ↓
+Cycle 1 — alignement relatif
+  régime opérationnel et norme indépendante
+  → transformation de témoins dans chaque sens
+  → adéquation exacte
+  ├── continuation minimale
+  │     → sortie opérationnelle localisée
+  │     → OOD structurel
+  │
+  └── observation propositionnelle par `Nonempty`
+        → équivalence des deux statuts habités
+        → tiré en arrière et transport vers les codes
+        → représentation exacte de statuts déterminés
+        + diagonalisation de l'évaluateur
+        → statut diagonal non représentable
+        → échec de la clôture réflexive globale
+```
+
+La bifurcation intervient après l'adéquation du Cycle 1. Le développement
+diagonal ne découle pas de `oneStepAfterPerimeter`, et aucun théorème n'identifie
+la sortie opérationnelle à la sortie représentationnelle.
+
+## Cycle 1 — Alignement relatif
+
+Pour une présentation circulaire `P` et une histoire générée enracinée `H`, le
+Cycle 1 maintient trois familles de témoins distinctes :
 
 ```text
 F_A(H) := ExactConcreteRealization A H
@@ -35,11 +60,11 @@ R(H)   := CircularRefinement P H
 S(H)   := CircularSpecificationSatisfaction P H
 ```
 
-`F_A(H)` affirme la réalisation concrète exacte de `H` dans une algèbre `A`.
-`R(H)` exprime son admission par le régime opérationnel. `S(H)` exprime sa
-satisfaction d'une norme définie sans faire référence à `CircularRefinement`.
+`F_A(H)` certifie la réalisation exacte dans une algèbre concrète fournie.
+`R(H)` est l'admission par le régime opérationnel. `S(H)` est la satisfaction
+d'une norme définie indépendamment de ce régime.
 
-La preuve ferme la comparaison entre `R` et `S` dans les deux directions:
+La preuve construit deux applications entre les types de témoins :
 
 ```text
 R(H) → S(H)                         soundness
@@ -47,375 +72,186 @@ S(H) → H = perimeterDeployment P    carrier completeness
 S(H) → R(H)                         regime completeness
 ```
 
-Le régime et la norme classent donc exactement les mêmes histoires. Il s'agit
-d'un accord extensionnel sur leurs carriers: leurs structures de témoins peuvent
-contenir des données différentes et ne sont pas identifiées entre elles.
+`circularNormativeAdequacy` définit l'adéquation comme une paire d'applications
+dans ces deux sens, et `circularRefinement_adequateAlong` fournit cette paire à
+chaque occurrence. Il ne s'agit ni d'une égalité ni d'un `Equiv` entre les
+structures de témoins porteuses d'information de preuve.
 
-## Norme indépendante et mécanisme de classification
-
-La norme circulaire combine une obligation locale et une obligation
-trajectorielle:
-
-```text
-CircularSpecificationSatisfaction P H
-  ├─ local : ExactNonClosingRealization P H
-  └─ trajectory :
-       StrictConstitutivePrefix (perimeterDeployment P) H
-       → P.TotalLoop
-```
-
-La première composante exige que chaque exigence non fermante soit réalisée par
-une occurrence constituée qui lui corresponde exactement. La seconde donne son
-sens trajectoriel à la fermeture: toute continuation stricte au-delà du
-déploiement périmétral devrait réaliser une boucle totale.
-
-La complétude des carriers suit la chaîne constructive suivante:
-
-```text
-S(H)
-  ↓ réalisation locale exacte
-PerimeterExtension P H
-  ↓ décomposition de la continuation
-continuation racine
-  → H = perimeterDeployment P
-
-continuation positive
-  → StrictConstitutivePrefix (perimeterDeployment P) H
-  → P.TotalLoop
-  → contradiction avec rejectTotalLoop
-```
-
-La branche positive est impossible. Toute histoire satisfaisant la norme est
-donc exactement le déploiement canonique. La complétude du régime transporte
-ensuite le raffinement circulaire canonique le long de cette égalité.
-
-## Théorèmes centraux certifiés
-
-Soundness du régime:
-
-```lean
-StrongPerimetralTurning.circularRefinement_soundSpecification
-    {P : CircularPresentation}
-    {history : RootedGeneratedHistory P}
-    (refinement : CircularRefinement P history) :
-    CircularSpecificationSatisfaction P history
-```
-
-Complétude des carriers:
-
-```lean
-StrongPerimetralTurning.CircularSpecificationSatisfaction.eq_perimeter
-    {P : CircularPresentation}
-    {history : RootedGeneratedHistory P}
-    (satisfaction : CircularSpecificationSatisfaction P history) :
-    history = perimeterDeployment P
-```
-
-Complétude du régime:
-
-```lean
-StrongPerimetralTurning.circularSpecification_complete
-    {P : CircularPresentation}
-    {history : RootedGeneratedHistory P}
-    (satisfaction : CircularSpecificationSatisfaction P history) :
-    CircularRefinement P history
-```
-
-La seconde déclaration classe d'abord le carrier comme déploiement périmétral
-canonique. La troisième transporte ensuite le témoin canonique du régime; elle ne
-reconstruit pas automatiquement les témoins internes du régime à partir de la
-norme.
-
-## Sortie minimale diagnostiquée
-
-Le candidat canonique de sortie est:
+Le candidat canonique
 
 ```text
 h⁺ := oneStepAfterPerimeter P
 ```
 
-Ce même objet porte simultanément les résultats suivants:
+est une continuation stricte du déploiement canonique. Il reste localement
+exact, conserve la précédence et l'adjacence canoniques et possède une
+`ExactConcreteRealization A h⁺` pour toute
+`ConcreteContinuationAlgebra P` fournie. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous
+deux constructivement réfutés. La réfutation normative est directe : elle ne
+déduit pas l'échec de la norme indépendante du seul rejet par le régime.
+
+Les structures génériques `RegimeExit`, `UniformRegimeExit` et
+`NormativeAdequacy` isolent l'architecture réutilisable. Les deux premières sont
+polymorphes sur leur type porteur. L'interface normative actuelle est
+paramétrique en norme et en régime, mais spécialisée à
+`RootedGeneratedHistory P`.
+
+## Cycle 2 — Alignement réflexif
+
+Le Cycle 2 transforme d'abord les familles de témoins du Cycle 1 en propositions :
 
 ```text
-StrictConstitutivePrefix (perimeterDeployment P) h⁺    habité
-ExactNonClosingRealization P h⁺                        habité
-ordre et adjacence canoniques                          conservés
-ExactConcreteRealization A h⁺                          habité pour toute A fournie
-CircularRefinement P h⁺                                réfuté
-CircularSpecificationSatisfaction P h⁺                 réfuté
+CircularRegimeStatus P H
+  := Nonempty (CircularRefinement P H)
+
+CircularSpecificationStatus P H
+  := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-La réfutation normative est directe. La continuation stricte transforme
-l'obligation trajectorielle en `P.TotalLoop`, que l'obstruction constitutive de
-la présentation rejette. Elle ne dépend donc pas préalablement du rejet par le
-régime.
-
-La construction reste pourtant possible et fidèlement interprétable. La sortie
-de régime ne détruit ni l'histoire produite, ni ses occurrences, ni les accords
-structurels déjà conservés. Elle localise une rupture de statut normatif sur le
-même objet constitué.
-
-L'uniformité est portée par `oneStepUniformPerimetralRegimeExit`: le candidat est
-fixé avant le choix de l'implémentation, puis une réalisation exacte de cette
-même histoire est construite pour toute `ConcreteContinuationAlgebra P` fournie.
-La frontière diagnostiquée ne dépend donc pas d'une représentation concrète
-particulière conforme à l'interface.
-
-## Utilité pour l'alignement
-
-Le résultat formalise plusieurs séparations indispensables à un diagnostic
-d'alignement:
+En utilisant les deux applications du Cycle 1, `circularStatusAdequacy` démontre :
 
 ```text
-capacité à poursuivre une construction
-  ≠ admission normative de cette continuation
-
-fidélité locale, ordre et adjacence corrects
-  ≠ satisfaction d'une obligation trajectorielle globale
-
-réalisation concrète exacte
-  ≠ appartenance au régime évalué
+CircularRegimeStatus P H
+  ↔ CircularSpecificationStatus P H
 ```
 
-Un comportement localement correct ou une implémentation fidèle ne constitue
-donc pas, à lui seul, un certificat d'alignement global. Le cadre rend auditables
-séparément:
+Ce `↔` est une équivalence d'habitabilité, non une équivalence entre les types
+de témoins originaux. Après qu'un décodeur a tiré ces statuts en arrière vers
+des prédicats sur les codes, la représentation exacte se transporte entre eux.
 
-1. la norme imposée à une histoire;
-2. le régime opérationnel censé l'appliquer;
-3. la fidélité de ses réalisations concrètes;
-4. la soundness et la complétude de l'accord entre norme et régime;
-5. le premier candidat qui conserve la réalisation mais perd le statut normatif.
+Indépendamment, pour tout évaluateur
 
-L'alignement relatif devient ainsi une relation formelle entre une spécification
-autonome et un régime, évalués sur les mêmes objets constitués, plutôt qu'une
-identification implicite entre ce qui peut être produit et ce qui doit être
-admis.
-
-## OOD structurel relatif au régime
-
-Le cadre introduit l'**OOD structurel relatif à un régime** comme extension
-conceptuelle du raisonnement out-of-distribution. L'OOD statistique concerne la
-sortie d'une distribution de données. L'OOD structurel concerne plutôt un
-candidat qui reste engendré par la construction considérée, mais n'est pas
-admis par un régime explicite. Il ne requiert ni distribution de probabilité ni
-jeu d'entraînement. La réalisabilité fidèle n'appartient pas à cette définition
-documentaire; elle constitue une propriété supplémentaire démontrée pour le
-témoin circulaire ci-dessous.
-
-L'instance circulaire en fournit un témoin vérifié mécaniquement:
-
-```text
-h⁺ : RootedGeneratedHistory P
-∀ A : ConcreteContinuationAlgebra P,
-  ExactConcreteRealization A h⁺
-CircularRefinement P h⁺ → False
+```lean
+eval : Code → Code → Prop
 ```
 
-Ainsi, `h⁺` n'est hors ni de l'espace de construction ni de celui des
-réalisations concrètes. Il est hors du régime opérationnel tout en conservant
-les témoins structurels positifs déjà établis. L'OOD structurel diagnostique
-donc un changement de statut; il n'est pas synonyme de mal formé, d'inconnu ou
-d'irréalisable.
+le noyau diagonal définit
 
-L'OOD structurel et le désalignement relatif ne sont pas identifiés. La sortie
-de régime constitue le diagnostic structurel; le désalignement relatif engage
-en outre une norme indépendante et l'adéquation démontrée du régime à cette
-norme. Dans l'instance circulaire, le même candidat minimal porte également la
-réfutation directe `CircularSpecificationSatisfaction P h⁺ → False`: il
-témoigne donc des deux diagnostics.
-
-Les constructions et réfutations sous-jacentes sont vérifiées dans Lean. Le
-terme **OOD structurel** et son interprétation constituent actuellement une
-proposition conceptuelle, et non encore une définition Lean générique. Voir le
-développement complet dans les
-[Fondements structurels](docs/fr/fondements_structurels.md).
-
-## Cycle 1 — Noyau abstrait et interface normative
-
-L'architecture possède deux niveaux de généralité distincts.
-
-Le premier est entièrement polymorphe sur le carrier et ne présuppose ni
-histoire, ni périmètre, ni circularité:
-
-- `ExactRegimeClassification` caractérise exactement les carriers d'un régime
-  relativement à un carrier canonique;
-- `RegimeExit` réunit un candidat, un témoin positif de fidélité et une réfutation
-  de son appartenance au régime;
-- `UniformRegimeExit` fixe le candidat avant la variation des implémentations et
-  demande sa fidélité dans chacune des implémentations fournies.
-
-Le second niveau est paramétrique sur la norme et le régime, mais son carrier est
-actuellement spécialisé aux `RootedGeneratedHistory P` pour
-`P : CircularPresentation`:
-
-- `NormativeAdequacy` sépare le type des spécifications d'alignement de la famille
-  des régimes à évaluer;
-- `AdequateAlong` demande l'adéquation normative le long de toutes les occurrences
-  effectivement constituées dans une histoire;
-- `SpecRelativeHistoryExit` compose sur le même candidat la fidélité, la sortie
-  de régime et les témoins d'adéquation à une spécification.
-
-Dans le carrier d'histoires actuel, cette interface permet d'instancier d'autres
-normes et d'autres régimes, d'en prouver l'adéquation, puis de produire des
-diagnostics de frontière qui préservent l'objet et localisent exactement la
-propriété perdue. Le noyau `RegimeExit`, plus abstrait, est directement
-réutilisable sur d'autres carriers; étendre toute l'interface normative à un
-carrier arbitraire demanderait une généralisation supplémentaire.
-
-## Cycle 2 — Non-clôture réflexive
-
-Le cycle 2 ajoute une couche de représentation séparée. Pour un évaluateur
-`eval : Code → Code → Prop`, il construit
-
-```text
+```lean
 diagonalStatus eval code := ¬ eval code code
 ```
 
-et démontre constructivement qu'aucun code évalué par `eval` ne représente
-exactement ce prédicat. Par conséquent, aucun évaluateur de cette forme ne
-représente tous les prédicats sur son propre espace de codes. Il s'agit d'un
-argument diagonal abstrait; il ne formalise ni syntaxe, ni arithmétisation, ni
-prouvabilité, ni lemme diagonal, ni théorème d'incomplétude de Gödel.
+et démontre constructivement qu'aucune ligne de `eval` ne représente exactement
+ce prédicat. Un évaluateur de cette forme ne peut donc représenter tous les
+prédicats sur son propre espace de codes.
+`exactCircularStatusRepresentation_hasDiagonalOutside` combine les deux
+résultats : le statut de régime choisi et le statut normatif équivalent sont
+représentés exactement, tandis que le statut diagonal de l'évaluateur reste hors
+de la représentabilité interne.
 
-Le module de raccordement observe le régime et la norme du cycle 1 uniquement
-par l'existence propositionnelle de leurs témoins. Leur soundness et leur
-complétude déjà démontrées donnent une équivalence exacte de ces statuts, et la
-représentation de l'un se transporte vers l'autre. Un statut aligné déterminé
-peut donc être représenté exactement sans que l'évaluateur soit globalement
-clos.
+## Ce qui est établi
 
-L'OOD opérationnel et la sortie diagonale représentationnelle restent distincts:
+| Transition | Statut | Ancrage Lean principal |
+|---|---|---|
+| constitution → histoire | vérifié | `RootedGeneratedHistory` |
+| rôles structurels → réalisation exacte | vérifié | `ExactNonClosingRealization` |
+| histoire libre → réalisation concrète fidèle | vérifié | `exactlyInterpretHistory` |
+| témoin de régime → témoin de norme | vérifié | `circularRefinement_soundSpecification` |
+| témoin de norme → témoin de régime | vérifié | `circularSpecification_complete` |
+| adéquation → équivalence propositionnelle des statuts | vérifié | `circularStatusAdequacy` |
+| continuation → sortie opérationnelle | vérifié | `oneStepAfterPerimeter`, `RegimeExit` |
+| statuts codés équivalents → représentation transportée | vérifié | `transportRepresentation` |
+| évaluateur → statut diagonal non représentable | vérifié | `diagonalStatus_notRepresentable` |
+| statut diagonal → échec de la clôture globale | vérifié | `noGlobalReflectiveClosure` |
 
-```text
-oneStepAfterPerimeter : sortie opérationnelle de régime sur une histoire
-diagonalStatus        : sortie représentationnelle sur un prédicat de codes
-```
+La conséquence architecturale tirée de cette chaîne est distinguée des
+théorèmes Lean : la clôture globale n'est pas seulement traitée comme un objectif
+manqué, mais dépassée par une architecture dans laquelle la non-clôture est
+constitutive, les frontières sont déterminées relativement à des régimes
+explicites et la construction peut se poursuivre au-delà d'elles.
 
-Aucun théorème ne les identifie. Voir
-[Alignement réflexif et non-clôture diagonale](docs/fr/alignement_reflexif_cycle2.md)
-pour les énoncés exacts et leurs limites.
-
-## Fondements conceptuels
-
-Le développement respecte quatre distinctions structurantes, organisées selon
-un ordre de dépendance:
-
-1. l'individuation est définitionnellement primaire par rapport à l'identité;
-2. la totalité est locale et ne se confond pas avec la globalité;
-3. la succession est indexée par une localité totale, sans horloge extérieure;
-4. le temps et le global sont dérivés de la trajectoire des localités.
+## Distinctions préservées
 
 ```text
-présentation
-→ localité et rôles
-→ occurrences formées et réalisation locale
-→ succession
-→ histoire
-→ antériorité, composition globale et lectures
+construction ≠ réalisation fidèle
+réalisation fidèle ≠ admission par un régime
+régime ≠ norme indépendante
+norme ≠ preuve d'adéquation
+sortie opérationnelle ≠ sortie représentationnelle
+diagonalisation abstraite ≠ théorèmes d'incomplétude de Gödel
+résultat Lean ≠ conséquence dérivée ≠ interprétation architecturale
 ```
 
-Ces principes structurent l'instance démontrée; ils ne sont pas présentés comme
-quatre théorèmes universels indépendants.
+L'OOD structurel est proposé ici comme le cas d'un candidat constructible de
+l'intérieur mais situé hors d'un régime opérationnel explicite. Il n'est
+identifié ni à l'OOD statistique ni au désalignement relatif. Dans l'instance
+circulaire, le même candidat porte en outre une réalisation exacte et une preuve
+directe d'échec de la norme indépendante.
 
-### Rôles constitutifs relationnels
+## Documentation
 
-Une occurrence est individuée par sa formation et par les relations
-structurelles auxquelles elle participe avant d'être projetée vers une lecture,
-une étiquette ou une valeur. La méthode préserve ainsi la provenance, la position,
-le rôle et la participation à une composition, même lorsque certaines lectures
-coïncident.
+- [Fondements structurels](docs/fr/fondements_structurels.md) — synthèse
+  canonique de l'architecture complète.
+- [Cycle 1 — Alignement relatif](docs/fr/alignement_relatif.md) — preuve
+  détaillée, signatures, adéquation et sortie opérationnelle.
+- [Méthode des rôles constitutifs relationnels](docs/fr/methode_roles_constitutifs_relationnels.md)
+  — protocole réutilisable de construction, séparation, reconstruction et audit.
+- [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —
+  représentation exacte, diagonalisation et non-clôture globale.
+- [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
+  reproductible.
+- [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
+  provenance de génération par IA et historique du développement.
 
-Cette finesse est conservée dans les interprétations concrètes.
-`exactlyInterpretHistory` construit des correspondances inverses entre les
-occurrences libres et concrètes, avec accord des sources, des cibles et des pas.
-Le changement de représentation n'efface, ne fusionne ni n'ajoute donc une
-occurrence sans correspondant dans le cadre de l'interface.
+Les équivalents anglais sont liés en tête de chaque document scientifique.
 
-## Architecture du développement
+## Architecture des sources
 
-- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) établit le théorème
-  abstrait des occurrences résiduelles: une continuation positive fidèlement
-  segmentée porte exactement une nouvelle occurrence, nécessairement résiduelle;
+- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) démontre le résultat
+  abstrait sur l'occurrence résiduelle.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) définit la
-  classification exacte des régimes, les sorties typées et le théorème abstrait
-  de tournant segmenté;
-- [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) construit les
-  histoires libres, la réalisation périmétrale, la norme indépendante, le régime
-  circulaire, les interprétations concrètes et l'instance complète d'alignement;
+  classification exacte d'un régime et les sorties typées.
+- [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
+  construction circulaire, la norme indépendante, l'adéquation relative et la
+  sortie opérationnelle canonique.
 - [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
-  construit le prédicat diagonal abstrait et démontre la non-clôture
-  représentationnelle en n'important que `Init`;
-- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) transporte
-  l'adéquation des statuts du cycle 1 à travers leur représentation exacte et la
-  maintient distincte de la sortie diagonale;
-- [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du cycle 2 et ne contient
-  que des imports.
+  implémente le noyau diagonal constructif abstrait en n'important que `Init`.
+- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observe
+  les statuts du Cycle 1 par `Nonempty` et transporte leur adéquation dans la
+  couche de représentation.
+- [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du Cycle 2, sans
+  déclaration propre.
+
+Aucun module du Cycle 1 n'importe le Cycle 2.
 
 ## Reproduction et audit
 
-Prérequis: `elan`, ou une installation équivalente capable de lire
-`lean-toolchain`.
+Avec `elan`, ou une installation équivalente lisant `lean-toolchain` :
 
 ```bash
+lake clean
 lake build
 ```
 
-Cette commande construit deux bibliothèques Lake séparées. `Cycle1Alignment`
-compile `SegmentedResidualRole → AbstractSegmentedTurning →
-StrongPerimetralTurning`. `Cycle2ReflectiveExtension` compile ensuite le noyau
-diagonal indépendant, le raccordement au cycle 1 et l'agrégateur `Cycle2` qui ne
-contient que des imports. Les cinq modules porteurs de déclarations exécutent
-leurs blocs finaux `#print axioms`.
-
-Depuis la racine du dépôt, vérifier l'intégrité des quatorze fichiers scientifiques
-du paquet courant sous Linux ou macOS:
+Vérifier le manifeste des sources scientifiques sous Linux ou macOS :
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-Sous Windows PowerShell:
+Sous Windows PowerShell :
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-## Documentation détaillée
+La compilation épinglée construit les deux bibliothèques Lake, audite 325
+déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
+dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
+les commandes sont consignés dans
+[`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
 
-- [Fondements structurels — français](docs/fr/fondements_structurels.md)
-- [Structural foundations — English](docs/en/structural_foundations.md)
-- [Méthode des rôles constitutifs relationnels — français](docs/fr/methode_roles_constitutifs_relationnels.md)
-- [Method of relational constitutive roles — English](docs/en/relational_constitutive_roles_method.md)
-- [Preuve formelle d'alignement relatif — français](docs/fr/preuve_formelle_alignement_relatif.md)
-- [Formal proof of relative alignment — English](docs/en/formal_relative_alignment_proof.md)
-- [Alignement réflexif et non-clôture diagonale — français](docs/fr/alignement_reflexif_cycle2.md)
-- [Reflective alignment and diagonal non-closure — English](docs/en/reflective_alignment_cycle2.md)
-- [Journal de compilation et d'audit](audit/AUDIT_BUILD.txt)
-- [Déclaration de conception intellectuelle et de génération par IA](AI_AUTHORSHIP.md)
+## Portée, licence et citation
 
-## Provenance et portée
+Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
+théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2
+est un argument diagonal sémantique abstrait, non une formalisation de la
+syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
+d'incomplétude de Gödel. Les deux cycles formels sont constructifs et n'emploient
+ni `sorry`, ni `admit`, ni déclaration `axiom`, ni `Classical`, ni `propext`, ni
+`Quot.sound`.
 
-Ce dépôt constitue un artefact autonome. Il contient l'ensemble des sources
-Lean, de la documentation, de la chaîne d'outils et de la configuration de
-compilation épinglées, ainsi que des scripts nécessaires pour compiler et
-auditer le résultat. Aucun dépôt antérieur ni historique source externe n'est
-requis pour reproduire les contrôles.
-
-Les quatorze contenus scientifiques actuels correspondent aux empreintes
-enregistrées dans `MANIFEST.sha256`. La compilation autonome courante, les
-versions des outils, l'audit des axiomes et les commandes de reproduction sont
-consignés dans `audit/AUDIT_BUILD.txt`.
-
-Le cycle 1 fournit une instance complète d'un noyau formel d'alignement relatif
-dans le cadre défini par `CircularPresentation`. Le cycle 2 ajoute un noyau
-abstrait de non-clôture réflexive et un raccordement limité aux statuts du cycle
-1. Aucun des deux cycles ne formalise toutes les normes ni tous les systèmes
-possibles, et le cycle 2 n'est pas une formalisation de l'incomplétude
-gödelienne. Le développement est constructif et son audit ne doit dépendre
-d'aucun axiome, de `Classical`, de `propext` ou de `Quot.sound`.
-
-## Licence et citation
-
-Le code et la documentation sont distribués sous licence Apache-2.0. Les
-métadonnées de citation sont fournies dans `CITATION.cff`.
+Le dépôt est un artefact autonome : aucun historique source privé n'est requis
+pour le compiler ou l'auditer. Le code et la documentation sont distribués sous
+licence Apache-2.0. Les métadonnées de citation figurent dans
+[`CITATION.cff`](CITATION.cff).

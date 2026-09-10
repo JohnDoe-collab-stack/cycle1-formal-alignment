@@ -1,6 +1,6 @@
-# Cycle 1 — Structural foundations
+# Structural foundations
 
-*From relational constitution to relative alignment*
+*From relational constitution to relative and reflective alignment*
 
 **English** | [Français](../fr/fondements_structurels.md)
 
@@ -11,17 +11,21 @@
 > interactions. See the
 > [full bilingual declaration](../../AI_AUTHORSHIP.md).
 
-> **This document presents the conceptual framework that makes the cycle 1
-> formal proof of relative alignment possible.** Its guiding principle is to
+> **This document is the canonical synthesis of the repository's complete
+> architecture.** It follows the construction from relational constitution and
+> faithful realization to Cycle 1 relative alignment, then from the
+> proposition-level observation of that established adequacy to Cycle 2
+> reflective alignment and diagonal non-closure. Its guiding principle is to
 > preserve the finest-grained individuation and the relations that constitute
-> it, and then to project, classify, quotient, or measure only after proving
-> that the forgotten information is not required for the determination at hand.
+> it, and then to project, classify, quotient, represent, or measure only after
+> proving what is preserved.
 
-The complete proof of soundness, carrier completeness, and regime completeness
-is presented separately:
+Companion documents:
 
-- [formal proof — English](formal_relative_alignment_proof.md);
-- [preuve formelle — français](../fr/preuve_formelle_alignement_relatif.md).
+- [Cycle 1 — relative alignment](relative_alignment.md);
+- [method of relational constitutive roles](relational_constitutive_roles_method.md);
+- [Cycle 2 — reflective alignment](reflective_alignment.md);
+- [French structural synthesis](../fr/fondements_structurels.md).
 
 ## Status of statements
 
@@ -30,9 +34,10 @@ interpretation:
 
 | Status | Meaning |
 |---|---|
-| **Verified in Lean** | definition, construction, or named theorem in the cycle 1 modules |
+| **Verified in Lean** | definition, construction, or named theorem in either formal cycle |
 | **Derived consequence** | explicit composition of already verified Lean results |
-| **Conceptual proposal** | vocabulary or theoretical reading introduced by the documentation |
+| **Architectural interpretation** | theoretical reading of the verified chain, not itself a Lean theorem |
+| **Conceptual proposal** | vocabulary introduced by the documentation, such as structural OOD |
 
 The four distinctions are structural principles realized and controlled in the
 perimetral application. They are not claimed as four independent universal
@@ -70,6 +75,11 @@ a strict constitutive continuation, is exactly realizable in every
 the autonomous circular specification. The failure is localized to trajectory
 closure while local exactness and constructive continuation remain available.
 
+Cycle 2 then verifies the abstract diagonal component directly: for every
+`eval : Code → Code → Prop`, it constructs a status that no row of `eval`
+represents exactly. This remains an abstract semantic diagonal theorem, not a
+formalization of Gödelian syntax or provability.
+
 The four distinctions below form the first structural decomposition of this
 thesis. Priority of individuation supports local determination; the separation
 of local totality from globality prevents premature global closure; succession
@@ -77,9 +87,55 @@ provides an internal dynamics without an external clock; and time and the
 global are derived from trajectories rather than presupposed as a completed
 framework.
 
-## 1. The four distinctions
+## 1. Overall architecture
 
-### 1.1 Individuation definitionally precedes identity
+```text
+structural foundation
+  relational constitution
+  → dependently typed construction
+  → faithful realization
+  ↓
+Cycle 1 — relative alignment
+  operational regime and independent norm
+  → witness transformation in each direction
+  → exact adequacy
+  ├── minimal continuation
+  │     → localized operational exit
+  │     → structural OOD
+  │
+  └── proposition-level observation by `Nonempty`
+        → equivalence of the two inhabited statuses
+        → pullback and transport to codes
+        → exact representation of determined statuses
+        + evaluator diagonalization
+        → non-representable diagonal status
+        → failure of global reflective closure
+```
+
+The diagram is a dependency graph, not one theorem. Its bifurcation occurs only
+after the two Cycle 1 witness transformations have established adequacy. The
+operational branch continues through `oneStepAfterPerimeter`; the reflective
+branch begins by observing the inhabitability of the two adequate witness
+families. No edge runs from the operational exit to diagonalization.
+
+| Transition | Status | Main Lean anchor |
+|---|---|---|
+| constitution → history | verified | `RootedGeneratedHistory` |
+| roles → exact realization | verified | `ExactNonClosingRealization` |
+| realization → faithful concrete transport | verified | `exactlyInterpretHistory` |
+| regime witness → norm witness | verified | `circularRefinement_soundSpecification` |
+| norm witness → regime witness | verified | `circularSpecification_complete` |
+| two witness maps → exact adequacy | verified | `circularNormativeAdequacy`, `circularRefinement_adequateAlong` |
+| continuation → operational exit | verified | `oneStepAfterPerimeter`, `RegimeExit` |
+| adequacy → equivalence of inhabited statuses | verified | `circularStatusAdequacy` |
+| coded equivalence → transported representation | verified | `transportRepresentation` |
+| evaluator → diagonal status outside representation | verified | `diagonalStatus_notRepresentable` |
+| diagonal status → global non-closure | verified | `noGlobalReflectiveClosure` |
+| complete chain → architecture beyond global closure | architectural interpretation | synthesis of both cycles |
+
+## 2. The four distinctions
+
+### 2.1 Individuation definitionally precedes identity
 
 Constitutions are built together with their formations. Their readings are then
 extracted without being used to define their identity.
@@ -107,7 +163,7 @@ when some readings coincide. The priority of individuation does not remove
 equality from the occurrence type; it only prevents that individuation from
 being defined retrospectively by an extensional reading.
 
-### 1.2 Totality is local and is not globality
+### 2.2 Totality is local and is not globality
 
 A realization may satisfy exactly all the requirements of a perimeter without
 exhausting the possible constructions beyond it. A locality that is total
@@ -123,13 +179,13 @@ locally complete perimetral deployment
 effectively constructible free continuation
 ```
 
-### 1.3 Succession is indexed by a total locality
+### 2.3 Succession is indexed by a total locality
 
 In the perimetral realization, generated steps depend on the presentation and
 the source constitution. No external clock is required to define their
 succession.
 
-### 1.4 Time and the global are derived from the trajectory
+### 2.4 Time and the global are derived from the trajectory
 
 Histories compose steps. Their prefixes define a structural precedence. Here,
 time denotes that precedence and the global denotes the composed history,
@@ -157,7 +213,7 @@ A reading does not constitute the occurrence it reads. A local totality does
 not constitute a globality. A history is not indexed by an external clock. Time
 and the global are obtained from its structure.
 
-## 2. The method of relational constitutive roles
+## 3. Relational constitutive roles
 
 The method determines an occurrence by its constitution and by the relations in
 which it participates before reducing it to a reading, classification, or value.
@@ -188,7 +244,22 @@ being admitted by a regime
 ≠ satisfying an independent specification
 ```
 
-### 2.1 Realizing a role exactly
+A **relational constitutive role** is the role of an occurrence determined by
+the structural relations in which it participates within a constitution.
+*Constitutive* means that the role is not an external classification added
+afterward; *relational* means that it cannot be reduced to an isolated property
+of the occurrence. Formation, provenance, source, target, succession, locality,
+and participation may all contribute to that determination without allowing a
+reading to redefine the occurrence retrospectively.
+
+The stabilized methodological principle is:
+
+> **Preserve the finest-grained individuation and the relations that constitute
+> it, and then project, classify, quotient, represent, or measure only after
+> proving that the forgotten information is not required for the determination
+> at hand.**
+
+### 3.1 Realizing a role exactly
 
 A locality provides roles or requirements to be realized. Realizing a role is
 not merely a matter of assigning a label. A structural agreement must be
@@ -208,7 +279,7 @@ required role
 Agreements on source, target, compatibility, and provenance are then derived
 from this finer agreement.
 
-### 2.2 Exact coverage without exhaustiveness
+### 3.2 Exact coverage without exhaustiveness
 
 `ExactNonClosingRealization` provides:
 
@@ -229,7 +300,7 @@ exact coverage of requirements
 ≠ exhaustive classification of occurrences
 ```
 
-### 2.3 Order and adjacency derived in the actual history
+### 3.3 Order and adjacency derived in the actual history
 
 Local exactness on a weakened carrier does not by itself determine order or
 adjacency. In a genuine `RootedGeneratedHistory`, however, composability makes
@@ -260,7 +331,7 @@ participation                carried by History
 relevant contiguity          derived
 ```
 
-## 3. Minimizing primitives with separating models
+## 4. Minimizing primitives with separating models
 
 The method does not consist in accumulating primitives, but in determining
 which ones are genuinely independent. The development uses weakened carriers
@@ -269,7 +340,7 @@ and separating models for this purpose.
 `SemanticTrace` retains locally valid `GeneratedStep` values and individuated
 occurrences, but removes the global composability imposed by `History`.
 
-### 3.1 Permuted trace
+### 4.1 Permuted trace
 
 ```text
 p2, p1, p3
@@ -280,7 +351,7 @@ first two requirements. Local exactness alone therefore does not determine
 order. `NonClosingPrecedes` and `SemanticOrderPreserved` represent that property
 separately on the weakened carrier.
 
-### 3.2 Interleaved trace
+### 4.2 Interleaved trace
 
 ```text
 p1, extra1, p2, extra2, p3
@@ -304,7 +375,7 @@ intermediate position
 Relevant contiguity is therefore not primitive. It can be derived from
 constitutive adjacency and the irreflexivity of generation.
 
-### 3.3 Minimization procedure
+### 4.3 Minimization procedure
 
 ```text
 1. propose a candidate determination
@@ -320,34 +391,6 @@ constitutive adjacency and the irreflexivity of generation.
 
 The absence of a countermodel in an already overconstrained construction
 language is not sufficient to establish that a property is primitive.
-
-## 4. Relational constitutive roles
-
-A **relational constitutive role** is the role of an occurrence determined by
-the structural relations in which it participates within a constitution.
-
-The term *constitutive* indicates that the role is not an external
-classification added afterward. The term *relational* indicates that it cannot
-be reduced to an isolated property of the occurrence.
-
-An occurrence may be determined simultaneously by:
-
-```text
-its formation
-its provenance
-its source and target
-its place in a succession
-its role relative to a locality
-its participation in a composition
-```
-
-without allowing a reading to redefine its individuation retrospectively.
-
-The stabilized methodological principle is:
-
-> **Preserve the finest-grained individuation and the relations that constitute
-> it, and then project, classify, quotient, or measure only after proving that
-> the forgotten information is not required for the determination at hand.**
 
 ## 5. Structural measure and exact preservation
 
@@ -404,7 +447,25 @@ preserved occurrence structure
 ⇒ numerical readings
 ```
 
-## 6. Circular application and relative alignment
+### 5.3 Numerical readings as consequences
+
+A classification need not precede every quantitative determination.
+`positiveContinuation_exactlyOne` directly provides a cardinal determination
+from relational structure. In the perimetral application,
+`samePerimeter_length_eq` establishes:
+
+```text
+CircularRefinement P history
+→ history.history.length
+  = (perimeterDeployment P).history.length
+```
+
+`History.length_append` proves additivity of length under concatenation. The
+numerical equality is derived from structural classification, not the reverse.
+Totality is therefore not defined by additivity: numerical readings follow an
+already constituted and preserved structure.
+
+## 6. Cycle 1 — Relative alignment and operational exit
 
 The circular application connects the three modules:
 
@@ -509,7 +570,7 @@ regime, and adequacy. Normative refutation remains separately proved by
 The detailed proof of these results is not repeated here; it appears in the two
 versions of the formal document linked at the beginning.
 
-## 7. Generalization and structural OOD
+### 6.4 Structural OOD and generalization
 
 Within this framework, generalization leads to a distinction between:
 
@@ -532,7 +593,7 @@ These operations are not equivalent:
 - a regime exit may be localized without removing the already established
   witnesses of faithfulness.
 
-### 7.1 Proposed documentary definition
+### 6.5 Proposed documentary definition
 
 The following notation introduces a conceptual reading; it is not a Lean
 declaration of cycle 1:
@@ -574,42 +635,105 @@ Structural OOD and relative misalignment are therefore not identified. In the
 circular instance, failure of the norm is proved directly and is not inferred
 from rejection by the regime alone.
 
-### 7.2 Interpretive consequence
+### 6.6 Interpretive consequence
 
 Within this framework, generalizing does not mean erasing changes of status. It
 means preserving the determinations that remain and localizing those that can no
 longer be maintained. This formulation is a theoretical reading of the verified
 constructions, not a universal theorem about OOD in learning systems.
 
-## 8. Numerical reading as a consequence
+## 7. Cycle 2 — Reflective alignment and diagonal non-closure
 
-A classification need not precede every quantitative determination.
-`positiveContinuation_exactlyOne` directly provides a cardinal determination
-from the relational structure.
+Cycle 2 does not introduce an independent second story. It lifts the already
+established Cycle 1 adequacy to proposition-valued statuses, then studies their
+exact representation within an evaluator that cannot be globally closed.
 
-```text
-constituted and preserved structure
-⇒ invariants
-⇒ numerical readings
-```
-
-In the perimetral application, `samePerimeter_length_eq` establishes:
+The original Cycle 1 families remain proof-relevant types. Cycle 2 observes only
+their inhabitability:
 
 ```text
-CircularRefinement P history
-→ history.history.length
-  = (perimeterDeployment P).history.length
+CircularRegimeStatus P H
+  := Nonempty (CircularRefinement P H)
+
+CircularSpecificationStatus P H
+  := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-`History.length_append` proves additivity of length under concatenation. The
-numerical equality of lengths is deduced from structural classification, not the
-other way around.
+The two Cycle 1 maps yield the genuine proposition-level equivalence
+`circularStatusAdequacy`. A decoder pulls these statuses back to predicates on
+codes, and `transportRepresentation` preserves exact representation across
+their pointwise logical equivalence.
 
-Totality is therefore not defined by additivity. The numerical law belongs to
-the reading and composition under consideration; it does not retrospectively
-determine the status of the whole.
+Independently, `Cycle2.DiagonalizationKernel` defines, for every evaluator
+`eval : Code → Code → Prop`:
 
-## 9. Map of the main Lean results
+```text
+diagonalStatus eval code := ¬ eval code code
+```
+
+`diagonalStatus_notRepresentable` proves constructively that no evaluator row
+represents this status exactly; `noGlobalReflectiveClosure` refutes the claim
+that every predicate on the code space is internally representable.
+
+The bridge theorem `exactCircularStatusRepresentation_hasDiagonalOutside`
+packages the exact coexistence:
+
+```text
+the selected regime status is represented exactly
+the propositionally equivalent normative status is represented exactly
+the evaluator's diagonal status is not internally representable
+```
+
+This is the central result of reflective alignment: determined exactness is
+preserved through the adequacy transport, while global representational closure
+is constructively refuted.
+
+### 7.1 Distinct operational and representational exits
+
+| Level | Candidate | Classified by | Certified loss |
+|---|---|---|---|
+| operational | `oneStepAfterPerimeter P` | `CircularRefinement P` and the independent norm | admission and normative satisfaction |
+| representational | `diagonalStatus eval` | `InternallyRepresentable eval` | exact internal representation |
+
+The first candidate is a history; the second is a predicate on codes. No theorem
+converts either exit into the other. Their connection is architectural: each
+localizes a boundary without erasing the positive structure established before
+that boundary.
+
+## 8. Architectural consequence — beyond global closure
+
+The following is an architectural interpretation of the verified chain, not the
+statement of one Lean theorem:
+
+> **The ambition of global closure is not merely encountered as a limit. It is
+> architecturally superseded by a framework in which non-closure is
+> constitutive, boundaries are determined locally and relatively, and
+> construction continues beyond them.**
+
+Cycle 1 shows that continued construction and faithful realization do not force
+continued normative admission. Cycle 2 shows that exact representation of the
+particular aligned statuses does not force global representational closure.
+Together they replace an undifferentiated demand for closure with explicit
+objects, regimes, adequacy maps, preserved witnesses, and localized exits.
+
+## 9. Limits and non-identifications
+
+- The four structural distinctions are principles realized by this development,
+  not four independent universal theorems.
+- `circularNormativeAdequacy` defines the required pair of maps, and
+  `circularRefinement_adequateAlong` supplies it from soundness and completeness;
+  neither declaration identifies the witness types. The `↔` in
+  `circularStatusAdequacy` concerns their `Nonempty` observations.
+- Structural OOD is documentary vocabulary, not yet a generic Lean definition.
+- The normative interface is not yet polymorphic over an arbitrary carrier.
+- The diagonal kernel assumes only an evaluator of proposition-valued rows. It
+  does not formalize syntax, substitution, quotation, provability, consistency,
+  effectiveness, or either incompleteness theorem.
+- Local exactness in Cycle 1 and exact representation of selected statuses in
+  Cycle 2 do not assert global closure.
+- Operational and representational exits remain formally distinct.
+
+## 10. Map of the main Lean results
 
 | Role | Declaration |
 |---|---|
@@ -630,8 +754,19 @@ determine the status of the whole.
 | normative adequacy | `circularNormativeAdequacy` |
 | relative diagnosis | `oneStepSpecRelativeHistoryExit` |
 | derived length equality | `samePerimeter_length_eq` |
+| proposition-level Cycle 1 adequacy | `circularStatusAdequacy` |
+| pullback of a status to codes | `PullbackStatus` |
+| representation transport | `transportRepresentation` |
+| diagonal status | `diagonalStatus` |
+| diagonal non-representability | `diagonalStatus_notRepresentable` |
+| global reflective non-closure | `noGlobalReflectiveClosure` |
+| exact aligned statuses with a diagonal exterior | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-## 10. Stabilized conclusion
+The Cycle 1 declarations are in the three root Lean modules. The independent
+diagonal kernel is in `Cycle2/DiagonalizationKernel.lean`; the bridge from Cycle
+1 adequacy is confined to `Cycle2/ReflectiveAlignment.lean`.
+
+## 11. General conclusion
 
 Cycle 1 realizes a precise chain of dependence:
 
@@ -654,15 +789,17 @@ satisfaction of an independent norm
 adequacy of the regime to that norm
 ```
 
-The result is not merely that a candidate is accepted or rejected. It preserves
-the witnesses of what remains determined and localizes exactly the property
-whose preservation becomes impossible.
+The result is not merely that a candidate is accepted, rejected, represented,
+or unrepresented. It preserves the witnesses of what remains determined and
+localizes exactly the property whose preservation becomes impossible.
 
-> **The structural contribution of cycle 1 is a method of preservation and
-> diagnosis: preserve occurrences and their relations across realizations,
-> derive invariants before their numerical readings, and then distinguish the
-> continuation of a construction from preservation of its normative status.**
+> **The complete contribution is an architecture of preservation and localized
+> exit: preserve occurrences and constitutive relations across realizations;
+> prove exact adequacy between regime and autonomous norm; retain the positive
+> witnesses carried beyond an operational boundary; then transport the
+> proposition-level adequacy into a reflective layer where exact determined
+> representation coexists with a constructed failure of global closure.**
 
-The first mathematical cycle is closed. What follows belongs to documentation,
-translation, audit, and versioning, without modifying the stabilized Lean
-definitions.
+Cycle 1 is mathematically closed relative to `CircularPresentation`. Cycle 2 is
+stabilized as a minimal constructive reflective extension. Their articulation,
+not a collapse of one into the other, is the architecture of the repository.

@@ -1,6 +1,6 @@
-# Cycle 1 — Fondements structurels
+# Fondements structurels
 
-*De la constitution relationnelle à l'alignement relatif*
+*De la constitution relationnelle à l'alignement relatif et réflexif*
 
 [English](../en/structural_foundations.md) | **Français**
 
@@ -11,28 +11,33 @@
 > d'interactions successives. Voir la
 > [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
 
-> **Ce document expose le cadre conceptuel qui rend possible la preuve formelle
-> d'alignement relatif du cycle 1.** Son principe directeur est de préserver
-> l'individuation la plus fine et les relations qui la constituent, puis de ne
-> projeter, classifier, quotienter ou mesurer qu'après avoir démontré que
-> l'information oubliée n'est pas nécessaire à la détermination considérée.
+> **Ce document constitue la synthèse canonique de l'architecture complète du
+> dépôt.** Il suit la construction depuis la constitution relationnelle et la
+> réalisation fidèle jusqu'à l'alignement relatif du Cycle 1, puis depuis
+> l'observation propositionnelle de cette adéquation établie jusqu'à
+> l'alignement réflexif et la non-clôture diagonale du Cycle 2. Son principe
+> directeur consiste à conserver l'individuation la plus fine et les relations
+> qui la constituent, puis à ne projeter, classifier, quotienter, représenter ou
+> mesurer qu'après avoir démontré ce qui est préservé.
 
-La preuve complète de soundness, de carrier completeness et de regime
-completeness est présentée séparément:
+Documents complémentaires :
 
-- [preuve formelle — français](preuve_formelle_alignement_relatif.md);
-- [formal proof — English](../en/formal_relative_alignment_proof.md).
+- [Cycle 1 — alignement relatif](alignement_relatif.md) ;
+- [méthode des rôles constitutifs relationnels](methode_roles_constitutifs_relationnels.md) ;
+- [Cycle 2 — alignement réflexif](alignement_reflexif.md) ;
+- [synthèse structurelle anglaise](../en/structural_foundations.md).
 
 ## Statut des énoncés
 
-Ce document distingue trois statuts afin de ne pas confondre preuve et
+Ce document distingue quatre statuts afin de ne pas confondre preuve et
 interprétation:
 
 | Statut | Signification |
 |---|---|
-| **Vérifié dans Lean** | définition, construction ou théorème nommé dans les modules du cycle 1 |
+| **Vérifié dans Lean** | définition, construction ou théorème nommé de l'un des deux cycles formels |
 | **Conséquence dérivée** | composition explicite de résultats Lean déjà vérifiés |
-| **Proposition conceptuelle** | vocabulaire ou lecture théorique introduite par la documentation |
+| **Interprétation architecturale** | lecture théorique de la chaîne vérifiée, qui n'est pas elle-même un théorème Lean |
+| **Proposition conceptuelle** | vocabulaire introduit par la documentation, tel que l'OOD structurel |
 
 Les quatre distinctions sont des principes structurants réalisés et contrôlés
 dans l'application périmétrale. Elles ne sont pas revendiquées comme quatre
@@ -72,6 +77,11 @@ toute instance de `ConcreteContinuationAlgebra P`, extérieur à
 autonome. L'échec est localisé dans la clôture trajectorielle tandis que
 l'exactitude locale et la continuation constructive demeurent disponibles.
 
+Le Cycle 2 vérifie ensuite directement la composante diagonale abstraite : pour
+tout `eval : Code → Code → Prop`, il construit un statut qu'aucune ligne de
+`eval` ne représente exactement. Cela reste un théorème diagonal sémantique
+abstrait, non une formalisation de la syntaxe ou de la prouvabilité gödeliennes.
+
 Les quatre distinctions suivantes constituent la première décomposition
 structurelle de cette thèse. La priorité de l'individuation soutient la
 détermination locale; la séparation de la totalité locale et de la globalité
@@ -79,9 +89,56 @@ empêche une clôture globale prématurée; la succession fournit une dynamique
 interne sans horloge extérieure; enfin, le temps et le global sont dérivés des
 trajectoires plutôt que présupposés comme cadre achevé.
 
-## 1. Les quatre distinctions
+## 1. Architecture générale
 
-### 1.1 L'individuation précède définitionnellement l'identité
+```text
+socle structurel
+  constitution relationnelle
+  → construction dépendamment typée
+  → réalisation fidèle
+  ↓
+Cycle 1 — alignement relatif
+  régime opérationnel et norme indépendante
+  → transformation de témoins dans chaque sens
+  → adéquation exacte
+  ├── continuation minimale
+  │     → sortie opérationnelle localisée
+  │     → OOD structurel
+  │
+  └── observation propositionnelle par `Nonempty`
+        → équivalence des deux statuts habités
+        → tiré en arrière et transport vers les codes
+        → représentation exacte de statuts déterminés
+        + diagonalisation de l'évaluateur
+        → statut diagonal non représentable
+        → échec de la clôture réflexive globale
+```
+
+Ce diagramme est un graphe de dépendances, non un théorème unique. Sa bifurcation
+intervient seulement après que les deux transformations de témoins du Cycle 1
+ont établi l'adéquation. La branche opérationnelle se poursuit par
+`oneStepAfterPerimeter` ; la branche réflexive commence par observer
+l'habitabilité des deux familles de témoins adéquates. Aucune arête ne va de la
+sortie opérationnelle vers la diagonalisation.
+
+| Transition | Statut | Ancrage Lean principal |
+|---|---|---|
+| constitution → histoire | vérifié | `RootedGeneratedHistory` |
+| rôles → réalisation exacte | vérifié | `ExactNonClosingRealization` |
+| réalisation → transport concret fidèle | vérifié | `exactlyInterpretHistory` |
+| témoin de régime → témoin de norme | vérifié | `circularRefinement_soundSpecification` |
+| témoin de norme → témoin de régime | vérifié | `circularSpecification_complete` |
+| deux applications de témoins → adéquation exacte | vérifié | `circularNormativeAdequacy`, `circularRefinement_adequateAlong` |
+| continuation → sortie opérationnelle | vérifié | `oneStepAfterPerimeter`, `RegimeExit` |
+| adéquation → équivalence des statuts habités | vérifié | `circularStatusAdequacy` |
+| équivalence codée → représentation transportée | vérifié | `transportRepresentation` |
+| évaluateur → statut diagonal hors représentation | vérifié | `diagonalStatus_notRepresentable` |
+| statut diagonal → non-clôture globale | vérifié | `noGlobalReflectiveClosure` |
+| chaîne complète → architecture au-delà de la clôture globale | interprétation architecturale | synthèse des deux cycles |
+
+## 2. Les quatre distinctions
+
+### 2.1 L'individuation précède définitionnellement l'identité
 
 Les constitutions sont construites avec leurs formations. Leurs lectures sont
 ensuite extraites sans servir de définition à leur identité.
@@ -109,7 +166,7 @@ lorsque certaines lectures coïncident. La primauté de l'individuation ne suppr
 pas l'égalité dans le type des occurrences; elle interdit seulement de définir
 rétroactivement cette individuation par une lecture extensionnelle.
 
-### 1.2 La totalité est locale et ne se confond pas avec la globalité
+### 2.2 La totalité est locale et ne se confond pas avec la globalité
 
 Une réalisation peut satisfaire exactement toutes les exigences d'un périmètre
 sans épuiser les constructions possibles au-delà. Une localité totale relativement
@@ -124,13 +181,13 @@ déploiement périmétral complet localement
 continuation libre effectivement constructible
 ```
 
-### 1.3 La succession est indexée par une localité totale
+### 2.3 La succession est indexée par une localité totale
 
 Dans la réalisation périmétrale, les pas générés dépendent de la présentation et
 de la constitution source. Aucune horloge extérieure n'est requise pour définir
 leur succession.
 
-### 1.4 Le temps et le global sont dérivés de la trajectoire
+### 2.4 Le temps et le global sont dérivés de la trajectoire
 
 Les histoires composent les pas. Leurs préfixes définissent une antériorité
 structurelle. Le temps désigne ici cette antériorité et le global l'histoire
@@ -158,7 +215,7 @@ Une lecture ne constitue pas l'occurrence qu'elle lit. Une totalité locale ne
 constitue pas une globalité. Une histoire n'est pas indexée par une horloge
 extérieure. Le temps et le global sont obtenus à partir de sa structure.
 
-## 2. La méthode des rôles constitutifs relationnels
+## 3. Rôles constitutifs relationnels
 
 La méthode consiste à déterminer une occurrence par sa constitution et par les
 relations auxquelles elle participe avant de la réduire à une lecture, une
@@ -190,7 +247,23 @@ même rôle
 ≠ satisfaire une spécification indépendante
 ```
 
-### 2.1 Réaliser exactement un rôle
+Un **rôle constitutif relationnel** est le rôle d'une occurrence déterminé par
+les relations structurelles auxquelles elle participe au sein d'une
+constitution. *Constitutif* signifie que le rôle n'est pas une classification
+extérieure ajoutée après coup ; *relationnel* signifie qu'il ne se réduit pas à
+une propriété isolée de l'occurrence. Formation, provenance, source, cible,
+succession, localité et participation peuvent toutes contribuer à cette
+détermination sans autoriser une lecture à redéfinir rétrospectivement
+l'occurrence.
+
+Le principe méthodologique stabilisé est :
+
+> **Préserver l'individuation la plus fine et les relations qui la constituent,
+> puis ne projeter, classifier, quotienter, représenter ou mesurer qu'après avoir
+> démontré que l'information oubliée n'est pas nécessaire à la détermination
+> considérée.**
+
+### 3.1 Réaliser exactement un rôle
 
 Une localité fournit des rôles ou des exigences à réaliser. Réaliser un rôle ne
 consiste pas seulement à attribuer une étiquette. Il faut établir un accord
@@ -209,7 +282,7 @@ rôle requis
 Les accords sur la source, la cible, la compatibilité et la provenance sont
 ensuite dérivés de cet accord plus fin.
 
-### 2.2 Couverture exacte sans exhaustivité
+### 3.2 Couverture exacte sans exhaustivité
 
 `ExactNonClosingRealization` fournit:
 
@@ -230,7 +303,7 @@ couverture exacte des exigences
 ≠ classification exhaustive des occurrences
 ```
 
-### 2.3 Ordre et adjacence dérivés dans l'histoire réelle
+### 3.3 Ordre et adjacence dérivés dans l'histoire réelle
 
 L'exactitude locale prise sur un carrier affaibli ne détermine pas à elle seule
 l'ordre ou l'adjacence. Dans une véritable `RootedGeneratedHistory`, la
@@ -261,7 +334,7 @@ participation                portée par History
 contiguïté pertinente        dérivée
 ```
 
-## 3. Minimiser les primitives par des modèles séparateurs
+## 4. Minimiser les primitives par des modèles séparateurs
 
 La méthode ne consiste pas à accumuler les primitives, mais à déterminer celles
 qui sont réellement indépendantes. Le développement utilise pour cela des
@@ -270,7 +343,7 @@ carriers affaiblis et des modèles séparateurs.
 `SemanticTrace` conserve des `GeneratedStep` localement valides et des occurrences
 individuées, mais retire la composabilité globale imposée par `History`.
 
-### 3.1 Trace permutée
+### 4.1 Trace permutée
 
 ```text
 p2, p1, p3
@@ -281,7 +354,7 @@ les deux premières exigences. L'exactitude locale ne détermine donc pas seule
 l'ordre. `NonClosingPrecedes` et `SemanticOrderPreserved` représentent cette
 propriété séparément sur le carrier affaibli.
 
-### 3.2 Trace intercalée
+### 4.2 Trace intercalée
 
 ```text
 p1, extra1, p2, extra2, p3
@@ -305,7 +378,7 @@ position intermédiaire
 La contiguïté pertinente n'est donc pas primitive. Elle peut être dérivée de
 l'adjacence constitutive et de l'irréflexivité de la génération.
 
-### 3.3 Procédure de minimisation
+### 4.3 Procédure de minimisation
 
 ```text
 1. proposer une détermination candidate
@@ -321,35 +394,6 @@ l'adjacence constitutive et de l'irréflexivité de la génération.
 
 L'absence de contre-modèle dans un langage de construction déjà trop contraint
 ne suffit pas à établir qu'une propriété est primitive.
-
-## 4. Rôles constitutifs relationnels
-
-Un **rôle constitutif relationnel** est le rôle d'une occurrence déterminé
-par les relations structurelles dans lesquelles elle intervient au sein d'une
-constitution.
-
-Le terme *constitutif* indique que le rôle n'est pas une classification
-extérieure ajoutée après coup. Le terme *relationnel* indique qu'il ne se réduit
-pas à une propriété isolée de l'occurrence.
-
-Une occurrence peut être déterminée simultanément par:
-
-```text
-sa formation
-sa provenance
-sa source et sa cible
-sa place dans une succession
-son rôle relativement à une localité
-sa participation à une composition
-```
-
-sans qu'une lecture soit autorisée à redéfinir rétroactivement son individuation.
-
-Le principe méthodologique stabilisé est:
-
-> **Préserver l'individuation la plus fine et les relations qui la constituent,
-> puis ne projeter, classifier, quotienter ou mesurer qu'après avoir démontré que
-> l'information oubliée n'est pas nécessaire à la détermination considérée.**
 
 ## 5. Mesure structurelle et conservation exacte
 
@@ -404,7 +448,25 @@ structure d'occurrences conservée
 ⇒ lectures numériques
 ```
 
-## 6. Application circulaire et alignement relatif
+### 5.3 Lectures numériques comme conséquences
+
+Une classification n'a pas à précéder toute détermination quantitative.
+`positiveContinuation_exactlyOne` fournit directement une détermination
+cardinale depuis la structure relationnelle. Dans l'application périmétrale,
+`samePerimeter_length_eq` établit :
+
+```text
+CircularRefinement P history
+→ history.history.length
+  = (perimeterDeployment P).history.length
+```
+
+`History.length_append` démontre l'additivité de la longueur pour la
+concaténation. L'égalité numérique est dérivée de la classification structurelle,
+non l'inverse. La totalité n'est donc pas définie par l'additivité : les lectures
+numériques suivent une structure déjà constituée et préservée.
+
+## 6. Cycle 1 — Alignement relatif et sortie opérationnelle
 
 L'application circulaire relie les trois modules:
 
@@ -509,7 +571,7 @@ régime et l'adéquation. La réfutation normative reste démontrée séparémen
 La preuve détaillée de ces résultats n'est pas répétée ici; elle se trouve dans
 les deux versions du document formel liées en ouverture.
 
-## 7. Généralisation et OOD structurel
+### 6.4 OOD structurel et généralisation
 
 Dans ce cadre, généraliser conduit à distinguer:
 
@@ -531,7 +593,7 @@ Ces opérations ne sont pas équivalentes:
 - une sortie de régime peut être localisée sans supprimer les témoins de fidélité
   déjà établis.
 
-### 7.1 Définition documentaire proposée
+### 6.5 Définition documentaire proposée
 
 La notation suivante introduit une lecture conceptuelle; elle n'est pas une
 déclaration Lean du cycle 1:
@@ -573,42 +635,110 @@ L'OOD structurel et le désalignement relatif ne sont donc pas identifiés. Dans
 l'instance circulaire, l'insatisfaction de la norme est prouvée directement et
 ne se déduit pas du seul rejet par le régime.
 
-### 7.2 Conséquence interprétative
+### 6.6 Conséquence interprétative
 
 Dans ce cadre, généraliser ne signifie pas effacer les changements de statut,
 mais préserver les déterminations qui subsistent et localiser celles qui cessent
 d'être maintenables. Cette formulation est une lecture théorique des constructions
 vérifiées, non un théorème universel sur l'OOD des systèmes d'apprentissage.
 
-## 8. La lecture numérique comme conséquence
+## 7. Cycle 2 — Alignement réflexif et non-clôture diagonale
 
-Une classification n'a pas à précéder toute détermination quantitative.
-`positiveContinuation_exactlyOne` fournit directement une détermination
-cardinale depuis la structure relationnelle.
+Le Cycle 2 n'introduit pas une seconde histoire indépendante. Il élève
+l'adéquation déjà établie au Cycle 1 vers des statuts propositionnels, puis
+étudie leur représentation exacte dans un évaluateur qui ne peut être
+globalement clos.
 
-```text
-structure constituée et conservée
-⇒ invariants
-⇒ lectures numériques
-```
-
-Dans l'application périmétrale, `samePerimeter_length_eq` établit:
+Les familles originelles du Cycle 1 restent des types porteurs de témoins. Le
+Cycle 2 observe seulement leur habitabilité :
 
 ```text
-CircularRefinement P history
-→ history.history.length
-  = (perimeterDeployment P).history.length
+CircularRegimeStatus P H
+  := Nonempty (CircularRefinement P H)
+
+CircularSpecificationStatus P H
+  := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-`History.length_append` démontre l'additivité de la longueur pour la
-concaténation. L'égalité numérique des longueurs est déduite de la classification
-structurelle, et non l'inverse.
+Les deux applications du Cycle 1 donnent la véritable équivalence
+propositionnelle `circularStatusAdequacy`. Un décodeur tire ces statuts en arrière
+vers des prédicats sur les codes, et `transportRepresentation` conserve la
+représentation exacte le long de leur équivalence logique point par point.
 
-La totalité n'est donc pas définie par l'additivité. La loi numérique appartient
-à la lecture et à la composition considérées; elle ne détermine pas
-rétroactivement le statut du tout.
+Indépendamment, `Cycle2.DiagonalizationKernel` définit, pour tout évaluateur
+`eval : Code → Code → Prop` :
 
-## 9. Carte des principaux résultats Lean
+```text
+diagonalStatus eval code := ¬ eval code code
+```
+
+`diagonalStatus_notRepresentable` démontre constructivement qu'aucune ligne de
+l'évaluateur ne représente exactement ce statut ; `noGlobalReflectiveClosure`
+réfute l'affirmation selon laquelle tout prédicat sur l'espace de codes serait
+représentable intérieurement.
+
+Le théorème de raccord
+`exactCircularStatusRepresentation_hasDiagonalOutside` réunit la coexistence
+exacte suivante :
+
+```text
+le statut de régime choisi est représenté exactement
+le statut normatif propositionnellement équivalent est représenté exactement
+le statut diagonal de l'évaluateur n'est pas représentable intérieurement
+```
+
+C'est le résultat central de l'alignement réflexif : l'exactitude déterminée est
+préservée par le transport d'adéquation, tandis que la clôture représentationnelle
+globale est constructivement réfutée.
+
+### 7.1 Sorties opérationnelle et représentationnelle distinctes
+
+| Niveau | Candidat | Classé par | Perte certifiée |
+|---|---|---|---|
+| opérationnel | `oneStepAfterPerimeter P` | `CircularRefinement P` et la norme indépendante | admission et satisfaction normative |
+| représentationnel | `diagonalStatus eval` | `InternallyRepresentable eval` | représentation interne exacte |
+
+Le premier candidat est une histoire ; le second est un prédicat sur les codes.
+Aucun théorème ne convertit une sortie dans l'autre. Leur rapport est
+architectural : chacune localise une frontière sans effacer la structure
+positive établie avant cette frontière.
+
+## 8. Conséquence architecturale — au-delà de la clôture globale
+
+La formulation suivante est une interprétation architecturale de la chaîne
+vérifiée, non l'énoncé d'un théorème Lean unique :
+
+> **L'ambition de clôture globale n'est pas seulement rencontrée comme une
+> limite. Elle est architecturalement dépassée par un cadre dans lequel la
+> non-clôture est constitutive, les frontières sont déterminées localement et
+> relativement, et la construction se poursuit au-delà d'elles.**
+
+Le Cycle 1 montre que la continuation de la construction et sa réalisation
+fidèle n'imposent pas le maintien de l'admission normative. Le Cycle 2 montre que
+la représentation exacte des statuts alignés particuliers n'impose pas la
+clôture représentationnelle globale. Ensemble, ils remplacent une exigence
+indifférenciée de clôture par des objets, des régimes, des applications
+d'adéquation, des témoins préservés et des sorties localisées explicites.
+
+## 9. Limites et non-identifications
+
+- Les quatre distinctions structurelles sont des principes réalisés par ce
+  développement, non quatre théorèmes universels indépendants.
+- `circularNormativeAdequacy` définit la paire d'applications requise et
+  `circularRefinement_adequateAlong` la fournit à partir de la soundness et de la
+  complétude ; aucune de ces déclarations n'identifie les types de témoins. Le
+  `↔` de `circularStatusAdequacy` porte sur leur observation par `Nonempty`.
+- L'OOD structurel est un vocabulaire documentaire, pas encore une définition
+  Lean générique.
+- L'interface normative n'est pas encore polymorphe sur un type porteur arbitraire.
+- Le noyau diagonal suppose seulement un évaluateur de lignes à valeurs dans
+  `Prop`. Il ne formalise ni syntaxe, ni substitution, ni quotation, ni
+  prouvabilité, ni cohérence, ni effectivité, ni théorème d'incomplétude.
+- L'exactitude locale du Cycle 1 et la représentation exacte de statuts choisis
+  au Cycle 2 n'affirment aucune clôture globale.
+- Les sorties opérationnelle et représentationnelle restent formellement distinctes.
+
+## 10. Carte des principaux résultats Lean
 
 | Rôle | Déclaration |
 |---|---|
@@ -629,8 +759,20 @@ rétroactivement le statut du tout.
 | adéquation normative | `circularNormativeAdequacy` |
 | diagnostic relatif | `oneStepSpecRelativeHistoryExit` |
 | égalité de longueur dérivée | `samePerimeter_length_eq` |
+| adéquation propositionnelle du Cycle 1 | `circularStatusAdequacy` |
+| tiré en arrière d'un statut vers les codes | `PullbackStatus` |
+| transport de représentation | `transportRepresentation` |
+| statut diagonal | `diagonalStatus` |
+| non-représentabilité diagonale | `diagonalStatus_notRepresentable` |
+| non-clôture réflexive globale | `noGlobalReflectiveClosure` |
+| statuts alignés exacts avec extérieur diagonal | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-## 10. Conclusion stabilisée
+Les déclarations du Cycle 1 se trouvent dans les trois modules Lean racine. Le
+noyau diagonal indépendant se trouve dans `Cycle2/DiagonalizationKernel.lean` ;
+le raccord depuis l'adéquation du Cycle 1 est confiné à
+`Cycle2/ReflectiveAlignment.lean`.
+
+## 11. Conclusion générale
 
 Le cycle 1 réalise une chaîne de dépendance précise:
 
@@ -653,16 +795,19 @@ satisfaction d'une norme indépendante
 adéquation du régime à cette norme
 ```
 
-Le résultat n'est pas seulement qu'un candidat est accepté ou rejeté. Il conserve
-les témoins de ce qui demeure déterminé et localise exactement la propriété dont
-le maintien devient impossible.
+Le résultat n'est pas seulement qu'un candidat est accepté, rejeté, représenté
+ou non représenté. Il conserve les témoins de ce qui demeure déterminé et
+localise exactement la propriété dont le maintien devient impossible.
 
-> **La contribution structurelle du cycle 1 est une méthode de conservation et
-> de diagnostic: préserver les occurrences et leurs relations à travers les
-> réalisations, dériver les invariants avant leurs lectures numériques, puis
-> distinguer la continuation d'une construction du maintien de son statut
-> normatif.**
+> **La contribution complète est une architecture de conservation et de sortie
+> localisée : préserver les occurrences et les relations constitutives à travers
+> les réalisations ; démontrer l'adéquation exacte entre régime et norme autonome ;
+> maintenir les témoins positifs portés au-delà d'une frontière opérationnelle ;
+> puis transporter l'adéquation propositionnelle vers une couche réflexive où la
+> représentation exacte déterminée coexiste avec un échec construit de la
+> clôture globale.**
 
-Le premier cycle mathématique est clos. La suite relève de la documentation, de
-la traduction, de l'audit et du versionnement, sans modification des définitions
-Lean stabilisées.
+Le Cycle 1 est mathématiquement clos relativement à `CircularPresentation`. Le
+Cycle 2 est stabilisé comme extension réflexive constructive minimale. Leur
+articulation, et non l'effacement de l'un dans l'autre, constitue l'architecture
+du dépôt.

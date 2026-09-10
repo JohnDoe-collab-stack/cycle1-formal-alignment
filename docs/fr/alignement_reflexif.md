@@ -1,6 +1,17 @@
 # Cycle 2 — Alignement réflexif et non-clôture diagonale
 
-**Français** | [English](../en/reflective_alignment_cycle2.md)
+**Français** | [English](../en/reflective_alignment.md)
+
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
+> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
+
+Navigation : [synthèse structurelle](fondements_structurels.md) ·
+[Cycle 1 — alignement relatif](alignement_relatif.md) ·
+[méthode](methode_roles_constitutifs_relationnels.md)
 
 ## Statut
 
@@ -15,6 +26,27 @@ Quatre niveaux d'énoncés sont maintenus séparés:
 2. **conséquence dérivée** — lecture mathématique directe des déclarations prouvées;
 3. **interprétation architecturale** — usage proposé du motif formel;
 4. **connexion gödelienne future** — non établie par ce cycle.
+
+## Place dans l'architecture générale
+
+Le Cycle 2 n'est pas une branche indépendante raccordée directement au socle
+structurel. Il part de l'adéquation déjà établie par les deux applications de
+témoins du Cycle 1, observe cette adéquation au niveau propositionnel par
+`Nonempty`, puis seulement la transporte dans la couche de représentation :
+
+```text
+applications de témoins du Cycle 1
+  → adéquation relative exacte
+  → équivalence des statuts par `Nonempty`
+  → tiré en arrière vers les codes
+  → transport de représentation exacte
+  + diagonalisation de l'évaluateur
+  → représentation exacte déterminée avec non-clôture globale
+```
+
+La continuation opérationnelle `oneStepAfterPerimeter` appartient à une autre
+branche située après l'adéquation du Cycle 1. Elle n'est pas une entrée de la
+preuve diagonale.
 
 ## 1. Objet
 
@@ -37,14 +69,11 @@ histoires.
 ## 2. Frontière de dépendance
 
 ```text
-Cycle2.DiagonalizationKernel ── importe seulement Init
-              │
-              ├───────────────┐
-              ▼               ▼
-StrongPerimetralTurning ──→ Cycle2.ReflectiveAlignment
-                                  │
-                                  ▼
-                                Cycle2
+Cycle2.DiagonalizationKernel ── importe seulement Init ──┐
+                                                         ├─→ Cycle2.ReflectiveAlignment
+StrongPerimetralTurning ─────────────────────────────────┘             │
+                                                                       ▼
+                                                                     Cycle2
 ```
 
 `Cycle2.DiagonalizationKernel` ne contient aucune définition de présentation
@@ -190,7 +219,7 @@ représentation du statut du régime circulaire
 Ce transport utilise l'adéquation normative déjà démontrée. Il ne définit pas
 la norme à partir du régime et ne suppose aucune représentabilité universelle.
 
-## 9. Exactitude locale et non-clôture globale
+## 9. Représentation exacte de statuts déterminés et non-clôture globale
 
 `ReflectiveCircularStatusView P Code` contient un décodeur, un évaluateur, un
 programme et une preuve que ce programme représente exactement le statut tiré
@@ -207,9 +236,9 @@ le statut diagonal de l'évaluateur n'est pas représentable intérieurement
 ```
 
 `exactCircularStatusRepresentation_notGloballyClosed` énonce l'échec
-correspondant de la clôture réflexive globale. La représentation exacte locale
-et l'adéquation normative coexistent donc avec un extérieur représentationnel
-précisément localisé.
+correspondant de la clôture réflexive globale. La représentation exacte de ces
+statuts déterminés et l'adéquation normative coexistent donc avec un extérieur
+représentationnel précisément localisé.
 
 Le modèle fermé sur `Unit`, `canonicalUnitCircularStatusView`, vérifie que cette
 interface est habitée: un statut circulaire particulier peut être représenté
@@ -286,8 +315,8 @@ pwsh -NoProfile -File scripts/verify-manifest.ps1
 
 Le cycle 2 vérifie mécaniquement un noyau constructif minimal de non-clôture
 réflexive. Il construit le statut qui échappe à la représentation, démontre sa
-non-représentabilité, transporte l'adéquation normative du cycle 1 à travers la
-représentation exacte locale et établit qu'une telle exactitude locale ne
+non-représentabilité, transporte l'adéquation normative du Cycle 1 à travers la
+représentation exacte de statuts déterminés et établit que cette exactitude ne
 s'effondre pas en clôture globale. Sa portée formelle reste volontairement plus
 étroite que l'incomplétude gödelienne et ne fusionne pas la sortie opérationnelle
 du cycle 1 avec la sortie représentationnelle du cycle 2.
