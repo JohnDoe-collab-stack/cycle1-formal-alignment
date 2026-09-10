@@ -253,6 +253,10 @@ directe d'échec de la norme indépendante.
   — protocole réutilisable de construction, séparation, reconstruction et audit.
 - [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —
   représentation exacte, diagonalisation et non-clôture globale.
+- [Alignement constitutif des systèmes transformers](docs/fr/alignement_constitutif_transformers.md)
+  — transposition architecturale de la constitution relationnelle à la mémoire
+  persistante, au raisonnement à horizon long et aux sorties normatives
+  localisées.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
