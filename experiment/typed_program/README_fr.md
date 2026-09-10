@@ -24,10 +24,21 @@ py run.py --mode smoke --output "$env:TEMP\typed-program-smoke.json"
 py verify.py "$env:TEMP\typed-program-smoke.json" --self-test
 ```
 
-Le run confirmatoire est volontairement bloqué tant que l’arbre de travail est
-sale. Après gel des sources scientifiques et du protocole par commit, il devra
-écrire dans un chemin neuf de `results/` ; aucune sortie existante n’est
-écrasée.
+## Résultat confirmatoire
+
+Les sources scientifiques ont été gelées au commit `16219a6`. Un unique run
+confirmatoire a ensuite écrit
+[`results/confirmatory_v1.json`](results/confirmatory_v1.json), sans écraser de
+sortie antérieure. Son SHA-256 est
+`5fc922dfc3af2a05469fff52208e92acdf6b792ca6852b87473cb7c809835fc6`.
+
+Le vérificateur en lecture seule accepte les deux transitions liées, les 18
+événements causaux, les six entrées uniques du ledger cumulatif, les deux
+contrefactuels et le contrôle de renommage des adresses. Ses douze mutations
+négatives sont toutes rejetées.
+
+Aucune nouvelle exécution confirmatoire n’appartient à cette version du
+protocole. Une sortie existante n’est jamais écrasée.
 
 Ce témoin fini n’établit ni la synthèse générale de programmes, ni une autonomie
 non bornée, ni l’alignement général des transformers.

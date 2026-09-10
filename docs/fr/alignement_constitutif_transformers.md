@@ -556,7 +556,7 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `EndogenousTypedSuccession.lean` | même opérateur sur deux transitions, corpus successeur réellement consommé, deux contrefactuels, sonde générée et raffinement exact | démontré constructivement sur l’instance finie |
 | `experiment/protocol_v1.py` | prototype numérique à attention softmax, séparation entraînement/sonde, traces immuables, contrôles et audit différé | run confirmatoire réussi sur trois graines préengagées après gel des sources |
 | `experiment/verify_refinement_v1.py` | vérification en lecture seule des empreintes, de l’identité de sonde, des traces, de la frontière et des mutations négatives | 3 runs et 24 traces acceptés ; 8 mutations rejetées |
-| `experiment/typed_program/` | témoin exécutable séparé d’auto-extension typée, ledger cumulatif et requêtes exactes au worker | smoke test et 12 mutations négatives réussis ; run confirmatoire en attente du commit de gel |
+| `experiment/typed_program/` | témoin exécutable séparé d’auto-extension typée, ledger cumulatif et requêtes exactes au worker | un run confirmatoire réussi après gel des sources ; 12 mutations négatives rejetées |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -687,10 +687,12 @@ les 24 traces et rejette huit mutations négatives. Lean ne lit pas le résultat
 JSON : `TraceRefinement` et l’acceptation exécutable restent des contrôles
 distincts.
 
-Le protocole exécutable séparé `experiment/typed_program/` a passé son smoke
-test et douze mutations négatives. Il ne possède encore aucun résultat
-confirmatoire : ce run est techniquement bloqué jusqu’au gel des nouvelles
-sources par un commit propre.
+Le protocole séparé `experiment/typed_program/` a été gelé au commit `16219a6`
+avant son unique exécution confirmatoire. Ses deux transitions liées, son ledger
+cumulatif de six entrées, ses contrefactuels d’incorporation et d’apprentissage,
+ses requêtes exactes au worker et son contrôle de renommage sont acceptés par le
+vérificateur en lecture seule, qui rejette aussi douze mutations négatives.
+Cette observation reste distincte des théorèmes Lean.
 
 Le dépôt ne démontre pas encore :
 

@@ -18,9 +18,8 @@ doit pas devenir une dépendance du résultat.
 - branche de travail : `codex/constitutive-transformer` ;
 - protocole canonique corrigé et gelé : commit `a4b9a44` ;
 - les lots A à M sont fermés dans leur portée déclarée ;
-- la partie Lean du Lot N et son protocole exécutable sont implémentés ; le
-  smoke test et douze mutations négatives passent, mais la Gate N reste ouverte
-  jusqu’au commit de gel et au run confirmatoire ;
+- le Lot N est fermé dans sa portée finie : sources gelées au commit `16219a6`,
+  run confirmatoire unique vérifié et douze mutations négatives rejetées ;
 - l’itération uniforme sur une profondeur naturelle et la conservation d’une
   obligation sous itération sont déjà génériques dans `Succession.lean` ;
 - la suite ne doit ni reconstruire ces acquis ni présenter les deux cycles finis
@@ -123,7 +122,7 @@ qu’elles sont encore toutes ouvertes.
 | K | fermé | le protocole canonique unique sépare entraînement, smoke test et sonde confirmatoire ; le run passé après gel réussit sur les trois graines |
 | L | fermé dans l’instance finie | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique uniforme pour tout `n : Nat` |
 | M | fermé | raffinement formel exact et séparateurs construits ; vérificateur en lecture seule validé sur 24 traces et huit mutations négatives |
-| N | implémenté, pré-confirmatoire | langage typé total, frontière endogène, deux transitions sous le même opérateur, deux contrefactuels, sonde générée après scellement et raffinement exact ; smoke validé, commit de gel et run confirmatoire encore requis |
+| N | fermé dans la portée finie déclarée | langage typé total, frontière endogène, deux transitions sous le même opérateur, deux contrefactuels, sonde générée après scellement, raffinement exact et run confirmatoire postérieur au gel |
 
 Les quatre obligations formelles qui formaient le chemin critique sont fermées
 dans leur portée déclarée :
@@ -598,7 +597,7 @@ déjà construits.
 | transformation admissible | `GovernedDynamics.lean` | contrats séparés et transports explicites de l’adéquation, de l’exécution, des actions et certificats |
 | raffinement exécutable–formel | `ExecutableRefinement.lean` et `verify_refinement_v1.py` | relation formelle exacte sur la frontière discrète ; contrôle exécutable validé séparément, sans formaliser les flottants |
 | comportement empirique | protocole canonique unique | run confirmatoire passé après le gel `a4b9a44`, réussi sur trois graines préengagées |
-| auto-extension typée compacte | `TypedProgramDomain.lean`, `EndogenousTypedSuccession.lean` et expérience dédiée | formel et smoke fermés ; confirmatoire ouvert jusqu’au gel des sources |
+| auto-extension typée compacte | `TypedProgramDomain.lean`, `EndogenousTypedSuccession.lean` et expérience dédiée | Gate N fermée dans sa portée finie après gel et run confirmatoire vérifié |
 
 Cette table doit être reprise dans les deux documents canoniques. Elle empêche à
 la fois de détacher l’application du Cycle 1 et d’attribuer au Cycle 1 des

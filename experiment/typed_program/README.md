@@ -23,9 +23,19 @@ py run.py --mode smoke --output "$env:TEMP\typed-program-smoke.json"
 py verify.py "$env:TEMP\typed-program-smoke.json" --self-test
 ```
 
-A confirmatory run is deliberately blocked while the worktree is dirty. After
-the scientific sources and protocol have been frozen by commit, use a new path
-inside `results/`; existing outputs are never overwritten.
+## Confirmatory result
+
+The scientific sources were frozen in commit `16219a6`. One confirmatory run
+then wrote [`results/confirmatory_v1.json`](results/confirmatory_v1.json) without
+overwriting any prior output. Its SHA-256 is
+`5fc922dfc3af2a05469fff52208e92acdf6b792ca6852b87473cb7c809835fc6`.
+
+The read-only verifier accepts both linked transitions, all 18 causal events,
+the six unique cumulative-ledger entries, both counterfactuals, and the address
+renaming control. Its twelve negative mutations are all rejected.
+
+Further confirmatory execution is not part of this protocol version. Existing
+outputs are never overwritten.
 
 This finite witness does not establish general program synthesis, unbounded
 autonomy, or general transformer alignment.
