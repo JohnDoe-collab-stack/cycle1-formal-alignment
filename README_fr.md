@@ -206,11 +206,18 @@ directe d'échec de la norme indépendante.
   — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
   la succession, la réalisation neuronale et une instance transformer finie à
   attention dure avec invariants gouvernés à toute profondeur finie.
+- [Auto-extension constitutive de programmes typés](docs/fr/auto_extension_programmes_types.md)
+  — langage typé fini total, frontière sans rang, deux appels liés d’un même
+  opérateur, sonde fraîche générée, contrefactuels causaux et raffinement exact
+  des traces.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique
   avec sondes de smoke test et confirmatoire séparées, résultat confirmatoire
   immuable et vérification en lecture seule.
+- [Protocole exécutable de programmes typés](experiment/typed_program/README_fr.md)
+  — protocole séparé à sonde dynamique ; le smoke test et les tests négatifs
+  passent, tandis que le run confirmatoire attend le commit de gel des sources.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
   provenance de génération par IA et historique du développement.
 
@@ -243,11 +250,18 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   dynamique gouvernée à toute profondeur finie, le transport admissible de
   l’adéquation, l’acquisition stricte sur sonde fraîche et le raffinement
   exécutable discret.
+- [`ConstitutiveAlignment/TypedProgramDomain.lean`](ConstitutiveAlignment/TypedProgramDomain.lean)
+  définit le domaine fini de programmes intrinsèquement typés, sa sémantique
+  totale et sa frontière sans rang.
+- [`ConstitutiveAlignment/EndogenousTypedSuccession.lean`](ConstitutiveAlignment/EndogenousTypedSuccession.lean)
+  construit les deux transitions typées liées, les séparateurs causaux, le
+  protocole de sonde générée et le raffinement typé exact.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
-- [`experiment/`](experiment) contient le protocole numérique unique, son
-  résultat immuable et son vérificateur en lecture seule ; ses observations
-  restent séparées des théorèmes Lean.
+- [`experiment/`](experiment) contient deux protocoles exécutables
+  scientifiquement distincts : le résultat transformer numérique gelé et le
+  témoin de programmes typés en attente de son run confirmatoire. Leurs
+  observations restent séparées des théorèmes Lean.
 
 Aucun module du Cycle 1 n'importe le Cycle 2.
 
@@ -272,7 +286,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les trois bibliothèques Lake, audite 521
+La compilation épinglée construit les trois bibliothèques Lake, audite 565
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans

@@ -472,8 +472,11 @@ The new modules follow their dependency order:
 | `FreshProbeCausality.lean` | committed training/probe split, constructive freshness, and exact use of the acquired weights | proved on the finite hard-attention instance |
 | `GovernedDynamics.lean` | proof-relevant reachability, governed invariant, admissible evolution, and arbitrary-finite-depth transformer dynamics | constructively proved for every `n : Nat` |
 | `ExecutableRefinement.lean` | canonical discrete boundary, exact refinement, linked traces, and negative separators | constructively proved for every `n : Nat` |
+| `TypedProgramDomain.lean` | total intrinsically typed language, finite rank-free frontier, regime, norm, and adequacy | constructively proved on the finite instance |
+| `EndogenousTypedSuccession.lean` | one operator over two transitions, actual successor-corpus consumption, two counterfactuals, generated probe, and exact refinement | constructively proved on the finite instance |
 | `experiment/protocol_v1.py` | numerical softmax-attention prototype, disjoint training/probe split, immutable traces, controls, and deferred audit | confirmatory run passed on three precommitted seeds after source freeze |
 | `experiment/verify_refinement_v1.py` | read-only frozen-hash, probe-identity, trace, boundary, and negative-mutation verification | 3 runs and 24 traces accepted; 8 mutations rejected |
+| `experiment/typed_program/` | separate executable typed self-extension witness, cumulative ledger, and exact worker requests | smoke test and 12 negative mutations passed; confirmatory run awaits the freeze commit |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -499,6 +502,8 @@ abstract machine
 → admissible evolution and adequacy transport
 → refinement of the executable discrete boundary
 → reproducible experimental protocol
+→ typed self-extension through two passes of the same operator
+→ dynamic generated-probe protocol and cumulative ledger
 ```
 
 The numerical protocol requires separate fixed smoke and confirmatory probes,
@@ -562,6 +567,15 @@ The repository currently proves:
   finite depth, with constructive rejection of a rewritten candidate, a forged
   effect, and a missing intercycle link; certificate and effectuation statuses
   are indexed by the exact candidate-derived action and constitutive context.
+- a finite intrinsically typed language with total semantics, a rank-free
+  frontier, and two transitions through the same `typedStep`, where the second
+  consumes exactly the corpus produced by the first;
+- divergence of the second obligation when first incorporation is removed, and
+  disappearance of the second proposal when `T₁` is preserved but prior
+  weights are restored;
+- a formal generated-probe protocol from a sealed descriptor and reserved seed,
+  together with exact refinement rejecting a rewritten proposal and a target
+  corpus missing its first incorporation.
 
 Separately from these theorems, the canonical numerical protocol was frozen in
 commit `a4b9a44` before its confirmatory probe was executed. Its training set,
@@ -572,6 +586,11 @@ second proposal; and deferred audit preserves the sealed traces. The read-only
 verifier accepts all 24 traces and rejects eight negative mutations. Lean does
 not parse the JSON result: formal `TraceRefinement` and executable acceptance
 remain distinct controls.
+
+The separate `experiment/typed_program/` executable protocol has passed its
+smoke test and twelve negative mutations. It has no confirmatory result yet:
+that run is technically blocked until the new sources are frozen by a clean
+commit.
 
 The repository does not yet prove:
 
