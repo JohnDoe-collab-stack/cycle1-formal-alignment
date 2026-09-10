@@ -2,13 +2,6 @@
 
 [English](../en/relative_alignment.md) | **Français**
 
-> **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Ce document a été écrit de A à Z par des
-> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
-> d'interactions successives. Voir la
-> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
-
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
 [méthode](methode_roles_constitutifs_relationnels.md) ·
 [Cycle 2 — alignement réflexif](alignement_reflexif.md)
@@ -910,3 +903,12 @@ mathématique.
 > exactement réalisable sous toute implémentation concrète conforme à l'interface,
 > tout en étant rejetée par la norme et par un régime démontré adéquat à cette
 > norme.**
+
+## Conception
+
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
+> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).

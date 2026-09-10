@@ -2,13 +2,6 @@
 
 [English](README.md) | **Français**
 
-> **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Chaque élément de ce dépôt a été écrit de
-> A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et
-> au cours d'interactions successives. Voir la
-> [déclaration bilingue complète](AI_AUTHORSHIP.md).
-
 > **Ce dépôt construit et vérifie en Lean un fondement constructif et
 > dépendamment typé pour l'alignement relatif et réflexif.** Il démontre d'abord
 > l'adéquation exacte entre un régime opérationnel et une norme définie
@@ -255,3 +248,12 @@ Le dépôt est un artefact autonome : aucun historique source privé n'est requi
 pour le compiler ou l'auditer. Le code et la documentation sont distribués sous
 licence Apache-2.0. Les métadonnées de citation figurent dans
 [`CITATION.cff`](CITATION.cff).
+
+## Conception
+
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Chaque élément de ce dépôt a été écrit de
+> A à Z par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et
+> au cours d'interactions successives. Voir la
+> [déclaration bilingue complète](AI_AUTHORSHIP.md).

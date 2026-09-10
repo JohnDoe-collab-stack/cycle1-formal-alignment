@@ -2,13 +2,6 @@
 
 **Français** | [English](../en/reflective_alignment.md)
 
-> **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Ce document a été écrit de A à Z par des
-> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
-> d'interactions successives. Voir la
-> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
-
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
 [Cycle 1 — alignement relatif](alignement_relatif.md) ·
 [méthode](methode_roles_constitutifs_relationnels.md)
@@ -320,3 +313,12 @@ représentation exacte de statuts déterminés et établit que cette exactitude 
 s'effondre pas en clôture globale. Sa portée formelle reste volontairement plus
 étroite que l'incomplétude gödelienne et ne fusionne pas la sortie opérationnelle
 du cycle 1 avec la sortie représentationnelle du cycle 2.
+
+## Conception
+
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
+> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).

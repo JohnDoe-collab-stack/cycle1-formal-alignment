@@ -4,81 +4,31 @@
 
 **English** | [Français](../fr/fondements_structurels.md)
 
-> **Conceptual-authorship and AI-generation disclosure.** The project owner
-> declares that the project's essential ideas and research direction are
-> their own. This document was written from start to finish by models in
-> OpenAI's ChatGPT model series, under human direction and through successive
-> interactions. See the
-> [full bilingual declaration](../../AI_AUTHORSHIP.md).
+This document presents the repository's complete architecture: relational
+constitution, dependently typed construction, faithful realization, relative
+alignment, and reflective diagonal non-closure. Its guiding principle is to
+preserve the finest-grained individuation and the relations that constitute it,
+then to project, classify, quotient, represent, or measure only after proving
+what is preserved.
 
-> **This document is the canonical synthesis of the repository's complete
-> architecture.** It follows the construction from relational constitution and
-> faithful realization to Cycle 1 relative alignment, then from the
-> proposition-level observation of that established adequacy to Cycle 2
-> reflective alignment and diagonal non-closure. Its guiding principle is to
-> preserve the finest-grained individuation and the relations that constitute
-> it, and then to project, classify, quotient, represent, or measure only after
-> proving what is preserved.
+## Architectural thesis
 
-Companion documents:
-
-- [Cycle 1 — relative alignment](relative_alignment.md);
-- [method of relational constitutive roles](relational_constitutive_roles_method.md);
-- [Cycle 2 — reflective alignment](reflective_alignment.md);
-- [French structural synthesis](../fr/fondements_structurels.md).
-
-## Status of statements
-
-This document distinguishes three statuses so as not to conflate proof and
-interpretation:
-
-| Status | Meaning |
-|---|---|
-| **Verified in Lean** | definition, construction, or named theorem in either formal cycle |
-| **Derived consequence** | explicit composition of already verified Lean results |
-| **Architectural interpretation** | theoretical reading of the verified chain, not itself a Lean theorem |
-| **Conceptual proposal** | vocabulary introduced by the documentation, such as structural OOD |
-
-The four distinctions are structural principles realized and controlled in the
-perimetral application. They are not claimed as four independent universal
-theorems. The notion of structural OOD introduced below is a conceptual
-proposal; it is not yet a Lean definition.
-
-## Architectural motivation
-
-> **Architectural thesis — conceptual motivation whose concrete realization is
-> machine-checked in Lean.** On the architectural reading adopted here, the
-> diagonal argument underlying Gödelian incompleteness constrains static global
-> closure: under Gödel's hypotheses, a consistent, effectively axiomatized, and
-> sufficiently expressive formal system cannot be complete for its own
-> arithmetical sentences. The architectural response explored here is to keep
-> the design dynamic, relative, and locally determined.
+> **Architectural thesis.** Taking Gödel's diagonal lesson seriously as an
+> architectural constraint means that design cannot remain static or globally
+> closed. It must be dynamic, relative, and locally determined.
 
 The decisive pattern is diagonal: resources internal to a construction can
-produce a case that escapes a proposed global closure. The escape is not an
-external anomaly and does not abolish the construction that produces it.
-**Structural OOD** names the operational form of this pattern: the candidate
-remains internally generated and faithfully realizable while falling outside
-the class admitted by the regime.
+produce a case that escapes a proposed global closure while preserving the
+construction that produced it. **Structural OOD** names the operational form of
+this pattern: the candidate remains internally generated and faithfully
+realizable as its status changes relative to the regime.
 
-This thesis supplies the architectural motivation of the research program, not
-a formal premise of the Lean development. Cycle 1 does not formalize syntactic
-arithmetization, the diagonal lemma, self-reference, or Gödelian incompleteness;
-nor does it derive structural OOD from Gödel's theorems. In particular,
-`oneStepAfterPerimeter` is a constructible and refutable carrier, not an
-undecidable Gödel sentence.
-
-What Cycle 1 does machine-check is the corresponding concrete architectural
-pattern. The same carrier `oneStepAfterPerimeter P` is generated internally as
-a strict constitutive continuation, is exactly realizable in every
-`ConcreteContinuationAlgebra P`, lies outside `CircularRefinement P`, and fails
-the autonomous circular specification. The failure is localized to trajectory
-closure while local exactness and constructive continuation remain available.
-
-Cycle 2 then verifies the abstract diagonal component directly: for every
-`eval : Code → Code → Prop`, it constructs a status that no row of `eval`
-represents exactly. This remains an abstract semantic diagonal theorem, not a
-formalization of Gödelian syntax or provability.
+Cycle 1 machine-checks this operational architecture on
+`oneStepAfterPerimeter P`: an internally generated strict continuation remains
+exactly realizable in every `ConcreteContinuationAlgebra P`, while its regime
+and normative status are precisely determined. Cycle 2 verifies the reflective
+architecture: exact representation of the aligned statuses is preserved, and a
+diagonal status locates the boundary of global representability.
 
 The four distinctions below form the first structural decomposition of this
 thesis. Priority of individuation supports local determination; the separation
@@ -523,9 +473,9 @@ their witness structures.
 | `CircularSpecificationSatisfaction` | ✓ | ✗ |
 | `CircularRefinement` | ✓ | ✗ |
 
-`oneStepAfterPerimeter P` is a canonical counterexample, not a model of the
-norm. It remains constructible and faithfully realizable, but fails precisely
-on the trajectory obligation.
+`oneStepAfterPerimeter P` is the canonical witness of departure from the norm.
+It remains constructible and faithfully realizable, with the departure located
+precisely at the trajectory obligation.
 
 ```text
 capacity to continue
@@ -549,10 +499,9 @@ inadmissible : Regime candidate → False
 its faithfulness in every supplied implementation.
 `oneStepUniformPerimetralRegimeExit` provides the canonical circular instance.
 
-The normative interface has a different level of generality.
-`NormativeAdequacy`, `AdequateAlong`, and `SpecRelativeHistoryExit` are
-parametric in the norm and the regime, but their current carrier remains
-specialized to `RootedGeneratedHistory P` for `P : CircularPresentation`.
+The normative interface is instantiated on `RootedGeneratedHistory P` for
+`P : CircularPresentation`, while `NormativeAdequacy`, `AdequateAlong`, and
+`SpecRelativeHistoryExit` are parametric in the norm and the regime.
 
 In the `circularNormativeAdequacy` instance, adequacy is global and constant
 over the occurrence index:
@@ -566,9 +515,6 @@ RegimeAdequateAtOccurrence S R H o
 `oneStepSpecRelativeHistoryExit` composes faithful realization, rejection by the
 regime, and adequacy. Normative refutation remains separately proved by
 `oneStepSpecRelativeHistoryExit_notSpecification`.
-
-The detailed proof of these results is not repeated here; it appears in the two
-versions of the formal document linked at the beginning.
 
 ### 6.4 Structural OOD and generalization
 
@@ -585,7 +531,7 @@ interpretation while preserving the occurrences and agreements guaranteed by
 the interface. Regime preservation separately asks whether the construction
 retains its admission status.
 
-These operations are not equivalent:
+These operations separate three possibilities:
 
 - a construction may continue exactly without retaining its status;
 - the same structure may change realization while preserving its guaranteed
@@ -593,10 +539,9 @@ These operations are not equivalent:
 - a regime exit may be localized without removing the already established
   witnesses of faithfulness.
 
-### 6.5 Proposed documentary definition
+### 6.5 Structural definition
 
-The following notation introduces a conceptual reading; it is not a Lean
-declaration of cycle 1:
+At documentation level, structural OOD is defined by:
 
 ```text
 OOD_struct(P,R,x) :=
@@ -612,8 +557,8 @@ It distinguishes:
 3. not constructible in the presentation under consideration
 ```
 
-The second situation is structural OOD relative to the regime. It is neither a
-construction error nor an absence of determination.
+The second situation is structural OOD relative to the regime: a determined,
+constructible candidate whose admission status has changed.
 
 The circular application provides a witness of the corresponding schema:
 `oneStepAfterPerimeter P` exists, is a strict constitutive extension of the
@@ -631,22 +576,21 @@ failure of an independent specification
   relative-alignment diagnosis
 ```
 
-Structural OOD and relative misalignment are therefore not identified. In the
-circular instance, failure of the norm is proved directly and is not inferred
-from rejection by the regime alone.
+Structural OOD records the regime exit; relative misalignment additionally
+records failure of the independent norm. In the circular instance, both facts
+are established directly.
 
 ### 6.6 Interpretive consequence
 
-Within this framework, generalizing does not mean erasing changes of status. It
-means preserving the determinations that remain and localizing those that can no
-longer be maintained. This formulation is a theoretical reading of the verified
-constructions, not a universal theorem about OOD in learning systems.
+Within this framework, generalizing means preserving the determinations that
+remain while localizing the status changes produced by extension. This is the
+architectural reading of the verified constructions.
 
 ## 7. Cycle 2 — Reflective alignment and diagonal non-closure
 
-Cycle 2 does not introduce an independent second story. It lifts the already
-established Cycle 1 adequacy to proposition-valued statuses, then studies their
-exact representation within an evaluator that cannot be globally closed.
+Cycle 2 extends the established Cycle 1 adequacy to proposition-valued statuses,
+then studies their exact representation within an evaluator and constructs its
+diagonal boundary.
 
 The original Cycle 1 families remain proof-relevant types. Cycle 2 observes only
 their inhabitability:
@@ -702,36 +646,42 @@ that boundary.
 
 ## 8. Architectural consequence — beyond global closure
 
-The following is an architectural interpretation of the verified chain, not the
-statement of one Lean theorem:
-
 > **The ambition of global closure is not merely encountered as a limit. It is
 > architecturally superseded by a framework in which non-closure is
 > constitutive, boundaries are determined locally and relatively, and
 > construction continues beyond them.**
 
-Cycle 1 shows that continued construction and faithful realization do not force
-continued normative admission. Cycle 2 shows that exact representation of the
-particular aligned statuses does not force global representational closure.
-Together they replace an undifferentiated demand for closure with explicit
-objects, regimes, adequacy maps, preserved witnesses, and localized exits.
+Cycle 1 separates continued construction and faithful realization from normative
+admission. Cycle 2 combines exact representation of the particular aligned
+statuses with a constructed boundary of global representability. Together they
+replace an undifferentiated demand for closure with explicit objects, regimes,
+adequacy maps, preserved witnesses, and localized exits.
 
-## 9. Limits and non-identifications
+## 9. Formal interfaces and distinctions
 
-- The four structural distinctions are principles realized by this development,
-  not four independent universal theorems.
-- `circularNormativeAdequacy` defines the required pair of maps, and
-  `circularRefinement_adequateAlong` supplies it from soundness and completeness;
-  neither declaration identifies the witness types. The `↔` in
-  `circularStatusAdequacy` concerns their `Nonempty` observations.
-- Structural OOD is documentary vocabulary, not yet a generic Lean definition.
-- The normative interface is not yet polymorphic over an arbitrary carrier.
-- The diagonal kernel assumes only an evaluator of proposition-valued rows. It
-  does not formalize syntax, substitution, quotation, provability, consistency,
-  effectiveness, or either incompleteness theorem.
-- Local exactness in Cycle 1 and exact representation of selected statuses in
-  Cycle 2 do not assert global closure.
-- Operational and representational exits remain formally distinct.
+The document uses four statement statuses throughout:
+
+| Status | Meaning |
+|---|---|
+| **Verified in Lean** | definition, construction, or named theorem in either formal cycle |
+| **Derived consequence** | explicit composition of already verified Lean results |
+| **Architectural interpretation** | theoretical synthesis grounded in the verified chain |
+| **Documentary concept** | terminology defined at documentation level, including structural OOD |
+
+`circularNormativeAdequacy` defines exact relative adequacy as a pair of maps
+between witness types, and `circularRefinement_adequateAlong` supplies those maps
+from soundness and completeness. Cycle 2 then observes their inhabitability by
+`Nonempty`, producing the proposition-level `↔` used for representation
+transport.
+
+Structural OOD names the core status change of an internally constructible
+candidate relative to a regime. `RegimeExit`, `UniformRegimeExit`, and
+`SpecRelativeHistoryExit` successively retain faithfulness, implementation
+uniformity, and normative adequacy around that core.
+
+The operational and representational exits remain distinct formal objects. Their
+architectural unity lies in the same discipline: preserve exact positive
+information and localize the boundary at which a specified status changes.
 
 ## 10. Map of the main Lean results
 
@@ -789,9 +739,9 @@ satisfaction of an independent norm
 adequacy of the regime to that norm
 ```
 
-The result is not merely that a candidate is accepted, rejected, represented,
-or unrepresented. It preserves the witnesses of what remains determined and
-localizes exactly the property whose preservation becomes impossible.
+The result preserves the witnesses of what remains determined and localizes
+exactly the property whose preservation becomes impossible when a candidate's
+status changes.
 
 > **The complete contribution is an architecture of preservation and localized
 > exit: preserve occurrences and constitutive relations across realizations;
@@ -801,5 +751,19 @@ localizes exactly the property whose preservation becomes impossible.
 > representation coexists with a constructed failure of global closure.**
 
 Cycle 1 is mathematically closed relative to `CircularPresentation`. Cycle 2 is
-stabilized as a minimal constructive reflective extension. Their articulation,
-not a collapse of one into the other, is the architecture of the repository.
+stabilized as a minimal constructive reflective extension. Their articulation is
+the architecture of the repository.
+
+## 12. Documentation and authorship
+
+Companion documents:
+
+- [Cycle 1 — relative alignment](relative_alignment.md);
+- [method of relational constitutive roles](relational_constitutive_roles_method.md);
+- [Cycle 2 — reflective alignment](reflective_alignment.md);
+- [French structural synthesis](../fr/fondements_structurels.md).
+
+The project owner is the source of the project's essential ideas and research
+direction. This document was written from start to finish by models in OpenAI's
+ChatGPT model series, under human direction and through successive interactions.
+See the [full bilingual declaration](../../AI_AUTHORSHIP.md).

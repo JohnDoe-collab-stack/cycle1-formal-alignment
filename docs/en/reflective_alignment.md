@@ -2,13 +2,6 @@
 
 [Français](../fr/alignement_reflexif.md) | **English**
 
-> **Conceptual-authorship and AI-generation disclosure.** The project owner
-> declares that the project's essential ideas and research direction are their
-> own. This document was written from start to finish by models in OpenAI's
-> ChatGPT model series, under human direction and through successive
-> interactions. See the
-> [full bilingual declaration](../../AI_AUTHORSHIP.md).
-
 Navigation: [structural synthesis](structural_foundations.md) ·
 [Cycle 1 — relative alignment](relative_alignment.md) ·
 [method](relational_constitutive_roles_method.md)
@@ -311,3 +304,12 @@ Cycle 1 normative adequacy through exact representation of determined statuses,
 and demonstrates that this exactness does not collapse into global closure. Its formal
 scope is intentionally narrower than Gödelian incompleteness and does not merge
 the operational exit of Cycle 1 with the representational exit of Cycle 2.
+
+## Authorship
+
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are their
+> own. This document was written from start to finish by models in OpenAI's
+> ChatGPT model series, under human direction and through successive
+> interactions. See the
+> [full bilingual declaration](../../AI_AUTHORSHIP.md).

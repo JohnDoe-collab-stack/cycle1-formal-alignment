@@ -4,83 +4,33 @@
 
 [English](../en/structural_foundations.md) | **Français**
 
-> **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Ce document a été écrit de A à Z par des
-> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
-> d'interactions successives. Voir la
-> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
+Ce document présente l'architecture complète du dépôt : constitution
+relationnelle, construction dépendamment typée, réalisation fidèle, alignement
+relatif et non-clôture diagonale réflexive. Son principe directeur consiste à
+conserver l'individuation la plus fine et les relations qui la constituent, puis
+à ne projeter, classifier, quotienter, représenter ou mesurer qu'après avoir
+démontré ce qui est préservé.
 
-> **Ce document constitue la synthèse canonique de l'architecture complète du
-> dépôt.** Il suit la construction depuis la constitution relationnelle et la
-> réalisation fidèle jusqu'à l'alignement relatif du Cycle 1, puis depuis
-> l'observation propositionnelle de cette adéquation établie jusqu'à
-> l'alignement réflexif et la non-clôture diagonale du Cycle 2. Son principe
-> directeur consiste à conserver l'individuation la plus fine et les relations
-> qui la constituent, puis à ne projeter, classifier, quotienter, représenter ou
-> mesurer qu'après avoir démontré ce qui est préservé.
+## Thèse architecturale
 
-Documents complémentaires :
+> **Thèse architecturale.** Prendre au sérieux la leçon diagonale de Gödel comme
+> contrainte architecturale signifie que la conception ne peut rester statique
+> ou globalement close. Elle doit être dynamique, relative et déterminée
+> localement.
 
-- [Cycle 1 — alignement relatif](alignement_relatif.md) ;
-- [méthode des rôles constitutifs relationnels](methode_roles_constitutifs_relationnels.md) ;
-- [Cycle 2 — alignement réflexif](alignement_reflexif.md) ;
-- [synthèse structurelle anglaise](../en/structural_foundations.md).
+Le motif décisif est diagonal : des ressources internes à une construction
+peuvent produire un cas qui échappe à une clôture globale proposée tout en
+préservant la construction qui l'a produit. L'**OOD structurel** désigne la forme
+opérationnelle de ce motif : le candidat reste engendré de l'intérieur et
+fidèlement réalisable tandis que son statut change relativement au régime.
 
-## Statut des énoncés
-
-Ce document distingue quatre statuts afin de ne pas confondre preuve et
-interprétation:
-
-| Statut | Signification |
-|---|---|
-| **Vérifié dans Lean** | définition, construction ou théorème nommé de l'un des deux cycles formels |
-| **Conséquence dérivée** | composition explicite de résultats Lean déjà vérifiés |
-| **Interprétation architecturale** | lecture théorique de la chaîne vérifiée, qui n'est pas elle-même un théorème Lean |
-| **Proposition conceptuelle** | vocabulaire introduit par la documentation, tel que l'OOD structurel |
-
-Les quatre distinctions sont des principes structurants réalisés et contrôlés
-dans l'application périmétrale. Elles ne sont pas revendiquées comme quatre
-théorèmes universels indépendants. La notion d'OOD structurel introduite plus bas
-est une proposition conceptuelle; elle n'est pas encore une définition Lean.
-
-## Motivation architecturale
-
-> **Thèse architecturale — motivation conceptuelle dont la réalisation concrète
-> est vérifiée mécaniquement dans Lean.** Dans la lecture architecturale adoptée
-> ici, l'argument diagonal qui sous-tend l'incomplétude de Gödel contraint la
-> clôture globale statique: sous les hypothèses de Gödel, un système formel
-> cohérent, effectivement axiomatisé et suffisamment expressif ne peut être
-> complet pour ses propres énoncés arithmétiques. La réponse architecturale
-> explorée ici consiste à maintenir la conception dynamique, relative et
-> déterminée localement.
-
-Le motif décisif est diagonal: des ressources internes à une construction
-peuvent produire un cas qui échappe à une clôture globale proposée. Cette sortie
-n'est pas une anomalie extérieure et n'abolit pas la construction qui la
-produit. L'**OOD structurel** désigne la forme opérationnelle de ce motif: le
-candidat reste engendré de l'intérieur et fidèlement réalisable tout en sortant
-de la classe admise par le régime.
-
-Cette thèse fournit la motivation architecturale du programme de recherche, non
-une prémisse formelle du développement Lean. Le cycle 1 ne formalise ni
-l'arithmétisation syntaxique, ni le lemme diagonal, ni l'autoréférence, ni
-l'incomplétude gödelienne; il ne déduit pas davantage l'OOD structurel des
-théorèmes de Gödel. En particulier, `oneStepAfterPerimeter` est un carrier
-constructible et réfutable, non une proposition gödelienne indécidable.
-
-Ce que le cycle 1 vérifie mécaniquement est le motif architectural concret
-correspondant. Le même carrier `oneStepAfterPerimeter P` est engendré de
-l'intérieur comme continuation constitutive stricte, exactement réalisable dans
-toute instance de `ConcreteContinuationAlgebra P`, extérieur à
-`CircularRefinement P`, et insatisfaisant pour la spécification circulaire
-autonome. L'échec est localisé dans la clôture trajectorielle tandis que
-l'exactitude locale et la continuation constructive demeurent disponibles.
-
-Le Cycle 2 vérifie ensuite directement la composante diagonale abstraite : pour
-tout `eval : Code → Code → Prop`, il construit un statut qu'aucune ligne de
-`eval` ne représente exactement. Cela reste un théorème diagonal sémantique
-abstrait, non une formalisation de la syntaxe ou de la prouvabilité gödeliennes.
+Le Cycle 1 vérifie mécaniquement cette architecture opérationnelle sur
+`oneStepAfterPerimeter P` : une continuation stricte engendrée de l'intérieur
+reste exactement réalisable dans toute `ConcreteContinuationAlgebra P`, tandis
+que son statut de régime et son statut normatif sont précisément déterminés. Le
+Cycle 2 vérifie l'architecture réflexive : la représentation exacte des statuts
+alignés est conservée et un statut diagonal localise la frontière de la
+représentabilité globale.
 
 Les quatre distinctions suivantes constituent la première décomposition
 structurelle de cette thèse. La priorité de l'individuation soutient la
@@ -524,8 +474,8 @@ leurs structures de témoins.
 | `CircularSpecificationSatisfaction` | ✓ | ✗ |
 | `CircularRefinement` | ✓ | ✗ |
 
-`oneStepAfterPerimeter P` est un contre-exemple canonique, pas un modèle de la
-norme. Il reste constructible et fidèlement réalisable, mais échoue précisément
+`oneStepAfterPerimeter P` est le témoin canonique de sortie de la norme. Il reste
+constructible et fidèlement réalisable, la sortie étant localisée précisément
 sur l'obligation trajectorielle.
 
 ```text
@@ -550,10 +500,9 @@ inadmissible : Regime candidate → False
 demande sa fidélité dans chacune des implémentations fournies.
 `oneStepUniformPerimetralRegimeExit` en fournit l'instance circulaire canonique.
 
-L'interface normative possède un niveau de généralité différent.
-`NormativeAdequacy`, `AdequateAlong` et `SpecRelativeHistoryExit` sont
-paramétriques sur la norme et le régime, mais leur carrier actuel reste spécialisé
-aux `RootedGeneratedHistory P` pour `P : CircularPresentation`.
+L'interface normative est instanciée sur `RootedGeneratedHistory P` pour
+`P : CircularPresentation`, tandis que `NormativeAdequacy`, `AdequateAlong` et
+`SpecRelativeHistoryExit` sont paramétriques sur la norme et le régime.
 
 Dans l'instance `circularNormativeAdequacy`, l'adéquation est globale et constante
 sur l'index d'occurrence:
@@ -567,9 +516,6 @@ RegimeAdequateAtOccurrence S R H o
 `oneStepSpecRelativeHistoryExit` compose la réalisation fidèle, le rejet par le
 régime et l'adéquation. La réfutation normative reste démontrée séparément par
 `oneStepSpecRelativeHistoryExit_notSpecification`.
-
-La preuve détaillée de ces résultats n'est pas répétée ici; elle se trouve dans
-les deux versions du document formel liées en ouverture.
 
 ### 6.4 OOD structurel et généralisation
 
@@ -585,7 +531,7 @@ Une extension prolonge une construction. Un transport change son interprétation
 concrète tout en préservant les occurrences et accords garantis. Le maintien du
 régime demande séparément si la construction conserve son statut d'admission.
 
-Ces opérations ne sont pas équivalentes:
+Ces opérations séparent trois possibilités:
 
 - une construction peut continuer exactement sans conserver son statut;
 - une même structure peut changer de réalisation tout en conservant ses
@@ -593,10 +539,9 @@ Ces opérations ne sont pas équivalentes:
 - une sortie de régime peut être localisée sans supprimer les témoins de fidélité
   déjà établis.
 
-### 6.5 Définition documentaire proposée
+### 6.5 Définition structurelle
 
-La notation suivante introduit une lecture conceptuelle; elle n'est pas une
-déclaration Lean du cycle 1:
+Au niveau documentaire, l'OOD structurel est défini par:
 
 ```text
 OOD_struct(P,R,x) :=
@@ -612,8 +557,8 @@ Elle distingue:
 3. non constructible dans la présentation considérée
 ```
 
-La deuxième situation est l'OOD structurel relatif au régime. Elle ne se confond
-ni avec une erreur de construction ni avec une absence de détermination.
+La deuxième situation est l'OOD structurel relatif au régime : un candidat
+déterminé et constructible dont le statut d'admission a changé.
 
 L'application circulaire fournit un témoin du schéma correspondant:
 `oneStepAfterPerimeter P` existe, est une extension constitutive stricte du
@@ -631,23 +576,21 @@ insatisfaction d'une spécification indépendante
   diagnostic d'alignement relatif
 ```
 
-L'OOD structurel et le désalignement relatif ne sont donc pas identifiés. Dans
-l'instance circulaire, l'insatisfaction de la norme est prouvée directement et
-ne se déduit pas du seul rejet par le régime.
+L'OOD structurel enregistre la sortie du régime ; le désalignement relatif
+enregistre en outre l'insatisfaction de la norme indépendante. Dans l'instance
+circulaire, les deux faits sont établis directement.
 
 ### 6.6 Conséquence interprétative
 
-Dans ce cadre, généraliser ne signifie pas effacer les changements de statut,
-mais préserver les déterminations qui subsistent et localiser celles qui cessent
-d'être maintenables. Cette formulation est une lecture théorique des constructions
-vérifiées, non un théorème universel sur l'OOD des systèmes d'apprentissage.
+Dans ce cadre, généraliser signifie préserver les déterminations qui subsistent
+tout en localisant les changements de statut produits par l'extension. Telle est
+la lecture architecturale des constructions vérifiées.
 
 ## 7. Cycle 2 — Alignement réflexif et non-clôture diagonale
 
-Le Cycle 2 n'introduit pas une seconde histoire indépendante. Il élève
-l'adéquation déjà établie au Cycle 1 vers des statuts propositionnels, puis
-étudie leur représentation exacte dans un évaluateur qui ne peut être
-globalement clos.
+Le Cycle 2 prolonge l'adéquation établie au Cycle 1 vers des statuts
+propositionnels, puis étudie leur représentation exacte dans un évaluateur et
+construit sa frontière diagonale.
 
 Les familles originelles du Cycle 1 restent des types porteurs de témoins. Le
 Cycle 2 observe seulement leur habitabilité :
@@ -705,38 +648,45 @@ positive établie avant cette frontière.
 
 ## 8. Conséquence architecturale — au-delà de la clôture globale
 
-La formulation suivante est une interprétation architecturale de la chaîne
-vérifiée, non l'énoncé d'un théorème Lean unique :
-
 > **L'ambition de clôture globale n'est pas seulement rencontrée comme une
 > limite. Elle est architecturalement dépassée par un cadre dans lequel la
 > non-clôture est constitutive, les frontières sont déterminées localement et
 > relativement, et la construction se poursuit au-delà d'elles.**
 
-Le Cycle 1 montre que la continuation de la construction et sa réalisation
-fidèle n'imposent pas le maintien de l'admission normative. Le Cycle 2 montre que
-la représentation exacte des statuts alignés particuliers n'impose pas la
-clôture représentationnelle globale. Ensemble, ils remplacent une exigence
-indifférenciée de clôture par des objets, des régimes, des applications
-d'adéquation, des témoins préservés et des sorties localisées explicites.
+Le Cycle 1 sépare la continuation de la construction et sa réalisation fidèle de
+l'admission normative. Le Cycle 2 combine la représentation exacte des statuts
+alignés particuliers avec une frontière construite de la représentabilité
+globale. Ensemble, ils remplacent une exigence indifférenciée de clôture par des
+objets, des régimes, des applications d'adéquation, des témoins préservés et des
+sorties localisées explicites.
 
-## 9. Limites et non-identifications
+## 9. Interfaces et distinctions formelles
 
-- Les quatre distinctions structurelles sont des principes réalisés par ce
-  développement, non quatre théorèmes universels indépendants.
-- `circularNormativeAdequacy` définit la paire d'applications requise et
-  `circularRefinement_adequateAlong` la fournit à partir de la soundness et de la
-  complétude ; aucune de ces déclarations n'identifie les types de témoins. Le
-  `↔` de `circularStatusAdequacy` porte sur leur observation par `Nonempty`.
-- L'OOD structurel est un vocabulaire documentaire, pas encore une définition
-  Lean générique.
-- L'interface normative n'est pas encore polymorphe sur un type porteur arbitraire.
-- Le noyau diagonal suppose seulement un évaluateur de lignes à valeurs dans
-  `Prop`. Il ne formalise ni syntaxe, ni substitution, ni quotation, ni
-  prouvabilité, ni cohérence, ni effectivité, ni théorème d'incomplétude.
-- L'exactitude locale du Cycle 1 et la représentation exacte de statuts choisis
-  au Cycle 2 n'affirment aucune clôture globale.
-- Les sorties opérationnelle et représentationnelle restent formellement distinctes.
+Le document emploie quatre statuts d'énoncés :
+
+| Statut | Signification |
+|---|---|
+| **Vérifié dans Lean** | définition, construction ou théorème nommé de l'un des deux cycles formels |
+| **Conséquence dérivée** | composition explicite de résultats Lean déjà vérifiés |
+| **Interprétation architecturale** | synthèse théorique fondée sur la chaîne vérifiée |
+| **Concept documentaire** | terminologie définie au niveau documentaire, dont l'OOD structurel |
+
+`circularNormativeAdequacy` définit l'adéquation relative exacte comme une paire
+d'applications entre types de témoins, et `circularRefinement_adequateAlong`
+fournit ces applications à partir de la soundness et de la complétude. Le Cycle 2
+observe ensuite leur habitabilité par `Nonempty`, ce qui produit le `↔`
+propositionnel utilisé pour le transport de représentation.
+
+L'OOD structurel désigne le changement de statut central d'un candidat
+constructible de l'intérieur relativement à un régime. `RegimeExit`,
+`UniformRegimeExit` et `SpecRelativeHistoryExit` conservent successivement autour
+de ce noyau la fidélité, l'uniformité entre implémentations et l'adéquation
+normative.
+
+Les sorties opérationnelle et représentationnelle restent des objets formels
+distincts. Leur unité architecturale réside dans une même discipline : préserver
+l'information positive exacte et localiser la frontière où change un statut
+déterminé.
 
 ## 10. Carte des principaux résultats Lean
 
@@ -795,9 +745,9 @@ satisfaction d'une norme indépendante
 adéquation du régime à cette norme
 ```
 
-Le résultat n'est pas seulement qu'un candidat est accepté, rejeté, représenté
-ou non représenté. Il conserve les témoins de ce qui demeure déterminé et
-localise exactement la propriété dont le maintien devient impossible.
+Le résultat conserve les témoins de ce qui demeure déterminé et localise
+exactement la propriété dont le maintien devient impossible lorsque le statut
+d'un candidat change.
 
 > **La contribution complète est une architecture de conservation et de sortie
 > localisée : préserver les occurrences et les relations constitutives à travers
@@ -809,5 +759,18 @@ localise exactement la propriété dont le maintien devient impossible.
 
 Le Cycle 1 est mathématiquement clos relativement à `CircularPresentation`. Le
 Cycle 2 est stabilisé comme extension réflexive constructive minimale. Leur
-articulation, et non l'effacement de l'un dans l'autre, constitue l'architecture
-du dépôt.
+articulation constitue l'architecture du dépôt.
+
+## 12. Documentation et conception
+
+Documents complémentaires :
+
+- [Cycle 1 — alignement relatif](alignement_relatif.md) ;
+- [méthode des rôles constitutifs relationnels](methode_roles_constitutifs_relationnels.md) ;
+- [Cycle 2 — alignement réflexif](alignement_reflexif.md) ;
+- [synthèse structurelle anglaise](../en/structural_foundations.md).
+
+Le responsable du projet est à l'origine de l'essentiel des idées et de la
+direction de recherche. Ce document a été écrit de A à Z par des modèles de la
+série ChatGPT d'OpenAI, sous direction humaine et au cours d'interactions
+successives. Voir la [déclaration bilingue complète](../../AI_AUTHORSHIP.md).

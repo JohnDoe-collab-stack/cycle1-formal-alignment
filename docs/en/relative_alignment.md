@@ -2,13 +2,6 @@
 
 **English** | [Français](../fr/alignement_relatif.md)
 
-> **Conceptual-authorship and AI-generation disclosure.** The project owner
-> declares that the project's essential ideas and research direction are
-> their own. This document was written from start to finish by models in
-> OpenAI's ChatGPT model series, under human direction and through successive
-> interactions. See the
-> [full bilingual declaration](../../AI_AUTHORSHIP.md).
-
 Navigation: [structural synthesis](structural_foundations.md) ·
 [method](relational_constitutive_roles_method.md) ·
 [Cycle 2 — reflective alignment](reflective_alignment.md)
@@ -882,3 +875,12 @@ closed Cycle 1 result without altering its witness types or mathematical content
 > admitted histories; and constructs a minimal continuation that remains exactly
 > realizable under every concrete implementation satisfying the interface while
 > being rejected by both the norm and a regime proved adequate to that norm.**
+
+## Authorship
+
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are
+> their own. This document was written from start to finish by models in
+> OpenAI's ChatGPT model series, under human direction and through successive
+> interactions. See the
+> [full bilingual declaration](../../AI_AUTHORSHIP.md).

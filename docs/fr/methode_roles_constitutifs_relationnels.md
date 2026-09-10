@@ -4,13 +4,6 @@
 
 [English](../en/relational_constitutive_roles_method.md) | **Français**
 
-> **Déclaration de conception intellectuelle et de génération par IA.** Le
-> responsable du projet déclare être à l'origine de l'essentiel des idées et de
-> la direction de recherche du projet. Ce document a été écrit de A à Z par des
-> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
-> d'interactions successives. Voir la
-> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).
-
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
 [Cycle 1 — alignement relatif](alignement_relatif.md) ·
 [Cycle 2 — alignement réflexif](alignement_reflexif.md)
@@ -1510,3 +1503,12 @@ mais ne constitue pas une seconde instance de domaine. La généralisation de la
 méthode demande donc encore de formaliser l'interface méthodologique elle-même et
 de l'éprouver sur d'autres domaines, sans effacer la distinction entre résultat
 Lean, conséquence dérivée et proposition théorique.
+
+## Conception
+
+> **Déclaration de conception intellectuelle et de génération par IA.** Le
+> responsable du projet déclare être à l'origine de l'essentiel des idées et de
+> la direction de recherche du projet. Ce document a été écrit de A à Z par des
+> modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours
+> d'interactions successives. Voir la
+> [déclaration bilingue complète](../../AI_AUTHORSHIP.md).

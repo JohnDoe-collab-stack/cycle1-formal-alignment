@@ -2,12 +2,6 @@
 
 **English** | [Français](README_fr.md)
 
-> **Conceptual-authorship and AI-generation disclosure.** The project owner
-> declares that the project's essential ideas and research direction are their
-> own. Every part of this repository was written from start to finish by models
-> in OpenAI's ChatGPT model series, under human direction and through successive
-> interactions. See the [full bilingual declaration](AI_AUTHORSHIP.md).
-
 > **This repository builds and machine-checks in Lean a constructive,
 > dependently typed foundation for relative and reflective alignment.** It first
 > proves exact adequacy between an operational regime and an independently
@@ -246,3 +240,11 @@ use no `sorry`, `admit`, declared `axiom`, `Classical`, `propext`, or
 The repository is a standalone artifact: no private source history is required
 to build or audit it. Code and documentation are distributed under Apache-2.0.
 Citation metadata is provided in [`CITATION.cff`](CITATION.cff).
+
+## Authorship
+
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are their
+> own. Every part of this repository was written from start to finish by models
+> in OpenAI's ChatGPT model series, under human direction and through successive
+> interactions. See the [full bilingual declaration](AI_AUTHORSHIP.md).

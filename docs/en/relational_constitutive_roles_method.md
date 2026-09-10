@@ -4,13 +4,6 @@
 
 **English** | [Français](../fr/methode_roles_constitutifs_relationnels.md)
 
-> **Conceptual-authorship and AI-generation disclosure.** The project owner
-> declares that the project's essential ideas and research direction are
-> their own. This document was written from start to finish by models in
-> OpenAI's ChatGPT model series, under human direction and through successive
-> interactions. See the
-> [full bilingual declaration](../../AI_AUTHORSHIP.md).
-
 Navigation: [structural synthesis](structural_foundations.md) ·
 [Cycle 1 — relative alignment](relative_alignment.md) ·
 [Cycle 2 — reflective alignment](reflective_alignment.md)
@@ -1479,3 +1472,12 @@ does not constitute a second domain instance. Generalizing the method therefore
 still requires formalizing the methodological interface itself and testing it
 on other domains, without erasing the distinction between Lean result, derived
 consequence, and theoretical proposal.
+
+## Authorship
+
+> **Conceptual-authorship and AI-generation disclosure.** The project owner
+> declares that the project's essential ideas and research direction are
+> their own. This document was written from start to finish by models in
+> OpenAI's ChatGPT model series, under human direction and through successive
+> interactions. See the
+> [full bilingual declaration](../../AI_AUTHORSHIP.md).
