@@ -16,11 +16,8 @@ doit pas devenir une dépendance du résultat.
 État de reprise contrôlé :
 
 - branche de travail : `codex/constitutive-transformer` ;
-- dernier état gelé de la branche : commit `569701a` ; les corrections décrites
-  ci-dessous appartiennent encore à l’arbre de travail non gelé ;
-- les lots A à J ont produit un noyau fini compilé et une réalisation
-  transformer à deux cycles liés ; la Gate K a été réouverte afin de reconstruire
-  proprement la séparation entre apprentissage et évaluation ;
+- protocole canonique corrigé et gelé : commit `a4b9a44` ;
+- les lots A à M sont fermés dans leur portée déclarée ;
 - l’itération uniforme sur une profondeur naturelle et la conservation d’une
   obligation sous itération sont déjà génériques dans `Succession.lean` ;
 - la suite ne doit ni reconstruire ces acquis ni présenter les deux cycles finis
@@ -115,9 +112,9 @@ qu’elles sont encore toutes ouvertes.
 | H | fermé | contrat neuronal, vue autorisée, trajectoire fidèle et audit différé |
 | I | fermé dans l’instance finie | transformer booléen à attention dure, intervention, sonde fraîche fixée et anti-substitution, contrôle inerte et renommage |
 | J | fermé pour deux cycles | lien intercycle, ablation, mémoire d’attention, hallucination relative et confinement |
-| K | réouvert jusqu’au nouveau gel | le protocole canonique unique sépare entraînement, sonde de smoke test et sonde confirmatoire non exécutée ; le run confirmatoire doit attendre le commit de gel |
+| K | fermé | le protocole canonique unique sépare entraînement, smoke test et sonde confirmatoire ; le run passé après gel réussit sur les trois graines |
 | L | fermé dans l’instance finie | atteignabilité proof-relevant, invariant gouverné, transformations admissibles et dynamique uniforme pour tout `n : Nat` |
-| M | partie Lean fermée, contrôle exécutable à régénérer | raffinement formel exact et séparateurs construits ; vérificateur à resceller sur l’unique résultat corrigé |
+| M | fermé | raffinement formel exact et séparateurs construits ; vérificateur en lecture seule validé sur 24 traces et huit mutations négatives |
 
 Les quatre obligations formelles qui formaient le chemin critique sont fermées
 dans leur portée déclarée :
@@ -130,10 +127,8 @@ dans leur portée déclarée :
    explicitement l’adéquation ;
 4. raffiner la frontière exécutable vers le noyau formel.
 
-Le travail restant concerne le gel du protocole corrigé, son run confirmatoire
-unique, le rescellement du vérificateur, la synchronisation de la documentation
-et de l’audit, puis l’intégration contrôlée dans `main`. La Gate L et la partie
-Lean de la Gate M restent fermées.
+Le travail restant concerne la synchronisation finale de la documentation, de
+l’audit et du manifeste, puis l’intégration contrôlée dans `main`.
 
 ## 3. Invariants non négociables
 
@@ -560,8 +555,8 @@ déjà construits.
 | réalisation transformer | `TransformerRealization.lean` et `TransformerDynamics.lean` | instance finie construite et testée ; aucune garantie automatique issue du Cycle 1 |
 | invariant gouverné atteignable | `GovernedDynamics.lean` | démontré sur l’instance finie pour tout `n : Nat` par préservation à un pas et itération existante |
 | transformation admissible | `GovernedDynamics.lean` | contrats séparés et transports explicites de l’adéquation, de l’exécution, des actions et certificats |
-| raffinement exécutable–formel | `ExecutableRefinement.lean` puis vérificateur à resceller | relation formelle exacte sur la frontière discrète ; contrôle exécutable à produire après le run confirmatoire gelé, sans formaliser les flottants |
-| comportement empirique | protocole canonique unique | smoke test frais réussi ; résultat confirmatoire à régénérer seulement après commit du protocole corrigé |
+| raffinement exécutable–formel | `ExecutableRefinement.lean` et `verify_refinement_v1.py` | relation formelle exacte sur la frontière discrète ; contrôle exécutable validé séparément, sans formaliser les flottants |
+| comportement empirique | protocole canonique unique | run confirmatoire passé après le gel `a4b9a44`, réussi sur trois graines préengagées |
 
 Cette table doit être reprise dans les deux documents canoniques. Elle empêche à
 la fois de détacher l’application du Cycle 1 et d’attribuer au Cycle 1 des
@@ -1300,14 +1295,11 @@ rompue et ne déclenche aucun changement silencieux du protocole.
 - audit différé ;
 - rapport séparant faits, interprétation et limites.
 
-La Gate K est temporairement réouverte. La version canonique unique est corrigée
-en place avant intégration afin de séparer le corpus d’entraînement, la sonde de
-smoke test et la sonde confirmatoire fixée. Le smoke test ne doit jamais
-exécuter cette dernière avant le commit de gel. Aucun protocole parallèle n’est
-créé. L’ancien résultat reste
-récupérable dans l’historique Git mais ne peut plus servir de résultat du
-protocole corrigé. Le nouveau run confirmatoire ne sera exécuté qu’après commit
-du script et de la configuration définitifs.
+La Gate K est fermée. La version canonique unique sépare le corpus
+d’entraînement, la sonde de smoke test et la sonde confirmatoire fixée. Cette
+dernière n’a été exécutée qu’après le commit de gel `a4b9a44`. L’unique run
+confirmatoire a réussi sur les trois graines préengagées ; aucun protocole
+parallèle n’est conservé.
 
 ## 18. Lot L — Dynamique gouvernée à profondeur finie arbitraire
 
@@ -1474,11 +1466,10 @@ refuser :
   seconde avant le gel ;
 - un seul protocole canonique et un seul résultat confirmatoire correspondant.
 
-La partie Lean de la Gate M est fermée : `gateMCertificate` fournit le
-raffinement exact et ses séparateurs formels. Sa partie exécutable sera refermée
-quand le protocole canonique corrigé aura été commité, exécuté une fois en mode
-confirmatoire, puis contrôlé en lecture seule. Aucun parseur JSON n’est invoqué
-par Lean et aucun calcul flottant n’est promu au rang de théorème.
+La Gate M est fermée : `gateMCertificate` fournit le raffinement exact et ses
+séparateurs formels ; le vérificateur en lecture seule accepte les 24 traces du
+résultat gelé et rejette huit mutations négatives. Aucun parseur JSON n’est
+invoqué par Lean et aucun calcul flottant n’est promu au rang de théorème.
 
 ## 20. Phase scientifique ultérieure — hors gates internes
 
@@ -1572,9 +1563,9 @@ réutilisés, pas réécrits. Chaque nouveau commit doit fermer une unité véri
    l’audit et du manifeste ;
 7. suppression du présent plan dans la demande de fusion vers `main`.
 
-Le résultat confirmatoire corrigé ne sera exécuté qu’après commit du protocole
-canonique. Son ajout au dépôt formera un commit ultérieur distinct du gel du
-protocole ; aucune version parallèle ne sera conservée dans l’arbre publié.
+Le résultat confirmatoire corrigé a été exécuté après le commit de gel du
+protocole canonique. Son ajout au dépôt forme un commit ultérieur distinct ;
+aucune version parallèle n’est conservée dans l’arbre publié.
 
 Le plan temporaire peut apparaître dans l’historique de la branche de travail,
 mais sa suppression doit faire partie de la merge request vers `main` et il ne

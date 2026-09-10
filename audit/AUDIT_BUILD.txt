@@ -5,7 +5,8 @@ Audit date: 2026-09-10
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
 Release version: 2.0.0
 Audit scope: Cycle 1, Cycle 2, constitutive neural dynamics through arbitrary
-finite depth, strict fresh-probe acquisition, and discrete executable refinement
+finite depth, strict fresh-probe acquisition, discrete executable refinement,
+and the frozen finite numerical experiment
 Scientific-source identity: MANIFEST.sha256
 
 This repository contains every source and configuration file required for the
@@ -73,8 +74,8 @@ Strict fresh-probe gate
 
 No field of this certificate is discharged by an external assumption.
 
-Pre-freeze numerical checks
----------------------------
+Numerical protocol and source freeze
+------------------------------------
 
 Smoke command:
 
@@ -95,16 +96,66 @@ Four pre-training negative mutations were also checked and rejected: an
 incorrect training-set binding, an identifier collision, a held-out probe
 duplicating the training view, and identical smoke and confirmatory selectors.
 
-This smoke test is explicitly non-confirmatory. The corrected canonical script
-and configuration must first be frozen in a commit. Only then may the unique
-confirmatory result be generated, followed by its hash-pinned read-only
-verifier and bilingual reports. The earlier result and verifier were removed
-because they corresponded to a protocol without the required strict split.
+The smoke test was explicitly non-confirmatory. It did not execute the
+confirmatory probe. The corrected canonical script and configuration were then
+frozen in commit:
+
+  a4b9a44
+
+Frozen hashes:
+
+  Script:        ab27a54ae7cf62a5c5f9dbb4d6ef3f6db6eb214db606498884d976df780eb04d
+  Configuration: 008993ba6a21e5e9731869e1dbf4f16edc1ffa29c380486e738e9b26516241c0
+  Complete data: 3ae9c050758295f2f56bd3e216d48241f51b3ee48544b50eb4f18b1c9f003f08
+  Training set:  4a2a43bd7888355d26c888f795c6719bd7d5553e1c15ab4372ff19d7bc8f8ae0
+  Probe policy:  28822c4762958997f8da6c5d18121b896f6fac650e1030e39b23ea7d4343fd57
+
+Confirmatory run
+----------------
+
+Command:
+
+  python experiment/protocol_v1.py --mode confirmatory --config experiment/protocol_v1.json --output experiment/results/confirmatory_v1.json
+
+Results:
+
+  Exit code: 0
+  Confirmatory executions: 1
+  Selected probe role: confirmatory
+  Selected probe: confirmatory-0, ordinal 1
+  Seeds passed: 3 / 3 (11, 29, 47)
+  Primary traces recorded: 24
+  Deferred audits passed: 3 / 3
+  Primary traces unchanged by audit: yes
+  Reference-result SHA-256: e483c0e0a046e2f81b03b043be956ad575f972e9ffb1b756c53eda3b9896928c
+
+This is a finite numerical observation, not an additional Lean theorem.
+
+Read-only executable-boundary verification
+------------------------------------------
+
+Command:
+
+  python experiment/verify_refinement_v1.py --script experiment/protocol_v1.py --config experiment/protocol_v1.json --result experiment/results/confirmatory_v1.json
+
+Results:
+
+  Exit code: 0
+  Frozen runs accepted: 3 / 3
+  Primary traces accepted: 24 / 24
+  Frozen hashes matched: yes
+  Confirmatory probe identity and role matched: yes
+  Negative mutations rejected: 8 / 8
+  Training rerun or artifact write: no
+
+Lean separately proves the canonical `TraceRefinement` relation and its
+negative separators. Lean does not parse the JSON result, and no floating-point
+observation is promoted to a theorem.
 
 Manifest verification
 ---------------------
 
-The pre-freeze scientific-source manifest was verified successfully with both
+The final scientific-source manifest was verified successfully with both
 Windows commands:
 
   pwsh -NoProfile -File scripts/verify-manifest.ps1
@@ -126,7 +177,5 @@ Or on Windows:
 
   powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-This record describes the source candidate before its confirmatory freeze.
-After the source-freeze commit and confirmatory run, the audit and manifest must
-be extended with the immutable result, verifier, bilingual reports, exact
-hashes, commands, and observed outcomes.
+The authoritative check consists in rerunning these commands with the pinned
+toolchain on the repository contents matched by MANIFEST.sha256.

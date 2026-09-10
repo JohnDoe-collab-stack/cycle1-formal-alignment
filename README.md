@@ -184,8 +184,8 @@ failure of the independent norm.
   instance with governed invariants at every finite depth.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Finite experimental protocol](experiment/README.md) — precommitted numerical
-  protocol with separate smoke and confirmatory probes; its replacement
-  confirmatory run is pending the source-freeze commit.
+  protocol with separate smoke and confirmatory probes, an immutable
+  confirmatory result, and read-only verification.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
 
@@ -214,8 +214,9 @@ French counterparts are linked from the top of every scientific document.
   executable refinement.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
-- [`experiment/`](experiment) contains the single numerical protocol; its
-  observations remain separate from the Lean theorems.
+- [`experiment/`](experiment) contains the single numerical protocol, immutable
+  result, and read-only verifier; its observations remain separate from the
+  Lean theorems.
 
 No Cycle 1 module imports Cycle 2.
 
