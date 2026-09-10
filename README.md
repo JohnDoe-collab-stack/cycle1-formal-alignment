@@ -181,7 +181,7 @@ failure of the independent norm.
 - [Constitutive neural architecture for relative alignment](docs/en/constitutive_transformer_alignment.md)
   — constructive contracts for causal memory, governed effectuation,
   succession, neural realization, and a finite hard-attention transformer
-  instance that consumes its own proposed relation.
+  instance with exact two-cycle feedback and normative confinement.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
@@ -206,7 +206,7 @@ French counterparts are linked from the top of every scientific document.
 - [`ConstitutiveAlignment/`](ConstitutiveAlignment) builds the abstract machine,
   causal memory, certified effectuation, typed failures, succession, one-step
   learning causality, reflective bridge, finite reference model, and neural and
-  transformer realization contracts.
+  transformer realization contracts and finite transformer dynamics.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
 
@@ -233,7 +233,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles all three Lake libraries, audits 454 declarations through
+The pinned build compiles all three Lake libraries, audits 468 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).

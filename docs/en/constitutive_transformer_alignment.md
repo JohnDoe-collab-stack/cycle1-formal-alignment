@@ -325,8 +325,14 @@ The relevant horizon is structural rather than token-count based. A long token
 sequence may break early at the structural level, while a compressed sequence
 may remain faithful if the required relations are transported.
 
-Transformer multicycle autonomy is not yet established in this repository. It
-remains a separate formal and experimental obligation.
+`TransformerDynamics.lean` instantiates the same discipline on the finite
+hard-attention core. One uniform operator runs with the same learned weights,
+incorporates the produced proposal as the next relation, and runs again on that
+produced view. A dedicated ablation keeps tokens, cache, memory, budget, core,
+and weights fixed while omitting only this incorporation; both the second
+prediction and the second proposal then change. This establishes finite
+two-cycle autonomy in the declared model. Trained-network and unbounded-horizon
+autonomy remain separate formal and experimental obligations.
 
 ## 10. Neural realization
 
@@ -390,10 +396,21 @@ Memory is established within a scope when states fused by memory are
 indistinguishable under every declared question. Compression without that
 certificate remains an implementation hypothesis.
 
+The finite transformer memory is exact for both hard-attention queries and is
+preserved by relation incorporation. Its summary retains the two values needed
+by those futures while excluding the technical focus address.
+
 A relative hallucination may be defined as a constructed and faithfully
 realized candidate whose autonomous norm is refuted. The definition is relative
 to the explicitly selected norm. It does not turn every regime exit or every
 linguistic error into a hallucination.
+
+The finite relative-hallucination witness contains one and the same candidate,
+its constructed history, faithful injective realization, preserved rejected
+proposal, and refutation of the autonomous norm. The candidate is exactly the
+operational and normative exit, and its corresponding governed action cannot
+be effectuated. Internal construction is preserved; only certified external
+effect is confined.
 
 The target witness retains on the same candidate:
 
@@ -424,7 +441,8 @@ The new modules follow their dependency order:
 | `ReflectiveMachine.lean` | machine instance of exact representation and non-closure | proved |
 | `ReferenceModel.lean` | one integrated finite certificate from histories and adequacy to causal succession, governed action, linked cycles, and reflective exit | proved |
 | `NeuralRealization.lean` | neural fidelity contract and deferred audit | defined and proved on a finite instance |
-| `TransformerRealization.lean` | transformer contract, hard attention, proposed-relation consumption, and parent–learned intervention | finite one-step gate proved; multicycle open |
+| `TransformerRealization.lean` | transformer contract, hard attention, proposed-relation consumption, and parent–learned intervention | finite one-step gate proved; multicycle developed in `TransformerDynamics.lean` |
+| `TransformerDynamics.lean` | exact attention memory, uniform two-cycle feedback, intercycle ablation, relative normative break, and confinement | proved on the finite hard-attention instance |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -486,11 +504,15 @@ The repository currently proves:
 - a transformer realization interface and finite hard-attention one-step
   instance whose learned proposal is consumed as the next relation, with active
   relation, inert control, address-renaming invariance, and an exact bridge to
-  the reference-model exit, norm, and governed action.
+  the reference-model exit, norm, and governed action;
+- finite two-cycle transformer dynamics under one uniform operator and fixed
+  learned weights, with exact proposal-to-relation feedback, exact attention
+  memory, a dedicated intercycle ablation, and confined relative normative
+  failure.
 
 The repository does not yet prove:
 
-- multicycle autonomy of a transformer realization;
+- multicycle autonomy of a trained or unbounded transformer realization;
 - faithful realization by a trained network and its actual tensors;
 - a reproducible experimental prototype satisfying every gate;
 - an empirical result about linguistic hallucinations.

@@ -184,7 +184,8 @@ directe d'échec de la norme indépendante.
 - [Architecture neuronale constitutive pour l’alignement relatif](docs/fr/alignement_constitutif_transformers.md)
   — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
   la succession, la réalisation neuronale et une instance transformer finie à
-  attention dure qui consomme sa propre relation proposée.
+  attention dure avec rétroaction exacte sur deux cycles et confinement
+  normatif.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
@@ -211,7 +212,8 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`ConstitutiveAlignment/`](ConstitutiveAlignment) construit la machine
   abstraite, la mémoire causale, l’effectuation certifiée, les échecs typés, la
   succession, la causalité d’apprentissage à un pas, le pont réflexif, le modèle
-  de référence fini et les contrats de réalisation neuronale et transformer.
+  de référence fini, les contrats de réalisation neuronale et transformer et la
+  dynamique transformer finie.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
 
@@ -238,7 +240,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les trois bibliothèques Lake, audite 454
+La compilation épinglée construit les trois bibliothèques Lake, audite 468
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans

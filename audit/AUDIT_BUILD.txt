@@ -33,12 +33,12 @@ Results:
   Exit code: 0
   Build completed successfully: yes
   Warnings: 0
-  Axiom audit declarations: 454
+  Axiom audit declarations: 468
   Unexpected axiom lines: 0
 
-The fifteen declaration-bearing Lean modules contain the axiom-reporting
+The sixteen declaration-bearing Lean modules contain the axiom-reporting
 declarations used by the build; `Cycle2.lean` and `ConstitutiveAlignment.lean`
-are public aggregators. Every one of the 454 reports states that the named
+are public aggregators. Every one of the 468 reports states that the named
 declaration does not depend on any axioms.
 
 Source-policy scan
@@ -64,7 +64,7 @@ c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmen
 c1ece0bc5d8d39a53a8149c3e753214abdb1f2d290a3e339aac131cd3ba44b2f  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-022e886f6d1f43781e20d5a3f9733837816eacad1dca0be103fe4f210c2c02e3  ConstitutiveAlignment.lean
+c3053603504f24b42b9a394dcdf8768d156fe1d89031b66a96f31aa16bf8771e  ConstitutiveAlignment.lean
 ee1c04021d7a9762d0801a6bbac2e8b8abfed0d3daebcb6ff879f6302ec00bde  ConstitutiveAlignment/CausalMemory.lean
 bf56380d07a2d60dcfe67b584c24f27bb08d9d347894b0e0e0d2cb79a4ff964c  ConstitutiveAlignment/LearningCausality.lean
 f096d8da1b53695317573c7d811fcc8290f9f17ba489c9f4d6f3c9afca399b73  ConstitutiveAlignment/Machine.lean
@@ -74,6 +74,7 @@ fa1be673d11e4d380eeea34523bc3206e6b7adf4a3d13a6775e908df09ac3092  ConstitutiveAl
 f5fdba157ad55fe0ebe7222fde52a124d3de15bd7104c3ba28080368f2c5892e  ConstitutiveAlignment/ReferenceModel.lean
 20072c6a3f392180154792fdab05da4093cbf9ecb04ee6c76a51edf9608b3688  ConstitutiveAlignment/ReflectiveMachine.lean
 cdaab12e4c4d35ccaa0a45d0185ce12a9a3091e41136d340ca122d9df5fc55c6  ConstitutiveAlignment/Succession.lean
+1d622d9751b2c5d3958f0eaa5ecc93983d9c0dcfc56324c5f926fd6548aa0308  ConstitutiveAlignment/TransformerDynamics.lean
 678db423c270b014c229ae1d977916dcdd41018b727b3446c074d6ec083afcfa  ConstitutiveAlignment/TransformerRealization.lean
 6a5acec1f61d313ce65fea5f18a8d894d0e539ea746ead635d36c9b2da6c255b  docs/fr/alignement_relatif.md
 52043f423367bc4747448d031b507aabfed81d8d49a0f53e5158de529781ee70  docs/en/relative_alignment.md
@@ -83,8 +84,8 @@ eb2ee470b7fa839c57e609742ea9ecc9f3f8f1f69dbfd9b742145cdc7413919c  docs/fr/method
 acf6a27e56ea000148373b922cd60d390bf354d97ce2f648c25921b7ead31f6f  docs/en/relational_constitutive_roles_method.md
 15612509045be91cd0cc28d7d30cbd92a6c026f12740693f7c44fbb9a3366e7e  docs/fr/alignement_reflexif.md
 6541b17b52b7b08c7163a8e702c183f1d2693dad5f32cc86ea2f791daa15b3e9  docs/en/reflective_alignment.md
-d6b3f5630b3d0ce043a73bbed0b6f5e6caf3eeea4f0a4992e3f8aa5180cd564e  docs/fr/alignement_constitutif_transformers.md
-ea493bb262bd66da456d7a3d5c8dadd7a4fef51f6c18198e50f366f47e2c1361  docs/en/constitutive_transformer_alignment.md
+aedcb206c8ffee1d8069a3ad7e1ebdb80a7a738a68c8f8c2edf288c02b1c83ff  docs/fr/alignement_constitutif_transformers.md
+e30602d28590a8c31708e8f40fa2e37c2b57b26f17f463ece2cc23dcc0dd917a  docs/en/constitutive_transformer_alignment.md
 
 Manifest verification
 ---------------------
