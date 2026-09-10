@@ -30,6 +30,8 @@ dependency audits.  Further layers are added in dependency order.
 #print axioms ConstitutiveAlignment.NeuralExamples.intervention
 #print axioms ConstitutiveAlignment.TransformerExamples.oneStepIntervention
 #print axioms ConstitutiveAlignment.TransformerExamples.causalSuccession
+#print axioms ConstitutiveAlignment.TransformerExamples.proposedRelationConsumption
+#print axioms ConstitutiveAlignment.TransformerExamples.finiteGateICertificate
 #print axioms ConstitutiveAlignment.TransformerExamples.predictionInvariant_underAddressRenaming
 #print axioms ConstitutiveAlignment.TransformerExamples.acceptedLearnedProposal_isPreserved
 /- AXIOM_AUDIT_END -/

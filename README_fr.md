@@ -204,8 +204,8 @@ directe d'échec de la norme indépendante.
   représentation exacte, diagonalisation et non-clôture globale.
 - [Architecture neuronale constitutive pour l’alignement relatif](docs/fr/alignement_constitutif_transformers.md)
   — contrats constructifs pour la mémoire causale, l’effectuation gouvernée,
-  la succession, la réalisation neuronale et une instance transformer finie
-  d’un pas.
+  la succession, la réalisation neuronale et une instance transformer finie à
+  attention dure qui consomme sa propre relation proposée.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
@@ -263,7 +263,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les trois bibliothèques Lake, audite 444
+La compilation épinglée construit les trois bibliothèques Lake, audite 454
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
