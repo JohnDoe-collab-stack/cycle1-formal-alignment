@@ -33,7 +33,8 @@ constitution, de conservation et de sortie.
 
 Cette thèse ne dépend pas d’une promesse empirique. Le dépôt fournit déjà son
 socle structurel ; les contrats et instances propres à la machine neuronale sont
-le programme constructif défini dans ce document.
+construits en Lean, tandis que l’observation numérique finie et toute
+généralisation à un réseau entraîné restent identifiées séparément.
 
 ## 2. Résultats formels de départ
 
@@ -328,8 +329,8 @@ Cette chaîne respecte la distinction entre apprentissage et succession : le
 premier cause une prédiction qui participe à la proposition suivante ; il ne se
 confond pas avec l’incorporation ni avec le régime successeur.
 
-Le résultat à un pas est une condition nécessaire de la machine recherchée. Il
-ne démontre pas encore l’autonomie multicycle.
+Le résultat à un pas est une condition nécessaire de la machine recherchée. À
+lui seul, il ne démontre pas l’autonomie multicycle.
 
 ## 9. Succession constitutive et horizon long
 
@@ -521,6 +522,7 @@ Les nouveaux modules sont ordonnés par dépendance :
 | `NeuralRealization.lean` | contrat de fidélité neuronale et audit différé | défini et démontré sur une instance finie |
 | `TransformerRealization.lean` | contrat transformer, attention dure, consommation de la relation proposée et intervention parent–appris | gate finie à un pas démontrée |
 | `TransformerDynamics.lean` | mémoire exacte d’attention, rétroaction uniforme sur deux cycles, ablation intercycle, rupture normative relative et confinement | démontré sur l’instance finie à attention dure |
+| `experiment/protocol_v1.py` | prototype numérique à attention softmax, apprentissage, traces immuables, contrôles et audit différé | run confirmatoire observé sur trois graines préengagées |
 
 La façade `ConstitutiveAlignment.lean` importe les feuilles de ce graphe. Les
 fichiers existants du Cycle 1 et du Cycle 2 restent l’autorité formelle ; les
@@ -552,7 +554,7 @@ et une norme indépendants, une paire parent–appris contrôlée, une branche
 rejetée, une succession exacte et deux cycles dont le second dépend réellement
 de l’état produit par le premier.
 
-Le protocole neuronal doit ensuite vérifier au minimum :
+Le protocole numérique figé vérifie :
 
 - absence de cible interdite dans la vue neuronale ;
 - identité entre prédiction produite et entrée constitutive consommée ;
@@ -604,11 +606,17 @@ Le dépôt démontre actuellement :
   relation, mémoire d’attention exacte, ablation intercycle dédiée et rupture
   normative relative confinée.
 
+Séparément de ces théorèmes, le protocole numérique v1 figé observe sur les
+trois graines préengagées que son paramètre prédictif scalaire entraîné modifie
+la proposition, que la première proposition apprise devient la relation du
+second cycle, que l’ablation intercycle modifie la seconde proposition et que
+l’audit différé laisse chaque trace primaire scellée inchangée. Le résultat JSON
+immuable et son rapport bilingue se trouvent dans `experiment/`.
+
 Le dépôt ne démontre pas encore :
 
 - l’autonomie multicycle d’une réalisation transformer entraînée ou non bornée ;
 - une réalisation fidèle par un réseau entraîné et ses tenseurs effectifs ;
-- un prototype expérimental reproductible satisfaisant toutes les gates ;
 - un résultat expérimental sur les hallucinations linguistiques.
 
 Ces éléments restent des obligations ordonnées, pas des conclusions

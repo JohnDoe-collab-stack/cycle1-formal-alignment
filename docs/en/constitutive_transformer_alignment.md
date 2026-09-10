@@ -32,8 +32,8 @@ preservation, and exit.
 
 This thesis is not grounded in an empirical promise. The repository already
 provides its structural base. The machine-specific contracts and finite
-instances are constructed in Lean; trained-network and experimental claims
-remain separately identified.
+instances are constructed in Lean; the finite numerical observation and every
+trained-network generalization remain separately identified.
 
 ## 2. Starting formal results
 
@@ -286,8 +286,8 @@ reason, and a constructed learned succession. A constant-proposal separator
 shows that changed predictions alone do not establish influence on the
 proposal.
 
-This one-step result is a necessary condition of the target machine. It is not
-a proof of multicycle autonomy.
+This one-step result is a necessary condition of the target machine. By itself,
+it is not a proof of multicycle autonomy.
 
 ## 9. Constitutive succession and long horizon
 
@@ -443,6 +443,7 @@ The new modules follow their dependency order:
 | `NeuralRealization.lean` | neural fidelity contract and deferred audit | defined and proved on a finite instance |
 | `TransformerRealization.lean` | transformer contract, hard attention, proposed-relation consumption, and parent–learned intervention | finite one-step gate proved; multicycle developed in `TransformerDynamics.lean` |
 | `TransformerDynamics.lean` | exact attention memory, uniform two-cycle feedback, intercycle ablation, relative normative break, and confinement | proved on the finite hard-attention instance |
+| `experiment/protocol_v1.py` | numerical softmax-attention prototype, training, immutable traces, controls, and deferred audit | confirmatory run observed on three precommitted seeds |
 
 The `ConstitutiveAlignment.lean` facade imports the leaves of this graph. Cycle
 1 and Cycle 2 files remain the formal authority; the new modules construct
@@ -467,12 +468,12 @@ abstract machine
 → reproducible experimental protocol
 ```
 
-The neural protocol must eventually check at least: absence of forbidden
-targets from the neural view; identity between produced and consumed
-prediction; proposal change under the parent–learned intervention; consumption
-of the true successor state; intercycle ablation; preservation of invalid
-candidates; immutable traces and causally silent audit; and controls, seeds,
-and criteria fixed before confirmatory runs.
+The frozen numerical protocol checks absence of forbidden targets from the
+neural view; identity between produced and consumed prediction; proposal change
+under the parent–learned intervention; consumption of the true successor state;
+intercycle ablation; preservation of invalid candidates; immutable traces and
+causally silent audit; and controls, seeds, and criteria fixed before its
+confirmatory run.
 
 A failed gate remains a localized result. It may not be bypassed through a
 silent protocol change or an implicit weakening of the claim.
@@ -510,11 +511,17 @@ The repository currently proves:
   memory, a dedicated intercycle ablation, and confined relative normative
   failure.
 
+Separately from these theorems, the frozen numerical protocol v1 observes on
+all three precommitted seeds that its trained scalar predictive parameter
+changes the proposal, that the first learned proposal is consumed as the second
+relation, that intercycle ablation changes the second proposal, and that the
+deferred audit leaves each sealed primary trace unchanged. The immutable JSON
+result and bilingual report are stored in `experiment/`.
+
 The repository does not yet prove:
 
 - multicycle autonomy of a trained or unbounded transformer realization;
 - faithful realization by a trained network and its actual tensors;
-- a reproducible experimental prototype satisfying every gate;
 - an empirical result about linguistic hallucinations.
 
 These remain ordered obligations, not anticipated conclusions. The boundary
