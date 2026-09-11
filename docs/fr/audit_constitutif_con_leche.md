@@ -654,6 +654,57 @@ comparaison ne contient aucune construction interdite, porte le SHA-256
 et son audit axiomatique rapporte à nouveau seulement les trois dépendances
 héritées de ConLeche.
 
+L'audit ι a ensuite été lancé indépendamment des interfaces δ et β, sans
+anticiper de capacité commune. `OperationalOccurrence` conserve l'occurrence
+exacte exposée par `iotaRec_inv`, puis `FiredRuleSelection` ne retient que le
+récursionneur stocké, la règle effectivement sélectionnée et le fait qu'elle
+se déclenche. `recRuleLaw_of_selection` marque séparément l'entrée de
+`RecRules`, tandis que `SemanticConsequence` et `ContinuationCertificate`
+distinguent la loi sémantique du résultat des garanties nécessaires à la
+poursuite du calcul.
+
+Le premier test `.plain` construit un environnement explicite muni d'un vrai
+témoin `B0W`. Un récursionneur stocké y possède une règle opérationnellement
+admissible dont le RHS est `PUnit PUnit.unit`. `badPlainRun` démontre que
+`iotaRecFueled` sélectionne et exécute réellement cette règle en mode
+`verified`. `badContinuationCertificate` établit indépendamment que le réduit
+est bien scopé, fermé, borné dans ses feuilles et compatible avec le contexte
+vide. La continuation ne manque donc pas.
+
+La loi sémantique, en revanche, ne se reconstruit pas. `badRhsReading` fixe la
+lecture exacte du RHS. `badRhsHeadWellDenoted` et
+`badRhsArgumentWellDenoted` montrent que ses deux constituants sont chacun
+bien dénotés. Mais `badRhsHeadNotInPi` réfute, pour tout `v`, `A` et `B`,
+l'appartenance de la lecture de `PUnit` à `piR v A B` : au niveau zéro un
+habitant devrait être `pt`, tandis qu'au niveau positif il devrait être un
+graphe, ce que `unitSet` ne peut être. `badRhsApplicationFrameFails` en déduit
+l'impossibilité du paquet relationnel partagé exigé par `WellDenoted_app`, sans
+consommer ni l'appartenance de l'argument au domaine ni la condition de niveau
+zéro.
+
+Ainsi `badPlainRhsWellDenotedFails`, `badRecRulesFails` et
+`badPlainOperationalSemanticSeparator` établissent ensemble :
+
+```text
+B0W + sélection .plain + exécution ι réelle + continuation
+        ↛
+bonne dénotation du RHS sélectionné.
+```
+
+La première coupure interne est relationnelle : la validité individuelle des
+constituants ne détermine pas leur composabilité sémantique. Ce séparateur ne
+montre pas que les autres clauses de `WellDenoted_app` sont inutiles en
+général, ne traite pas encore `.nested` et ne revendique pas l'atteignabilité
+de son environnement depuis l'environnement initial. Les deux fichiers ι
+recompilent contre le commit ConLeche épinglé et portent respectivement les
+SHA-256
+`dd4b0f4dd7853eb637d19b350d0375f288f6607d399a0ab9901d8c3e40f24449`
+et
+`4d91808724ed2b25b030032fe8d0795a04d51c2a5d4ae02efc7c9a5c48a5ddbe`.
+Ils ne contiennent ni `sorry`, ni `axiom` explicite, ni `Classical`, ni
+`native_decide`; leurs audits rapportent seulement `propext`,
+`Classical.choice` et `Quot.sound`, hérités de ConLeche.
+
 Ces résultats ne portent pas encore sur toutes les familles de jugements
 sémantiques, ne caractérisent aucune relation minimale et ne justifient aucune
 persistance dans `B1`. Ils ne montrent ni que `AcvalDefnInst` peut être remplacé
@@ -978,6 +1029,14 @@ La partie Lean démontre constructivement :
   construisent toujours une seed d'occurrence concordante et sa projection
   commune, ce qui exclut un séparateur transport-commun-sans-seed dans cette
   classe sans affirmer que le seul prédicat commun reconstruit la seed ;
+- une factorisation ι indépendante séparant l'occurrence opérationnelle, la
+  sélection de la règle stockée, la loi sémantique fournie par `RecRules` et le
+  certificat de continuation ;
+- un séparateur `.plain` sur une exécution réelle de `iotaRecFueled` : le témoin
+  `B0W` et toutes les garanties de continuation sont construits, les deux
+  constituants du RHS sont bien dénotés, mais la lecture de sa tête n'appartient
+  à aucun `piR`, ce qui réfute le frame applicatif partagé, la bonne dénotation
+  du RHS et la loi `RecRules` correspondante ;
 - la composition sans effacement des occurrences intermédiaires ;
 - un séparateur d’origine réutilisant le noyau du Cycle 1 ;
 - la suffisance de la couverture et de la conservation des contre-exemples ;
