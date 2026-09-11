@@ -4,19 +4,39 @@
 
 Ce document est un document de chantier temporaire.
 
-Il organise l’ajout de deux résultats distincts :
+Il organise trois lignes de résultats distinctes :
 
 1. un audit externe reproductible du dépôt avec ConLeche en mode `--verified` ;
-2. une étude constitutive de la frontière entre le source Lean et l’objet effectivement présenté au checker.
+2. une étude constitutive de la provenance et de la chaîne interne menant de
+   l’acceptation à `no False` ;
+3. l’étude, encore ouverte, d’un remplacement relatif de l’hypothèse globale de
+   chaîne d’univers par une réalisation finie indexée par les demandes
+   effectivement constituées.
 
 Il doit être supprimé dans la pull request ou merge request qui intégrera le
 chantier dans `main`. Il ne fait pas partie des livrables scientifiques finaux.
 
-La branche de chantier `codex/con-leche-constitutive-audit` a été créée depuis
-`codex/constitutive-transformer` au commit `794b818`. Elle dépend donc de ce
-socle tant que celui-ci n’a pas été intégré à `main`. Avant la merge request
-finale, vérifier explicitement que sa base contient ce commit et tous les
-résultats scientifiques attendus.
+Le premier état formalisé du chantier est gelé au commit `d296630`. L’analyse β
+et sa comparaison postérieure avec δ sont documentées au commit `e567f09`.
+L’analyse indépendante de la branche ι `.plain` est documentée au commit
+`4c285c6`. Le travail courant se poursuit sur
+`codex/con-leche-beta-audit`. Avant la merge request finale, vérifier
+explicitement que la branche contient ces trois jalons et tous les résultats
+scientifiques attendus.
+
+### État scientifique au présent commit
+
+- le noyau générique de candidature, ombre propositionnelle, stabilité
+  historique, reconstruction locale et séparateurs est stabilisé dans le dépôt ;
+- la slice terminale de `no False` est distinguée de l’invariant inductif
+  transporté par le fold ;
+- δ constitue le cas de référence gelé ;
+- β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
+  vers la même préservation gardée des appartenances ;
+- ι a été lancé indépendamment : le cas `.plain` possède un séparateur réel,
+  mais `.nested` et la comparaison postérieure restent ouverts ;
+- aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
+  démontrée.
 
 ## 1. Principe scientifique
 
@@ -60,7 +80,7 @@ ne construit pas, à lui seul,
 FaithfullyFormedFrom source presented.
 ```
 
-## 2. Deux lignes de travail indépendantes
+## 2. Trois lignes de travail à statuts indépendants
 
 ### Ligne A — audit externe
 
@@ -86,10 +106,38 @@ occurrence source
 ```
 
 Chaque flèche doit porter un témoin de fidélité propre. L’acceptation terminale
-et la fidélité amont restent deux certificats séparés.
+et la fidélité amont restent deux certificats séparés. À l’intérieur du checker,
+la même discipline distingue en outre :
 
-La Ligne A peut être fermée même si la Ligne B demeure ouverte. Aucun succès de
-l’une ne doit être présenté comme un succès de l’autre.
+```text
+constitution par un producteur
+  → capacité exportée
+  → jugement effectivement consommé
+```
+
+La slice terminale suffisante pour `no False` ne doit jamais être confondue avec
+sa fermeture inductive sous `DeclRun`.
+
+### Ligne C — réduction relative de l’hypothèse d’univers
+
+```text
+demandes d’univers concrètement évaluées
+  → histoire finie de leurs occurrences sémantiques
+  → clôture finie des niveaux de support requis
+  → réalisation par une tour finie
+  → transport des obligations nécessaires à no False
+```
+
+Cette ligne n’a pas pour point de départ un entier `k` choisi ou calculé par une
+analyse syntaxique globale. Le niveau numérique est une lecture tardive de
+l’histoire de support obtenue. L’histoire des usages et l’histoire des niveaux
+de support restent distinctes : plusieurs usages peuvent partager un niveau,
+tandis qu’un seul usage à un niveau élevé peut exiger plusieurs étapes de
+support.
+
+La Ligne A peut être fermée même si les Lignes B ou C demeurent ouvertes. La
+Ligne B peut produire des factorisations et séparateurs sans fermer la Ligne C.
+Aucun succès d’une ligne ne doit être présenté comme un succès d’une autre.
 
 ### Carte de couverture
 
@@ -109,22 +157,47 @@ Le chantier ne doit pas créer un second formalisme général de constitution.
 
 Il doit d’abord réutiliser :
 
-- `StrongPerimetralTurning.History` pour les histoires proof-relevant lorsque
-  son carrier homogène convient naturellement ;
+- `SegmentedResidualRole.ExactInternalRealization` pour les correspondances
+  exactes rôle ↔ occurrence et leurs deux aller-retour ;
+- `SegmentedResidualRole.FaithfulExtension` et
+  `SegmentedResidualRole.UniqueResidualOccurrence` pour l’extension positive et
+  l’unicité du résidu ;
+- `AbstractSegmentedTurning.BoundaryGenerator`, `RegimeExit` et
+  `UniformRegimeExit` pour distinguer génération, sortie et uniformité ;
+- `StrongPerimetralTurning.History` et `RootedGeneratedHistory` pour les
+  histoires proof-relevant ;
+- `StrongPerimetralTurning.NormativeAdequacy` pour l’accord exact entre régime
+  et norme autonome ;
+- `StrongPerimetralTurning.perimeterDeployment`, les deux sens
+  `requirementToOccurrence` / `occurrenceToRequirement` et leurs aller-retour
+  pour l’individuation exacte du périmètre ;
+- `StrongPerimetralTurning.oneStepAfterPerimeter` et
+  `ConcreteContinuationAlgebra` pour une continuation positive effectivement
+  construite ;
+- `StrongPerimetralTurning.ExactHistoryInterpretation` pour le transport exact
+  des occurrences vers une réalisation concrète ;
 - `ConstitutiveAlignment.InjectiveMap` et `InjectiveMap.trans` pour la
   conservation des distinctions d’occurrences ;
 - les transports d’occurrences déjà prouvés dans le Cycle 1 ;
 - `ConstitutiveAlignment.Separators.noFaithfulTerminalOnlyRealization` comme
   séparateur générique déjà acquis entre lecture terminale et réalisation fidèle.
 
-Pour les quatre carriers hétérogènes du pipeline, une petite structure locale
+`History.length` est une lecture numérique dérivée tardivement ; elle ne doit
+jamais remplacer l’histoire ni servir à postuler sa hauteur avant construction.
+
+Pour les carriers hétérogènes du pipeline, une petite structure locale
 est admise si l’encodage dans `History` exige une somme artificielle ou masque les
 types. Cette structure doit alors être un adaptateur spécialisé, pas un nouveau
 noyau concurrent.
 
+Le noyau structurel ne doit être modifié que si une obligation concrète,
+rencontrée dans une preuve ConLeche réelle, ne peut pas être exprimée par ses
+interfaces actuelles. Toute extension doit rester générique et être justifiée
+par un séparateur ou une factorisation positive, jamais par anticipation.
+
 ## 4. Portée exacte des résultats
 
-### Démontré dans Lean
+### Démontré dans le dépôt Lean
 
 - les relations de fidélité sont distinctes des fonctions de transformation ;
 - leurs témoins se composent explicitement ;
@@ -132,6 +205,17 @@ noyau concurrent.
 - une substitution déterminée est rejetée par le certificat de fidélité ;
 - un verdict peut être rapporté au source uniquement dans la portée transportée
   par les témoins disponibles.
+
+### Recompilé séparément contre ConLeche épinglé
+
+- la projection terminale `EnvModelM → TerminalSlice → no False` ;
+- les séparateurs et factorisations δ ;
+- l’analyse β indépendante et sa comparaison postérieure avec δ ;
+- le séparateur ι `.plain` jusqu’à l’échec relationnel de `headInPiR`.
+
+Ces preuves appartiennent au checkout de dissection externe. Leurs empreintes et
+leurs axiomes hérités sont rapportés dans les documents scientifiques ; elles ne
+sont pas présentées comme des modules constructifs importés par le dépôt.
 
 ### Vérifié extérieurement
 
@@ -146,20 +230,31 @@ noyau concurrent.
 - une preuve de fidélité de tout le frontend de ConLeche ;
 - une preuve que le binaire exécuté produit un terme Lean importable ;
 - une équivalence sémantique complète entre le source Lean et le NDJSON ;
-- une sécurité cryptographique ou matérielle de toute la chaîne.
+- une sécurité cryptographique ou matérielle de toute la chaîne ;
+- une construction interne, uniforme en `k`, d’une tour d’univers arbitraire ;
+- le fait qu’un flux syntaxique fini borne à lui seul toutes les valuations
+  `ψ : Name → Nat` quantifiées par `EnvModelM` ;
+- le remplacement actuel de `SetTheory.univChain` dans la preuve de
+  `fullyChecked_sound` ;
+- la minimalité absolue d’un invariant spécialisé pour `no False` ;
+- l’atteignabilité depuis l’environnement initial de tous les séparateurs
+  construits sur des témoins affaiblis.
 
 ## 5. Gate 0 — gel et compatibilité
 
-### État initial connu
+### État vérifié
 
 ```text
-dépôt local : Lean v4.33.1
-branche principale ConLeche observée lors de la préparation : Lean v4.33.0
+dépôt testé : 794b8185abba13eb4ab91f77a7c87fd1cd2d6ae0
+Lean du dépôt : v4.33.1 / 819816b2e0a3bf405af45ae5c7af2491d8f5bee6
+lean4export : 411dce7db58a3afc60ecab2d211acd1042b593dc
+ConLeche : 86cd20a65660d757cedc81561a44579099b565d0
+ConLeche construit avec Lean v4.33.0
 ```
 
-Cet état est un constat de préparation, pas un gel de version. Il doit être
-relevé à nouveau avec les commits exacts au début de l’implémentation. La
-différence observée interdit de supposer la compatibilité.
+La compatibilité pratique a été observée sur ce socle. Elle doit être vérifiée à
+nouveau sur le commit scientifique final ; le run antérieur ne vaut pas gel du
+résultat futur.
 
 ### Travaux
 
@@ -180,6 +275,8 @@ le toolchain exact du dépôt sans modification du noyau scientifique.
 
 Si aucune combinaison compatible n’existe, consigner la limite et suspendre les
 Gates 1 et 2. Ce résultat n’est pas un échec mathématique du dépôt.
+
+**Statut :** fermée pour le socle testé ; à reconfirmer sur le commit final.
 
 ## 6. Gate 1 — audit externe minimal
 
@@ -242,6 +339,10 @@ horodatage UTC
 Le résultat est classé `vérifié extérieurement` et `observé`. Il n’est pas
 classé `démontré dans Lean`.
 
+Deux runs exploratoires ont accepté respectivement `63916` et `64359`
+déclarations. Ils établissent la faisabilité du protocole, pas le résultat
+confirmatoire du commit final.
+
 Un `declined` doit être rapporté exactement comme une limite de couverture ou de
 compatibilité de ConLeche. Il ne doit pas être renommé en rejet mathématique du
 projet.
@@ -291,15 +392,18 @@ commit dans le modèle de menace déclaré. Elle n’en fait pas un théorème L
 ne prouve pas la préservation sémantique de toutes les transformations du
 frontend.
 
+**Statut :** le script de provenance exécutable est implémenté ; son exécution
+confirmatoire doit porter sur l’arbre final propre.
+
 ## 8. Gate 3 — noyau formel spécialisé du transport
 
-### Fichier envisagé
+### Fichier implémenté
 
 ```text
 ConstitutiveAlignment/VerificationTransport.lean
 ```
 
-### Interface minimale envisagée
+### Interface minimale implémentée
 
 ```lean
 structure VerificationPipeline where
@@ -392,6 +496,9 @@ Après fermeture, importer le module depuis `ConstitutiveAlignment.lean` et
 ajouter uniquement ses déclarations capstones au bloc d’audit final de la
 façade. Aucun nouveau root Lake n’est attendu.
 
+**Statut :** fermé dans le dépôt ; toute extension doit préserver l’unique bloc
+d’audit et la constructivité du module.
+
 ## 9. Gate 4 — séparateur constructif
 
 ### Objectif
@@ -422,6 +529,8 @@ reposer sur une négation classique ou une décision externe.
 Un cas fidèle et un cas substitutif compilent, sont audités, et exposent la même
 notion d’acceptation de l’objet présenté sans exposer le même certificat de
 provenance.
+
+**Statut :** fermé dans la portée locale annoncée.
 
 ## 9b. Gate 4b — alignement interne de ConLeche
 
@@ -454,89 +563,392 @@ La reconstruction locale reproduit la forme du contrat public de ConLeche ;
 elle n’importe pas son code et ne revendique pas un nouveau théorème sur son
 implémentation.
 
+**Statut :** fermé pour le modèle local ; la dissection du code réel relève de
+la Gate 5b.
+
 ## 10. Gate 5 — cas d’étude ConLeche réel
 
-### Cible initiale
+### Gate 5a — provenance et transport externe
 
-La première cible envisagée est la réécriture localisée d’une fonction de
-projection vers une forme utilisant un recursor.
+Le cas local de transformation du frontend est fermé dans la portée documentée :
+un cas fidèle, une substitution non fidèle et le rejet constructif de cette
+substitution sont raccordés au noyau de transport. Cela ne prouve pas la fidélité
+de tout `lean4export`, du parser ou du frontend de ConLeche.
 
-Elle n’est retenue définitivement qu’après lecture du code exact au commit
-épinglé.
-
-L’unité de l’étude doit être fixée avant la formalisation. Le candidat initial
-est une occurrence de déclaration située dans un flux ordonné, avec son nom, sa
-position et le contexte antérieur pertinent. Une expression isolée de son
-préfixe d’environnement ne suffit pas pour revendiquer une étude fidèle du cas
-réel.
-
-### Étapes obligatoires
-
-1. identifier la fonction amont exacte et ses types d’entrée/sortie ;
-2. inventorier les déterminations qu’elle prétend conserver ;
-3. déterminer ce qui est vérifié ensuite par le fold ;
-4. écrire une spécification locale minimale de fidélité ;
-5. reconstruire uniquement le fragment nécessaire dans le vocabulaire du dépôt ;
-6. produire un exemple fidèle ;
-7. produire une mutation non fidèle ;
-8. vérifier que le certificat rejette la mutation ;
-9. établir séparément la correspondance entre le fragment local et le
-   comportement amont observé ou prouvé.
-
-### Règle de revendication
-
-Sans correspondance établie avec l’implémentation épinglée, le résultat doit être
-présenté comme un modèle de la transformation documentée, pas comme une preuve
-portant sur l’implémentation complète de ConLeche.
-
-La Gate 5 ne couvre jamais implicitement les autres transformations du frontend.
-
-### Gate 5b — minimisation relative à `no False`
-
-La minimisation porte sur une famille finie de déterminations explicitement
-choisie pour le cas d’étude. Elle ne prétend pas trouver une structure minimale
-absolue parmi toutes les représentations possibles.
-
-Le transport négatif à établir a la forme suivante :
+Le transport négatif relatif à `no False` conserve deux obligations séparées :
 
 ```text
-chaque occurrence source de type False
-  → une occurrence présentée correspondante de type False
-
-aucune occurrence présentée de type False
-  → aucune occurrence source de type False
+couverture des occurrences pertinentes
++
+préservation des contre-exemples
+→
+no False présenté → no False source
 ```
 
-Il exige au moins deux obligations conceptuellement distinctes :
+Les séparateurs montrent que, dans la famille testée, aucune des deux capacités
+ne peut être simplement supprimée. Il s’agit d’une suffisance factorisée et de
+nécessités locales par séparateurs, pas d’une minimalité absolue.
 
-1. **couverture** : aucune déclaration source pertinente n’est omise ;
-2. **conservation des contre-exemples** : être une constante de type `False`
-   est transporté du source vers l’objet présenté.
+### Gate 5b — dissection interne de la garantie `no False`
 
-Le travail de minimisation doit ensuite :
+#### Cartographie exacte
 
-1. prouver que ces obligations suffisent au transport de `no False` ;
-2. tester séparément le retrait de chaque obligation ;
-3. construire un séparateur lorsqu’un retrait autorise un faux transport ;
-4. classer les autres déterminations étudiées — nom, position, préfixe, corps,
-   dépendances et syntaxe — comme nécessaires, dérivables ou oubliables
-   relativement à cette propriété précise ;
-5. ne déclarer une détermination inutile que si un théorème de transport reste
-   constructible sans elle.
+```text
+Cᵗ = EnvModelM
+     fournisseur sémantique riche
 
-La position et le préfixe peuvent être requis pour démontrer la couverture ou la
-conservation dans l’implémentation réelle sans appartenir à l’énoncé minimal
-abstrait. Cette différence entre donnée de preuve et dépendance logique du
-résultat doit rester visible.
+Cʷ = EnvModelOk
+     invariant effectivement transporté par le fold
 
-### Critère d’arrêt
+A  = TerminalSlice
+     slice terminale suffisante
 
-Réduire cette gate à une étude documentaire si sa fermeture exige :
+B0W
+   = témoin affaibli initial
+     composé de la slice et de la fermeture eta
+```
 
-- une copie substantielle du code de ConLeche ;
-- une dépendance technique du noyau scientifique envers ConLeche ;
-- une réimplémentation générale de son frontend ;
-- une modification importante des Cycles 1 ou 2.
+Le capstone lit seulement une projection de `EnvModelM` vers `base2`,
+`type_reads` et `mem_type`. Cela démontre une suffisance terminale. Cela ne
+montre pas que les autres champs sont inutiles à la construction inductive du
+modèle.
+
+Le noyau générique stabilisé distingue :
+
+```text
+WitnessCandidate      témoin initial + extraction terminale
+ShadowCarrier         oubli propositionnel par Nonempty
+WeaklyStable          existence d’un successeur
+HistoricalStable      successeur construit et relié à l’ancien témoin
+TransitionObligation  donnée consommée par une transition
+LocallyReconstructs   reconstruction depuis témoin ancien + pas
+Separator             contre-exemple concret indexé par un pas
+```
+
+Il établit seulement les directions constructives acquises, notamment
+`shadowExtract`, `HistoricalStable → WeaklyStable` et la réfutation d’une
+reconstruction locale par un séparateur. Il n’affirme ni converse, ni fermeture
+canonique, ni minimalité.
+
+#### État gelé de δ et β
+
+δ est le cas de référence gelé au commit `d296630`. L’audit a extrait une seed
+indexée par l’occurrence réellement dépliée, puis sa projection vers une
+préservation des appartenances gardée par `Sat`.
+
+β a été développé indépendamment. La comparaison postérieure au commit
+`e567f09` établit que son transport sémantique intermédiaire coïncide, à indices
+égaux, avec cette préservation gardée. Le statut exact est :
+
+```text
+AdmissibleDeltaSeed
+        ↓ strictement dans la classe abstraite testée
+GuardedMembershipPreservation
+        ≡
+BetaMembershipTransport
+```
+
+Dans la classe des sorties réellement constituées par `AcvalDefnInst`, le
+producteur δ construit toujours la seed plus riche avant sa projection. Il faut
+donc distinguer :
+
+```text
+constitution  ≠  exportation  ≠  consommation
+```
+
+et distinguer également l’ordre logique entre capacités de l’ordre relatif aux
+objets effectivement productibles.
+
+#### État ouvert de ι
+
+L’analyse ι est indépendante et ne doit pas importer la capacité commune δ/β
+avant son propre gel. La branche `.plain` possède un séparateur réel : la règle
+est sélectionnée, `iotaRecFueled` s’exécute, la continuation est certifiée et les
+deux constituants du RHS sont bien dénotés, mais leur composition échoue déjà
+sur la clause relationnelle `headInPiR`.
+
+Travail restant, dans cet ordre :
+
+1. poursuivre le weakening de `.plain` jusqu’à stabiliser sa capacité propre ;
+2. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
+3. stabiliser l’interface ι seulement après les deux branches ;
+4. comparer ensuite seulement δ, β et ι ;
+5. conclure par construction d’une capacité commune, impossibilité dans une
+   classe `K` explicitement définie, ou maintien honnête de la question ouverte.
+
+L’absence de construction n’est jamais une preuve d’impossibilité.
+
+### Gate 5c — réalisation finie des demandes d’univers
+
+#### Constat exact dans ConLeche
+
+L’interface actuelle `SetTheory` fournit une chaîne globale :
+
+```text
+univChain : Nat → V
+univChain_mem
+univChain_tg
+```
+
+`univ` utilise cette chaîne aux niveaux positifs. `EnvModelM` quantifie ses
+propriétés principales sur toutes les valuations `ψ : Name → Nat` et `ρ` ;
+`EnvModelOk = Nonempty EnvModelM ∧ EtaFamiliesClosed` est transporté par
+`declStep_preserves` dans le fold. Le capstone `no_constant_of_emptyPin`, lui,
+n’exploite finalement qu’une instance très particulière, avec la valuation de
+niveaux constante zéro et la valuation ensembliste vide.
+
+La dépendance à la chaîne globale entre donc dans la construction inductive du
+modèle, pas dans la dernière inférence `slice → no False`.
+
+#### Objectif admissible
+
+Construire, si les preuves le permettent, la factorisation suivante :
+
+```text
+histoire finie d’occurrences de demandes concrètes
+        ↓ clôture constitutive des niveaux requis
+histoire finie de support
+        ↓ réalisation exacte
+tour finie suffisante
+        ↓ fermeture sous les transitions réellement admises
+slice terminale
+        ↓
+no False
+```
+
+La revendication cible est relative :
+
+> Pour toute histoire finie de demandes d’univers concrètes dont la couverture,
+> la clôture de support et la stabilité historique ont été construites, une
+> réalisation exacte par une tour finie suffit au transport des obligations
+> nécessaires à `no False`.
+
+Le raccord supplémentaire affirmant que toute vérification acceptée produit une
+telle histoire doit être prouvé séparément. La revendication complète ne doit
+être publiée que si chaque flèche est construite.
+
+#### Interdits méthodologiques
+
+Ne jamais utiliser les raccourcis suivants :
+
+```text
+flux syntaxique fini
+  ⇒ borne de toutes les valuations ψ
+
+entier maximal k
+  ⇒ histoire exacte des demandes
+
+longueur de l’histoire des usages
+  ⇒ hauteur de tour suffisante
+
+slice terminale suffisante
+  ⇒ invariant stable sous DeclRun
+
+Nonempty d’un modèle à chaque état
+  ⇒ transport historique d’un même modèle
+
+preuve pour chaque k fixé
+  ⇒ fonction interne uniforme construisant toute tour finie
+```
+
+Le premier raccourci est particulièrement faux dans l’architecture actuelle :
+un fichier fini peut contenir des déclarations polymorphes, tandis que
+`EnvModelM` demande des propriétés pour toute fonction `ψ : Name → Nat`.
+
+Le troisième raccourci confond multiplicité des usages et hauteur des niveaux.
+La hauteur doit être lue sur une histoire de support fermée : une demande de
+niveau élevé peut créer plusieurs étapes de support, tandis que plusieurs
+occurrences au même niveau peuvent réutiliser une seule étape.
+
+#### Structure à réemployer
+
+Deux couches doivent être représentées sans les identifier :
+
+```text
+U = histoire des usages
+    occurrences sémantiques distinctes des demandes
+
+S = histoire de support
+    niveaux successifs nécessaires à leur réalisation
+
+Adequacy U S
+    chaque usage est servi par un niveau de S
+```
+
+La relation `Adequacy U S` peut être plusieurs-vers-un : deux usages distincts
+peuvent légitimement partager le même niveau de support. En revanche, les
+occurrences de `U` restent individuellement adressables et ne doivent pas être
+fusionnées.
+
+L’implémentation doit réutiliser :
+
+```text
+ExactInternalRealization
+  rôles ↔ occurrences exactes à l’intérieur d’une couche
+
+RootedGeneratedHistory
+  succession finie et proof-relevant de U et de S
+
+ExactHistoryInterpretation
+  réalisation concrète fidèle de S par les étages de la tour
+
+NormativeAdequacy
+  accord entre un régime de demandes et une norme autonome portant
+  sur les mêmes objets, lorsque cette instanciation est naturelle
+
+BoundaryGenerator / RegimeExit / UniformRegimeExit
+  demande résiduelle et possibilité de prolongement
+```
+
+Le nombre `k` est ensuite dérivé de la longueur de `S`, pas de celle de `U`. Il
+sert de lecture de la construction ; il n’en est ni l’origine ni le substitut.
+Si l’encodage exact des demandes d’univers dans le carrier homogène de `History`
+devient artificiel, un adaptateur spécialisé doit préserver ces mêmes lois sans
+modifier le noyau général.
+
+Le rôle résiduel représente la prochaine demande effectivement présentée, pas
+l’obligation de réaliser dès maintenant tous les niveaux futurs. La continuation
+positive de type `oneStepAfterPerimeter` doit être déclenchée par une nouvelle
+occurrence, puis l’histoire finie obtenue doit rester exactement traçable.
+
+#### Sous-gates obligatoires
+
+##### 5c.0 — gel de la dépendance actuelle
+
+1. épingler le commit ConLeche et les fichiers exacts de `SetTheory`, `Univ`,
+   `EnvModelM`, `Fold`, `Capstone` et `InstalledC` ;
+2. enregistrer les signatures réellement consommées ;
+3. produire un graphe de dépendance séparant construction du modèle, transport
+   par le fold et extraction terminale ;
+4. ne pas modifier le checkout externe pendant les tests confirmatoires.
+
+##### 5c.1 — slice terminale et demande observée
+
+1. reformuler exactement l’usage terminal de `univ` par `no False` ;
+2. prouver la projection depuis le modèle riche vers cette slice ;
+3. conserver la valuation constante zéro comme occurrence explicite, pas comme
+   justification d’une borne globale ;
+4. vérifier par séparateurs quelles composantes terminales restent nécessaires.
+
+##### 5c.2 — langage des demandes et couverture exacte
+
+1. distinguer expression de niveau symbolique, valuation `ψ`, niveau naturel
+   évalué et étage de support ;
+2. définir la plus petite famille de demandes concrètes distinguant au moins
+   niveau évalué, position, déclaration et consommateur sémantique ;
+3. définir les occurrences depuis les appels réels de `univ` ou des interfaces
+   qui les consomment ;
+4. construire les deux sens rôle d’usage ↔ occurrence sur le périmètre étudié ;
+5. construire la clôture de support requise par chaque niveau demandé, y compris
+   les étages intermédiaires nécessaires ;
+6. construire `Adequacy U S` sans imposer une bijection usage ↔ étage ;
+7. prouver couverture et absence de fusion indue des occurrences d’usage ;
+8. construire un séparateur pour toute projection qui oublie une détermination
+   ensuite requise.
+
+Une simple collecte syntaxique des `Sort` n’est pas une couverture sémantique.
+
+Le premier test décisif de cette sous-gate est de déterminer si la preuve
+spécialisée à `no False` peut remplacer les champs universels en `ψ` par les
+seules valuations effectivement consommées. Si le résultat reste paramétré par
+une valuation fixée sans raccord vers `FullyChecked`, il constitue une
+factorisation conditionnelle, pas une réduction de l’hypothèse du théorème
+principal.
+
+##### 5c.3 — fermeture historique sous `DeclRun`
+
+1. partir d’un `WitnessCandidate`, pas d’un invariant déclaré stable ;
+2. tester chaque forme réelle de déclaration séparément ;
+3. pour chaque obligation rencontrée, classifier : persistante,
+   reconstructible localement, terminale ou hors du problème ;
+4. arrêter au premier résidu non reconstructible et construire un séparateur ;
+5. enrichir le carrier uniquement lorsqu’une persistance est forcée ;
+6. établir la stabilité historique avant de projeter vers `Nonempty`.
+
+La procédure doit réutiliser la discipline déjà éprouvée sur δ, β et ι. Elle ne
+doit jamais recopier `EnvModelM` sous un autre nom.
+
+##### 5c.4 — réalisation par tour finie
+
+Pour une histoire finie de support fixée, construire positivement :
+
+1. une tour concrète de niveaux suffisante pour toutes ses occurrences ;
+2. les relations d’appartenance et de clôture effectivement consommées ;
+3. une `ExactHistoryInterpretation` entre rôles de support et étages réalisés ;
+4. l’extension d’une tour lorsque le générateur fournit une demande résiduelle ;
+5. l’indexation exacte entre `univ n` et `univChain`, y compris le décalage des
+   niveaux positifs ;
+6. les séparateurs montrant quelles relations ne peuvent pas être oubliées.
+
+La frontière des univers de Lean doit être explicitée. Si Lean ne permet pas de
+construire une tour arbitraire uniforme dans un même niveau métathéorique, le
+résultat admissible est une famille de théorèmes pour chaque hauteur fixée, ou
+une interface paramétrée par une tour finie déjà construite. Ce résultat ne doit
+pas être reformulé comme une construction interne uniforme.
+
+##### 5c.5 — raccord au fold et au capstone
+
+La gate est fermée seulement si une chaîne de termes Lean relie :
+
+```text
+acceptation / FullyChecked
+  → témoin historique fini stable
+  → réalisation finie exacte
+  → slice terminale
+  → no False
+```
+
+Une projection obtenue depuis le `EnvModelM` global ne ferme pas cette gate :
+elle réutiliserait précisément l’hypothèse que l’on cherche à réduire.
+
+##### 5c.6 — comparaison de force
+
+1. montrer que l’interface globale actuelle reconstruit l’interface finie ;
+2. chercher un séparateur non vacue au converse dans une classe explicitement
+   fixée ;
+3. répéter la comparaison dans la sous-classe des histoires atteignables ;
+4. distinguer absence de reconstruction trouvée et impossibilité démontrée.
+
+Le mot « réduction » exige au minimum une factorisation complète de la preuve et
+une comparaison explicite des hypothèses. Le mot « strictement » exige un
+séparateur ou un théorème de non-reconstruction dans une classe annoncée.
+
+##### 5c.7 — lecture numérique dérivée
+
+Une fois `U`, sa clôture de support `S` et leur réalisation construites,
+seulement alors :
+
+```text
+k := History.length S
+```
+
+Prouver que la tour réalisée possède exactement la hauteur utile ou une hauteur
+suffisante explicitement reliée à `k`. Ne jamais présenter `k` comme ayant été
+déduit d’une simple taille de fichier ou du seul nombre d’occurrences dans `U`.
+
+#### Issues scientifiques admises
+
+```text
+construction complète
+→ réduction relative établie
+
+factorisation conditionnelle sans instance finie construite
+→ interface suffisante, réduction non établie
+
+séparateur contre un candidat
+→ candidat réfuté, recherche poursuivie
+
+ni construction ni impossibilité
+→ question ouverte
+```
+
+### Critère d’arrêt général de la Gate 5
+
+Réduire une sous-gate à une étude documentaire si sa fermeture exige une copie
+substantielle du code de ConLeche, une dépendance technique du noyau scientifique
+envers ConLeche ou une réimplémentation générale de son checker. Une petite
+instanciation externe, isolée et épinglée, reste admise pour tester les
+factorisations contre le code réel.
 
 ## 11. Gate 6 — composition des statuts
 
@@ -546,6 +958,8 @@ Le résultat final juxtapose, sans les fusionner :
 certificat Lean de transport fidèle
 +
 rapport reproductible d’acceptation par ConLeche
++
+résultats de dissection interne effectivement fermés
 ```
 
 Le certificat Lean peut établir une règle abstraite de transport :
@@ -558,14 +972,19 @@ propriété terminale précisément indexée
 propriété source-relative précisément indexée
 ```
 
-Il ne doit jamais contenir un champ `externalCheckerRecorded` présenté comme un
-théorème si ce champ provient seulement de l’exécution du binaire.
+La réduction de l’hypothèse d’univers n’entre dans cette composition que si la
+Gate 5c.5 est fermée. Avant cela, elle reste un programme de recherche et ne doit
+pas modifier la formulation du théorème acquis.
+
+Le certificat ne doit jamais contenir un champ `externalCheckerRecorded`
+présenté comme un théorème si ce champ provient seulement de l’exécution du
+binaire.
 
 La documentation rassemble les deux résultats et indique leur statut respectif.
 
-## 12. Livrables finaux envisagés
+## 12. Livrables finaux
 
-Ne créer que ce qui devient effectivement nécessaire.
+### Livrables déjà présents
 
 ```text
 ConstitutiveAlignment/
@@ -575,7 +994,7 @@ scripts/
   run_con_leche_audit.py
 
 audit/
-  CON_LECHE_VERIFIED_AUDIT.txt
+  AUDIT_BUILD.txt
 
 docs/fr/
   audit_constitutif_con_leche.md
@@ -583,6 +1002,23 @@ docs/fr/
 docs/en/
   constitutive_con_leche_audit.md
 ```
+
+Le rapport confirmatoire produit par le script n’est ajouté au dépôt que s’il
+est déclaré comme livrable final, de taille raisonnable et intégralement lié au
+commit publié. Les sorties volumineuses restent externes et sont identifiées par
+leurs empreintes.
+
+### Livrables conditionnels de la Gate 5c
+
+Ne créer un module Lean supplémentaire que lorsqu’une factorisation autonome
+compile sans dépendance technique à ConLeche. Son nom doit décrire le résultat
+effectivement obtenu — réalisation finie, interface conditionnelle ou
+séparateur — et non annoncer par avance une réduction de `univChain`.
+
+Les fichiers de scratch ConLeche, copies de code externe et instruments de
+dissection restent hors du dépôt. Seuls un résultat autonome dans le vocabulaire
+local, sa preuve, ses audits et sa documentation bilingue peuvent devenir des
+livrables.
 
 L’export NDJSON volumineux, les clones externes, les builds, les caches et les
 espaces d’extraction ne doivent pas être ajoutés au dépôt.
@@ -609,6 +1045,20 @@ model assumption. We separately analyse the provenance boundary between the
 source development and the declarations presented to the checker.
 ```
 
+Tant que la Gate 5c.5 n’est pas fermée, la seule formulation admissible sur les
+univers est :
+
+```text
+We are investigating whether the global universe-chain assumption can be
+replaced, for the no-False result, by a finite realization indexed by the
+universe demands actually constituted during verification. No such reduction is
+claimed yet.
+```
+
+Après fermeture complète seulement, remplacer cette phrase par l’énoncé exact
+du théorème obtenu, en conservant ses paramètres, sa classe d’histoires et sa
+portée relative.
+
 Éviter absolument :
 
 ```text
@@ -616,6 +1066,8 @@ consistency-proven checker
 fully verified end-to-end pipeline
 proof of Lean consistency
 proof that the whole ConLeche frontend preserves meaning
+the omega-chain assumption has been removed
+a finite input automatically yields a semantic universe bound
 ```
 
 Les déclarations d’auteur restent placées à la fin des documents scientifiques,
@@ -631,6 +1083,23 @@ conformément à la convention du dépôt.
 - tous les noms audités existent ;
 - chaque `#print axioms` rapporte `no axioms` ;
 - aucune obligation concrète remplacée par une hypothèse ouverte.
+
+Les scratchs compilés contre ConLeche peuvent hériter des axiomes déclarés par
+ce développement externe ; ils doivent les rapporter exactement. Aucun de ces
+scratchs ne peut être transplanté dans le dépôt tant que son audit ne satisfait
+pas les règles constructives locales.
+
+### Structure et univers
+
+- toutes les demandes d’univers sont liées à des occurrences réelles ;
+- les deux aller-retour de la réalisation exacte sont prouvés ;
+- aucune quantification en `ψ` n’a été silencieusement remplacée par une borne
+  syntaxique ;
+- la fermeture sous chaque `DeclRun` revendiqué est démontrée ;
+- la tour finie est construite positivement ou fournie par une interface
+  explicitement conditionnelle ;
+- `k` est dérivé de l’histoire et non introduit comme substitut de preuve ;
+- toute stricte réduction annoncée possède un séparateur dans la classe publiée.
 
 ### Audit externe
 
@@ -648,7 +1117,9 @@ conformément à la convention du dépôt.
 - statuts `démontré`, `implémenté`, `observé`, `vérifié extérieurement`,
   `dérivé architecturalement` et `ouvert` employés exactement ;
 - aucune revendication plus forte que le résultat ;
-- README mis à jour seulement si l’audit est effectivement fermé.
+- README mis à jour seulement si l’audit est effectivement fermé ;
+- toute mention de réduction de l’hypothèse d’univers correspond exactement au
+  statut de la Gate 5c.5 dans les deux langues.
 
 ### Git
 
@@ -663,21 +1134,48 @@ conformément à la convention du dépôt.
 ## 15. Ordre d’exécution
 
 ```text
-Gate 0  compatibilité et gel
-Gate 1  audit externe minimal
-Gate 2  provenance exécutable du run
-Gate 3  noyau formel spécialisé
-Gate 4  séparateur constructif
-Gate 4b alignement interne R → S
-Gate 5a transformation ConLeche réelle
-Gate 5b minimisation relative à no False
-Gate 6  composition documentaire des statuts
+acquis à conserver
+  Gate 0   compatibilité du socle testé
+  Gate 2   script de provenance exécutable
+  Gate 3   noyau formel spécialisé
+  Gate 4   séparateurs de provenance
+  Gate 4b  modèle local de l’alignement R → S
+  Gate 5a  cas réel de provenance borné
+  Gate 5b  δ gelé + β indépendant + comparaison δ/β
+
+travail immédiat
+  Gate 5b  fermer ι .plain
+  Gate 5b  analyser ι .nested indépendamment
+  Gate 5b  geler l’interface ι puis comparer δ/β/ι
+
+réduction de l’hypothèse d’univers
+  Gate 5c.0  geler les dépendances SetTheory/EnvModel/fold/capstone
+  Gate 5c.1  fixer la slice terminale
+  Gate 5c.2  construire demandes, occurrences et couverture exacte
+  Gate 5c.3  fermer l’invariant historique sous DeclRun
+  Gate 5c.4  construire ou paramétrer la réalisation finie
+  Gate 5c.5  raccorder FullyChecked à no False sans EnvModelM global
+  Gate 5c.6  comparer les forces dans des classes explicites
+  Gate 5c.7  dériver la lecture numérique k
+
+clôture
+  Gate 1   run confirmatoire sur le commit final propre
+  Gate 6   composition documentaire exacte des statuts
 ```
 
-Cet ordre empêche de construire une théorie volumineuse avant de savoir si
-l’audit externe est effectivement réalisable avec le toolchain exact du dépôt.
+Cet ordre conserve les cas indépendants avant comparaison, puis traite
+l’hypothèse d’univers comme une nouvelle factorisation de preuve. Le run externe
+confirmatoire vient en dernier afin de viser exactement l’arbre publié.
 
-## 16. Résultat minimal publiable
+Les Gates 5c.0 et 5c.1 peuvent être menées pendant la fin de l’analyse ι, car
+elles ne modifient pas ses interfaces. En revanche, la carte des consommateurs
+de la Gate 5c.2 ne peut être gelée avant la stabilisation de ι : une obligation
+rencontrée dans `.plain` ou `.nested` peut modifier la fermeture réellement
+requise.
+
+## 16. Résultats publiables
+
+### Socle déjà visé
 
 Le résultat minimal publiable comprend :
 
@@ -687,20 +1185,50 @@ Le résultat minimal publiable comprend :
 4. une reconstruction du contrat interne `R → S`, distincte de completeness et
    de la fidélité amont ;
 5. une étude précisément bornée d’une transformation frontend réelle ;
-6. une caractérisation suffisante et testée par séparateurs des déterminations
-   nécessaires au transport de `no False` dans le cas étudié ;
-7. une documentation bilingue distinguant toutes les portées.
+6. une factorisation suffisante du transport de `no False` et les nécessités
+   locales établies par séparateurs dans la famille étudiée ;
+7. la factorisation δ/β et le statut borné du séparateur ι `.plain` ;
+8. une documentation bilingue distinguant toutes les portées.
 
-Si la Gate 5 reste ouverte, les Gates 1 à 4 peuvent être publiées séparément à
-condition de ne pas revendiquer une analyse constitutive du frontend réel.
+Chaque sous-gate conserve son statut propre. L’ouverture de la Gate 5c ne bloque
+pas la publication du socle acquis ; elle interdit seulement de revendiquer une
+réduction de l’hypothèse d’univers. Une Gate 5a ou 5b ouverte doit être signalée
+sans être absorbée par les Gates 1 à 4.
+
+### Extension sur l’hypothèse d’univers
+
+Pour annoncer une réduction relative de la chaîne globale, il faut en plus :
+
+1. une histoire finie d’usages exactement couverte par ses occurrences ;
+2. une clôture finie de support adéquate à tous ces usages ;
+3. un candidat historiquement stable sous toutes les transitions revendiquées ;
+4. une réalisation finie exacte de l’histoire de support ;
+5. une factorisation complète jusqu’à `no False` qui ne repasse pas par
+   `EnvModelM` muni de la chaîne globale ;
+6. une comparaison de force explicitant ce qui a été retiré, conservé ou rendu
+   reconstructible ;
+7. une documentation bilingue qui distingue théorème uniforme, famille de
+   théorèmes à hauteur fixée et interface conditionnelle.
+
+Si un seul de ces points manque, publier le résultat intermédiaire exact —
+interface, séparateur ou question ouverte — sans employer « hypothèse réduite ».
 
 ## 17. Références externes à figer
 
 - dépôt ConLeche : `https://github.com/leanprover/con-leche` ;
-- contrat de ligne de commande et codes de sortie : `OVERVIEW.md`, section 0 ;
-- théorème principal : `ConLeche/MainTheorem.lean` ;
-- hypothèse en théorie des ensembles : `OVERVIEW.md`, section 7 ;
-- frontière du frontend : `OVERVIEW.md`, section 9 ;
+- commit ConLeche étudié :
+  `86cd20a65660d757cedc81561a44579099b565d0` ;
+- contrat de ligne de commande, hypothèse en théorie des ensembles et limites :
+  `OVERVIEW.md` à ce commit ;
+- théorème principal : `ConLeche/MainTheorem.lean` à ce commit ;
+- modèle ensembliste : `ConLeche/SetTheory/Core.lean` et
+  `ConLeche/SetTheory/Derive/Univ.lean` à ce commit ;
+- invariant riche et fold : `ConLeche/Model/Annot/EnvModelM.lean` et
+  `ConLeche/Model/Fold.lean` à ce commit ;
+- capstone et raccord `FullyChecked` : `ConLeche/Model/Capstone.lean` et
+  `ConLeche/Verify/Cached/InstalledC.lean` à ce commit ;
+- frontière du frontend : `ConLeche/Frontend/ProjRec.lean` et
+  `ConLeche/Frontend/ExportC.lean` à ce commit ;
 - format et exécutable d’export : `https://github.com/leanprover/lean4export`.
 
 Le rapport final remplace les références de branche par les identifiants de
