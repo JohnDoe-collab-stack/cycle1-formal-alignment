@@ -207,6 +207,10 @@ failure of the independent norm.
   — total finite typed language, rank-free frontier, two linked invocations of
   one operator, generated fresh probe, causal counterfactuals, and exact trace
   refinement.
+- [Constitutive audit of ConLeche](docs/en/constitutive_con_leche_audit.md) —
+  separation of checked-object soundness from provenance, terminal-slice
+  factorization, constructive invariant dissection, and independent δ and β
+  producer audits against a pinned external commit.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Finite experimental protocol](experiment/README.md) — precommitted numerical
   protocol with separate smoke and confirmatory probes, an immutable
@@ -250,6 +254,9 @@ French counterparts are linked from the top of every scientific document.
 - [`ConstitutiveAlignment/EndogenousTypedSuccession.lean`](ConstitutiveAlignment/EndogenousTypedSuccession.lean)
   constructs the two linked typed transitions, causal separators, generated
   probe protocol, and exact typed refinement.
+- [`ConstitutiveAlignment/VerificationTransport.lean`](ConstitutiveAlignment/VerificationTransport.lean)
+  separates verification, provenance, terminal extraction, witness-level
+  historical stability, and proposition-level shadow stability.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) is the public
   aggregator for the constitutive architecture.
 - [`experiment/`](experiment) contains two scientifically distinct executable

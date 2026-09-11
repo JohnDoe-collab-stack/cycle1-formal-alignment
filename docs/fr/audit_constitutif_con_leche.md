@@ -538,6 +538,122 @@ que du seul fait qu'un argument possède une lecture. La portée et le contexte
 fixent honnêtement cette occurrence ; ils ne suffisent pas, à eux seuls, à
 produire le transport sémantique.
 
+L'audit β a ensuite été développé indépendamment de la référence δ gelée au
+commit `d296630`, sans importer d'interface d'audit propre à δ.
+`OperationalOccurrence` conserve le disjoint β exact de `whnf_app_inv` : la
+tête lambda, le run du corps instancié et l'autorisation acceptée par le
+checker. `SemanticConsequence` ne conserve que l'égalité entre redex et réduit
+et la bonne dénotation du réduit.
+
+La branche de genre zéro se factorise par une seule capacité sémantique gardée :
+
+```text
+genre = 0 → interprétation(argument) ∈ interprétation(domaine).
+```
+
+La branche où la gate se déclenche la construit en rendant `genre = 0`
+impossible. Dans la branche certifiée, `InferClaimIOS` établit l'appartenance au
+type inféré de l'argument ; `DefEqClaim` est ensuite affaibli successivement
+vers le transport uniforme des appartenances puis vers l'appartenance de
+l'argument concret au domaine concret. Cette dernière ligne est aussi le seul
+résultat de l'égalité utilisé par les preuves d'inférence d'application complète
+et IO. La même ligne affaiblie alimente donc trois consommateurs réels, tandis
+que β lui-même n'en consomme que la forme gardée.
+
+Lean sépare directement quatre forces :
+
+```text
+égalité sémantique
+        ↓ strictement
+transport uniforme des appartenances
+        ↓ strictement
+appartenance de l'argument de l'occurrence à son domaine
+        ↓ strictement lorsque le genre de la lambda est conservé
+obligation β exacte de genre zéro
+```
+
+Sur une occurrence β de genre zéro réellement acceptée, le contre-modèle `B0W`
+existant construit l'appartenance au type inféré mais réfute l'accord
+sémantique, le transport uniforme, l'appartenance concrète au domaine et donc
+l'obligation β gardée exacte. La première dépendance résistante est ainsi le
+transport sémantique du type inféré accepté par le checker vers le domaine
+stocké de la lambda, et non l'inférence de l'argument elle-même.
+
+L'analyse β est ainsi stabilisée indépendamment : la capacité réutilisable du
+côté producteur est le transport uniforme des appartenances, tandis que
+l'appartenance concrète au domaine et sa garde par le genre sont les projections
+strictement plus faibles consommées en aval. Cela ne démontre ni une minimalité
+globale, ni sa persistance dans un futur invariant, ni l'atteignabilité du
+contre-modèle depuis l'environnement vide, ni un facteur commun minimal avec
+δ. Le fichier β autonome
+recompile contre le commit ConLeche épinglé, ne contient ni `sorry`, ni `axiom`
+explicite, ni `Classical`, ni `native_decide`, et porte le SHA-256
+`709169dc75e510985a1501f2366b70f777ae88adf714ab84aaf7670f4bbcb9bf`.
+Son audit axiomatique ne rapporte que `propext`, `Classical.choice` et
+`Quot.sound`, hérités du développement ConLeche épinglé.
+
+Ce n'est qu'après stabilisation indépendante des deux analyses qu'un module de
+comparaison séparé a importé leurs interfaces complètes sans modifier leurs
+sources. Le théorème `betaTransport_iff_deltaGuarded` démontre que le transport
+uniforme défini indépendamment pour β et la préservation gardée des appartenances
+extraite de δ sont définitionnellement le même prédicat lorsque contexte, source
+et cible coïncident. La seed δ d'occurrence déjà établie se projette en outre
+vers ce prédicat, tandis que celui-ci, joint à l'appartenance source produite
+indépendamment, restitue la ligne concrète argument/domaine de β. La structure
+partagée est donc la règle gardée de transport, non les détails opérationnels
+des producteurs ni le jugement particulier de chaque consommateur.
+
+La comparaison fournit maintenant aussi un non-converse direct et non vacue au
+niveau de ces deux prédicats. `strictnessDeltaSource_unfolds` fixe une vraie
+source δ à un argument avec sa spine inchangée. Sur la même spine admise,
+`strictnessCommonCapacity` transporte le membre réel `ptTag`, tandis que
+`strictnessDeltaOccurrenceSeed_fails` réfute la seed d'occurrence : sa clause
+d'observation de la tête placerait `ptTag` dans une lambda du régime graphe. Le
+théorème `commonCapacity_doesNotReconstruct_deltaOccurrenceSeed` démontre donc,
+dans la classe non restreinte des indices concordants,
+
+```text
+GuardedMembershipPreservation
+        ↛
+AdmissibleDeltaSeed.
+```
+
+L'interface de seed δ d'occurrence est ainsi strictement plus forte que le
+prédicat de transport commun dans cette classe ; du côté β, le prédicat commun
+est exactement le transport intermédiaire extrait indépendamment. Le séparateur
+conserve toutefois une frontière explicite : sa source opérationnelle et sa
+spine non vide sont réelles, mais ses deux lectures sémantiques de tête sont
+choisies indépendamment d'`AcvalDefnInst`.
+
+Le test restreint au producteur est maintenant fermé dans la direction opposée.
+`acvalDefnInst_constructs_commonAndOccurrenceSeed` démontre que, pour tout
+dépliage δ réel muni de ses lectures source et cible effectives, de sa portée et
+de son certificat de contexte, `AcvalDefnInst` construit une seed d'occurrence
+concordante, puis sa projection gardée commune. Par conséquent,
+`acvalDefnInst_excludes_commonWithoutOccurrenceSeed` exclut un cas réellement
+produit où le transport commun serait vrai tandis que toute seed d'occurrence
+concordante serait fausse. Cela ne démontre **pas** que le prédicat commun seul
+reconstruit la seed. Cela démontre quelque chose de propre au producteur actuel
+de ConLeche : ses hypothèses reconstruisent déjà l'interface plus forte sans
+consommer le prédicat commun.
+
+Il faut donc distinguer l'ordre logique de l'ordre relatif au producteur :
+
+```text
+prédicats non restreints :
+AdmissibleDeltaSeed > GuardedMembershipPreservation
+
+sorties réelles d'AcvalDefnInst :
+AcvalDefnInst → AdmissibleDeltaSeed → GuardedMembershipPreservation
+```
+
+Aucune minimalité dans une classe `K`, aucune persistance et aucune
+atteignabilité depuis l'environnement initial ne sont démontrées. Le fichier de
+comparaison ne contient aucune construction interdite, porte le SHA-256
+`e28b68ac45439ce8e377e16d16dc5ad2de0e0ac4c82b0d613ea0c78394df97fb`,
+et son audit axiomatique rapporte à nouveau seulement les trois dépendances
+héritées de ConLeche.
+
 Ces résultats ne portent pas encore sur toutes les familles de jugements
 sémantiques, ne caractérisent aucune relation minimale et ne justifient aucune
 persistance dans `B1`. Ils ne montrent ni que `AcvalDefnInst` peut être remplacé
@@ -836,6 +952,32 @@ La partie Lean démontre constructivement :
   un séparateur non vacue à spine vide la distingue de la seed universelle, le
   producteur affaibli la construit directement, et le même alias interdit
   encore sa reconstruction depuis `B0W` ;
+- une factorisation β indépendante depuis l'occurrence acceptée exacte vers sa
+  conséquence sémantique, par l'obligation gardée d'appartenance au domaine au
+  genre zéro produite par le partage gate/certificat ;
+- les affaiblissements stricts de l'égalité sémantique type inféré/domaine vers
+  le transport uniforme des appartenances, puis l'appartenance concrète de
+  l'argument au domaine, et enfin l'obligation gardée consommée par β ; la
+  ligne non gardée est aussi le résultat exact dépendant de l'égalité dans les
+  inférences d'application complète et IO ;
+- un séparateur β de genre zéro réellement accepté sur lequel l'appartenance au
+  type inféré est vraie mais toutes les relations ultérieures de cette chaîne
+  sont réfutées depuis `B0W` ;
+- une comparaison formelle postérieure démontrant que le transport β extrait
+  indépendamment et la préservation gardée δ coïncident définitionnellement à
+  indices identiques, que la seed δ d'occurrence se projette vers cette
+  relation partagée et que celle-ci, jointe à l'appartenance source, fournit le
+  jugement de l'occurrence β ;
+- un séparateur direct et non vacue sur une spine δ admise, fixée et non vide :
+  le transport gardé commun conserve `ptTag`, tandis que la seed d'occurrence
+  est impossible ; cela démontre le non-converse au niveau des prédicats,
+  tandis que ce séparateur lui-même ne porte pas sur les têtes sémantiques
+  produites par `AcvalDefnInst` ;
+- la fermeture de cette question restreinte au producteur dans la direction
+  opposée : les données d'un dépliage δ réel jointes à `AcvalDefnInst`
+  construisent toujours une seed d'occurrence concordante et sa projection
+  commune, ce qui exclut un séparateur transport-commun-sans-seed dans cette
+  classe sans affirmer que le seul prédicat commun reconstruit la seed ;
 - la composition sans effacement des occurrences intermédiaires ;
 - un séparateur d’origine réutilisant le noyau du Cycle 1 ;
 - la suffisance de la couverture et de la conservation des contre-exemples ;
