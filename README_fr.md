@@ -210,6 +210,10 @@ directe d'échec de la norme indépendante.
   — langage typé fini total, frontière sans rang, deux appels liés d’un même
   opérateur, sonde fraîche générée, contrefactuels causaux et raffinement exact
   des traces.
+- [Audit constitutif de ConLeche](docs/fr/audit_constitutif_con_leche.md) —
+  séparation entre soundness de l'objet vérifié et provenance, factorisation par
+  la slice terminale, dissection constructive d'invariant et audits producteurs
+  δ et β indépendants contre un commit externe épinglé.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique
@@ -256,6 +260,9 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`ConstitutiveAlignment/EndogenousTypedSuccession.lean`](ConstitutiveAlignment/EndogenousTypedSuccession.lean)
   construit les deux transitions typées liées, les séparateurs causaux, le
   protocole de sonde générée et le raffinement typé exact.
+- [`ConstitutiveAlignment/VerificationTransport.lean`](ConstitutiveAlignment/VerificationTransport.lean)
+  sépare vérification, provenance, extraction terminale, stabilité historique
+  au niveau des témoins et stabilité de l'ombre propositionnelle.
 - [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) est l’agrégateur
   public de l’architecture constitutive.
 - [`experiment/`](experiment) contient deux protocoles exécutables

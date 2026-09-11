@@ -530,6 +530,120 @@ of an **actually present use**—its finite spine and position—rather than mer
 from an argument having a reading. Scope and context honestly fix that
 occurrence; by themselves they do not produce the semantic transport.
 
+The β audit was then developed independently from the frozen δ reference at
+commit `d296630`, without importing a δ-specific audit interface.
+`OperationalOccurrence` retains the exact β disjunct of `whnf_app_inv`: the
+lambda head, instantiated-body run, and authorization accepted by the checker.
+`SemanticConsequence` retains only redex/reduct equality and well-denotation of
+the reduct.
+
+The zero-kind branch factors through one guarded semantic capability:
+
+```text
+kind = 0 → interpretation(argument) ∈ interpretation(domain).
+```
+
+The fired-gate branch constructs it by making `kind = 0` impossible. In the
+certificate branch, `InferClaimIOS` establishes membership in the inferred
+argument type; `DefEqClaim` is then weakened successively to uniform membership
+transport and to membership of the concrete argument in the concrete domain.
+That last row is also the only result of this equality used by the full and IO
+application-inference proofs. The same weakened line therefore feeds three
+real consumers, while β itself consumes only its guarded form.
+
+Lean directly separates four strengths:
+
+```text
+semantic equality
+        ↓ strictly
+uniform membership transport
+        ↓ strictly
+membership of the occurrence's argument in its domain
+        ↓ strictly when the lambda kind is retained
+the exact zero-kind β obligation
+```
+
+On a genuinely accepted zero-kind β occurrence, the existing `B0W`
+countermodel constructs inferred-type membership but refutes semantic
+agreement, uniform transport, concrete domain membership, and hence the exact
+guarded β obligation. The first resistant dependency is consequently the
+semantic transport from the inferred type accepted by the checker to the
+lambda's stored domain, not inference of the argument itself.
+
+This stabilizes the β analysis independently: the reusable producer-side
+capability is uniform membership transport, while concrete domain membership
+and its kind guard are the strictly weaker projections consumed downstream.
+It proves neither global minimality, persistence in a future invariant,
+reachability of the countermodel from the empty environment, nor a minimal
+common factor with δ. The standalone β file recompiles against the
+pinned ConLeche commit, contains no `sorry`, explicit `axiom`, `Classical`, or
+`native_decide`, and has SHA-256
+`709169dc75e510985a1501f2366b70f777ae88adf714ab84aaf7670f4bbcb9bf`.
+Its axiom audit reports only `propext`, `Classical.choice`, and `Quot.sound`,
+inherited from the pinned ConLeche development.
+
+Only after both analyses were stabilized, a separate comparison imported their
+complete module interfaces without changing either source. The theorem
+`betaTransport_iff_deltaGuarded` proves that β's independently defined uniform
+transport and δ's guarded membership preservation are definitionally the same
+predicate when their context and endpoints coincide. Moreover, the established
+δ occurrence seed projects to this predicate, while the predicate plus the
+independently produced source membership yields β's concrete argument/domain
+row. The shared structure is therefore the guarded transport rule, not either
+producer's operational details or either consumer's particular judgement.
+
+The comparison now also gives a direct, non-vacuous converse failure at the
+level of these two predicates. `strictnessDeltaSource_unfolds` fixes a genuine
+one-argument δ source with its unchanged spine. On the same admitted spine,
+`strictnessCommonCapacity` transports the real member `ptTag`, while
+`strictnessDeltaOccurrenceSeed_fails` refutes the occurrence seed: its head
+observation would place `ptTag` inside a graph-regime lambda. Hence
+`commonCapacity_doesNotReconstruct_deltaOccurrenceSeed` proves, in the
+unrestricted class of matching indices,
+
+```text
+GuardedMembershipPreservation
+        ↛
+AdmissibleDeltaSeed.
+```
+
+This makes the δ occurrence-seed interface strictly stronger than the common
+transport predicate in that class; on the β side, the common predicate is
+exactly the independently isolated intermediate transport. The separator is
+deliberately precise about its boundary: its operational source and nonempty
+spine are genuine, but its two semantic head readings are chosen independently
+of `AcvalDefnInst`.
+
+The producer-restricted test is now closed in the opposite direction.
+`acvalDefnInst_constructs_commonAndOccurrenceSeed` proves that, for every real
+δ unfolding equipped with its actual source and target readings, scope, and
+context certificate, `AcvalDefnInst` constructs a matching occurrence seed and
+therefore its common guarded projection. Consequently,
+`acvalDefnInst_excludes_commonWithoutOccurrenceSeed` rules out a real
+producer-generated case in which the common transport holds while every
+matching occurrence seed fails. This does **not** prove that the common
+predicate alone reconstructs the seed. It proves something more specific to
+ConLeche's current producer: the producer assumptions already reconstruct the
+stronger interface without consuming the common predicate.
+
+The logical ordering and the producer-relative ordering must therefore remain
+distinct:
+
+```text
+unrestricted predicates:
+AdmissibleDeltaSeed > GuardedMembershipPreservation
+
+actual AcvalDefnInst outputs:
+AcvalDefnInst → AdmissibleDeltaSeed → GuardedMembershipPreservation
+```
+
+No minimality in a class `K`, persistence claim, or reachability result from
+the initial environment has been proved. The comparison file contains no
+forbidden construct, has SHA-256
+`e28b68ac45439ce8e377e16d16dc5ad2de0e0ac4c82b0d613ea0c78394df97fb`,
+and its axiom audit again reports only the three dependencies inherited from
+ConLeche.
+
 These results do not yet cover every family of semantic judgements,
 characterize a minimal relation, or justify persistence in `B1`. They prove
 neither that `AcvalDefnInst` can be replaced inside ConLeche without changing
@@ -826,6 +940,30 @@ The Lean layer constructively proves:
   a non-vacuous empty-spine separator distinguishes it from the universal seed,
   the weakened producer constructs it directly, and the same alias still
   prevents its reconstruction from `B0W`;
+- an independent β factorization from the exact accepted occurrence to its
+  semantic consequence, through the guarded zero-kind domain-membership
+  obligation produced by the gate/certificate split;
+- strict weakenings from inferred/domain semantic equality to uniform
+  membership transport, then to concrete argument/domain membership, and
+  finally to the kind-guarded obligation consumed by β; the unguarded row is
+  also the exact equality-dependent result used by full and IO application
+  inference;
+- a genuine accepted zero-kind β separator on which inferred-type membership
+  holds but every later relation in that chain is refuted from `B0W`;
+- a post-hoc formal comparison proving that the independently extracted β
+  transport and δ guarded preservation coincide definitionally at matching
+  indices, that the δ occurrence seed projects to this shared relation, and
+  that the shared relation plus source membership supplies the β occurrence
+  judgement;
+- a direct non-vacuous separator on one fixed nonempty admitted δ spine: the
+  shared guarded transport preserves `ptTag`, while the occurrence seed is
+  impossible; this proves the predicate-level non-converse, while the separator
+  itself does not apply to semantic heads generated by `AcvalDefnInst`;
+- closure of that producer-restricted question in the opposite direction:
+  actual δ unfolding data plus `AcvalDefnInst` always construct a matching
+  occurrence seed and its common projection, excluding a common-without-seed
+  separator in this producer class without asserting that the common predicate
+  alone reconstructs the seed;
 - composition without erasing intermediate occurrences;
 - an origin separator reusing the Cycle 1 kernel;
 - sufficiency of coverage and counterexample preservation;
