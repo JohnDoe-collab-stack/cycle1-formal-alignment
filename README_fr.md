@@ -213,7 +213,7 @@ directe d'échec de la norme indépendante.
 - [Audit constitutif de ConLeche](docs/fr/audit_constitutif_con_leche.md) —
   séparation entre soundness de l'objet vérifié et provenance, factorisation par
   la slice terminale, dissection constructive d'invariant et audits producteurs
-  δ et β indépendants contre un commit externe épinglé.
+  δ, β et ι indépendants contre un commit externe épinglé.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Protocole expérimental fini](experiment/README_fr.md) — protocole numérique

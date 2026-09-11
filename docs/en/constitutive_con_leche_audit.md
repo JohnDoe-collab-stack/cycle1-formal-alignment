@@ -644,6 +644,54 @@ forbidden construct, has SHA-256
 and its axiom audit again reports only the three dependencies inherited from
 ConLeche.
 
+The ι audit was then started independently of the δ and β interfaces, without
+anticipating a common capability. `OperationalOccurrence` retains the exact
+occurrence exposed by `iotaRec_inv`, after which `FiredRuleSelection` keeps
+only the stored recursor, the rule actually selected, and the fact that it
+fires. `recRuleLaw_of_selection` separately marks the entry of `RecRules`,
+while `SemanticConsequence` and `ContinuationCertificate` distinguish the
+result's semantic law from the guarantees needed to continue computation.
+
+The first `.plain` test constructs an explicit environment with a genuine
+`B0W` witness. A stored recursor has an operationally admissible rule whose RHS
+is `PUnit PUnit.unit`. `badPlainRun` proves that `iotaRecFueled` really selects
+and executes this rule in `verified` mode. Independently,
+`badContinuationCertificate` proves that the reduct is well scoped, closed,
+leaf bounded, and compatible with the empty context. Continuation is therefore
+not the missing component.
+
+The semantic law cannot be reconstructed. `badRhsReading` fixes the RHS's
+exact reading. `badRhsHeadWellDenoted` and `badRhsArgumentWellDenoted` prove
+that both constituents are individually well denoted. Yet
+`badRhsHeadNotInPi` refutes, for every `v`, `A`, and `B`, membership of the
+`PUnit` reading in `piR v A B`: at level zero an inhabitant would have to be
+`pt`, while at a positive level it would have to be a graph, which `unitSet`
+cannot be. `badRhsApplicationFrameFails` consequently refutes the shared
+relational package required by `WellDenoted_app` without consuming either the
+argument-domain membership or the level-zero condition.
+
+Together, `badPlainRhsWellDenotedFails`, `badRecRulesFails`, and
+`badPlainOperationalSemanticSeparator` establish:
+
+```text
+B0W + plain-rule selection + real iota execution + continuation
+        ↛
+well-denotation of the selected RHS.
+```
+
+The first internal cut is relational: individual validity of the constituents
+does not determine their semantic composability. This separator does not show
+that the other `WellDenoted_app` clauses are generally unnecessary, does not
+yet analyze `.nested`, and does not claim that its environment is reachable
+from the initial environment. The two ι files recompile against the pinned
+ConLeche commit and respectively have SHA-256
+`dd4b0f4dd7853eb637d19b350d0375f288f6607d399a0ab9901d8c3e40f24449`
+and
+`4d91808724ed2b25b030032fe8d0795a04d51c2a5d4ae02efc7c9a5c48a5ddbe`.
+They contain no `sorry`, explicit `axiom`, `Classical`, or `native_decide`;
+their audits report only `propext`, `Classical.choice`, and `Quot.sound`,
+inherited from ConLeche.
+
 These results do not yet cover every family of semantic judgements,
 characterize a minimal relation, or justify persistence in `B1`. They prove
 neither that `AcvalDefnInst` can be replaced inside ConLeche without changing
@@ -964,6 +1012,14 @@ The Lean layer constructively proves:
   occurrence seed and its common projection, excluding a common-without-seed
   separator in this producer class without asserting that the common predicate
   alone reconstructs the seed;
+- an independent ι factorization separating the operational occurrence, stored
+  rule selection, semantic law supplied by `RecRules`, and continuation
+  certificate;
+- a `.plain` separator over a real `iotaRecFueled` execution: the `B0W` witness
+  and every continuation guarantee are constructed, both RHS constituents are
+  well denoted, but the head reading inhabits no `piR`; this refutes the shared
+  application frame, RHS well-denotation, and the corresponding `RecRules`
+  law;
 - composition without erasing intermediate occurrences;
 - an origin separator reusing the Cycle 1 kernel;
 - sufficiency of coverage and counterexample preservation;

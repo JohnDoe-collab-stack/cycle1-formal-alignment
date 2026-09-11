@@ -209,7 +209,7 @@ failure of the independent norm.
   refinement.
 - [Constitutive audit of ConLeche](docs/en/constitutive_con_leche_audit.md) —
   separation of checked-object soundness from provenance, terminal-slice
-  factorization, constructive invariant dissection, and independent δ and β
+  factorization, constructive invariant dissection, and independent δ, β, and ι
   producer audits against a pinned external commit.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Finite experimental protocol](experiment/README.md) — precommitted numerical
