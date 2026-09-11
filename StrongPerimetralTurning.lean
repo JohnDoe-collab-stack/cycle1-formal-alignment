@@ -7,7 +7,7 @@ set_option linter.checkUnivs false
 
 namespace StrongPerimetralTurning
 
-universe uE uI uK uD uP uN uEnd uLoop uA uB
+universe uE uI uK uD uP uN uEnd uLoop uA uB uV
 
 /-! ## Positive circular presentation -/
 
@@ -1792,6 +1792,22 @@ inductive Occurrence
       {step : Step b c} :
       Occurrence history → Occurrence (.extend history step)
 
+/- An occurrence readout is deliberately only a post-constitutive assignment
+   of values to occurrences already carried by one history.  The codomain is
+   arbitrary, but no inhabitant, injectivity, faithfulness, or compatibility
+   law is supplied by this abbreviation.  Such properties must be stated
+   separately; the readout neither creates nor identifies occurrences.
+
+   Conceptually, occurrences and their exact correspondences form a structural
+   bus onto which independent readouts can be connected after constitution. -/
+abbrev OccurrenceReadout
+    {State : Type uA}
+    {Step : State → State → Type uB}
+    {source target : State}
+    (history : History Step source target)
+    (Value : Type uV) : Type _ :=
+  Occurrence history → Value
+
 /- Structural chronology of step occurrences in one history.  This relation
    carries only precedence information and introduces no numerical rank. -/
 inductive OccurrencePrecedes
@@ -3395,6 +3411,47 @@ theorem requirementToOccurrence_toRequirement
       position :=
   deployPosition_occurrence_roundTrip P P.perimeter
     FreeConstitution.root BoundaryDifference.initial position
+
+/- These maps only reindex a supplied readout along the already established
+   perimeter/occurrence correspondence.  They add no values and assert no
+   semantic adequacy of the supplied readout. -/
+def perimeterReadout
+    {P : CircularPresentation}
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout (perimeterHistory P) Value) :
+    NonClosingPosition P.perimeter → Value :=
+  fun position => readout (requirementToOccurrence P position)
+
+def occurrenceReadoutOfPerimeter
+    {P : CircularPresentation}
+    {Value : Type uV}
+    (readout : NonClosingPosition P.perimeter → Value) :
+    History.OccurrenceReadout (perimeterHistory P) Value :=
+  fun occurrence => readout (occurrenceToRequirement P occurrence)
+
+theorem occurrenceReadoutOfPerimeter_perimeterReadout
+    {P : CircularPresentation}
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout (perimeterHistory P) Value)
+    (occurrence : History.Occurrence (perimeterHistory P)) :
+    occurrenceReadoutOfPerimeter (perimeterReadout readout) occurrence =
+      readout occurrence := by
+  change readout
+      (requirementToOccurrence P (occurrenceToRequirement P occurrence)) =
+    readout occurrence
+  rw [occurrenceToRequirement_toOccurrence]
+
+theorem perimeterReadout_occurrenceReadoutOfPerimeter
+    {P : CircularPresentation}
+    {Value : Type uV}
+    (readout : NonClosingPosition P.perimeter → Value)
+    (position : NonClosingPosition P.perimeter) :
+    perimeterReadout (occurrenceReadoutOfPerimeter readout) position =
+      readout position := by
+  change readout
+      (occurrenceToRequirement P (requirementToOccurrence P position)) =
+    readout position
+  rw [requirementToOccurrence_toRequirement]
 
 theorem requirementToOccurrence_injective
     (P : CircularPresentation) :
@@ -6748,6 +6805,77 @@ structure ExactHistoryInterpretation
 
 namespace ExactHistoryInterpretation
 
+/- Readouts transport contravariantly along the exact occurrence maps.  This
+   is reindexing only: structural agreement belongs to the interpretation,
+   while any semantic law of the values remains an independent obligation. -/
+def pullbackReadout
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    {source target : PositiveConstitution P}
+    {freeHistory : GeneratedHistory source target}
+    {concreteHistory :
+      History A.ConcreteStep (A.stateAt source) (A.stateAt target)}
+    (interpretation :
+      ExactHistoryInterpretation A freeHistory concreteHistory)
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout concreteHistory Value) :
+    History.OccurrenceReadout freeHistory Value :=
+  fun occurrence => readout (interpretation.forwardOccurrence occurrence)
+
+def pushforwardReadout
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    {source target : PositiveConstitution P}
+    {freeHistory : GeneratedHistory source target}
+    {concreteHistory :
+      History A.ConcreteStep (A.stateAt source) (A.stateAt target)}
+    (interpretation :
+      ExactHistoryInterpretation A freeHistory concreteHistory)
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout freeHistory Value) :
+    History.OccurrenceReadout concreteHistory Value :=
+  fun occurrence => readout (interpretation.backwardOccurrence occurrence)
+
+theorem pullbackReadout_pushforwardReadout
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    {source target : PositiveConstitution P}
+    {freeHistory : GeneratedHistory source target}
+    {concreteHistory :
+      History A.ConcreteStep (A.stateAt source) (A.stateAt target)}
+    (interpretation :
+      ExactHistoryInterpretation A freeHistory concreteHistory)
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout freeHistory Value)
+    (occurrence : History.Occurrence freeHistory) :
+    interpretation.pullbackReadout
+        (interpretation.pushforwardReadout readout) occurrence =
+      readout occurrence := by
+  change readout
+      (interpretation.backwardOccurrence
+        (interpretation.forwardOccurrence occurrence)) = readout occurrence
+  rw [interpretation.forwardBackward]
+
+theorem pushforwardReadout_pullbackReadout
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    {source target : PositiveConstitution P}
+    {freeHistory : GeneratedHistory source target}
+    {concreteHistory :
+      History A.ConcreteStep (A.stateAt source) (A.stateAt target)}
+    (interpretation :
+      ExactHistoryInterpretation A freeHistory concreteHistory)
+    {Value : Type uV}
+    (readout : History.OccurrenceReadout concreteHistory Value)
+    (occurrence : History.Occurrence concreteHistory) :
+    interpretation.pushforwardReadout
+        (interpretation.pullbackReadout readout) occurrence =
+      readout occurrence := by
+  change readout
+      (interpretation.forwardOccurrence
+        (interpretation.backwardOccurrence occurrence)) = readout occurrence
+  rw [interpretation.backwardForward]
+
 def transportConcreteHistory
     {P : CircularPresentation}
     {A : ConcreteContinuationAlgebra P}
@@ -8027,6 +8155,11 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.partial_length_le_perimeter
 #print axioms StrongPerimetralTurning.prefix_length_le
 #print axioms StrongPerimetralTurning.History.length_append
+#print axioms StrongPerimetralTurning.History.OccurrenceReadout
+#print axioms StrongPerimetralTurning.perimeterReadout
+#print axioms StrongPerimetralTurning.occurrenceReadoutOfPerimeter
+#print axioms StrongPerimetralTurning.occurrenceReadoutOfPerimeter_perimeterReadout
+#print axioms StrongPerimetralTurning.perimeterReadout_occurrenceReadoutOfPerimeter
 #print axioms StrongPerimetralTurning.admissible_length_le_perimeter
 #print axioms StrongPerimetralTurning.ConcreteContinuationAlgebra.realizeHistory
 #print axioms StrongPerimetralTurning.concreteForwardOccurrence
@@ -8034,6 +8167,10 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.concreteOccurrenceAgreement
 #print axioms StrongPerimetralTurning.exactlyInterpretHistory
 #print axioms StrongPerimetralTurning.ExactHistoryInterpretation.forwardOccurrence_injective
+#print axioms StrongPerimetralTurning.ExactHistoryInterpretation.pullbackReadout
+#print axioms StrongPerimetralTurning.ExactHistoryInterpretation.pushforwardReadout
+#print axioms StrongPerimetralTurning.ExactHistoryInterpretation.pullbackReadout_pushforwardReadout
+#print axioms StrongPerimetralTurning.ExactHistoryInterpretation.pushforwardReadout_pullbackReadout
 #print axioms StrongPerimetralTurning.ConcreteFaithfulPartialPath.reconstruct
 #print axioms StrongPerimetralTurning.interpretEveryFaithfulPartialRealization
 #print axioms StrongPerimetralTurning.Example.permutedExampleTrace

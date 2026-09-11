@@ -834,6 +834,50 @@ Cette précision illustre la discipline générale du document : distinguer ce q
 Lean nomme directement de ce que l'on obtient par composition de résultats
 vérifiés.
 
+### 11.6 Ajouter une lecture sans reconstruire l'objet
+
+Une fois les occurrences constituées, une lecture occurrence-indexée à valeurs
+dans un type `V` est simplement :
+
+```text
+History.Occurrence history → V
+```
+
+`History.OccurrenceReadout` rend cette interface explicite. Le codomaine est
+arbitraire, mais l'interface ne construit pas automatiquement une telle
+fonction et ne lui attribue aucune fidélité, injectivité ou compatibilité.
+Ces propriétés, lorsqu'elles sont requises, restent des obligations séparées.
+
+Les fonctions `perimeterReadout` et `occurrenceReadoutOfPerimeter` reindexent
+une lecture le long de la correspondance exacte entre positions non fermantes
+et occurrences du déploiement. Leurs deux lois ponctuelles d'aller-retour
+montrent que ce reindexage ne perd aucune valeur.
+
+De même, `ExactHistoryInterpretation.pullbackReadout` et
+`ExactHistoryInterpretation.pushforwardReadout` transportent une lecture entre
+une histoire libre et sa réalisation concrète. Les lois d'aller-retour des
+occurrences donnent immédiatement les lois ponctuelles correspondantes pour
+les lectures.
+
+La conséquence est architecturale :
+
+```text
+construction des occurrences
+→ correspondances exactes
+→ famille ouverte de lectures
+```
+
+Conceptuellement, les occurrences et leurs correspondances exactes forment un
+**bus structurel** sur lequel des lectures indépendantes peuvent être branchées
+après constitution. Ce terme désigne ici l'architecture de raccordement déjà
+formalisée, non une primitive mathématique supplémentaire.
+
+La lecture est ajoutée après la constitution et ne modifie pas celle-ci. Une
+fonction arbitraire reste toutefois une simple attribution de valeurs ; sa
+signification ne découle pas du seul reindexage. Enfin, `History.length` est une
+lecture globale de l'histoire, non une spécialisation directe d'une lecture
+indexée par ses occurrences. Les deux niveaux doivent rester distincts.
+
 ## 12. Invariants et lectures numériques
 
 La méthode place la détermination structurelle avant sa lecture quantitative.

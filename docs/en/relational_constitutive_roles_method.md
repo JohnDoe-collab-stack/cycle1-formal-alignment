@@ -817,6 +817,49 @@ name of an additional binary theorem. The distinction illustrates the general
 discipline of this document: separate what Lean names directly from what is
 obtained by composing verified results.
 
+### 11.6 Adding a readout without reconstructing the object
+
+Once occurrences have been constituted, an occurrence-indexed readout with
+values in a type `V` is simply:
+
+```text
+History.Occurrence history → V
+```
+
+`History.OccurrenceReadout` makes this interface explicit. Its codomain is
+arbitrary, but the interface does not automatically construct such a function
+and gives it no faithfulness, injectivity, or compatibility property. Whenever
+such properties are required, they remain separate obligations.
+
+`perimeterReadout` and `occurrenceReadoutOfPerimeter` reindex a readout along
+the exact correspondence between non-closing positions and occurrences of the
+deployment. Their two pointwise round-trip laws show that this reindexing loses
+no value.
+
+Likewise, `ExactHistoryInterpretation.pullbackReadout` and
+`ExactHistoryInterpretation.pushforwardReadout` transport a readout between a
+free history and its concrete realization. The occurrence round trips
+immediately yield the corresponding pointwise laws for readouts.
+
+The consequence is architectural:
+
+```text
+constitution of occurrences
+→ exact correspondences
+→ open family of readouts
+```
+
+Conceptually, occurrences and their exact correspondences form a **structural
+bus** onto which independent readouts can be connected after constitution. The
+term names the connection architecture already formalized here, not an
+additional mathematical primitive.
+
+The readout is added after constitution and does not alter it. An arbitrary
+function nevertheless remains only a value assignment; its meaning does not
+follow from reindexing alone. Finally, `History.length` is a global readout of
+the history, not a direct specialization of a readout indexed by its
+occurrences. The two levels must remain distinct.
+
 ## 12. Invariants and numerical readings
 
 The method places structural determination before its quantitative reading.
