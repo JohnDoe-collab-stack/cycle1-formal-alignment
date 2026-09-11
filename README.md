@@ -12,6 +12,16 @@
 > representation of those determined statuses is compatible with a constructed
 > diagonal status outside every global reflective closure of the evaluator.
 
+## Machine-checked entry point
+
+[`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) is the shortest route
+to the central Cycle 1 result. Its first constructive certificate combines the
+exact perimeter, its operational and normative adequacy, and a faithfully
+realizable one-occurrence continuation outside both regime and specification.
+Its second certificate exposes an exact structural bus from perimeter
+positions to free and concrete occurrences. Arbitrary readouts are attached
+only after that bus has been constituted, independently of their value type.
+
 ## Architecture
 
 ```text

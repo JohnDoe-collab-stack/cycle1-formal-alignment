@@ -13,6 +13,17 @@
 > déterminés est compatible avec un statut diagonal construit hors de toute
 > clôture réflexive globale de l'évaluateur.
 
+## Point d'entrée vérifié par la machine
+
+[`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est le chemin le plus
+court vers le résultat central du Cycle 1. Son premier certificat constructif
+réunit le périmètre exact, son adéquation opérationnelle et normative, puis une
+continuation à une occurrence, fidèlement réalisable et extérieure au régime
+comme à la spécification. Son second certificat expose un bus structurel exact
+entre positions du périmètre, occurrences libres et occurrences concrètes. Les
+lectures arbitraires ne sont branchées qu'après la constitution de ce bus,
+indépendamment de leur type de valeurs.
+
 ## Architecture
 
 ```text
