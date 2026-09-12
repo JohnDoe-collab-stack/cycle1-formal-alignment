@@ -4,8 +4,10 @@ import StrongPerimetralTurning
 # Structural entry point
 
 This file is a human-scale facade over the structural foundation.  It exposes
-two complementary certificates and introduces no new assumption:
+three complementary entry points and introduces no new assumption:
 
+* exact local realization in any rooted generated history reconstructs the
+  canonical perimeter as an initial factor of that history;
 * the canonical perimeter is exactly realized and satisfies both the
   operational regime and the independent specification;
 * one generated step beyond that perimeter is a strict continuation;
@@ -18,13 +20,35 @@ two complementary certificates and introduces no new assumption:
   exact structural bus before any readout or value type is chosen.
 
 The short constructions below do not replace the underlying proofs.  They make
-the two complementary conclusions available in one human-scale file, each
-through a compact certificate.
+the local-to-global reconstruction, the canonical exit, and the structural
+readout bus available in one human-scale file.
 -/
 
 namespace StructuralEntrypoint
 
 open StrongPerimetralTurning
+
+/--
+The central local-to-global reconstruction theorem of Cycle 1, exposed at the
+human-scale entry point.
+
+The input is an arbitrary exact local realization inside a genuine
+`RootedGeneratedHistory`; it is not assumed to be the canonical deployment.
+Its primitive data are a realization map and exact source-cursor agreement for
+each non-closing perimeter requirement.  Injectivity is reconstructed from that
+agreement rather than postulated.
+
+The output constructively exhibits the canonical perimeter history as an exact
+initial factor of the supplied history.  It may leave a positive continuation,
+so this result does not claim that the perimeter exhausts the history.  This
+facade is executable, preserves the witness layer, and adds no hypothesis.
+-/
+def localExactnessReconstructsPerimeter
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (realization : ExactNonClosingRealization P history) :
+    PerimeterExtension P history :=
+  realization.toPerimeterExtension
 
 /--
 The canonical human-scale certificate: exact reconstruction of the perimeter
@@ -213,6 +237,7 @@ end ExactReadoutBus
 end StructuralEntrypoint
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms StructuralEntrypoint.localExactnessReconstructsPerimeter
 #print axioms StructuralEntrypoint.ExactPerimeterAndFaithfulExit
 #print axioms StructuralEntrypoint.exactPerimeterAndFaithfulExit
 #print axioms StructuralEntrypoint.ExactReadoutBus

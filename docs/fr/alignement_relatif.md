@@ -840,7 +840,9 @@ La compilation confirme que Lean accepte les artefacts courants sans
 avertissement. Toutes les commandes `#print axioms` des blocs finaux rapportent
 que les déclarations inspectées ne dépendent d'aucun axiome.
 
-Le mot-clé `noncomputable` utilisé dans certaines définitions récursives dépendantes sert à contourner des contraintes de génération de code Lean. Il ne constitue pas, à lui seul, une dépendance axiomatique.
+Toutes les récursions dépendantes qui produisent des témoins sont écrites sous
+une forme structurelle exécutable. Les sources Lean ne contiennent aucune
+déclaration `noncomputable` ; ce contrôle est distinct de l'audit axiomatique.
 
 ---
 

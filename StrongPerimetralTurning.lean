@@ -3866,13 +3866,12 @@ private def rootProperDepth :
   | .root => .direct .root
   | .next depth => .later (rootProperDepth depth)
 
-private noncomputable def nextProperDepth
-    {first second : StructuralDepth}
-    (proper : ProperStructuralDepth first second) :
-    ProperStructuralDepth (.next first) (.next second) := by
-  induction proper with
-  | direct => exact .direct _
-  | later proper inductionHypothesis => exact .later inductionHypothesis
+private def nextProperDepth :
+    {first second : StructuralDepth} →
+    ProperStructuralDepth first second →
+      ProperStructuralDepth (.next first) (.next second)
+  | _, _, .direct depth => .direct (.next depth)
+  | _, _, .later earlier => .later (nextProperDepth earlier)
 
 private inductive StructuralDepthComparison
     (first second : StructuralDepth) : Type
@@ -3882,7 +3881,7 @@ private inductive StructuralDepthComparison
   | backward : ProperStructuralDepth second first →
       StructuralDepthComparison first second
 
-private noncomputable def compareStructuralDepth :
+private def compareStructuralDepth :
     (first second : StructuralDepth) → StructuralDepthComparison first second
   | .root, .root => .equal rfl
   | .root, .next second => .forward (rootProperDepth second)
@@ -4647,7 +4646,7 @@ namespace History
    source of the history determines an initial one-step factorization.  The
    proof recurses on occurrence data.  A nonempty prefix before that occurrence
    would be a positive generated history returning to the same source. -/
-noncomputable def factorInitialGeneratedStep
+def factorInitialGeneratedStep
     {P : CircularPresentation}
     {source middle target : PositiveConstitution P}
     (history : GeneratedHistory source target)
@@ -4661,9 +4660,9 @@ noncomputable def factorInitialGeneratedStep
         transportOccurrence recompose
           (History.embedLeftOccurrence
             (.last : History.Occurrence (.extend .root step))
-            continuation) = occurrence } := by
-  induction occurrence with
-  | @last a b prior lastStep =>
+            continuation) = occurrence } :=
+  match occurrence with
+  | @Occurrence.last _ _ _ _ _ prior lastStep => by
       cases locatedStepExact
       cases prior with
       | root =>
@@ -4673,8 +4672,8 @@ noncomputable def factorInitialGeneratedStep
             ⟨_, priorHistory, previousStep⟩
           exact False.elim
             (positiveGeneratedHistory_source_ne_target positive rfl)
-  | @earlier a b prior lastStep earlier inductionHypothesis =>
-      rcases inductionHypothesis locatedStepExact with
+  | @Occurrence.earlier _ _ _ _ _ prior lastStep earlier => by
+      rcases factorInitialGeneratedStep prior step earlier locatedStepExact with
         ⟨continuation, ⟨recompose, occurrenceExact⟩⟩
       cases recompose
       exact ⟨.extend continuation lastStep, ⟨rfl,
@@ -4687,7 +4686,7 @@ noncomputable def factorInitialGeneratedStep
    the right-hand continuation.  Classification is performed on occurrence
    data, while the inequality is used only to eliminate the impossible old
    branch. -/
-noncomputable def extractRightOccurrenceAfterSingle
+def extractRightOccurrenceAfterSingle
     {State : Type uA}
     {Step : State → State → Type uB}
     {source middle target : State}
@@ -4723,7 +4722,7 @@ end History
 /- Recursive structural factorization of a canonical perimeter deployment from
    exact, injective occurrences inside a genuine generated history.  No
    numerical rank or length is used. -/
-noncomputable def factorDeployRemainingFromExactOccurrences
+def factorDeployRemainingFromExactOccurrences
     (P : CircularPresentation)
     {node : LocalNode
       P.Explicit P.Implicit P.Compatible P.Difference P.Provenance} :
@@ -4875,7 +4874,7 @@ namespace ExactNonClosingRealization
 
 /- Exact local realization inside a genuine rooted generated history is already
    enough to reconstruct the canonical perimeter as an initial extension. -/
-noncomputable def toPerimeterExtension
+def toPerimeterExtension
     {P : CircularPresentation}
     {history : RootedGeneratedHistory P}
     (realization : ExactNonClosingRealization P history) :

@@ -33,13 +33,12 @@ Results:
   Exit code: 0
   Build completed successfully: yes
   Warnings: 0
-  Axiom audit declarations: 345
+  Axiom audit declarations: 347
   Unexpected axiom lines: 0
 
-The six declaration-bearing Lean modules contain the axiom-reporting
-declarations used by the build; `Cycle2.lean` is an import-only aggregator.
-Every one of the 345 reports states that the named declaration does not depend
-on any axioms.
+The six declaration-bearing Lean modules and the import-only `Cycle2.lean`
+aggregator each contain one final axiom-audit block. Every one of the 347
+reports states that the named declaration does not depend on any axioms.
 
 Source-policy scan
 ------------------
@@ -49,6 +48,7 @@ The audited Lean sources contain none of the following forbidden constructs:
   sorry
   admit
   axiom
+  noncomputable
   opaque
   unsafe
   Classical
@@ -60,19 +60,19 @@ Scientific source SHA-256
 
 1200d2b820747a1220adbbe0e3723d7f8c4332b88747831fea38d5b17168d12c  SegmentedResidualRole.lean
 c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
-ae24f1b2ab6f637b29eb6ee84f40c23b792b51f636d4dad835ab6ee12a555a94  StrongPerimetralTurning.lean
-6d215d46181b5a2ae83c40ecd9cf98b34f25a4db1661aa2c2bbf08dff49d1ccd  StructuralEntrypoint.lean
-3f93995ed496773a901af692a855d3d4c0734c92ba475f7554ba6b64e91b2c62  Cycle2.lean
+a8f8efac53cc934c081fbc3b463b4af070dc0b8e3eae635f21977d4fd0cf27b1  StrongPerimetralTurning.lean
+ec26b0a3c606cb1f6e9e3daf84b003e362ba598174699fb26a8a5c42de6e17c4  StructuralEntrypoint.lean
+887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-6a5acec1f61d313ce65fea5f18a8d894d0e539ea746ead635d36c9b2da6c255b  docs/fr/alignement_relatif.md
-52043f423367bc4747448d031b507aabfed81d8d49a0f53e5158de529781ee70  docs/en/relative_alignment.md
+dcaeb49747f0d893d8211f266886b290ed8f2c151598d4fc96ceab9a104ad748  docs/fr/alignement_relatif.md
+12d7e08b75c7be4b6cdaeaed69cc7b8b8169abe02909efa8989320ea4eab62ac  docs/en/relative_alignment.md
 2cfdb8028a99f63eee58ad59eed4c79021977a71d763b53bbc449113bd9a00ee  docs/fr/fondements_structurels.md
 c17b779f5ebc05c84ed25523b48ec9a7015be4e81e23d5b1acab4931781978fc  docs/en/structural_foundations.md
 a90628e64cf7911622994c6cba138d9d3156919477e7f9ed1d22449eeaa0aeef  docs/fr/methode_roles_constitutifs_relationnels.md
 49d3f2a234e3d7da090a96aa00cdccbf91250a40d615dc029967b6afdd946681  docs/en/relational_constitutive_roles_method.md
-e9a2fc6ff6bbce91e1d77bea71b4b4aa953274fcc3cb4840616dd18a4ca69c62  docs/fr/alignement_reflexif.md
-ba435424114b2c1f610e6a42edeeb1d5d0285a11c6fbad1f7989a4fdf7e8162e  docs/en/reflective_alignment.md
+82d2823b13ad12b4a73f67be1ab11129183870ebae9e54a5fa8fd710bbe3eeca  docs/fr/alignement_reflexif.md
+7adc55854b6cc09b5eeebd37efe29fa37a2a88e7dd504c17055a9d72f35ba76e  docs/en/reflective_alignment.md
 
 Manifest verification
 ---------------------

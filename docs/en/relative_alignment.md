@@ -813,8 +813,9 @@ Compilation confirms that Lean accepts the current artifacts without warnings.
 All `#print axioms` commands in the final blocks report that the inspected
 declarations depend on no axioms.
 
-The `noncomputable` keyword used in some dependent recursive definitions handles
-Lean code-generation constraints. By itself, it is not an axiomatic dependency.
+All witness-producing dependent recursions are written in a structurally
+executable form. The Lean sources contain no `noncomputable` declaration; this
+is checked independently from the axiom audit.
 
 ---
 

@@ -16,13 +16,16 @@
 ## Point d'entrée vérifié par la machine
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est le chemin le plus
-court vers le résultat central du Cycle 1. Son premier certificat constructif
-réunit le périmètre exact, son adéquation opérationnelle et normative, puis une
-continuation à une occurrence, fidèlement réalisable et extérieure au régime
-comme à la spécification. Son second certificat expose un bus structurel exact
-entre positions du périmètre, occurrences libres et occurrences concrètes. Les
-lectures arbitraires ne sont branchées qu'après la constitution de ce bus,
-indépendamment de leur type de valeurs.
+court vers le résultat central du Cycle 1. Son théorème générique local vers
+global montre qu'une réalisation locale exacte reconstruit le périmètre
+canonique comme facteur initial de toute histoire générée enracinée ;
+l'injectivité est dérivée de l'accord exact plutôt que supposée. Un deuxième
+point d'entrée réunit le périmètre canonique, son adéquation opérationnelle et
+normative, puis une continuation à une occurrence, fidèlement réalisable et
+extérieure au régime comme à la spécification. Un troisième expose un bus
+structurel exact entre positions du périmètre, occurrences libres et
+occurrences concrètes. Les lectures arbitraires ne sont branchées qu'après la
+constitution de ce bus, indépendamment de leur type de valeurs.
 
 ## Architecture
 
@@ -239,7 +242,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 345
+La compilation épinglée construit les deux bibliothèques Lake, audite 347
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -252,10 +255,11 @@ théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 
 est un argument diagonal sémantique abstrait, non une formalisation de la
 syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
 d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
-n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni `Classical`, ni
-`propext`, ni `Quot.sound`. Lean génère toutefois des déclarations auxiliaires
-`.injEq` qui dépendent de `propext` ; aucune des 345 déclarations explicitement
-auditées ne dépend de celles-ci ni d'un autre axiome.
+n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
+`noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
+toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
+aucune des 347 déclarations explicitement auditées ne dépend de celles-ci ni
+d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
 pour le compiler ou l'auditer. Le code et la documentation sont distribués sous
