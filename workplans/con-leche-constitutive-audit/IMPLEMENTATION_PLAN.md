@@ -43,8 +43,16 @@ scientifiques attendus.
   `Env.empty`. Un remplacement atteignable a été construit : le vrai checker
   accepte le préfixe, le vrai `PUnit.rec` exécute ι, mais l’échec sémantique y
   est déjà présent dans le minorant fourni au recursor. Ce remplacement ne
-  constitue donc pas un séparateur propre à la loi ι. `.nested` et la
-  comparaison postérieure restent ouvertes ;
+  constitue donc pas un séparateur propre à la loi ι. Conformément à la
+  méthode, la recherche d’un autre séparateur ι est arrêtée tant qu’aucun nouveau
+  résidu productible ne l’impose. Le chantier est revenu au résidu `defn`
+  initial : un préfixe complet contenant l’application fautive est maintenant
+  accepté depuis `Env.empty`, le vrai `DeclDefnRun` est construit, et la
+  `GuardedMembershipPreservation` commune à δ/β est à la fois suffisante pour
+  reconstruire l’obligation sémantique locale et réfutée sur le même témoin
+  affaibli. L’état et la transition sont donc atteignables ; la réalisation
+  affaiblie choisie sur cet état n’est pas présentée comme le témoin sémantique
+  produit par le fold riche ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
@@ -71,6 +79,28 @@ réfuter une conjecture par un séparateur. Il ne doit pas définir rétroactive
 les notions générales du cadre. Une abstraction nouvelle n’entre dans le noyau
 que si plusieurs preuves l’imposent indépendamment et si sa formulation ne
 mentionne aucun détail propre à ConLeche.
+
+### Protocole impératif du cas d’étude
+
+ConLeche est analysé exclusivement par la méthode du cadre, dans cet ordre :
+
+```text
+résidu concret
+→ factorisation positive
+→ weakening des données consommées
+→ séparateur constructif au premier échec
+→ contrôle de l’atteignabilité
+→ reconstruction locale ou nécessité de persistance
+→ enrichissement minimal du candidat
+→ nouveau test de fermeture
+```
+
+Il est interdit de remplacer un maillon manquant par une abstraction nommée,
+de poursuivre une autre branche avant d’avoir classé le résidu courant, ou de
+déduire une impossibilité d’un simple échec de recherche. Une capacité n’entre
+dans le carrier que si sa nécessité transitionnelle, sa non-reconstructibilité
+locale et sa portée d’atteignabilité ont été séparément établies. Toute
+déviation invaliderait la valeur du cas d’étude comme test du cadre théorique.
 
 Le chantier part de la distinction suivante :
 
@@ -999,9 +1029,30 @@ Les certificats correspondants sont isolés dans le checkout de dissection :
 - `ScratchIotaPlainReachableProbe.lean` reconstruit sans oracle le préfixe
   accepté ;
 - `ScratchIotaPlainReachable.lean` construit le témoin affaibli, le pas ι réel,
-  l’échec du minorant et le front-door positif de la règle canonique.
+  l’échec du minorant, son raccord à la capacité δ/β existante et le front-door
+  positif de la règle canonique ;
+- `ScratchB0ReachableDefn.lean` revient au résidu de définition : il construit
+  un vrai `DeclDefnRun` après le préfixe accepté, démontre l’échec de
+  `DefnValueWellDenotedObligation`, factorise positivement cette obligation par
+  la capacité commune, puis démontre que le checker accepte aussi le préfixe
+  étendu contenant cette définition ; `reachableCheckerDefnSeparator` rassemble
+  ces faits au même carburant et sur le même témoin ;
+- `ScratchDeltaHistoricalCandidate.lean` teste, sans créer `B1`, la fermeture
+  de la capacité commune sur les occurrences δ admissibles. La candidate
+  `AdmissibleDeltaMembershipProvider` est produite par
+  `AcvalDefnReadableSeed`, donc par `AcvalDefnInst`, suffit à reconstruire le
+  premier résidu `Pdenote`, et est constructivement réfutée sur le témoin
+  atteignable affaibli ;
+- `ScratchDeltaProviderStability.lean` effectue le premier test de conservation
+  de cette candidate depuis l’état initial. La capacité est vacuement présente
+  dans l’environnement vide, le checker accepte réellement comme première
+  déclaration l’alias fonctionnel, et il existe sur l’environnement obtenu un
+  `B0W` terminalement valide qui réfute la candidate. Ce séparateur démontre
+  que les seules données terminales du successeur ne **forcent** pas le
+  provider. Il ne réfute pas une stabilité faible autorisée à choisir une autre
+  réalisation successeur.
 
-Ces trois fichiers compilent sans `sorry`, `native_decide` ni nouvelle
+Ces quatre fichiers compilent sans `sorry`, `native_decide` ni nouvelle
 déclaration `noncomputable`. Leurs `#print axioms` ne rapportent que
 `propext`, `Classical.choice` et `Quot.sound`, hérités de ConLeche.
 
@@ -1034,27 +1085,78 @@ remplacement atteignable
   → PlainRhsFrontDoor de la loi RHS canonique reconstruit positivement
 ```
 
-Cette convergence de forme avec la capacité δ/β n’est pas encore une
-comparaison : le nom et les théorèmes δ/β restent absents de la définition ι.
-Il faut d’abord poursuivre la branche positive après ce premier résidu et
-stabiliser `.plain` puis `.nested`.
+La convergence observée sur le minorant n’est pas comptée comme un résultat
+propre à ι : elle localise une obstruction antérieure, déjà expliquée par δ.
+Le retour au résidu `defn` ferme maintenant les étapes suivantes de la méthode :
 
-Travail restant, dans cet ordre :
+```text
+résidu concret sur une définition acceptée                    ✓
+factorisation positive par GuardedMembershipPreservation      ✓
+weakening antérieur jusqu’à cette capacité commune             ✓
+séparateur constructif contre sa reconstruction depuis B0W     ✓
+atteignabilité de l’état et de la transition par le checker    ✓
+atteignabilité historique du témoin affaibli lui-même          non revendiquée
+```
 
-1. déterminer si une obstruction **propre à la loi ι `.plain`** existe dans la
-   classe atteignable. Le témoin actuel n’en est pas une : il faut soit construire
-   une occurrence dont les entrées sémantiques requises sont disponibles mais
-   dont la loi RHS échoue, soit prouver que les règles `.plain` productibles
-   reconstruisent toujours cette loi sous les prémisses pertinentes, soit laisser
-   la question ouverte ;
-2. poursuivre le weakening de `.plain` sur les autres formes syntaxiques
-   effectivement forcées par les runs d’installation, sans généraliser depuis
-   la seule application racine ;
-3. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
-4. stabiliser l’interface ι seulement après les deux branches ;
-5. comparer ensuite seulement δ, β et ι ;
-6. conclure par construction d’une capacité commune, impossibilité dans une
-   classe `K` explicitement définie, ou maintien honnête de la question ouverte.
+Le prochain travail n’est ni ι ni `B1`. Il consiste à remonter le producteur
+positif déjà établi de cette capacité et à déterminer la plus faible donnée
+historique qui permet de la reconstruire lors de toute occurrence δ pertinente.
+L’interface globale `AcvalDefnReadableSeed` est seulement une enveloppe
+suffisante connue ; elle ne doit pas être ajoutée telle quelle au carrier sans
+affaiblissement. La seed indexée par l’occurrence reste une obligation locale,
+pas encore une donnée persistante.
+
+Un premier affaiblissement producteur est maintenant compilé :
+
+```text
+AcvalDefnInst
+  → AcvalDefnReadableSeed
+  → AdmissibleDeltaMembershipProvider
+  → GuardedMembershipPreservation sur l’occurrence réelle
+  → Pdenote
+```
+
+Le séparateur atteignable réfute `AdmissibleDeltaMembershipProvider` sur le
+témoin affaibli. Ce résultat force une mémoire supplémentaire relativement à
+ce témoin, mais ne prouve pas encore que cette candidate est stable, minimale
+ou qu’elle doit être stockée telle quelle. Elle reste donc explicitement hors
+de tout carrier nommé `B1`.
+
+Le premier test de conservation ajoute une frontière plus précise :
+
+```text
+B0W initial + provider initial + vraie transition defn
+  → il existe un successeur B0W terminalement valide sans provider
+```
+
+La candidate ne descend donc pas automatiquement avec une réalisation
+terminale arbitraire. Cette conclusion ne vaut pas encore
+`WeaklyStable → False`, car une preuve de stabilité faible peut choisir un
+autre successeur. Le prochain résidu est la relation de compatibilité qui doit
+relier le témoin ancien au témoin nouveau et exclure cette substitution de
+réalisation. Cette relation doit être extraite de la construction positive du
+successeur ; elle ne doit pas être définie en encapsulant directement le
+provider.
+
+L’ordre obligatoire est désormais :
+
+1. extraire du producteur stocké uniquement la capacité nécessaire aux
+   occurrences δ admissibles réellement rencontrées ;
+2. prouver qu’elle produit la `GuardedMembershipPreservation` requise ;
+3. tester sa conservation depuis un témoin ancien déterminé vers un témoin
+   nouveau relié par la construction réelle de la branche `defn` ;
+4. extraire la plus faible compatibilité historique qui exclut le successeur
+   terminal incohérent déjà construit, sans y encoder la conclusion ;
+5. tenter de reconstruire cette compatibilité depuis `B0W + DeclDefnRun` et,
+   au premier échec, fournir un séparateur concret ;
+6. seulement si cette compatibilité est nécessaire, non reconstructible et
+   stable, enrichir minimalement un candidat témoin ;
+7. reprendre la même boucle au premier résidu suivant, sans anticiper les autres
+   branches.
+
+Les branches ι `.plain` supplémentaires et `.nested` ne sont pas des tâches
+immédiates. Elles ne seront rouvertes que si un résidu concret de la fermeture
+les rend nécessaires.
 
 L’absence de construction n’est jamais une preuve d’impossibilité.
 
@@ -1545,9 +1647,11 @@ acquis à conserver
   Gate 5b  δ gelé + β indépendant + comparaison δ/β
 
 travail immédiat
-  Gate 5b  fermer ι .plain
-  Gate 5b  analyser ι .nested indépendamment
-  Gate 5b  geler l’interface ι puis comparer δ/β/ι
+  Gate 5b  raccord defn atteignable à la capacité δ/β fermé
+  Gate 5b  capacité productrice affaiblie et séparateur terminal construits
+  Gate 5b  extraire la compatibilité historique du successeur defn réel
+  Gate 5b  décider reconstruction locale ou persistance par séparateur concret
+  Gate 5b  ne rouvrir ι que si la fermeture produit un résidu ι concret
 
 réduction de l’hypothèse d’univers
   Gate 5c.0  geler les dépendances SetTheory/EnvModel/fold/capstone
