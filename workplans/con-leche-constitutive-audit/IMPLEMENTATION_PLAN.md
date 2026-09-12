@@ -33,13 +33,18 @@ scientifiques attendus.
 - δ constitue le cas de référence gelé ;
 - β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
   vers la même préservation gardée des appartenances ;
-- ι a été lancé indépendamment : le cas `.plain` possède désormais un
-  séparateur porté par une exécution inductive complète, du
+- ι a été lancé indépendamment : le cas `.plain` possède un séparateur
+  local porté par une exécution inductive complète, du
   `ProvisionRecsRun` interne jusqu’à `IndRecsRun`, `DeclIndRun` et `DeclRun`,
   puis jusqu’au calcul réel `checkDecl = .ok`, avec un carburant unique et la
   règle installée exacte ; son front-door RHS a été strictement affaibli à
-  « lecture exacte + `WellDenotedV` uniforme » ; l’atteignabilité depuis
-  `Env.empty`, `.nested` et la comparaison postérieure restent ouvertes ;
+  « lecture exacte + `WellDenotedV` uniforme » ; son environnement synthétique
+  exact est maintenant prouvé improductible par `checkDeclsPure` depuis
+  `Env.empty`. Un remplacement atteignable a été construit : le vrai checker
+  accepte le préfixe, le vrai `PUnit.rec` exécute ι, mais l’échec sémantique y
+  est déjà présent dans le minorant fourni au recursor. Ce remplacement ne
+  constitue donc pas un séparateur propre à la loi ι. `.nested` et la
+  comparaison postérieure restent ouvertes ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
@@ -279,6 +284,18 @@ par un séparateur ou une factorisation positive, jamais par anticipation.
   `IotaRulesRun`, `IndRecsRun`, `DeclIndRun`, au `DeclRun` complet et enfin à
   l’égalité calculatoire réelle `checkDecl = .ok` ; l’atteignabilité de
   l’environnement synthétique depuis `Env.empty` n’est pas revendiquée.
+- la réfutation formelle de cette atteignabilité exacte : tout
+  `EnvModelM` sur l’ancienne base synthétique conduit à une contradiction, donc
+  aucun `checkDeclsPure .verified` partant de `Env.empty` ne peut retourner cet
+  environnement ;
+- un test de remplacement atteignable, sans `sorry`, `native_decide` ni nouvelle
+  déclaration `noncomputable` : `PUnit`, un alias accepté et une fonction
+  acceptée produisent exactement l’environnement affaibli visé ; un vrai témoin
+  `B0W` y existe, le vrai producteur ι de `PUnit.rec` s’exécute, et son minorant
+  possède une lecture exacte mais non `WellDenoted`. Ce résultat localise
+  toutefois la rupture **avant** la loi sémantique propre de ι. Un théorème
+  positif complémentaire reconstruit le `PlainRhsFrontDoor` de la règle canonique
+  `PUnit.rec` dans ce même témoin affaibli ;
 
 Ces preuves appartiennent au checkout de dissection externe. Leurs empreintes et
 leurs axiomes hérités sont rapportés dans les documents scientifiques ; elles ne
@@ -305,7 +322,9 @@ sont pas présentées comme des modules constructifs importés par le dépôt.
   `fullyChecked_sound` ;
 - la minimalité absolue d’un invariant spécialisé pour `no False` ;
 - l’atteignabilité depuis l’environnement initial de tous les séparateurs
-  construits sur des témoins affaiblis.
+  construits sur des témoins affaiblis ; l’ancien séparateur ι synthétique est
+  désormais explicitement exclu de cette classe, tandis que le remplacement
+  atteignable porte une obstruction sémantique antérieure à ι ;
 
 ## 5. Gate 0 — gel et compatibilité
 
@@ -965,10 +984,55 @@ front-door sémantique du RHS installé. Une sonde initiale par `native_decide` 
 ConLeche.
 
 Cette fermeture reste locale à un environnement de base synthétique fourni au
-checker. Elle ne démontre pas que cet environnement est le résultat d’un
-`checkDeclsPure` partant de `Env.empty`. L’atteignabilité est une obligation
-indépendante : elle doit être construite, réfutée dans une classe explicitement
-définie, ou laissée ouverte.
+checker. La question de son atteignabilité exacte est maintenant **fermée
+négativement** : les lectures de l’alias et du recursor modèle imposées par
+`defn_reads`, combinées à `mem_type`, forceraient `univ 0` à appartenir à un
+`piR` positif, ce qui est contradictoire. Par `checkDeclsPure_sound_of`, aucune
+liste acceptée depuis `Env.empty` ne peut donc retourner cet environnement
+exact. Cette preuve ne repose ni sur un échec de recherche ni sur une
+énumération de programmes.
+
+Les certificats correspondants sont isolés dans le checkout de dissection :
+
+- `ScratchIotaPlainReachability.lean` ferme l’improductibilité de l’ancienne
+  base exacte ;
+- `ScratchIotaPlainReachableProbe.lean` reconstruit sans oracle le préfixe
+  accepté ;
+- `ScratchIotaPlainReachable.lean` construit le témoin affaibli, le pas ι réel,
+  l’échec du minorant et le front-door positif de la règle canonique.
+
+Ces trois fichiers compilent sans `sorry`, `native_decide` ni nouvelle
+déclaration `noncomputable`. Leurs `#print axioms` ne rapportent que
+`propext`, `Classical.choice` et `Quot.sound`, hérités de ConLeche.
+
+Un remplacement atteignable a ensuite été construit sans réintroduire
+l’infrastructure globale dans le carrier affaibli. Le vrai checker accepte
+successivement le bloc `PUnit`, l’alias fonctionnel et la fonction ; le fold
+retourne exactement l’environnement annoncé. Sur ce même environnement, un
+témoin `B0W` incohérent mais terminalement suffisant existe sous `Nonempty`, et
+le vrai `PUnit.rec` effectue son pas ι canonique. Le minorant fourni à cette
+occurrence est lu comme
+`PUnit PUnit` et n’est pas `WellDenoted` parce que sa tête n’appartient à aucun
+`piR`. En revanche, le `PlainRhsFrontDoor` du RHS stocké de la règle canonique
+`PUnit.rec` est constructivement reconstruit dans ce même témoin. Le test sépare
+donc positivement la loi de règle ι de l’obstruction déjà présente dans son
+minorant.
+
+Ce remplacement **ne transporte pas** la conclusion du séparateur synthétique
+vers la classe atteignable. Il montre au contraire que la rupture est déjà
+présente dans une entrée du recursor, avant la loi sémantique propre de ι. Il
+faut donc distinguer explicitement :
+
+```text
+ancien témoin synthétique
+  → loi RHS .plain réfutée
+  → environnement exact improductible depuis Env.empty
+
+remplacement atteignable
+  → vrai préfixe accepté + vrai pas PUnit ι
+  → minorant déjà non WellDenoted
+  → PlainRhsFrontDoor de la loi RHS canonique reconstruit positivement
+```
 
 Cette convergence de forme avec la capacité δ/β n’est pas encore une
 comparaison : le nom et les théorèmes δ/β restent absents de la définition ι.
@@ -977,12 +1041,12 @@ stabiliser `.plain` puis `.nested`.
 
 Travail restant, dans cet ordre :
 
-1. tester l’atteignabilité depuis `Env.empty` séparément du théorème local
-   `checkDecl = .ok` désormais fermé : construire, si possible, une séquence
-   réelle de déclarations produisant un environnement de base adéquat ; si la
-   base exacte est improductible, en donner une preuve ou reconstruire un
-   séparateur équivalent sur une base atteignable, sans confondre les deux
-   résultats ;
+1. déterminer si une obstruction **propre à la loi ι `.plain`** existe dans la
+   classe atteignable. Le témoin actuel n’en est pas une : il faut soit construire
+   une occurrence dont les entrées sémantiques requises sont disponibles mais
+   dont la loi RHS échoue, soit prouver que les règles `.plain` productibles
+   reconstruisent toujours cette loi sous les prémisses pertinentes, soit laisser
+   la question ouverte ;
 2. poursuivre le weakening de `.plain` sur les autres formes syntaxiques
    effectivement forcées par les runs d’installation, sans généraliser depuis
    la seule application racine ;
