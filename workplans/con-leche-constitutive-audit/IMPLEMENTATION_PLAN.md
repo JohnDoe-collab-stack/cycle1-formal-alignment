@@ -34,10 +34,12 @@ scientifiques attendus.
 - β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
   vers la même préservation gardée des appartenances ;
 - ι a été lancé indépendamment : le cas `.plain` possède désormais un
-  séparateur porté par un `IotaRuleRun` complet, et son front-door RHS a été
-  strictement affaibli à « lecture exacte + `WellDenotedV` uniforme » ; le
-  raccord à l’installation inductive englobante, `.nested` et la comparaison
-  postérieure restent ouverts ;
+  séparateur porté par une exécution inductive complète, du
+  `ProvisionRecsRun` interne jusqu’à `IndRecsRun`, `DeclIndRun` et `DeclRun`,
+  puis jusqu’au calcul réel `checkDecl = .ok`, avec un carburant unique et la
+  règle installée exacte ; son front-door RHS a été strictement affaibli à
+  « lecture exacte + `WellDenotedV` uniforme » ; l’atteignabilité depuis
+  `Env.empty`, `.nested` et la comparaison postérieure restent ouvertes ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
@@ -272,6 +274,11 @@ par un séparateur ou une factorisation positive, jamais par anticipation.
   complet : sélection de la règle, exécution de `iotaRecFueled`, théorème de
   continuation et toutes les obligations opérationnelles du run sont
   simultanément satisfaits, tandis que `PlainRhsFrontDoor` reste réfuté.
+- une reconstruction du même contre-modèle sous la forme exacte imposée par
+  `ProvisionRecsRun`, puis son relèvement, au même carburant, à
+  `IotaRulesRun`, `IndRecsRun`, `DeclIndRun`, au `DeclRun` complet et enfin à
+  l’égalité calculatoire réelle `checkDecl = .ok` ; l’atteignabilité de
+  l’environnement synthétique depuis `Env.empty` n’est pas revendiquée.
 
 Ces preuves appartiennent au checkout de dissection externe. Leurs empreintes et
 leurs axiomes hérités sont rapportés dans les documents scientifiques ; elles ne
@@ -761,9 +768,9 @@ Un second séparateur, fondé sur une application effectivement acceptée par
 `inferTypeCore`, montre d’abord que `B0W + run RHS accepté` ne suffit pas à
 reconstruire `PlainRhsFrontDoor`. Ce résultat isole la coupure sémantique après
 l’acceptation opérationnelle. Il a depuis été renforcé par un contre-modèle qui
-satisfait toutes les obligations d’un `IotaRuleRun` `.plain` complet ; la
-frontière ouverte est désormais l’installation inductive englobante, et non le
-run de règle local.
+satisfait toutes les obligations d’un `IotaRuleRun` `.plain` complet, puis par
+une reconstruction qui respecte exactement la forme d’environnement imposée
+par `ProvisionRecsRun` et traverse le fold d’installation inductif complet.
 
 La descente dans la branche application de `InferSubjectWellDenoted` a ensuite
 isolé, sans employer l’interface commune δ/β, le premier résidu relationnel
@@ -920,21 +927,48 @@ règle, avec la même réfutation du front-door. Son audit d’axiomes donne le 
 résultat hérité. La première contrainte productrice réellement nouvelle est
 donc `ProvisionRecsRun`, pas `IotaRulesRun`.
 
-Le couple d’environnements synthétique courant ne peut pas être réutilisé tel
-quel à ce niveau. Un lemme compilé montre qu’aucune liste de recursors ne peut
-relier `envBase` à `envSelf` par `ProvisionRecsRun` : le provisionneur construit
-l’environnement propre en préfixant un `recInfo` à règles vides pour chaque
-recursor, alors que le `envSelf` courant commence par l’axiome auxiliaire du
-contre-modèle. Cette obstruction de forme interdit un raccord illégitime, mais
-ne fournit aucune sémantique et ne montre pas que le vrai provisionnement
-répare le front-door.
+Le premier couple d’environnements synthétique ne pouvait pas être réutilisé à
+ce niveau : un lemme compilé montrait qu’aucune liste de recursors ne pouvait le
+relier par `ProvisionRecsRun`. Cette obstruction a été respectée, non contournée.
+Le contre-modèle a été reconstruit depuis une nouvelle base où le provisionneur
+préfixe réellement le `recInfo` à règles vides exigé. La base contient un
+recursor modèle qui est une véritable fonction sémantique vers `empty`; le RHS
+séparateur possède la même interprétation terminale sans posséder la structure
+`WellDenoted` requise. Cela permet simultanément :
 
-La portée reste donc rigoureusement en amont du producteur inductif englobant.
-Le prochain contre-modèle doit être reconstruit avec la relation exacte imposée
-par `ProvisionRecsRun`, puis porté par `IndRecsRun` ou `DeclIndRun`. Il n’est pas
-encore établi que de tels environnements sont atteignables depuis
-l’environnement initial. Ces contraintes peuvent exclure le témoin ou fournir
-la relation sémantique manquante ; leur effet demeure une question ouverte.
+```text
+ProvisionRecsRun au carburant F
++ IotaRulesRun au même carburant F
++ IndRecsRun
++ DeclIndRun
++ DeclRun avec DeclIndRunDispatch
++ B0W sur l’environnement provisionné
++ négation de PlainRhsFrontDoor pour la règle installée
+```
+
+Les raccords de carburant utilisent les lemmes de monotonie réels du checker ;
+aucun indice, environnement ou RHS indépendant n’est substitué. Le théorème
+final conserve explicitement le provisionnement et le fold de règles dans son
+énoncé afin que l’échec sémantique porte sur la règle installée par ce même run.
+Les `#print axioms` rapportent seulement `propext`, `Classical.choice` et
+`Quot.sound`, hérités du développement ConLeche, sans `sorryAx`.
+
+Le converse général `DeclRun → checkDecl = .ok` n’est toujours pas revendiqué.
+En revanche, il est désormais prouvé **pour ce témoin concret** par une
+reconstruction noyau de chaque calcul : `IotaRuleRun → checkIotaRule`, fold de
+la liste de règles, provision des recursors, `checkIndRecs`, `checkModeled`, puis
+`checkDecl`. Le théorème final rassemble, aux mêmes indices, l’égalité
+`checkDecl = .ok`, le provisionnement, le fold de règles et la négation du
+front-door sémantique du RHS installé. Une sonde initiale par `native_decide` a
+été retirée ; les `#print axioms` finaux ne rapportent aucun axiome généré ni
+`sorryAx`, seulement `propext`, `Classical.choice` et `Quot.sound` hérités de
+ConLeche.
+
+Cette fermeture reste locale à un environnement de base synthétique fourni au
+checker. Elle ne démontre pas que cet environnement est le résultat d’un
+`checkDeclsPure` partant de `Env.empty`. L’atteignabilité est une obligation
+indépendante : elle doit être construite, réfutée dans une classe explicitement
+définie, ou laissée ouverte.
 
 Cette convergence de forme avec la capacité δ/β n’est pas encore une
 comparaison : le nom et les théorèmes δ/β restent absents de la définition ι.
@@ -943,11 +977,12 @@ stabiliser `.plain` puis `.nested`.
 
 Travail restant, dans cet ordre :
 
-1. reconstruire le contre-modèle avec la relation d’environnements exacte de
-   `ProvisionRecsRun`, puis déterminer si `IndRecsRun` ou `DeclIndRun` excluent
-   encore sa rupture sémantique ; construire un raccord positif ou un
-   séparateur à ce niveau, et sinon maintenir explicitement la question
-   ouverte ;
+1. tester l’atteignabilité depuis `Env.empty` séparément du théorème local
+   `checkDecl = .ok` désormais fermé : construire, si possible, une séquence
+   réelle de déclarations produisant un environnement de base adéquat ; si la
+   base exacte est improductible, en donner une preuve ou reconstruire un
+   séparateur équivalent sur une base atteignable, sans confondre les deux
+   résultats ;
 2. poursuivre le weakening de `.plain` sur les autres formes syntaxiques
    effectivement forcées par les runs d’installation, sans généraliser depuis
    la seule application racine ;
