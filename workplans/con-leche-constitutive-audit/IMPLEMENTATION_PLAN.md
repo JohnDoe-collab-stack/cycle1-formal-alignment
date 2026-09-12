@@ -1124,7 +1124,54 @@ chaîne déjà fermée ; il doit isoler le premier résidu de la conservation
 **générique** du provider sous une déclaration `defn`, sans convertir les
 égalités exactes utilisées par ce témoin concret en champs persistants.
 
-Ces cinq fichiers compilent sans `sorry`, `native_decide` ni nouvelle
+Le premier test générique élimine déjà une fausse obstruction. Une
+`ReadableDeltaSeed` dont les deux lectures sont indépendantes de la valuation
+remonte, à **toute profondeur**, vers la seed sémantique universelle : le terme
+`.fvar depth` se lit comme `.bvar 0` et permet de tester un argument sémantique
+arbitraire. Elle peut donc être recontextualisée dans n’importe quel nouvel
+environnement de lecture. L’apparition de nouveaux arguments lisibles après un
+cons ne force aucune mémoire supplémentaire. Le résidu suivant est plus bas :
+pour réutiliser le producer ancien, il faut raccorder la lecture d’un corps
+stocké dans l’ancien environnement à sa lecture dans le successeur. Cette
+disponibilité doit maintenant être cherchée dans l’histoire d’acceptation ou
+reconstruite localement ; elle ne doit pas être remplacée par `defn_reads`
+entier sans séparateur.
+
+La factorisation du résidu est également compilée. Dès qu’une lecture ancienne
+du corps est disponible, `denoteMeta_cons_mono` la transporte dans le vrai cons,
+l’injectivité de `Option.some` l’identifie à toute lecture successeur du même
+corps, puis la seed ancienne se recontextualise. Ainsi, ni l’égalité complète
+entre feuille de constante et corps, ni `AcvalDefnInst` ne sont nécessaires à
+ce raccord. Le seul témoin encore absent est l’existence de la lecture ancienne
+elle-même. Sa reconstruction doit maintenant être testée depuis `EnvWF`, le run
+d’installation historiquement disponible ou une trace constituée ; son absence
+de la signature courante ne constitue pas encore une preuve de nécessité.
+
+Le run réel ferme désormais le côté frais sans hypothèse supplémentaire.
+`ValueFrontRun.annotatedValueReadable` construit une lecture de la valeur
+annotée à toute instanciation de niveaux et toute profondeur ; le vrai cons la
+transporte et `acvalWith_self` l’identifie à la tête installée. En parallèle,
+l’obligation propositionnelle exacte `StoredDefnBodiesReadable` est vide à
+l’origine et se préserve sous un cons `defn` : le corps frais vient du run, les
+corps retenus viennent de leurs lectures préfixes. Enfin,
+`AcvalDefnReadableSeed.consDefn_of_bodyReadability` montre que cette seule
+obligation, jointe au producteur δ affaibli précédent, suffit à préserver ce
+producteur. C’est une preuve de suffisance pour la branche ; ce n’est toujours
+pas une preuve que l’obligation doit appartenir au carrier final.
+
+Le test négatif de `EnvWF` est maintenant lui aussi construit. Un environnement
+singleton bien formé et muni d’une `TerminalSlice` peut stocker comme corps un
+`letE`, alors que `denoteMeta` refuse structurellement cette forme. Il fournit
+donc un séparateur concret contre
+`TerminalSlice + EnvWF → StoredDefnBodiesReadable`. Cependant le même fichier
+prouve que ce corps ne peut être la sortie annotée d’aucun `ValueFrontRun` : le
+théorème opérationnel `acceptedReads_of` donnerait une lecture, contradictoire
+avec la clause `letE`. Le séparateur arbitraire est ainsi exclu de la classe
+productible par une transition `defn` réelle. Il ne peut pas justifier une
+persistance ; le prochain raccord doit transporter cette exclusion le long de
+l’histoire complète du fold.
+
+Ces six fichiers compilent sans `sorry`, `native_decide` ni nouvelle
 déclaration `noncomputable`. Leurs `#print axioms` ne rapportent que
 `propext`, `Classical.choice` et `Quot.sound`, hérités de ConLeche.
 
@@ -1268,6 +1315,38 @@ final contient précisément ces deux définitions. Le prochain résidu est donc
 la factorisation d’une transition `defn` arbitraire à partir d’un ancien témoin
 déterminé. Tant que le premier échec de cette factorisation n’est pas isolé et
 séparé, aucune capacité supplémentaire ne peut entrer dans le carrier.
+
+La première factorisation générique est maintenant acquise dans
+`ScratchDeltaProviderGeneric.lean` : la fermeture applicative lisible ne se
+fragilise pas lorsque le contexte de lecture grandit. Pour des lectures fermées,
+elle est déjà universelle à la profondeur du producteur et se restreint ensuite
+constructivement au nouveau contexte. Le premier résidu générique n’est donc
+pas le transport des futurs arguments, mais le **readback du corps ancien** :
+obtenir, depuis l’histoire constituée, une lecture ancienne concordant avec la
+lecture du même corps dans le successeur. Ce résidu reste transitionnel ; aucune
+preuve n’établit encore qu’il doit être persisté.
+
+Le lemme suivant ferme la partie positive du readback :
+
+```text
+ancienne seed + ancienne lecture du corps
++ cons frais réel + lecture successeur du même corps
+→ identification des lectures
+→ seed recontextualisée dans le successeur
+```
+
+Le prochain test porte donc uniquement sur la production de l’ancienne lecture
+du corps. Il doit d’abord essayer `EnvWF` et les certificats historiques déjà
+constitués. Un champ de type `defn_reads`, même affaibli à l’existence, reste
+interdit tant qu’un séparateur atteignable n’a pas exclu ces reconstructions.
+
+La frontière positive est maintenant fermée sur un vrai cons `defn` : le
+couple formé du producteur δ affaibli et de l’existence propositionnelle des
+lectures de corps se conserve. Le problème restant n’est plus la suffisance de
+ce couple, mais le statut de sa seconde composante : conséquence de `EnvWF`,
+information reconstructible depuis l’histoire, ou mémoire effectivement
+nécessaire. Seuls les prochains séparateurs et leur test d’atteignabilité
+peuvent trancher entre ces statuts.
 
 L’ordre obligatoire est désormais :
 
@@ -1796,7 +1875,17 @@ travail immédiat
   Gate 5b  représentant ouvert inféré extrait sans `DefEqClaim`
   Gate 5b  second `defn` concret fermé avec slice exacte et provider complet
   Gate 5b  tête fraîche et définition ancienne traitées séparément
-  Gate 5b  isoler le premier résidu de conservation générique du provider
+  Gate 5b  recontextualisation des seeds fermées prouvée à toute profondeur
+  Gate 5b  nouveaux arguments lisibles éliminés comme faux résidu
+  Gate 5b  readback factorisé par une seule lecture ancienne du corps
+  Gate 5b  lecture du corps frais produite par le seul `ValueFrontRun`
+  Gate 5b  accord corps frais / tête installée produit par le vrai cons
+  Gate 5b  obligation exacte `StoredDefnBodiesReadable` isolée pour les anciens
+  Gate 5b  stabilité de cette obligation sous un vrai cons `defn` prouvée
+  Gate 5b  producteur δ affaibli préservé depuis cette seule obligation
+  Gate 5b  séparateur construit : `EnvWF + TerminalSlice` ne suffit pas
+  Gate 5b  séparateur exclu des sorties de tout vrai `ValueFrontRun`
+  Gate 5b  dériver l’obligation le long de l’histoire constituée du fold
   Gate 5b  décider reconstruction locale ou persistance seulement après fermeture
   Gate 5b  ne rouvrir ι que si la fermeture produit un résidu ι concret
 
