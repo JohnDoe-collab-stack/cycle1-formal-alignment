@@ -52,7 +52,32 @@ scientifiques attendus.
   reconstruire l’obligation sémantique locale et réfutée sur le même témoin
   affaibli. L’état et la transition sont donc atteignables ; la réalisation
   affaiblie choisie sur cet état n’est pas présentée comme le témoin sémantique
-  produit par le fold riche ;
+  produit par le fold riche. Le premier test de réemploi d’une définition
+  ancienne sous un argument ajouté ultérieurement est également fermé : deux
+  déclarations `defn` successives sont acceptées depuis `Env.empty`, leurs deux
+  états admettent des témoins `B0W`, et l’annotation historique exacte du type
+  de l’argument peut échouer à fournir le `CtxOk` requis. Le weakening construit
+  toutefois un autre représentant ouvert du même argument sémantique dans un
+  contexte `Sort 1` valide. Cet échec local ne force donc aucune persistance ;
+  le raccord sémantique complet du cas concret est ensuite reconstruit : le
+  provider ancien, les lectures applicatives exactes et la closedness déjà
+  portée par `EnvModel` suffisent à transporter l’application fermée au nouvel
+  argument `.prf`. La première transition possède désormais aussi un vrai
+  successeur historiquement compatible : en choisissant pour l’alias la lecture
+  exacte de son corps, on construit simultanément le `WalkWitness` successeur et
+  son `AdmissibleDeltaMembershipProvider`. Le successeur terminal incohérent
+  antérieur sépare donc la substitution arbitraire des réalisations, pas
+  l’existence d’un transport fidèle. Enfin, le run réel d’inférence d’une valeur
+  produit localement le représentant ouvert requis pour un nouvel argument :
+  `InferReads + InferClaim` donnent le type inféré lu, sa `WellDenotedV` et
+  l’appartenance de la lecture de la valeur à ce même type. `DefEqClaim`, le type
+  déclaré et `ConstantValRun` ne sont pas consommés à cet étage. La
+  seconde transition concrète est elle aussi fermée positivement : la lecture
+  exacte de la lambda fraîche étend la slice, appartient exactement à la
+  lecture fonctionnelle de l’alias, et les deux corps stockés reconstruisent le
+  provider complet dans l’environnement final. La chaîne de deux définitions
+  acceptées possède ainsi un témoin historique final exact avec provider, sans
+  enrichissement du carrier ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
@@ -1050,9 +1075,56 @@ Les certificats correspondants sont isolés dans le checkout de dissection :
   `B0W` terminalement valide qui réfute la candidate. Ce séparateur démontre
   que les seules données terminales du successeur ne **forcent** pas le
   provider. Il ne réfute pas une stabilité faible autorisée à choisir une autre
-  réalisation successeur.
+  réalisation successeur. Le même fichier descend ensuite d’un étage : deux
+  lectures exactes identiques du nouveau corps produisent positivement la
+  `ReadableDeltaSeed` déjà isolée, tandis que le successeur terminal incohérent
+  réfute cette seed sur les lectures exactes de la nouvelle tête et de son corps.
+- `ScratchDeltaOldDefinitionReuse.lean` teste la première définition ancienne
+  sous un argument introduit par une seconde déclaration réellement acceptée.
+  Le fichier construit le fold de deux définitions depuis `Env.empty`, un
+  `TerminalSlice` et un `WalkCarrier` aux deux états, puis isole l’échec du
+  contexte ouvert portant l’annotation historique exacte du type déclaré. Il
+  ferme immédiatement le weakening requis : le même argument sémantique `pt`
+  possède un représentant ouvert admissible à `Sort 1`. Le séparateur de
+  l’annotation exacte n’établit donc ni une nécessité de persistance de
+  `WellDenotedV`, ni un échec de stabilité du provider. Le même fichier ferme
+  ensuite la factorisation positive : l’ancien provider transporte
+  l’application ouverte, sa spécialisation à `pt` donne l’application fermée
+  à `.prf`, et les deux invariances de valuation restantes se déduisent de la
+  closedness par lift déjà présente dans `EnvModel`. Le cas concret du nouvel
+  argument est donc reconstructible localement. Le weakening est maintenant
+  raccordé au producteur du représentant : pour tout `ValueFrontRun`, les seules
+  instances locales `InferReads` et `InferClaim` reconstruisent le type inféré
+  effectivement lu, sa validité `WellDenotedV`, la lecture de la valeur et son
+  appartenance à ce type. Ni `DefEqClaim`, ni `ConstantValRun`, ni le type déclaré
+  n’interviennent. Ce résultat ne remet aucune théorie globale dans le carrier ;
+  il localise exactement ce que la future preuve de conservation devra produire
+  au site d’introduction de l’argument.
 
-Ces quatre fichiers compilent sans `sorry`, `native_decide` ni nouvelle
+Le séparateur du premier successeur est également classé au niveau historique.
+Il existe maintenant un successeur alternatif construit sur le même vrai
+`DeclDefnRun` qui choisit pour l’alias la lecture exacte de son corps et porte à
+la fois un `WalkWitness` et le provider δ. Ainsi :
+
+```text
+successeur terminal arbitraire
+  peut perdre le provider
+
+mais
+
+construction exacte du successeur
+  → WalkWitness + provider
+```
+
+Les deux premières étapes historiques concrètes sont donc positivement fermées.
+Pour la seconde, la preuve distingue explicitement la tête fraîche et l’alias
+retenu, puis reconstruit leurs seeds depuis les lectures exactes de leurs corps
+stockés. Le prochain test ne doit plus rechercher un contre-modèle sur cette
+chaîne déjà fermée ; il doit isoler le premier résidu de la conservation
+**générique** du provider sous une déclaration `defn`, sans convertir les
+égalités exactes utilisées par ce témoin concret en champs persistants.
+
+Ces cinq fichiers compilent sans `sorry`, `native_decide` ni nouvelle
 déclaration `noncomputable`. Leurs `#print axioms` ne rapportent que
 `propext`, `Classical.choice` et `Quot.sound`, hérités de ConLeche.
 
@@ -1138,20 +1210,86 @@ réalisation. Cette relation doit être extraite de la construction positive du
 successeur ; elle ne doit pas être définie en encapsulant directement le
 provider.
 
+La première compatibilité effectivement extraite n’est pas une nouvelle
+abstraction : c’est la `ReadableDeltaSeed` existante, appliquée seulement à la
+nouvelle tête et au corps stocké de cette transition. La factorisation et son
+séparateur sont maintenant compilés :
+
+```text
+deux lectures exactes du même corps
+  → identité des lectures
+  → ReadableDeltaSeed de la nouvelle tête vers le corps
+
+successeur B0W terminal incohérent
+  → lectures exactes de la tête et du corps
+  → ¬ ReadableDeltaSeed
+```
+
+Cette seed est encore une obligation locale de compatibilité du successeur.
+Elle n’est ni un champ persistant ni une preuve générale de fermeture du
+provider. Sa suffisance sur la première transition est maintenant démontrée :
+comme l’environnement successeur ne contient que la définition fraîche, une
+famille de seeds tête/corps fraîches reconstruit `AcvalDefnReadableSeed`, puis
+le provider complet. Le prochain test doit exposer séparément ce qui manque
+lorsque des définitions anciennes sont réemployées sous de nouveaux arguments
+après une transition ultérieure.
+
+Ce premier test est désormais exécuté sur une chaîne réellement acceptée. La
+route naïve conserve l’annotation exacte du type stocké :
+
+```text
+B0W ancien + seconde définition acceptée
+  → type déclaré lu et habité
+  ↛ CtxOk du fvar portant exactement ce type
+```
+
+La méthode interdit d’en conclure que `WellDenotedV` doit être persisté. Le
+weakening positif montre en effet :
+
+```text
+même valeur sémantique pt
+  → représentant ouvert typé Sort 1
+  → CtxOk valide + appartenance à univ 1
+```
+
+Le premier séparateur ne réfute donc qu’une représentation historique précise,
+pas toute reconstruction locale du transport. Pour le nouvel argument concret
+`.prf`, le raccord du provider ancien à l’application fermée est maintenant
+construit par le représentant alternatif. Aucune mémoire supplémentaire n’est
+forcée à cet étage.
+
+Le provider entier est maintenant fermé sur la chaîne concrète de deux
+définitions : la tête fraîche reçoit la lecture exacte de sa lambda stockée et
+l’alias ancien conserve la lecture exacte de son `forall`; ces deux identités
+locales suffisent à reconstruire toutes les occurrences delta de
+`freshArgumentEnv`. Le résultat ne vaut pas encore conservation générique : il
+choisit une réalisation exacte particulière et exploite que l’environnement
+final contient précisément ces deux définitions. Le prochain résidu est donc
+la factorisation d’une transition `defn` arbitraire à partir d’un ancien témoin
+déterminé. Tant que le premier échec de cette factorisation n’est pas isolé et
+séparé, aucune capacité supplémentaire ne peut entrer dans le carrier.
+
 L’ordre obligatoire est désormais :
 
 1. extraire du producteur stocké uniquement la capacité nécessaire aux
    occurrences δ admissibles réellement rencontrées ;
 2. prouver qu’elle produit la `GuardedMembershipPreservation` requise ;
-3. tester sa conservation depuis un témoin ancien déterminé vers un témoin
+3. conserver comme témoin positif la chaîne concrète de deux définitions,
+   désormais fermée avec `WalkWitness + provider` ;
+4. utiliser le représentant inféré localement produit par
+   `InferReads + InferClaim` pour les nouveaux arguments des anciennes
+   définitions, sans persister ces deux théories globales ;
+5. isoler, dans la transition générique, la seed locale de la définition
+   fraîche et le transport des définitions anciennes ;
+6. tester la conservation depuis un témoin ancien déterminé vers un témoin
    nouveau relié par la construction réelle de la branche `defn` ;
-4. extraire la plus faible compatibilité historique qui exclut le successeur
+7. extraire la plus faible compatibilité historique qui exclut le successeur
    terminal incohérent déjà construit, sans y encoder la conclusion ;
-5. tenter de reconstruire cette compatibilité depuis `B0W + DeclDefnRun` et,
+8. tenter de reconstruire cette compatibilité depuis `B0W + DeclDefnRun` et,
    au premier échec, fournir un séparateur concret ;
-6. seulement si cette compatibilité est nécessaire, non reconstructible et
+9. seulement si cette compatibilité est nécessaire, non reconstructible et
    stable, enrichir minimalement un candidat témoin ;
-7. reprendre la même boucle au premier résidu suivant, sans anticiper les autres
+10. reprendre la même boucle au premier résidu suivant, sans anticiper les autres
    branches.
 
 Les branches ι `.plain` supplémentaires et `.nested` ne sont pas des tâches
@@ -1649,8 +1787,17 @@ acquis à conserver
 travail immédiat
   Gate 5b  raccord defn atteignable à la capacité δ/β fermé
   Gate 5b  capacité productrice affaiblie et séparateur terminal construits
-  Gate 5b  extraire la compatibilité historique du successeur defn réel
-  Gate 5b  décider reconstruction locale ou persistance par séparateur concret
+  Gate 5b  première compatibilité du successeur extraite et séparée
+  Gate 5b  suffisance de la compatibilité sur la première transition fermée
+  Gate 5b  premier test de définition ancienne sous nouvel argument fermé
+  Gate 5b  annotation historique exacte réfutée, représentant alternatif construit
+  Gate 5b  transport fermé du nouvel argument `.prf` reconstruit localement
+  Gate 5b  successeur exact du premier `defn` construit avec `WalkWitness + provider`
+  Gate 5b  représentant ouvert inféré extrait sans `DefEqClaim`
+  Gate 5b  second `defn` concret fermé avec slice exacte et provider complet
+  Gate 5b  tête fraîche et définition ancienne traitées séparément
+  Gate 5b  isoler le premier résidu de conservation générique du provider
+  Gate 5b  décider reconstruction locale ou persistance seulement après fermeture
   Gate 5b  ne rouvrir ι que si la fermeture produit un résidu ι concret
 
 réduction de l’hypothèse d’univers
