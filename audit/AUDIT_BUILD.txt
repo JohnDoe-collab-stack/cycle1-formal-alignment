@@ -4,7 +4,10 @@ Structural foundations artifact — reproducible build and axiom audit
 Audit date: 2026-09-13
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
 Release version: 2.0.0
-Audit scope: Cycle 1, Cycle 2, and the constitutive neural architecture
+Audit scope: Cycle 1, Cycle 2, constitutive neural dynamics through arbitrary
+finite depth, strict fresh-probe acquisition, discrete executable refinement,
+typed-program self-extension, the local verification-transport abstractions
+used by the ConLeche case study, and the frozen finite numerical experiment
 Scientific-source identity: MANIFEST.sha256
 
 This repository contains every source and configuration file required for the
@@ -32,19 +35,20 @@ Results:
 
   Exit code: 0
   Build completed successfully: yes
+  Build jobs: 29
   Warnings: 0
-  Axiom audit declarations: 454
+  Lean files with one final AXIOM_AUDIT block: 25 / 25
+  Axiom audit declarations: 650
   Unexpected axiom lines: 0
 
-The fifteen declaration-bearing Lean modules contain the axiom-reporting
-declarations used by the build; `Cycle2.lean` and `ConstitutiveAlignment.lean`
-are public aggregators. Every one of the 454 reports states that the named
-declaration does not depend on any axioms.
+Every one of the 650 reports states that the named declaration does not depend
+on any axioms.
 
 Source-policy scan
 ------------------
 
-The audited Lean sources contain none of the following forbidden constructs:
+The audited Lean sources contain no occurrence of the following forbidden
+constructs:
 
   sorry
   admit
@@ -55,6 +59,163 @@ The audited Lean sources contain none of the following forbidden constructs:
   Classical
   propext
   Quot.sound
+
+Strict fresh-probe gate
+-----------------------
+
+`ConstitutiveAlignment/FreshProbeCausality.lean` constructively provides:
+
+  - a training corpus and a held-out probe with distinct roles;
+  - a refutation that the held-out probe belongs to the training corpus;
+  - a refutation that its authorized view equals the training view;
+  - a unique commitment preventing corpus or probe substitution;
+  - parent and learned traces over exactly the same held-out view;
+  - exact consumption of the learned prediction by the proposal;
+  - exact identity between acquired weights and those used by the governed
+    finite-depth transformer dynamics.
+
+No field of this certificate is discharged by an external assumption.
+
+Typed-program self-extension gate
+---------------------------------
+
+`ConstitutiveAlignment/TypedProgramDomain.lean` and
+`ConstitutiveAlignment/EndogenousTypedSuccession.lean` constructively provide:
+
+  - an intrinsically typed finite language with total semantics;
+  - a rank-free exhaustive frontier returning a fresh composition or a finite
+    saturation certificate;
+  - independently declared regime and norm witnesses, adequacy maps, and a
+    total semantic witness for every normative admission;
+  - two transitions through the same `typedStep`, where the second consumes
+    exactly the first produced successor corpus;
+  - separate incorporation and acquired-capacity counterfactuals;
+  - a generated fresh-probe certificate bound to a sealed descriptor and
+    reserved seed, with constructive absence from training and prior ledger;
+  - exact typed-trace refinement and negative separators.
+
+Development commands:
+
+  py experiment/typed_program/run.py --mode smoke --output <fresh-temp-path>
+  py experiment/typed_program/verify.py <fresh-temp-path> --self-test
+
+Results:
+
+  Smoke exit code: 0
+  Linked transitions accepted: 2 / 2
+  Cumulative exposed-input/training/probe signatures unique: 6 / 6
+  Negative mutations rejected: 12 / 12
+  Confirmatory output produced before source freeze: no
+  Dirty-worktree confirmatory attempt blocked before output: yes
+
+The scientific sources and protocol were then frozen in commit:
+
+  16219a6040af7bf3af47cad96b6350f3c5a07ae9
+
+Confirmatory command:
+
+  py experiment/typed_program/run.py --mode confirmatory --output experiment/typed_program/results/confirmatory_v1.json
+
+Read-only verification command:
+
+  py experiment/typed_program/verify.py experiment/typed_program/results/confirmatory_v1.json --self-test
+
+Confirmatory results:
+
+  Exit code: 0
+  Source freeze recorded by result: 16219a6040af7bf3af47cad96b6350f3c5a07ae9
+  Source clean at execution: yes
+  Linked transitions accepted: 2 / 2
+  Causal events recorded: 18
+  Cumulative ledger signatures unique: 6 / 6
+  Corpus sizes: 1 -> 2 -> 3
+  Acquired capacities: 1 -> 2 -> 3
+  Incorporation counterfactual diverged: yes
+  Restored-weight counterfactual diverged: yes
+  Address-renaming normalization preserved the probe: yes
+  Negative mutations rejected: 12 / 12
+  Reference-result SHA-256: 5fc922dfc3af2a05469fff52208e92acdf6b792ca6852b87473cb7c809835fc6
+
+This is a finite executable observation. It is not used as a premise by Lean
+and does not enlarge the scope of the formal theorems.
+
+Numerical protocol and source freeze
+------------------------------------
+
+Smoke command:
+
+  python experiment/protocol_v1.py --mode smoke --config experiment/protocol_v1.json
+
+Results:
+
+  Exit code: 0
+  Seeds passed: 3 / 3 (11, 29, 47)
+  Primary traces exercised: 24
+  Deferred audits passed: 3 / 3
+  Parent and learned paths used the same smoke probe: yes
+  Training and probe identifiers were disjoint: yes
+  Training, smoke, and confirmatory authorized views were pairwise distinct: yes
+  Confirmatory probe executed before source freeze: no
+
+Four pre-training negative mutations were also checked and rejected: an
+incorrect training-set binding, an identifier collision, a held-out probe
+duplicating the training view, and identical smoke and confirmatory selectors.
+
+The smoke test was explicitly non-confirmatory. It did not execute the
+confirmatory probe. The corrected canonical script and configuration were then
+frozen in commit:
+
+  a4b9a44
+
+Frozen hashes:
+
+  Script:        ab27a54ae7cf62a5c5f9dbb4d6ef3f6db6eb214db606498884d976df780eb04d
+  Configuration: 008993ba6a21e5e9731869e1dbf4f16edc1ffa29c380486e738e9b26516241c0
+  Complete data: 3ae9c050758295f2f56bd3e216d48241f51b3ee48544b50eb4f18b1c9f003f08
+  Training set:  4a2a43bd7888355d26c888f795c6719bd7d5553e1c15ab4372ff19d7bc8f8ae0
+  Probe policy:  28822c4762958997f8da6c5d18121b896f6fac650e1030e39b23ea7d4343fd57
+
+Confirmatory run
+----------------
+
+Command:
+
+  python experiment/protocol_v1.py --mode confirmatory --config experiment/protocol_v1.json --output experiment/results/confirmatory_v1.json
+
+Results:
+
+  Exit code: 0
+  Confirmatory executions: 1
+  Selected probe role: confirmatory
+  Selected probe: confirmatory-0, ordinal 1
+  Seeds passed: 3 / 3 (11, 29, 47)
+  Primary traces recorded: 24
+  Deferred audits passed: 3 / 3
+  Primary traces unchanged by audit: yes
+  Reference-result SHA-256: e483c0e0a046e2f81b03b043be956ad575f972e9ffb1b756c53eda3b9896928c
+
+This is a finite numerical observation, not an additional Lean theorem.
+
+Read-only executable-boundary verification
+------------------------------------------
+
+Command:
+
+  python experiment/verify_refinement_v1.py --script experiment/protocol_v1.py --config experiment/protocol_v1.json --result experiment/results/confirmatory_v1.json
+
+Results:
+
+  Exit code: 0
+  Frozen runs accepted: 3 / 3
+  Primary traces accepted: 24 / 24
+  Frozen hashes matched: yes
+  Confirmatory probe identity and role matched: yes
+  Negative mutations rejected: 8 / 8
+  Training rerun or artifact write: no
+
+Lean separately proves the canonical `TraceRefinement` relation and its
+negative separators. Lean does not parse the JSON result, and no floating-point
+observation is promoted to a theorem.
 
 Scientific source SHA-256
 ------------------------
@@ -67,7 +228,7 @@ a8f8efac53cc934c081fbc3b463b4af070dc0b8e3eae635f21977d4fd0cf27b1  StrongPerimetr
 887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-022e886f6d1f43781e20d5a3f9733837816eacad1dca0be103fe4f210c2c02e3  ConstitutiveAlignment.lean
+8aca765e8b0a8f9f66d8bdb6a7a381f719bbc80541a4cc21d5a9fd76c2758479  ConstitutiveAlignment.lean
 ee1c04021d7a9762d0801a6bbac2e8b8abfed0d3daebcb6ff879f6302ec00bde  ConstitutiveAlignment/CausalMemory.lean
 bf56380d07a2d60dcfe67b584c24f27bb08d9d347894b0e0e0d2cb79a4ff964c  ConstitutiveAlignment/LearningCausality.lean
 f096d8da1b53695317573c7d811fcc8290f9f17ba489c9f4d6f3c9afca399b73  ConstitutiveAlignment/Machine.lean
@@ -77,24 +238,52 @@ fa1be673d11e4d380eeea34523bc3206e6b7adf4a3d13a6775e908df09ac3092  ConstitutiveAl
 f5fdba157ad55fe0ebe7222fde52a124d3de15bd7104c3ba28080368f2c5892e  ConstitutiveAlignment/ReferenceModel.lean
 20072c6a3f392180154792fdab05da4093cbf9ecb04ee6c76a51edf9608b3688  ConstitutiveAlignment/ReflectiveMachine.lean
 cdaab12e4c4d35ccaa0a45d0185ce12a9a3091e41136d340ca122d9df5fc55c6  ConstitutiveAlignment/Succession.lean
+1d622d9751b2c5d3958f0eaa5ecc93983d9c0dcfc56324c5f926fd6548aa0308  ConstitutiveAlignment/TransformerDynamics.lean
 678db423c270b014c229ae1d977916dcdd41018b727b3446c074d6ec083afcfa  ConstitutiveAlignment/TransformerRealization.lean
+d9f8f03a38102cee8e435853e74b68e2ef964b765dd2feb738e14b2ce1995054  ConstitutiveAlignment/FreshProbeCausality.lean
+eed30f97418d7a9f60e0ba670a6fc662dc622433a951cd9d14415f302de6b003  ConstitutiveAlignment/GovernedDynamics.lean
+6c6ad7b89be5614d2dba394ad2ddd6f80b7b847b10b612a44be92d75ef4630c0  ConstitutiveAlignment/ExecutableRefinement.lean
+5c15c3b821d916d01fa1cb240e276957297af45384669659ac7ed536b32e7bb0  ConstitutiveAlignment/VerificationTransport.lean
 0650daf189a6501364753149290c075ba0e9d4f5dbbf7aaa91975f97ed884190  docs/fr/alignement_relatif.md
 cf749af55b51bc5a2d7ca3461c7ad7e957e8a8585f3a2893a741a301426597d7  docs/en/relative_alignment.md
 975397cc6e59d7c11b2515c6262f8e5f06c6ac28fd53ecbbd24bf23b69a9b680  docs/fr/fondements_structurels.md
 df39450178b8889f253b15b24534ad31fbce0104dde3388e52418b1d0b7e7be5  docs/en/structural_foundations.md
 d534d6de4c3dea74efb1ea1ed9b9843d00254705745827bcae122defdac76fb4  docs/fr/methode_roles_constitutifs_relationnels.md
 ab0d92ca7ddf1041d060d9c1be3d8001d669d516dc702c12ba2a57e1417fa240  docs/en/relational_constitutive_roles_method.md
-18747e527c56d3d5195c3b13b835e4aec70b2cd8c08e0e2700f89425f7e774f0  docs/fr/alignement_reflexif.md
-0933b7dd64285ee2b632ab1d81978fb5481559db550925bb1e4cdbdaed798847  docs/en/reflective_alignment.md
-d6b3f5630b3d0ce043a73bbed0b6f5e6caf3eeea4f0a4992e3f8aa5180cd564e  docs/fr/alignement_constitutif_transformers.md
-ea493bb262bd66da456d7a3d5c8dadd7a4fef51f6c18198e50f366f47e2c1361  docs/en/constitutive_transformer_alignment.md
+4b7f8c4095b9f3f14aab733805bf587952580871e596f8cbd3477ccefaae9d27  docs/fr/alignement_reflexif.md
+9ae6be474206d481048d4ba806c25b84e48e46bbdcbf689413daa7cf51921a1f  docs/en/reflective_alignment.md
+4e55d899cf6b14acee77e76e54c06a8bc6e7e8feff99b56176b6a5feff9ae7c1  docs/fr/alignement_constitutif_transformers.md
+9d617e3db8bd964a2bc592c4b1151357f3113858d19553797a79827754486447  docs/en/constitutive_transformer_alignment.md
+e7681b8e9b5fa94e4c0af9cd5d335a42390cc49c74d319bf4416d1b865665164  docs/fr/audit_constitutif_con_leche.md
+b619e1c1dbd171a48745ff041f2531036f2e52e1db8e849c4d30bc3b3b3336bb  docs/en/constitutive_con_leche_audit.md
+bd7229043badd4b7a318a1e203233b787c61c06fcab155168bca38613ebdb34c  scripts/run_con_leche_audit.py
+64c6684c4584080379fa0dbe54d605abb77e2af91541e2f0a99dd9c7be0b239c  experiment/README.md
+ee309a68234b544a45c61bbecdc144a253babafb1b7542ea8775371bd8414e7b  experiment/README_fr.md
+1c8ebb3b198a75268acae9072d8795f660c464237b00bcdb651a2dec382e9927  experiment/RESULTS_v1.md
+ce4945250198b4378485f48edc9093187064852db89e95b51a47f44c13157c45  experiment/RESULTATS_v1.md
+008993ba6a21e5e9731869e1dbf4f16edc1ffa29c380486e738e9b26516241c0  experiment/protocol_v1.json
+ab27a54ae7cf62a5c5f9dbb4d6ef3f6db6eb214db606498884d976df780eb04d  experiment/protocol_v1.py
+6a5b016ade55e2e498d306b71c1b5e26508db9fe5b31c87fbfdb9f17fcdc3d79  experiment/verify_refinement_v1.py
+7bd6b8946940b79948c548c8048e545684b91c8edc9444d8dfc0c8f76a97c0a7  experiment/requirements-v1.txt
+e483c0e0a046e2f81b03b043be956ad575f972e9ffb1b756c53eda3b9896928c  experiment/results/confirmatory_v1.json
+edbf0c1dfad68a1cb0520172bfbe0c857216b3951da3fcaa5b05dcb4c58093b7  ConstitutiveAlignment/TypedProgramDomain.lean
+2f6e83aac3ebc1de309310f8515d77888fa7e3c0a434e32292f24e69768d66a2  ConstitutiveAlignment/EndogenousTypedSuccession.lean
+7b95a42b647958bdc07bfb433c7cf85261fd4b824cdba0d793da93eb67d550a4  docs/fr/auto_extension_programmes_types.md
+51f2ded98f0ef5f0b9e8fe99a501bb84654e719c544e9d39a491d73c7ccd90ec  docs/en/typed_program_self_extension.md
+255daf2b05f87c5c28ebb48e5df0ec882c1e1b717c3f7763fbb78d9b5e88a2dd  experiment/typed_program/protocol.json
+bb1597f3ba0a80315fd9de733d17b13b88efce58ee4f0fafc56aea6e497c933d  experiment/typed_program/run.py
+1ea09b3bbad7ebb5b29066eee788b6e16fcf10f6a03f40cb70874f52c7eecf89  experiment/typed_program/worker.py
+98d1b6cf6e0303a0cc35f61a11255c89fc61c286984eccbbd6e19740dc73366d  experiment/typed_program/verify.py
+278376be5933714076de2524f5f6e18d9a516682baa9e1db7227679f848aa4a1  experiment/typed_program/README.md
+21d51823302f1a5afdfa50b8372b6a1797331e98c611082ab89ebc0f2be7dac6  experiment/typed_program/README_fr.md
+5fc922dfc3af2a05469fff52208e92acdf6b792ca6852b87473cb7c809835fc6  experiment/typed_program/results/confirmatory_v1.json
 
 Manifest verification
 ---------------------
 
-The manifest was verified successfully with all three supported commands:
+The final scientific-source manifest was verified successfully with both
+Windows commands:
 
-  bash scripts/verify-manifest.sh
   pwsh -NoProfile -File scripts/verify-manifest.ps1
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
@@ -103,6 +292,7 @@ Reproduction
 
 From the repository root:
 
+  lake clean
   lake build
 
 Then verify scientific-source integrity on Linux or macOS:
@@ -113,6 +303,5 @@ Or on Windows:
 
   powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-This file is a convenience record of one successful clean reproduction. The
-authoritative check consists in rerunning these commands with the pinned
+The authoritative check consists in rerunning these commands with the pinned
 toolchain on the repository contents matched by MANIFEST.sha256.
