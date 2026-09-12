@@ -233,7 +233,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles both Lake libraries, audits 325 declarations through
+The pinned build compiles both Lake libraries, audits 345 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
@@ -243,9 +243,11 @@ environment, counts, hashes, and commands are recorded in
 Cycle 1 is complete relative to `CircularPresentation`; it is not a universal
 theory of every norm or alignment problem. Cycle 2 is an abstract semantic
 diagonal argument, not a formalization of syntax, provability, arithmetization,
-or Gödel's incompleteness theorems. The two formal cycles are constructive and
-use no `sorry`, `admit`, declared `axiom`, `Classical`, `propext`, or
-`Quot.sound`.
+or Gödel's incompleteness theorems. Their source declarations are constructive
+and use no `sorry`, `admit`, declared `axiom`, `Classical`, `propext`, or
+`Quot.sound`. Lean does generate auxiliary `.injEq` declarations that depend on
+`propext`; none of the 345 explicitly audited declarations depends on them or
+on any other axiom.
 
 The repository is a standalone artifact: no private source history is required
 to build or audit it. Code and documentation are distributed under Apache-2.0.

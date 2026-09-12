@@ -239,7 +239,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 325
+La compilation épinglée construit les deux bibliothèques Lake, audite 345
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -251,9 +251,11 @@ Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
 théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2
 est un argument diagonal sémantique abstrait, non une formalisation de la
 syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
-d'incomplétude de Gödel. Les deux cycles formels sont constructifs et n'emploient
-ni `sorry`, ni `admit`, ni déclaration `axiom`, ni `Classical`, ni `propext`, ni
-`Quot.sound`.
+d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
+n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni `Classical`, ni
+`propext`, ni `Quot.sound`. Lean génère toutefois des déclarations auxiliaires
+`.injEq` qui dépendent de `propext` ; aucune des 345 déclarations explicitement
+auditées ne dépend de celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
 pour le compiler ou l'auditer. Le code et la documentation sont distribués sous

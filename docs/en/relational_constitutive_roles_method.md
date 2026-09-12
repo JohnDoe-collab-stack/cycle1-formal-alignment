@@ -386,17 +386,19 @@ derived from it.
 In the perimetral application, `RequirementOccurrenceAgreement` requires:
 
 ```lean
-occurrence.locatedStep =
-  positionLocatedStep P FreeConstitution.root
-    BoundaryDifference.initial position
+occurrence.locatedStep.source.1 =
+  (perimeterPositionSource P position).1
 ```
 
-The equality concerns the complete `LocatedStep`. Agreements on source, target,
-compatibility, and provenance are then obtained by transport or projection. The
-method thus favors an exact kernel with computable consequences over a
-collection of weak agreements without a common principle.
+The primitive equality concerns the exact source cursor. Rooted deterministic
+generation and cursor acyclicity reconstruct the source state and complete
+`LocatedStep`; agreements on target, compatibility, and provenance then follow.
+This is not a strict weakening of the former complete-step formulation: each
+form reconstructs the other on rooted generated histories. The method thus
+stores the smallest structural address currently justified by the productive
+class, while retaining the complete agreement as a derived theorem.
 
-### 6.2 Exact and injective coverage
+### 6.2 Exact coverage with derived injectivity
 
 `ExactNonClosingRealization P history` contains:
 
@@ -405,24 +407,24 @@ realize
   : NonClosingPosition P.perimeter
   → History.Occurrence history.history
 
-realize_injective
-  : Function.Injective realize
-
 agreement
   : every position agrees exactly with its occurrence
 ```
 
-The three fields have different functions:
+The two fields have different functions:
 
 - `realize` provides a witness for every requirement;
-- `realize_injective` preserves the distinction between requirements in their
-  occurrences;
 - `agreement` establishes that the witnesses are not arbitrary.
 
-Omitting injectivity would allow several requirements to be absorbed by one
-occurrence. Omitting agreement would permit an injection without structural
-content. Omitting the realization function would reduce the statement to a
-global property without accessible witnesses.
+Injectivity is not an independent hypothesis. The theorem
+`ExactNonClosingRealization.realize_injective` derives it from `agreement`:
+two requirements realized by the same occurrence would have equal canonical
+located steps, contradicting the strict cursor order between distinct canonical
+occurrences. Thus exact agreement already prevents several requirements from
+being absorbed by one occurrence. Omitting agreement would remove both the
+structural content and this derivation of injectivity. Omitting the realization
+function would reduce the statement to a global property without accessible
+witnesses.
 
 ### 6.3 Why exactness does not imply exhaustiveness
 

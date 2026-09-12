@@ -3692,15 +3692,344 @@ abbrev ExactCompatibleTransport := ExactTypeTransport
 
 abbrev ExactProvenanceTransport := ExactTypeTransport
 
+/- A generated occurrence in a rooted history is determined by its source
+   cursor.  The proof stays at the structural layer: it follows the unary
+   formation depth, uses the canonical generated successor, and excludes two
+   distinct depths at one cursor by `CursorFuture.irreflexive`.  No numerical
+   rank or readout is used. -/
+private theorem freeKCore_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {cursor : PerimeterCursor P}
+    {code : BoundaryDifferenceCode P cursor}
+    (first second : FreeKCore P cursor code) : first = second := by
+  cases first with
+  | mk formationTerm formationExact obstruction obstructionExact
+      provenance provenanceExact =>
+    cases second with
+    | mk formationTerm' formationExact' obstruction' obstructionExact'
+        provenance' provenanceExact' =>
+      cases formationExact
+      cases formationExact'
+      cases obstructionExact
+      cases obstructionExact'
+      cases provenanceExact
+      cases provenanceExact'
+      rfl
+
+private theorem freeK_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {cursor : PerimeterCursor P}
+    {previous : FreeConstitution P cursor}
+    {difference : BoundaryDifference P previous}
+    (first second : FreeK P previous difference) : first = second := by
+  cases first with
+  | mk core =>
+    cases second with
+    | mk core' =>
+      exact congrArg FreeK.mk
+        (freeKCore_uniqueForCursorAgreement core core')
+
+private theorem integrates_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source : PositiveConstitution P}
+    (first second : Integrates source) : first = second := by
+  cases first with
+  | mk firstLayer firstExact =>
+    cases second with
+    | mk secondLayer secondExact =>
+      have layerExact : firstLayer = secondLayer :=
+        freeK_uniqueForCursorAgreement firstLayer secondLayer
+      cases layerExact
+      rfl
+
+private theorem preservesProvenance_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source target : PositiveConstitution P}
+    (first second : PreservesProvenance source target) : first = second := by
+  cases first with
+  | mk firstTarget firstIntegrated =>
+    cases second with
+    | mk secondTarget secondIntegrated =>
+      cases firstTarget
+      cases secondTarget
+      exact congrArg (PreservesProvenance.mk rfl)
+        (integrates_uniqueForCursorAgreement firstIntegrated secondIntegrated)
+
+private theorem integratesClosureObstruction_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source : PositiveConstitution P}
+    (first second : IntegratesClosureObstruction source) : first = second := by
+  cases first
+  cases second
+  rfl
+
+private theorem continuesDifference_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source : PositiveConstitution P}
+    (first second : ContinuesDifference source) : first = second := by
+  cases first
+  cases second
+  rfl
+
+private theorem freshBoundaryDifference_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source : PositiveConstitution P}
+    (first second : FreshBoundaryDifference source) : first = second := by
+  cases first with
+  | mk firstContinuation firstRecord firstRecordExact firstFresh =>
+    cases second with
+    | mk secondContinuation secondRecord secondRecordExact secondFresh =>
+      have continuationExact : firstContinuation = secondContinuation :=
+        continuesDifference_uniqueForCursorAgreement
+          firstContinuation secondContinuation
+      have recordExact : firstRecord = secondRecord :=
+        firstRecordExact.trans secondRecordExact.symm
+      cases continuationExact
+      cases recordExact
+      rfl
+
+private theorem canonicalGeneratedLaws_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source : PositiveConstitution P}
+    (first second : CanonicalGeneratedLaws source) : first = second := by
+  cases first with
+  | mk firstCompatibility firstCompatibilityExact firstProvenance
+      firstObstruction firstDifference firstFresh =>
+    cases second with
+    | mk secondCompatibility secondCompatibilityExact secondProvenance
+      secondObstruction secondDifference secondFresh =>
+      have compatibilityExact : firstCompatibility = secondCompatibility :=
+        firstCompatibilityExact.trans secondCompatibilityExact.symm
+      have provenanceExact : firstProvenance = secondProvenance :=
+        preservesProvenance_uniqueForCursorAgreement
+          firstProvenance secondProvenance
+      have obstructionExact : firstObstruction = secondObstruction :=
+        integratesClosureObstruction_uniqueForCursorAgreement
+          firstObstruction secondObstruction
+      have differenceExact : firstDifference = secondDifference :=
+        continuesDifference_uniqueForCursorAgreement
+          firstDifference secondDifference
+      have freshExact : firstFresh = secondFresh :=
+        freshBoundaryDifference_uniqueForCursorAgreement firstFresh secondFresh
+      cases compatibilityExact
+      cases provenanceExact
+      cases obstructionExact
+      cases differenceExact
+      cases freshExact
+      rfl
+
+private theorem generatedStep_uniqueForCursorAgreement
+    {P : CircularPresentation}
+    {source target : PositiveConstitution P}
+    (first second : GeneratedStep source target) : first = second := by
+  cases first with
+  | mk firstTarget firstLaws =>
+    cases second with
+    | mk secondTarget secondLaws =>
+      exact congrArg (GeneratedStep.mk firstTarget)
+        (canonicalGeneratedLaws_uniqueForCursorAgreement
+          firstLaws secondLaws)
+
+private theorem locatedStep_eq_of_source_eq
+    {P : CircularPresentation}
+    (first second : History.LocatedStep (@GeneratedStep P))
+    (sourceExact : first.source = second.source) : first = second := by
+  cases first with
+  | mk firstSource firstTarget firstStep =>
+    cases second with
+    | mk secondSource secondTarget secondStep =>
+      cases sourceExact
+      have targetExact : firstTarget = secondTarget :=
+        firstStep.formedByFreeLayer.trans secondStep.formedByFreeLayer.symm
+      cases targetExact
+      exact congrArg (History.LocatedStep.mk firstSource firstTarget)
+        (generatedStep_uniqueForCursorAgreement firstStep secondStep)
+
+private def iterateStructuralDepth
+    {P : CircularPresentation}
+    (source : PositiveConstitution P) :
+    StructuralDepth → PositiveConstitution P
+  | .root => source
+  | .next depth => canonicalTarget (iterateStructuralDepth source depth)
+
+private def historyStructuralDepth
+    {State : Type uA}
+    {Step : State → State → Type uB}
+    {source target : State} :
+    History Step source target → StructuralDepth
+  | .root => .root
+  | .extend history _ => .next (historyStructuralDepth history)
+
+private def rootProperDepth :
+    (depth : StructuralDepth) →
+      ProperStructuralDepth .root (.next depth)
+  | .root => .direct .root
+  | .next depth => .later (rootProperDepth depth)
+
+private noncomputable def nextProperDepth
+    {first second : StructuralDepth}
+    (proper : ProperStructuralDepth first second) :
+    ProperStructuralDepth (.next first) (.next second) := by
+  induction proper with
+  | direct => exact .direct _
+  | later proper inductionHypothesis => exact .later inductionHypothesis
+
+private inductive StructuralDepthComparison
+    (first second : StructuralDepth) : Type
+  | equal : first = second → StructuralDepthComparison first second
+  | forward : ProperStructuralDepth first second →
+      StructuralDepthComparison first second
+  | backward : ProperStructuralDepth second first →
+      StructuralDepthComparison first second
+
+private noncomputable def compareStructuralDepth :
+    (first second : StructuralDepth) → StructuralDepthComparison first second
+  | .root, .root => .equal rfl
+  | .root, .next second => .forward (rootProperDepth second)
+  | .next first, .root => .backward (rootProperDepth first)
+  | .next first, .next second =>
+      match compareStructuralDepth first second with
+      | .equal equality => .equal (congrArg StructuralDepth.next equality)
+      | .forward proper => .forward (nextProperDepth proper)
+      | .backward proper => .backward (nextProperDepth proper)
+
+private def iterateStructuralDepth_future
+    {P : CircularPresentation}
+    (source : PositiveConstitution P) :
+    {first second : StructuralDepth} →
+    ProperStructuralDepth first second →
+      CursorFuture P
+        (iterateStructuralDepth source first).1
+        (iterateStructuralDepth source second).1
+  | _, _, .direct depth =>
+      (generatedStepCursorAdvance
+        (generatedStepOfFreeK (iterateStructuralDepth source depth))).toFuture
+  | _, _, .later proper =>
+      (iterateStructuralDepth_future source proper).trans
+        (generatedStepCursorAdvance
+          (generatedStepOfFreeK
+            (iterateStructuralDepth source _))).toFuture
+
+private theorem iterateStructuralDepth_cursor_injective
+    {P : CircularPresentation}
+    (source : PositiveConstitution P) :
+    Function.Injective
+      (fun depth => (iterateStructuralDepth source depth).1) := by
+  intro first second cursorExact
+  cases compareStructuralDepth first second with
+  | equal depthExact => exact depthExact
+  | forward proper =>
+      have future := iterateStructuralDepth_future source proper
+      have loop : CursorFuture P
+          (iterateStructuralDepth source first).1
+          (iterateStructuralDepth source first).1 :=
+        cast
+          (congrArg
+            (CursorFuture P (iterateStructuralDepth source first).1)
+            cursorExact.symm)
+          future
+      exact False.elim (CursorFuture.irreflexive _ loop)
+  | backward proper =>
+      have future := iterateStructuralDepth_future source proper
+      have loop : CursorFuture P
+          (iterateStructuralDepth source second).1
+          (iterateStructuralDepth source second).1 :=
+        cast
+          (congrArg
+            (CursorFuture P (iterateStructuralDepth source second).1)
+            cursorExact)
+          future
+      exact False.elim (CursorFuture.irreflexive _ loop)
+
+private theorem generatedHistory_endpoint_eq_iterateStructuralDepth
+    {P : CircularPresentation}
+    {source target : PositiveConstitution P}
+    (history : GeneratedHistory source target) :
+    target =
+      iterateStructuralDepth source (historyStructuralDepth history) := by
+  induction history with
+  | root => rfl
+  | extend history step inductionHypothesis =>
+      exact step.formedByFreeLayer.trans
+        (congrArg canonicalTarget inductionHypothesis)
+
+private theorem rootedGeneratedHistory_endpoint_eq_of_cursor_eq
+    {P : CircularPresentation}
+    (first second : RootedGeneratedHistory P)
+    (cursorExact : first.endpoint.1 = second.endpoint.1) :
+    first.endpoint = second.endpoint := by
+  have firstExact :=
+    generatedHistory_endpoint_eq_iterateStructuralDepth first.history
+  have secondExact :=
+    generatedHistory_endpoint_eq_iterateStructuralDepth second.history
+  have firstCursorExact := congrArg Sigma.fst firstExact
+  have secondCursorExact := congrArg Sigma.fst secondExact
+  have depthExact :
+      historyStructuralDepth first.history =
+        historyStructuralDepth second.history :=
+    iterateStructuralDepth_cursor_injective (initialPositive P)
+      (firstCursorExact.symm.trans (cursorExact.trans secondCursorExact))
+  exact firstExact.trans
+    ((congrArg (iterateStructuralDepth (initialPositive P)) depthExact).trans
+      secondExact.symm)
+
+private def occurrenceSourceHistory
+    {State : Type uA}
+    {Step : State → State → Type uB}
+    {source target : State} :
+    (history : History Step source target) →
+    (occurrence : History.Occurrence history) →
+      History Step source occurrence.locatedStep.source
+  | .extend previous _step, .last => previous
+  | .extend previous _step, .earlier occurrence =>
+      occurrenceSourceHistory previous occurrence
+
+theorem rootedOccurrence_source_eq_of_cursor_eq
+    {P : CircularPresentation}
+    (history : RootedGeneratedHistory P)
+    (occurrence : History.Occurrence history.history)
+    (position : NonClosingPosition P.perimeter)
+    (cursorExact : occurrence.locatedStep.source.1 =
+      (perimeterPositionSource P position).1) :
+    occurrence.locatedStep.source = perimeterPositionSource P position := by
+  let canonicalOccurrence := requirementToOccurrence P position
+  let actualPrefix : RootedGeneratedHistory P :=
+    { endpoint := occurrence.locatedStep.source
+      history := occurrenceSourceHistory history.history occurrence }
+  let canonicalPrefix : RootedGeneratedHistory P :=
+    { endpoint := canonicalOccurrence.locatedStep.source
+      history := occurrenceSourceHistory
+        (perimeterDeployment P).history canonicalOccurrence }
+  have canonicalLocatedExact : canonicalOccurrence.locatedStep =
+      positionLocatedStep P FreeConstitution.root
+        BoundaryDifference.initial position :=
+    deployPosition_locatedStep P FreeConstitution.root
+      BoundaryDifference.initial position
+  have canonicalSourceExact : canonicalOccurrence.locatedStep.source =
+      perimeterPositionSource P position :=
+    congrArg History.LocatedStep.source canonicalLocatedExact
+  have canonicalCursorExact : canonicalOccurrence.locatedStep.source.1 =
+      (perimeterPositionSource P position).1 :=
+    congrArg Sigma.fst canonicalSourceExact
+  have prefixCursorExact : actualPrefix.endpoint.1 =
+      canonicalPrefix.endpoint.1 :=
+    cursorExact.trans canonicalCursorExact.symm
+  exact
+    (rootedGeneratedHistory_endpoint_eq_of_cursor_eq
+      actualPrefix canonicalPrefix prefixCursorExact).trans
+      canonicalSourceExact
+
+/- The primitive agreement records only the exact structural address of the
+   occurrence.  In a rooted generated history this cursor determines the full
+   source state and therefore the canonical target and generated step. -/
 structure RequirementOccurrenceAgreement
     (P : CircularPresentation)
     (history : RootedGeneratedHistory P)
     (position : NonClosingPosition P.perimeter)
     (occurrence : History.Occurrence history.history) : Type _ where
-  locatedStepExact :
-    occurrence.locatedStep =
-      positionLocatedStep P FreeConstitution.root
-        BoundaryDifference.initial position
+  sourceCursorExact :
+    occurrence.locatedStep.source.1 =
+      (perimeterPositionSource P position).1
 
 namespace RequirementOccurrenceAgreement
 
@@ -3759,17 +4088,22 @@ def sourceStateExact
     {occurrence : History.Occurrence history.history}
     (agreement : RequirementOccurrenceAgreement P history position occurrence) :
     occurrence.locatedStep.source = perimeterPositionSource P position :=
-  congrArg History.LocatedStep.source agreement.locatedStepExact
+  rootedOccurrence_source_eq_of_cursor_eq history occurrence position
+    agreement.sourceCursorExact
 
-def sourceCursorExact
+def locatedStepExact
     {P : CircularPresentation}
     {history : RootedGeneratedHistory P}
     {position : NonClosingPosition P.perimeter}
     {occurrence : History.Occurrence history.history}
     (agreement : RequirementOccurrenceAgreement P history position occurrence) :
-    occurrence.locatedStep.source.1 =
-      (perimeterPositionSource P position).1 :=
-  congrArg Sigma.fst agreement.sourceStateExact
+    occurrence.locatedStep =
+      positionLocatedStep P FreeConstitution.root
+        BoundaryDifference.initial position :=
+  locatedStep_eq_of_source_eq occurrence.locatedStep
+    (positionLocatedStep P FreeConstitution.root
+      BoundaryDifference.initial position)
+    agreement.sourceStateExact
 
 def targetStateExact
     {P : CircularPresentation}
@@ -3901,23 +4235,71 @@ def canonicalRequirementAgreement
     (position : NonClosingPosition P.perimeter) :
     RequirementOccurrenceAgreement P (perimeterDeployment P) position
       (requirementToOccurrence P position) :=
-  ⟨deployPosition_locatedStep P
-    FreeConstitution.root BoundaryDifference.initial position⟩
+  ⟨congrArg
+    (fun located : History.LocatedStep (@GeneratedStep P) => located.source.1)
+    (deployPosition_locatedStep P
+      FreeConstitution.root BoundaryDifference.initial position)⟩
 
 /- `Exact` refers to the exact realization of each non-closing requirement.
-   It does not assert that these occurrences exhaust the history. -/
+   Exact source-cursor agreement reconstructs the canonical located step and
+   already forces the realization map to be
+   injective; it does not assert that these occurrences exhaust the history. -/
 structure ExactNonClosingRealization
     (P : CircularPresentation)
     (history : RootedGeneratedHistory P) where
   realize :
     NonClosingPosition P.perimeter → History.Occurrence history.history
-  realize_injective :
-    Function.Injective realize
   agreement :
     (position : NonClosingPosition P.perimeter) →
       RequirementOccurrenceAgreement P history position (realize position)
 
 namespace ExactNonClosingRealization
+
+/- Distinct perimeter requirements cannot be absorbed by one occurrence when
+   exact source-cursor agreement is available.  Equality of their realized
+   occurrences would identify their canonical located steps; the strict cursor
+   order between distinct canonical occurrences then yields an impossible
+   cursor loop.  Injectivity is therefore a theorem, not an independent field
+   of `ExactNonClosingRealization`. -/
+theorem realize_injective
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (realization : ExactNonClosingRealization P history) :
+    Function.Injective realization.realize := by
+  intro first second equality
+  have canonicalFirst :=
+    (canonicalRequirementAgreement P first).locatedStepExact
+  have canonicalSecond :=
+    (canonicalRequirementAgreement P second).locatedStepExact
+  have realizedFirst := (realization.agreement first).locatedStepExact
+  have realizedSecond := (realization.agreement second).locatedStepExact
+  have realizedAgree :
+      (realization.realize first).locatedStep =
+        (realization.realize second).locatedStep :=
+    congrArg (fun occurrence => occurrence.locatedStep) equality
+  have stepsAgree :
+      (requirementToOccurrence P first).locatedStep =
+        (requirementToOccurrence P second).locatedStep :=
+    canonicalFirst.trans
+      ((realizedFirst.symm.trans (realizedAgree.trans realizedSecond)).trans
+        canonicalSecond.symm)
+  rcases History.OccurrencePrecedes.trichotomy
+      (requirementToOccurrence P first)
+      (requirementToOccurrence P second) with
+    occurrenceEquality | forward | backward
+  · exact requirementToOccurrence_injective P occurrenceEquality
+  · rcases forward.sourceCursorFuture with ⟨future⟩
+    exact False.elim
+      (CursorFuture.irreflexive _
+        (congrArg
+          (fun step : History.LocatedStep (@GeneratedStep P) => step.source.1)
+          stepsAgree ▸ future))
+  · rcases backward.sourceCursorFuture with ⟨future⟩
+    exact False.elim
+      (CursorFuture.irreflexive _
+        (congrArg
+          (fun step : History.LocatedStep (@GeneratedStep P) => step.source.1)
+          stepsAgree ▸ future))
 
 /- A locally exact realization inside a genuine generated history must preserve
    the structural precedence of the perimeter.  The proof excludes reversed
@@ -4538,12 +4920,14 @@ def oldOccurrenceAgreement
     RequirementOccurrenceAgreement P history position
       (extension.oldOccurrence position) := by
   refine ⟨?_⟩
-  exact (locatedStep_transportOccurrence extension.recompose
-      (History.embedLeftOccurrence
-        (requirementToOccurrence P position) extension.continuation)).trans
-    ((History.locatedStep_embedLeft
-      (requirementToOccurrence P position) extension.continuation).trans
-        (canonicalRequirementAgreement P position).locatedStepExact)
+  exact congrArg
+    (fun located : History.LocatedStep (@GeneratedStep P) => located.source.1)
+    ((locatedStep_transportOccurrence extension.recompose
+        (History.embedLeftOccurrence
+          (requirementToOccurrence P position) extension.continuation)).trans
+      ((History.locatedStep_embedLeft
+        (requirementToOccurrence P position) extension.continuation).trans
+          (canonicalRequirementAgreement P position).locatedStepExact))
 
 theorem oldOccurrence_injective
     {P : CircularPresentation}
@@ -4563,7 +4947,6 @@ def toExactNonClosingRealization
     (extension : PerimeterExtension P history) :
     ExactNonClosingRealization P history :=
   { realize := extension.oldOccurrence
-    realize_injective := extension.oldOccurrence_injective
     agreement := extension.oldOccurrenceAgreement }
 
 theorem old_new_occurrences_disjoint
@@ -8060,6 +8443,8 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.ProperFreeTail.irreflexive
 #print axioms StrongPerimetralTurning.ProperStructuralDepth.irreflexive
 #print axioms StrongPerimetralTurning.partial_is_prefix_of_perimeter
+#print axioms StrongPerimetralTurning.rootedOccurrence_source_eq_of_cursor_eq
+#print axioms StrongPerimetralTurning.RequirementOccurrenceAgreement.locatedStepExact
 #print axioms StrongPerimetralTurning.RequirementOccurrenceAgreement.compatibilityTransport
 #print axioms StrongPerimetralTurning.RequirementOccurrenceAgreement.provenanceWitnessExact
 #print axioms StrongPerimetralTurning.History.embedLeftOccurrence_injective
@@ -8268,6 +8653,7 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.NonClosingNext.toPrecedes
 #print axioms StrongPerimetralTurning.positionSourceCursorReach
 #print axioms StrongPerimetralTurning.NonClosingPrecedes.sourceCursorFuture
+#print axioms StrongPerimetralTurning.ExactNonClosingRealization.realize_injective
 #print axioms StrongPerimetralTurning.ExactNonClosingRealization.preservesPrecedence
 #print axioms StrongPerimetralTurning.ExactNonClosingRealization.preservesNext
 #print axioms StrongPerimetralTurning.ExactNonClosingRealization.embedPerimeterOccurrence

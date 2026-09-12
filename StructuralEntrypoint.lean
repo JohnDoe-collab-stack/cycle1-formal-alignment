@@ -9,15 +9,17 @@ two complementary certificates and introduces no new assumption:
 * the canonical perimeter is exactly realized and satisfies both the
   operational regime and the independent specification;
 * one generated step beyond that perimeter is a strict continuation;
-* its continuation contains exactly one occurrence and remains faithfully
-  realizable in every supplied concrete continuation algebra;
+* its continuation contains exactly one occurrence, and the resulting history
+  admits an `ExactConcreteRealization` in every supplied concrete continuation
+  algebra;
 * the same candidate lies outside both the operational regime and the
   independent specification.
 * perimeter positions, free occurrences, and concrete occurrences form an
   exact structural bus before any readout or value type is chosen.
 
-The short construction below does not replace the underlying proofs.  It makes
-their joint conclusion inspectable from a single declaration.
+The short constructions below do not replace the underlying proofs.  They make
+the two complementary conclusions available in one human-scale file, each
+through a compact certificate.
 -/
 
 namespace StructuralEntrypoint
@@ -26,9 +28,10 @@ open StrongPerimetralTurning
 
 /--
 The canonical human-scale certificate: exact reconstruction of the perimeter
-does not close construction.  A uniquely generated continuation remains
-faithfully realizable in every supplied concrete continuation algebra, while
-that continuation exits the established regime and its independent norm.
+does not close construction.  The canonical one-step continuation contains
+exactly one occurrence, and the resulting history admits an
+`ExactConcreteRealization` in every supplied concrete continuation algebra,
+while that history exits the established regime and its independent norm.
 -/
 structure ExactPerimeterAndFaithfulExit
     (P : CircularPresentation)
@@ -55,8 +58,9 @@ structure ExactPerimeterAndFaithfulExit
 /--
 The certificate is constructed entirely from the canonical witnesses already
 proved by the structural foundation. Since `A` is arbitrary, this declaration
-constructs the faithful continuation for every supplied implementation; no
-implementation is postulated by the facade.
+provides the repository's `ExactConcreteRealization` witness for the resulting
+history in every supplied implementation; no implementation is postulated by
+the facade.
 -/
 def exactPerimeterAndFaithfulExit
     (P : CircularPresentation)

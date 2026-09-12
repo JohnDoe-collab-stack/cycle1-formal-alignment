@@ -395,18 +395,20 @@ puissent en être dérivés.
 Dans l'application périmétrale, `RequirementOccurrenceAgreement` demande :
 
 ```lean
-occurrence.locatedStep =
-  positionLocatedStep P FreeConstitution.root
-    BoundaryDifference.initial position
+occurrence.locatedStep.source.1 =
+  (perimeterPositionSource P position).1
 ```
 
-L'égalité concerne le `LocatedStep` complet. Les accords sur la source, la cible,
-la compatibilité et la provenance sont ensuite obtenus par transport ou
-projection. La méthode privilégie ainsi un noyau exact dont les conséquences
-restent calculables, plutôt qu'une collection d'accords faibles sans principe
-commun.
+L'égalité primitive concerne le curseur source exact. La génération déterministe
+depuis la racine et l'acyclicité des curseurs reconstruisent l'état source et le
+`LocatedStep` complet ; les accords sur la cible, la compatibilité et la
+provenance en découlent. Ce n'est pas un affaiblissement strict de l'ancienne
+formulation par pas complet : chacune reconstruit l'autre dans les histoires
+générées depuis la racine. La méthode conserve ainsi comme primitive l'adresse
+structurelle la plus petite actuellement justifiée par la classe productible,
+tout en gardant l'accord complet comme théorème dérivé.
 
-### 6.2 Couverture exacte et injective
+### 6.2 Couverture exacte avec injectivité dérivée
 
 `ExactNonClosingRealization P history` contient :
 
@@ -415,23 +417,23 @@ realize
   : NonClosingPosition P.perimeter
   → History.Occurrence history.history
 
-realize_injective
-  : Function.Injective realize
-
 agreement
   : chaque position est en accord exact avec son occurrence
 ```
 
-Les trois champs jouent des rôles différents :
+Les deux champs jouent des rôles différents :
 
 - `realize` fournit un témoin pour chaque exigence ;
-- `realize_injective` préserve la distinction des exigences dans les
-  occurrences ;
 - `agreement` établit que les témoins ne sont pas arbitraires.
 
-Omettre l'injectivité autoriserait plusieurs exigences à être absorbées par la
-même occurrence. Omettre l'accord autoriserait une injection sans contenu
-structurel. Omettre la fonction de réalisation réduirait l'énoncé à une
+L'injectivité n'est pas une hypothèse indépendante. Le théorème
+`ExactNonClosingRealization.realize_injective` la dérive de `agreement` : si
+deux exigences étaient réalisées par la même occurrence, leurs étapes localisées
+canoniques seraient égales, en contradiction avec l'ordre strict des curseurs
+entre occurrences canoniques distinctes. L'accord exact interdit donc déjà que
+plusieurs exigences soient absorbées par une même occurrence. Omettre l'accord
+supprimerait à la fois le contenu structurel et cette dérivation de
+l'injectivité. Omettre la fonction de réalisation réduirait l'énoncé à une
 propriété globale sans témoins accessibles.
 
 ### 6.3 Pourquoi l'exactitude n'implique pas l'exhaustivité

@@ -219,9 +219,11 @@ Une localité fournit des rôles ou des exigences à réaliser. Réaliser un rô
 consiste pas seulement à attribuer une étiquette. Il faut établir un accord
 structurel entre l'occurrence effectivement constituée et le rôle requis.
 
-Dans l'application périmétrale, `RequirementOccurrenceAgreement` impose l'égalité
-exacte entre le `LocatedStep` d'une occurrence et le pas canonique correspondant
-à une `NonClosingPosition`.
+Dans l'application périmétrale, `RequirementOccurrenceAgreement` enregistre
+l'égalité exacte entre le curseur source d'une occurrence et le curseur canonique
+correspondant à une `NonClosingPosition`. Dans une histoire générée depuis la
+racine, cette adresse structurelle reconstruit l'état source complet, la cible
+canonique et le `LocatedStep` généré.
 
 ```text
 rôle requis
@@ -230,7 +232,10 @@ rôle requis
 ```
 
 Les accords sur la source, la cible, la compatibilité et la provenance sont
-ensuite dérivés de cet accord plus fin.
+ensuite dérivés de cette adresse structurelle exacte. Il s'agit d'une
+normalisation de la donnée primitive, et non d'un affaiblissement strict : dans
+les histoires générées depuis la racine, les formulations par curseur et par
+`LocatedStep` complet se reconstruisent mutuellement.
 
 ### 3.2 Couverture exacte sans exhaustivité
 

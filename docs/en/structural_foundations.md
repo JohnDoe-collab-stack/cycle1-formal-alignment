@@ -216,9 +216,11 @@ not merely a matter of assigning a label. A structural agreement must be
 established between the effectively constituted occurrence and the required
 role.
 
-In the perimetral application, `RequirementOccurrenceAgreement` imposes exact
-equality between the `LocatedStep` of an occurrence and the canonical step
-corresponding to a `NonClosingPosition`.
+In the perimetral application, `RequirementOccurrenceAgreement` records exact
+equality between the source cursor of an occurrence and the canonical cursor
+corresponding to a `NonClosingPosition`. In a rooted generated history, that
+structural address reconstructs the complete source state, canonical target,
+and generated `LocatedStep`.
 
 ```text
 required role
@@ -227,7 +229,9 @@ required role
 ```
 
 Agreements on source, target, compatibility, and provenance are then derived
-from this finer agreement.
+from this exact structural address. This is a normalization of the primitive
+data, not a strict weakening: the cursor and complete located-step formulations
+reconstruct one another within rooted generated histories.
 
 ### 3.2 Exact coverage without exhaustiveness
 
