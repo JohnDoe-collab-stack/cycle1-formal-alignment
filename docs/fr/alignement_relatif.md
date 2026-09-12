@@ -40,9 +40,10 @@ La contribution centrale est la suivante:
 > **Le cycle 1 construit et vérifie en Lean un noyau dépendamment typé pour
 > l'alignement relatif. Il sépare construction, réalisation fidèle, régime et
 > norme indépendante; démontre l'adéquation exacte entre la norme et le régime
-> sur leurs carriers; puis produit une continuation minimale fidèlement
-> réalisable qui localise la rupture normative sans nier la continuation de la
-> construction.**
+> sur leurs carriers; puis produit une continuation à une occurrence qui, comme
+> toute histoire générée enracinée, est exactement réalisable dans toute algèbre
+> concrète fournie et localise la rupture normative sans nier la continuation de
+> la construction.**
 
 La preuve est complète relativement aux données de `CircularPresentation`.
 Aucun principe supplémentaire reliant après coup la norme au régime — appelé ici
@@ -679,7 +680,8 @@ Le diagnostic final possède donc trois couches distinctes:
 
 ```text
 constitution / réalisation
-  candidat fidèlement réalisable
+  candidat généré enraciné
+  réalisation exacte disponible uniformément pour toute histoire de ce type
 
 norme
   candidat ne satisfait pas S
@@ -840,9 +842,13 @@ La compilation confirme que Lean accepte les artefacts courants sans
 avertissement. Toutes les commandes `#print axioms` des blocs finaux rapportent
 que les déclarations inspectées ne dépendent d'aucun axiome.
 
-Toutes les récursions dépendantes qui produisent des témoins sont écrites sous
-une forme structurelle exécutable. Les sources Lean ne contiennent aucune
-déclaration `noncomputable` ; ce contrôle est distinct de l'audit axiomatique.
+Les récursions dépendantes qui produisent des témoins dans la chaîne locale vers
+globale sont écrites sous une forme structurelle exécutable, et le compilateur
+émet une représentation intermédiaire (IR) pour chacune. Sur des présentations et
+réalisations closes, la reconstruction se réduit à des valeurs concrètes. Les
+sources Lean ne contiennent aucune déclaration `noncomputable` ; ce contrôle
+textuel reste distinct des tests de génération de code comme de l'audit
+axiomatique.
 
 ---
 
@@ -874,6 +880,11 @@ CircularRefinement P h⁺                   réfuté par le régime
 adéquation du régime à la norme            démontrée
 ```
 
+La réalisation concrète exacte n'est pas propre à `h⁺` : la même construction
+interprète toute histoire générée enracinée. Les deux réfutations sont relatives
+à la `CircularPresentation` fournie, en particulier à son champ explicite
+`rejectInitialContraction`.
+
 La preuve d'alignement est complète relativement à la présentation et à la norme
 du cycle 1. Elle n'identifie pas réalisation, satisfaction et admission; elle
 démontre séparément leur relation et localise exactement leur séparation sur le
@@ -901,10 +912,12 @@ mathématique.
 > **Le cycle 1 construit et vérifie en Lean un noyau dépendamment typé pour
 > l'alignement relatif. Il sépare construction, réalisation fidèle, régime et
 > norme indépendante; démontre la soundness et la complétude de leur accord sur
-> les histoires admises; puis construit une continuation minimale qui demeure
-> exactement réalisable sous toute implémentation concrète conforme à l'interface,
-> tout en étant rejetée par la norme et par un régime démontré adéquat à cette
-> norme.**
+> les histoires admises; puis construit une continuation à une occurrence qui,
+> comme toute histoire générée enracinée, demeure exactement réalisable sous
+> toute implémentation concrète conforme à l'interface, tout en étant rejetée par
+> la norme et par un régime démontré adéquat à cette norme. Ces réfutations sont
+> relatives à l'obstruction explicite de fermeture fournie par
+> `CircularPresentation`.**
 
 ## Conception
 

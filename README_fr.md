@@ -6,8 +6,10 @@
 > dépendamment typé pour l'alignement relatif et réflexif.** Il démontre d'abord
 > l'adéquation exacte entre un régime opérationnel et une norme définie
 > indépendamment de ce régime sur les mêmes histoires constituées. À partir de
-> cette adéquation établie, une branche construit une sortie opérationnelle
-> minimale et fidèlement réalisable ; l'autre observe propositionnellement les
+> cette adéquation établie, une branche construit une sortie opérationnelle à
+> une occurrence qui, comme toute histoire générée enracinée, admet une
+> réalisation concrète exacte dans toute algèbre fournie ; l'autre observe
+> propositionnellement les
 > deux familles de témoins, transporte leur équivalence dans une couche de
 > représentation et démontre que la représentation exacte de ces statuts
 > déterminés est compatible avec un statut diagonal construit hors de toute
@@ -21,11 +23,13 @@ global montre qu'une réalisation locale exacte reconstruit le périmètre
 canonique comme facteur initial de toute histoire générée enracinée ;
 l'injectivité est dérivée de l'accord exact plutôt que supposée. Un deuxième
 point d'entrée réunit le périmètre canonique, son adéquation opérationnelle et
-normative, puis une continuation à une occurrence, fidèlement réalisable et
-extérieure au régime comme à la spécification. Un troisième expose un bus
-structurel exact entre positions du périmètre, occurrences libres et
-occurrences concrètes. Les lectures arbitraires ne sont branchées qu'après la
-constitution de ce bus, indépendamment de leur type de valeurs.
+normative, puis une continuation à une occurrence qui, comme toute histoire
+générée enracinée, admet une réalisation concrète exacte dans toute algèbre
+fournie et reste extérieure au régime comme à la spécification. Un troisième
+expose l'habitant canonique d'un bus structurel dont les correspondances sont
+mutuellement inverses ; l'interface elle-même n'affirme ni la canonicité ni
+l'unicité de son habitant. Les lectures arbitraires ne sont branchées qu'après
+la constitution de ce bus, indépendamment de leur type de valeurs.
 
 ## Architecture
 
@@ -39,7 +43,7 @@ Cycle 1 — alignement relatif
   régime opérationnel et norme indépendante
   → transformation de témoins dans chaque sens
   → adéquation exacte
-  ├── continuation minimale
+  ├── continuation à une occurrence
   │     → sortie opérationnelle localisée
   │     → OOD structurel
   │
@@ -93,9 +97,12 @@ h⁺ := oneStepAfterPerimeter P
 est une continuation stricte du déploiement canonique. Il reste localement
 exact, conserve la précédence et l'adjacence canoniques et possède une
 `ExactConcreteRealization A h⁺` pour toute
-`ConcreteContinuationAlgebra P` fournie. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous
-deux constructivement réfutés. La réfutation normative est directe : elle ne
-déduit pas l'échec de la norme indépendante du seul rejet par le régime.
+`ConcreteContinuationAlgebra P` fournie, comme toute histoire générée
+enracinée. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous deux constructivement réfutés.
+Ces réfutations sont relatives à la `CircularPresentation` fournie, en
+particulier à son champ explicite `rejectInitialContraction`. La réfutation
+normative est directe : elle ne déduit pas l'échec de la norme indépendante du
+seul rejet par le régime.
 
 Les structures génériques `RegimeExit`, `UniformRegimeExit` et
 `NormativeAdequacy` isolent l'architecture réutilisable. Les deux premières sont

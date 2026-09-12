@@ -41,8 +41,10 @@ The central contribution is:
 > **Cycle 1 builds and machine-checks in Lean a dependently typed kernel for
 > relative alignment. It separates construction, faithful realization, regime,
 > and independent norm; proves exact adequacy between the norm and the regime on
-> their carriers; and produces a minimal faithfully realizable continuation that
-> locates the normative break without denying the continuation of construction.**
+> their carriers; and produces a one-occurrence continuation which, like every
+> rooted generated history, is exactly realizable in every supplied concrete
+> algebra and locates the normative break without denying the continuation of
+> construction.**
 
 The proof is complete relative to the data of `CircularPresentation`. No
 additional principle connecting the norm to the regime after the fact—called an
@@ -657,7 +659,8 @@ The final diagnostic therefore has three distinct layers:
 
 ```text
 constitution / realization
-  faithfully realizable candidate
+  rooted generated candidate
+  exact realization available uniformly for every such history
 
 norm
   candidate does not satisfy S
@@ -813,9 +816,12 @@ Compilation confirms that Lean accepts the current artifacts without warnings.
 All `#print axioms` commands in the final blocks report that the inspected
 declarations depend on no axioms.
 
-All witness-producing dependent recursions are written in a structurally
-executable form. The Lean sources contain no `noncomputable` declaration; this
-is checked independently from the axiom audit.
+The witness-producing dependent recursions in the local-to-global chain are
+written in a structurally executable form, and the compiler emits IR for each
+of them. On closed presentations and realizations, the reconstruction reduces
+to concrete values. The Lean sources contain no `noncomputable` declaration;
+this textual policy check remains distinct from both code-generation tests and
+the axiom audit.
 
 ---
 
@@ -847,6 +853,11 @@ CircularRefinement P h⁺                   refuted by the regime
 adequacy of the regime to the norm         proved
 ```
 
+The exact concrete realization is not specific to `h⁺`: the same construction
+interprets every rooted generated history. Both refutations are relative to the
+supplied `CircularPresentation`, in particular its explicit
+`rejectInitialContraction` field.
+
 The alignment proof is complete relative to the presentation and norm of Cycle
 1. It does not identify realization, satisfaction, and admission; it separately
 proves their relationship and locates their exact separation on the one-step
@@ -873,9 +884,12 @@ closed Cycle 1 result without altering its witness types or mathematical content
 > **Cycle 1 builds and machine-checks in Lean a dependently typed kernel for
 > relative alignment. It separates construction, faithful realization, regime,
 > and independent norm; proves soundness and completeness of their agreement on
-> admitted histories; and constructs a minimal continuation that remains exactly
-> realizable under every concrete implementation satisfying the interface while
-> being rejected by both the norm and a regime proved adequate to that norm.**
+> admitted histories; and constructs a one-occurrence continuation which, like
+> every rooted generated history, remains exactly realizable under every
+> concrete implementation satisfying the interface while being rejected by
+> both the norm and a regime proved adequate to that norm. These refutations are
+> relative to the explicit closure obstruction supplied by
+> `CircularPresentation`.**
 
 ## Authorship
 

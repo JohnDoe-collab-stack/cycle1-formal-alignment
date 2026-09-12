@@ -237,6 +237,9 @@ Le modèle fermé sur `Unit`, `canonicalUnitCircularStatusView`, vérifie que ce
 interface est habitée: un statut circulaire particulier peut être représenté
 par un évaluateur constant sans transformer cet évaluateur en évaluateur
 universel.
+Il s'agit actuellement de la seule vue réflexive de statuts construite dans le
+dépôt. Elle établit l'habitation de l'interface, non l'existence d'un espace de
+codes non dégénéré ou d'un évaluateur non constant.
 
 ## 10. Deux sorties non identifiées
 
@@ -247,8 +250,9 @@ Les cycles 1 et 2 construisent des frontières distinctes:
 | opérationnel | `oneStepAfterPerimeter P` | `CircularRefinement P` | admission opérationnelle et satisfaction normative |
 | représentationnel | `diagonalStatus eval` | `InternallyRepresentable eval` | représentation interne exacte |
 
-Le premier candidat est une histoire qui reste constructible et fidèlement
-réalisable. Le second est un prédicat sur les codes construit à partir d'un
+Le premier candidat est une histoire qui reste constructible et qui, comme
+toute histoire générée enracinée de ce développement, admet une réalisation
+concrète exacte. Le second est un prédicat sur les codes construit à partir d'un
 évaluateur. Aucun théorème du dépôt ne convertit une sortie dans l'autre, et
 aucune conversion de ce type n'est supposée.
 

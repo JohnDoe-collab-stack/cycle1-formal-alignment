@@ -21,8 +21,9 @@ démontré ce qui est préservé.
 Le motif décisif est diagonal : des ressources internes à une construction
 peuvent produire un cas qui échappe à une clôture globale proposée tout en
 préservant la construction qui l'a produit. L'**OOD structurel** désigne la forme
-opérationnelle de ce motif : le candidat reste engendré de l'intérieur et
-fidèlement réalisable tandis que son statut change relativement au régime.
+opérationnelle de ce motif : le candidat reste engendré de l'intérieur et,
+comme toute histoire générée enracinée de ce développement, admet une réalisation
+concrète exacte tandis que son statut change relativement au régime.
 
 Le Cycle 1 vérifie mécaniquement cette architecture opérationnelle sur
 `oneStepAfterPerimeter P` : une continuation stricte engendrée de l'intérieur
@@ -51,7 +52,7 @@ Cycle 1 — alignement relatif
   régime opérationnel et norme indépendante
   → transformation de témoins dans chaque sens
   → adéquation exacte
-  ├── continuation minimale
+  ├── continuation à une occurrence
   │     → sortie opérationnelle localisée
   │     → OOD structurel
   │
@@ -480,8 +481,10 @@ leurs structures de témoins.
 | `CircularRefinement` | ✓ | ✗ |
 
 `oneStepAfterPerimeter P` est le témoin canonique de sortie de la norme. Il reste
-constructible et fidèlement réalisable, la sortie étant localisée précisément
-sur l'obligation trajectorielle.
+constructible et, comme toute histoire générée enracinée, admet une réalisation
+concrète exacte dans toute algèbre fournie. La sortie est localisée précisément
+sur l'obligation trajectorielle et dérivée relativement au champ explicite
+`rejectInitialContraction` de la `CircularPresentation` fournie.
 
 ```text
 capacité à continuer

@@ -6,8 +6,10 @@
 > dependently typed foundation for relative and reflective alignment.** It first
 > proves exact adequacy between an operational regime and an independently
 > defined norm on the same constituted histories. From that established
-> adequacy, one branch constructs a minimal, faithfully realizable operational
-> exit; the other observes the two witness families propositionally, transports
+> adequacy, one branch constructs a one-occurrence operational exit which, like
+> every rooted generated history, admits an exact concrete realization in every
+> supplied algebra; the other observes the two witness families
+> propositionally, transports
 > their equivalence into a representation layer, and proves that exact
 > representation of those determined statuses is compatible with a constructed
 > diagonal status outside every global reflective closure of the evaluator.
@@ -19,11 +21,14 @@ to the central Cycle 1 result. Its generic local-to-global entry theorem shows
 that exact local realization reconstructs the canonical perimeter as an initial
 factor of any rooted generated history; injectivity is derived from exact
 agreement rather than assumed. A second entry point combines the canonical
-perimeter, its operational and normative adequacy, and a faithfully realizable
-one-occurrence continuation outside both regime and specification. A third
-exposes an exact structural bus from perimeter positions to free and concrete
-occurrences. Arbitrary readouts are attached only after that bus has been
-constituted, independently of their value type.
+perimeter, its operational and normative adequacy, and a one-occurrence
+continuation which, like every rooted generated history, admits an exact
+concrete realization in every supplied algebra and lies outside both regime and
+specification. A third exposes the canonical inhabitant of a structural bus
+whose correspondences are mutually inverse; the interface itself does not
+assert that its inhabitant is canonical or unique. Arbitrary readouts are
+attached only after that bus has been constituted, independently of their value
+type.
 
 ## Architecture
 
@@ -37,7 +42,7 @@ Cycle 1 — relative alignment
   operational regime and independent norm
   → witness transformation in each direction
   → exact adequacy
-  ├── minimal continuation
+  ├── one-occurrence continuation
   │     → localized operational exit
   │     → structural OOD
   │
@@ -91,9 +96,12 @@ h⁺ := oneStepAfterPerimeter P
 is a strict continuation of the canonical deployment. It remains locally exact,
 preserves canonical precedence and adjacency, and has an
 `ExactConcreteRealization A h⁺` for every supplied
-`ConcreteContinuationAlgebra P`. Nevertheless, both `R(h⁺)` and `S(h⁺)` are
-constructively refuted. The normative refutation is direct: it does not infer
-failure of the independent norm merely from rejection by the regime.
+`ConcreteContinuationAlgebra P`, as does every rooted generated history.
+Nevertheless, both `R(h⁺)` and `S(h⁺)` are constructively refuted. These
+refutations are relative to the supplied `CircularPresentation`, in particular
+its explicit `rejectInitialContraction` field. The normative refutation is
+direct: it does not infer failure of the independent norm merely from rejection
+by the regime.
 
 The generic structures `RegimeExit`, `UniformRegimeExit`, and
 `NormativeAdequacy` isolate the reusable architecture. The first two are

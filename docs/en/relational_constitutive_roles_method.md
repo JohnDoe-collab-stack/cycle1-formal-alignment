@@ -14,7 +14,8 @@ Navigation: [structural synthesis](structural_foundations.md) ·
 > weakened carriers, and then reconstruct and transport only those
 > determinations whose preservation has been proved.** Applied to relative
 > alignment, this method localizes a normative break in a construction that
-> continues to exist and to remain faithfully realizable.
+> continues to exist and, like every rooted generated history in this
+> development, admits an exact concrete realization.
 
 Complementary documents:
 
@@ -856,6 +857,11 @@ bus** onto which independent readouts can be connected after constitution. The
 term names the connection architecture already formalized here, not an
 additional mathematical primitive.
 
+Here, `exact` means that the two maps are mutually inverse. The interface does
+not make an arbitrary bus canonical or unique, and it does not by itself require
+preservation of order, adjacency, or labels. The repository separately defines
+the canonical bus used by its readout constructions.
+
 The readout is added after constitution and does not alter it. An arbitrary
 function nevertheless remains only a value assignment; its meaning does not
 follow from reindexing alone. Finally, `History.length` is a global readout of
@@ -1094,10 +1100,12 @@ constructed strict continuation
   `oneStepSpecRelativeHistoryExit`
 ```
 
-The candidate remains constructed, locally exact, correctly ordered, and
-faithfully realizable. What is lost is operational admission and the
-trajectory-level normative obligation. Preserving this positive information is
-what turns a refutation into a structural diagnosis.
+The candidate remains constructed, locally exact, and correctly ordered. Like
+every rooted generated history in this development, it also admits an exact
+concrete realization in every supplied algebra; that fact does not distinguish
+this candidate. What is lost is operational admission and the trajectory-level
+normative obligation. Preserving the remaining positive information is what
+turns a refutation into a structural diagnosis.
 
 ## 15. Reuse protocol
 
@@ -1352,8 +1360,9 @@ Cycle 1 provides a formal instance in which:
 - free and concrete occurrences are related by inverse correspondences with
   structural agreement;
 - an autonomous norm and an operational regime are adequate in both directions;
-- a minimal continuation remains exactly realizable in every supplied algebra
-  while failing the norm and the regime;
+- a one-occurrence continuation, like every rooted generated history, remains
+  exactly realizable in every supplied algebra while failing the norm and the
+  regime;
 - the break is localized without erasing the construction.
 
 ### 17.2 What Cycle 2 adds — and does not add

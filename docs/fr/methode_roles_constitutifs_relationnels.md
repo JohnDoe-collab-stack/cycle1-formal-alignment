@@ -14,7 +14,8 @@ Navigation : [synthèse structurelle](fondements_structurels.md) ·
 > affaiblis, puis reconstruire et transporter uniquement les déterminations dont
 > la conservation a été démontrée.** Appliquée à l'alignement relatif, cette
 > méthode permet de localiser une rupture normative sur une construction qui
-> continue d'exister et de rester fidèlement réalisable.
+> continue d'exister et qui, comme toute histoire générée enracinée dans ce
+> développement, admet une réalisation concrète exacte.
 
 Documents complémentaires :
 
@@ -874,6 +875,12 @@ Conceptuellement, les occurrences et leurs correspondances exactes forment un
 après constitution. Ce terme désigne ici l'architecture de raccordement déjà
 formalisée, non une primitive mathématique supplémentaire.
 
+Ici, `exact` signifie que les deux applications sont mutuellement inverses.
+L'interface ne rend pas un bus arbitraire canonique ou unique et n'exige pas, à
+elle seule, la conservation de l'ordre, de l'adjacence ou des étiquettes. Le
+dépôt définit séparément le bus canonique employé par ses constructions de
+lecture.
+
 La lecture est ajoutée après la constitution et ne modifie pas celle-ci. Une
 fonction arbitraire reste toutefois une simple attribution de valeurs ; sa
 signification ne découle pas du seul reindexage. Enfin, `History.length` est une
@@ -1115,10 +1122,12 @@ continuation stricte construite
   `oneStepSpecRelativeHistoryExit`
 ```
 
-Le candidat reste construit, localement exact, correctement ordonné et
-fidèlement réalisable. Ce qui est perdu est l'admission opérationnelle et
-l'obligation normative trajectorielle. La conservation de cette information
-positive transforme la réfutation en diagnostic structurel.
+Le candidat reste construit, localement exact et correctement ordonné. Comme
+toute histoire générée enracinée de ce développement, il admet aussi une
+réalisation concrète exacte dans toute algèbre fournie ; ce fait ne distingue pas
+ce candidat. Ce qui est perdu est l'admission opérationnelle et l'obligation
+normative trajectorielle. La conservation des autres informations positives
+transforme la réfutation en diagnostic structurel.
 
 ## 15. Protocole de réemploi
 
@@ -1378,8 +1387,9 @@ Le cycle 1 fournit une instance formelle dans laquelle :
   inverses avec accord structurel ;
 - une norme autonome et un régime opérationnel sont adéquats dans les deux
   directions ;
-- une continuation minimale reste exactement réalisable dans toute algèbre
-  fournie tout en échouant à la norme et au régime ;
+- une continuation à une occurrence, comme toute histoire générée enracinée,
+  reste exactement réalisable dans toute algèbre fournie tout en échouant à la
+  norme et au régime ;
 - la rupture est localisée sans suppression de la construction.
 
 ### 17.2 Ce que le Cycle 2 ajoute — et n'ajoute pas

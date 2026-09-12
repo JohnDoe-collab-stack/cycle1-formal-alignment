@@ -231,6 +231,9 @@ representational exterior.
 The closed `Unit` model `canonicalUnitCircularStatusView` verifies that this
 interface is inhabited: a particular circular status can be represented by a
 constant evaluator without turning that evaluator into a universal one.
+This is currently the only reflective status view constructed by the
+repository. It establishes inhabitation of the interface, not the existence of
+a non-degenerate code space or a non-constant evaluator.
 
 ## 10. Two exits that are not identified
 
@@ -241,8 +244,9 @@ Cycle 1 and Cycle 2 construct distinct boundaries:
 | operational | `oneStepAfterPerimeter P` | `CircularRefinement P` | operational admission and normative satisfaction |
 | representational | `diagonalStatus eval` | `InternallyRepresentable eval` | exact internal representation |
 
-The first candidate is a history that remains constructible and faithfully
-realizable. The second is a predicate on codes constructed from an evaluator.
+The first candidate is a history that remains constructible and, like every
+rooted generated history in this development, admits an exact concrete
+realization. The second is a predicate on codes constructed from an evaluator.
 No theorem in the repository converts one exit into the other, and no such
 conversion is assumed.
 

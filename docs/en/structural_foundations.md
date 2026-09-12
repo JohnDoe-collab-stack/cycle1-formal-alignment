@@ -20,8 +20,9 @@ what is preserved.
 The decisive pattern is diagonal: resources internal to a construction can
 produce a case that escapes a proposed global closure while preserving the
 construction that produced it. **Structural OOD** names the operational form of
-this pattern: the candidate remains internally generated and faithfully
-realizable as its status changes relative to the regime.
+this pattern: the candidate remains internally generated and, like every rooted
+generated history in this development, admits an exact concrete realization as
+its status changes relative to the regime.
 
 Cycle 1 machine-checks this operational architecture on
 `oneStepAfterPerimeter P`: an internally generated strict continuation remains
@@ -49,7 +50,7 @@ Cycle 1 — relative alignment
   operational regime and independent norm
   → witness transformation in each direction
   → exact adequacy
-  ├── minimal continuation
+  ├── one-occurrence continuation
   │     → localized operational exit
   │     → structural OOD
   │
@@ -478,8 +479,10 @@ their witness structures.
 | `CircularRefinement` | ✓ | ✗ |
 
 `oneStepAfterPerimeter P` is the canonical witness of departure from the norm.
-It remains constructible and faithfully realizable, with the departure located
-precisely at the trajectory obligation.
+It remains constructible and, like every rooted generated history, admits an
+exact concrete realization in every supplied algebra. The departure is located
+precisely at the trajectory obligation and is derived relative to the explicit
+`rejectInitialContraction` field of the supplied `CircularPresentation`.
 
 ```text
 capacity to continue

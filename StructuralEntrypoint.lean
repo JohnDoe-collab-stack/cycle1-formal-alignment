@@ -11,13 +11,14 @@ three complementary entry points and introduces no new assumption:
 * the canonical perimeter is exactly realized and satisfies both the
   operational regime and the independent specification;
 * one generated step beyond that perimeter is a strict continuation;
-* its continuation contains exactly one occurrence, and the resulting history
-  admits an `ExactConcreteRealization` in every supplied concrete continuation
-  algebra;
+* its continuation contains exactly one occurrence, and the resulting history,
+  like every rooted generated history, admits an `ExactConcreteRealization` in
+  every supplied concrete continuation algebra;
 * the same candidate lies outside both the operational regime and the
   independent specification.
-* perimeter positions, free occurrences, and concrete occurrences form an
-  exact structural bus before any readout or value type is chosen.
+* the canonical facade construction supplies mutually inverse correspondences
+  between perimeter positions, free occurrences, and concrete occurrences
+  before any readout or value type is chosen.
 
 The short constructions below do not replace the underlying proofs.  They make
 the local-to-global reconstruction, the canonical exit, and the structural
@@ -41,7 +42,10 @@ agreement rather than postulated.
 The output constructively exhibits the canonical perimeter history as an exact
 initial factor of the supplied history.  It may leave a positive continuation,
 so this result does not claim that the perimeter exhausts the history.  This
-facade is executable, preserves the witness layer, and adds no hypothesis.
+facade is a definitional alias of the foundational construction.  It preserves
+the witness layer and adds no hypothesis.  The compiler emits IR for it, and it
+reduces to a value when the presentation and realization are supplied as closed
+data.
 -/
 def localExactnessReconstructsPerimeter
     {P : CircularPresentation}
@@ -53,9 +57,12 @@ def localExactnessReconstructsPerimeter
 /--
 The canonical human-scale certificate: exact reconstruction of the perimeter
 does not close construction.  The canonical one-step continuation contains
-exactly one occurrence, and the resulting history admits an
-`ExactConcreteRealization` in every supplied concrete continuation algebra,
-while that history exits the established regime and its independent norm.
+exactly one occurrence, and the resulting history, like every rooted generated
+history, admits an `ExactConcreteRealization` in every supplied concrete
+continuation algebra.  That history nevertheless exits the established regime
+and its independent norm.  Both refutations are relative to the supplied
+`CircularPresentation`, in particular its explicit
+`rejectInitialContraction` field.
 -/
 structure ExactPerimeterAndFaithfulExit
     (P : CircularPresentation)
@@ -107,11 +114,14 @@ def exactPerimeterAndFaithfulExit
       oneStepAfterPerimeter_notSpecificationSatisfaction P }
 
 /--
-Exact structural bus from perimeter positions to free occurrences and then to
+Structural bus from perimeter positions to free occurrences and then to
 occurrences in any supplied concrete realization.
 
 No readout value is part of this structure. The identities and their exact
 correspondences are established before any evaluation is attached to them.
+Here, `exact` means that the two maps of each correspondence are mutually
+inverse.  The interface does not assert that an inhabitant is canonical or
+unique, nor that an arbitrary inhabitant preserves order, adjacency, or labels.
 
 Conceptually, occurrences and their exact correspondences form a structural
 bus onto which independent readouts can be attached after constitution.
@@ -130,8 +140,10 @@ structure ExactReadoutBus
       (A.realizeHistory (perimeterHistory P))
 
 /--
-The structural bus is obtained entirely from already proved exact
-correspondences. No evaluation and no value type is required.
+The canonical structural bus used by the repository is obtained entirely from
+already proved exact correspondences.  No evaluation and no value type is
+required.  This definition supplies the canonical inhabitant; the
+`ExactReadoutBus` interface itself does not assert uniqueness.
 -/
 def exactReadoutBus
     (P : CircularPresentation)
