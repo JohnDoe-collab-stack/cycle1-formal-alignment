@@ -33,10 +33,11 @@ scientifiques attendus.
 - δ constitue le cas de référence gelé ;
 - β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
   vers la même préservation gardée des appartenances ;
-- ι a été lancé indépendamment : le cas `.plain` possède un séparateur réel
-  et son front-door RHS a été strictement affaibli à « lecture exacte +
-  `WellDenotedV` uniforme » ; `.nested` et la comparaison postérieure restent
-  ouverts ;
+- ι a été lancé indépendamment : le cas `.plain` possède désormais un
+  séparateur porté par un `IotaRuleRun` complet, et son front-door RHS a été
+  strictement affaibli à « lecture exacte + `WellDenotedV` uniforme » ; le
+  raccord à l’installation inductive englobante, `.nested` et la comparaison
+  postérieure restent ouverts ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
@@ -266,7 +267,11 @@ par un séparateur ou une factorisation positive, jamais par anticipation.
   `InferReads + InferClaim → InferSubjectWellDenoted`, puis
   `run accepté + InferSubjectWellDenoted → PlainRhsFrontDoor`, ainsi qu’un
   séparateur montrant que `B0W` et une occurrence d’inférence réellement
-  acceptée ne reconstruisent pas ce front-door.
+  acceptée ne reconstruisent pas ce front-door ;
+- un renforcement de ce séparateur au niveau exact d’un `IotaRuleRun` `.plain`
+  complet : sélection de la règle, exécution de `iotaRecFueled`, théorème de
+  continuation et toutes les obligations opérationnelles du run sont
+  simultanément satisfaits, tandis que `PlainRhsFrontDoor` reste réfuté.
 
 Ces preuves appartiennent au checkout de dissection externe. Leurs empreintes et
 leurs axiomes hérités sont rapportés dans les documents scientifiques ; elles ne
@@ -753,11 +758,12 @@ PlainRhsFrontDoor
 ```
 
 Un second séparateur, fondé sur une application effectivement acceptée par
-`inferTypeCore`, montre que `B0W + run RHS accepté` ne suffit pas à reconstruire
-`PlainRhsFrontDoor`. Ce résultat isole la coupure sémantique après l’acceptation
-opérationnelle. Il ne prétend pas encore fournir un `IotaRuleRun` complet : les
-autres obligations d’installation de cette structure restent une frontière
-explicite.
+`inferTypeCore`, montre d’abord que `B0W + run RHS accepté` ne suffit pas à
+reconstruire `PlainRhsFrontDoor`. Ce résultat isole la coupure sémantique après
+l’acceptation opérationnelle. Il a depuis été renforcé par un contre-modèle qui
+satisfait toutes les obligations d’un `IotaRuleRun` `.plain` complet ; la
+frontière ouverte est désormais l’installation inductive englobante, et non le
+run de règle local.
 
 La descente dans la branche application de `InferSubjectWellDenoted` a ensuite
 isolé, sans employer l’interface commune δ/β, le premier résidu relationnel
@@ -791,10 +797,7 @@ rapportent uniquement les axiomes hérités de ConLeche (`propext`,
 Sur ce même témoin, les deux autres clauses du frame sont maintenant prouvées
 positivement : la lecture de l’argument appartient au domaine `Sort 0`, et la
 condition de niveau zéro est vacue parce que `pwBit .never = 1`. Le séparateur
-courant est donc entièrement localisé sur `headInPiR`. Cela ne prouve pas encore
-que les deux clauses sont uniformément reconstructibles sur toute occurrence
-`.plain` ; le prochain test doit rester générique et chercher un nouveau
-séparateur s’il échoue.
+courant est donc entièrement localisé sur `headInPiR`.
 
 Un second contre-modèle applicatif accepté a ensuite testé indépendamment la
 membership de l’argument. Il construit un environnement `B0W` où :
@@ -826,6 +829,113 @@ Le second séparateur compile et son audit d’axiomes rapporte seulement les
 axiomes hérités de ConLeche. Sa portée reste celle d’une occurrence d’inference
 acceptée, pas encore celle d’un `IotaRuleRun` d’installation complet.
 
+Le test générique de la condition de niveau zéro ne produit pas un troisième
+séparateur. Il révèle au contraire que cette condition, bien que consommée par
+la preuve canonique de `sound_app`, peut être éliminée du front-door RHS
+affaibli. La distinction décisive est la suivante :
+
+```text
+sortie complète de infer_app_claim
+  = WellDenotedV de l’application
+  + membership dans le type résultat exact
+
+front-door RHS .plain
+  = WellDenotedV de l’application seulement
+```
+
+Pour la seconde cible, si le niveau du frame est positif, la condition zéro
+est vacue. S’il vaut zéro, `headInPiR` identifie la tête au point de preuve
+canonique ; on reconstruit alors constructivement un autre frame propositionnel
+ayant pour domaine le singleton de l’argument courant et pour fibres
+`unitSet`. Ce frame suffit à `WellDenoted_app`, sans préserver l’identité du
+frame opérationnel ni sa condition de fibre. `AnnotValid_app` ne consomme de
+son côté que les validités des deux constituants.
+
+Trois théorèmes compilés enregistrent cette réduction :
+
+```text
+WellDenoted head + WellDenoted argument
++ headInPi + argumentInDomain
+  → WellDenoted (app head argument)
+
+la même factorisation à la monnaie WellDenotedV
+
+les deux PlainMembershipTransport
++ les memberships sources exactes
++ les WellDenotedV des constituants
+  → WellDenotedV de l’application
+```
+
+Cette élimination est propre à la consommation terminale affaiblie. Elle ne
+montre pas que la condition zéro est inutile pour produire la membership de
+l’application dans son type résultat exact : cette seconde conclusion de
+`sound_app` continue à la consommer.
+
+Le premier sens du raccord au producteur complet est également formalisé. Un
+`IotaRuleRun` dont la règle installée est `.plain` projette constructivement
+vers une occurrence RHS contenant exactement :
+
+```text
+gardes de fermeture et de portée du RHS source
+annotation acceptée vers le RHS installé
+gardes correspondantes du RHS annoté
+run inferTypeCore accepté sur ce même RHS
+identité du RHS installé
+mode .plain
+```
+
+Cette projection ne consomme aucun modèle sémantique. Elle établit :
+
+```text
+IotaRuleRun complet → occurrence RHS acceptée
+```
+
+Le raccord négatif au niveau projeté est explicite et compilé. Le contre-modèle
+applicatif fournit, pour un même fuel choisi constructivement par maximum,
+l’annotation et l’inférence acceptées exigées par cette occurrence, tout en
+réfutant son `PlainRhsFrontDoor`. Ainsi :
+
+```text
+B0W + occurrence RHS acceptée ↛ PlainRhsFrontDoor
+```
+
+Le raccord a ensuite été fermé au niveau du producteur local complet. Un
+environnement de base synthétique sélectionne la règle `.plain`, un même
+environnement propre fournit le témoin `B0W`, et toutes les composantes du vrai
+`IotaRuleRun` sont construites, notamment `iotaRecFueled`, le théorème de règle
+et le certificat de continuation. Pourtant, le RHS installé garde exactement la
+lecture applicative séparatrice et son `PlainRhsFrontDoor` conduit à `False` :
+
+```text
+B0W + IotaRuleRun complet ↛ PlainRhsFrontDoor
+```
+
+Les deux théorèmes de ce raccord compilent et leur `#print axioms` rapporte
+uniquement les axiomes hérités du développement ConLeche (`propext`,
+`Classical.choice`, `Quot.sound`), sans `sorryAx`.
+
+Le pli de liste immédiatement supérieur n’ajoute aucune réparation : le même
+témoin se relève constructivement en un `IotaRulesRun` complet à une seule
+règle, avec la même réfutation du front-door. Son audit d’axiomes donne le même
+résultat hérité. La première contrainte productrice réellement nouvelle est
+donc `ProvisionRecsRun`, pas `IotaRulesRun`.
+
+Le couple d’environnements synthétique courant ne peut pas être réutilisé tel
+quel à ce niveau. Un lemme compilé montre qu’aucune liste de recursors ne peut
+relier `envBase` à `envSelf` par `ProvisionRecsRun` : le provisionneur construit
+l’environnement propre en préfixant un `recInfo` à règles vides pour chaque
+recursor, alors que le `envSelf` courant commence par l’axiome auxiliaire du
+contre-modèle. Cette obstruction de forme interdit un raccord illégitime, mais
+ne fournit aucune sémantique et ne montre pas que le vrai provisionnement
+répare le front-door.
+
+La portée reste donc rigoureusement en amont du producteur inductif englobant.
+Le prochain contre-modèle doit être reconstruit avec la relation exacte imposée
+par `ProvisionRecsRun`, puis porté par `IndRecsRun` ou `DeclIndRun`. Il n’est pas
+encore établi que de tels environnements sont atteignables depuis
+l’environnement initial. Ces contraintes peuvent exclure le témoin ou fournir
+la relation sémantique manquante ; leur effet demeure une question ouverte.
+
 Cette convergence de forme avec la capacité δ/β n’est pas encore une
 comparaison : le nom et les théorèmes δ/β restent absents de la définition ι.
 Il faut d’abord poursuivre la branche positive après ce premier résidu et
@@ -833,19 +943,18 @@ stabiliser `.plain` puis `.nested`.
 
 Travail restant, dans cet ordre :
 
-1. reprendre la construction positive de `WellDenotedV` après les deux usages
-   de `PlainMembershipTransport` et tester la condition de niveau zéro de
-   manière générique ; arrêter au premier nouveau résidu et construire son
-   séparateur ;
-2. tester le raccord de l’ensemble des résidus au producteur `IotaRuleRun`
-   complet, ou maintenir
-   explicitement la portée plus faible si ce raccord exige une nouvelle
-   obligation ;
-3. poursuivre le weakening de `.plain` jusqu’à stabiliser sa capacité propre ;
-4. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
-5. stabiliser l’interface ι seulement après les deux branches ;
-6. comparer ensuite seulement δ, β et ι ;
-7. conclure par construction d’une capacité commune, impossibilité dans une
+1. reconstruire le contre-modèle avec la relation d’environnements exacte de
+   `ProvisionRecsRun`, puis déterminer si `IndRecsRun` ou `DeclIndRun` excluent
+   encore sa rupture sémantique ; construire un raccord positif ou un
+   séparateur à ce niveau, et sinon maintenir explicitement la question
+   ouverte ;
+2. poursuivre le weakening de `.plain` sur les autres formes syntaxiques
+   effectivement forcées par les runs d’installation, sans généraliser depuis
+   la seule application racine ;
+3. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
+4. stabiliser l’interface ι seulement après les deux branches ;
+5. comparer ensuite seulement δ, β et ι ;
+6. conclure par construction d’une capacité commune, impossibilité dans une
    classe `K` explicitement définie, ou maintien honnête de la question ouverte.
 
 L’absence de construction n’est jamais une preuve d’impossibilité.
