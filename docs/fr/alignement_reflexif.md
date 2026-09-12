@@ -8,7 +8,7 @@ Navigation : [synthèse structurelle](fondements_structurels.md) ·
 
 ## Statut
 
-Ce document décrit l'extension autonome du cycle 2 implémentée dans
+Ce document décrit l'extension minimale du cycle 2 implémentée dans
 `Cycle2/DiagonalizationKernel.lean` et `Cycle2/ReflectiveAlignment.lean`.
 Chaque déclaration Lean nommée ci-dessous est compilée avec Lean 4.33.1 et
 couverte par l'audit final `#print axioms` du dépôt.
@@ -295,30 +295,22 @@ lake build Cycle2ReflectiveExtension
 
 Les fichiers sources du cycle 2 se terminent par des `#print axioms` couvrant
 leurs 28 déclarations explicites de premier niveau. La compilation complète
-exécute 460 commandes `#print axioms` portant sur 459 déclarations distinctes ;
-une déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`.
-Chaque rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
-L'intégrité des sources se vérifie sous Linux ou macOS avec :
+audite 650 déclarations et ne rapporte aucune dépendance axiomatique. L'intégrité
+des sources se vérifie avec:
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-Sous Windows, avec PowerShell 7 :
+ou:
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-ou avec Windows PowerShell :
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
-```
-
 ## 13. Conclusion stabilisée
 
-Le cycle 2 vérifie mécaniquement un noyau constructif autonome de non-clôture
+Le cycle 2 vérifie mécaniquement un noyau constructif minimal de non-clôture
 réflexive. Il construit le statut qui échappe à la représentation, démontre sa
 non-représentabilité, transporte l'adéquation normative du Cycle 1 à travers la
 représentation exacte de statuts déterminés et établit que cette exactitude ne

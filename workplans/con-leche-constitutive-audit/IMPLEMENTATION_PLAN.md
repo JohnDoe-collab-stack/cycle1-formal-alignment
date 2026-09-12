@@ -33,12 +33,36 @@ scientifiques attendus.
 - δ constitue le cas de référence gelé ;
 - β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
   vers la même préservation gardée des appartenances ;
-- ι a été lancé indépendamment : le cas `.plain` possède un séparateur réel,
-  mais `.nested` et la comparaison postérieure restent ouverts ;
+- ι a été lancé indépendamment : le cas `.plain` possède un séparateur réel
+  et son front-door RHS a été strictement affaibli à « lecture exacte +
+  `WellDenotedV` uniforme » ; `.nested` et la comparaison postérieure restent
+  ouverts ;
 - aucune réduction de l’hypothèse globale de chaîne d’univers n’est encore
   démontrée.
 
 ## 1. Principe scientifique
+
+### Position du cas d’étude
+
+Le cadre théorique est autonome et antérieur à cette étude. Il est formalisé
+dans `SegmentedResidualRole`, `AbstractSegmentedTurning`,
+`StrongPerimetralTurning` et le noyau générique de `VerificationTransport`.
+ConLeche n’en est ni la source, ni la fondation, ni une dépendance scientifique :
+il constitue un **cas d’étude externe** sur lequel ce cadre est instancié et
+éprouvé.
+
+```text
+cadre théorique autonome
+  → instanciation sur ConLeche
+  → dissection de ses transformations et invariants réels
+  → factorisations, capacités et séparateurs propres au cas étudié
+```
+
+ConLeche peut contraindre une instanciation, révéler qu’un adaptateur manque ou
+réfuter une conjecture par un séparateur. Il ne doit pas définir rétroactivement
+les notions générales du cadre. Une abstraction nouvelle n’entre dans le noyau
+que si plusieurs preuves l’imposent indépendamment et si sa formulation ne
+mentionne aucun détail propre à ConLeche.
 
 Le chantier part de la distinction suivante :
 
@@ -175,15 +199,38 @@ Il doit d’abord réutiliser :
   `ConcreteContinuationAlgebra` pour une continuation positive effectivement
   construite ;
 - `StrongPerimetralTurning.ExactHistoryInterpretation` pour le transport exact
-  des occurrences vers une réalisation concrète ;
+  des occurrences vers une réalisation concrète, ainsi que
+  `pullbackReadout` / `pushforwardReadout` pour reindexer une lecture sans lui
+  attribuer de fidélité sémantique supplémentaire ;
+- `StrongPerimetralTurning.History.OccurrenceReadout`, `perimeterReadout` et
+  `occurrenceReadoutOfPerimeter` pour brancher les demandes d’univers, niveaux
+  et autres observables **après** l’individuation des occurrences ; ces
+  fonctions constituent un bus de réindexation exact, pas une sémantique ni une
+  correspondance unique ou canonique par leur seul type ;
+- `StrongPerimetralTurning.ExactNonClosingRealization.toPerimeterExtension`
+  pour reconstruire exécutablement le facteur initial global depuis l’accord
+  local exact ; dans cette structure, `realize_injective` est un théorème
+  dérivé de `agreement` et ne doit pas être réintroduit comme donnée persistée ;
 - `ConstitutiveAlignment.InjectiveMap` et `InjectiveMap.trans` pour la
-  conservation des distinctions d’occurrences ;
+  conservation des distinctions d’occurrences hors des situations où l’accord
+  exact de `ExactNonClosingRealization` suffit déjà à les reconstruire ;
 - les transports d’occurrences déjà prouvés dans le Cycle 1 ;
 - `ConstitutiveAlignment.Separators.noFaithfulTerminalOnlyRealization` comme
   séparateur générique déjà acquis entre lecture terminale et réalisation fidèle.
 
 `History.length` est une lecture numérique dérivée tardivement ; elle ne doit
 jamais remplacer l’histoire ni servir à postuler sa hauteur avant construction.
+Plus généralement, une lecture `OccurrenceReadout history Value` est une
+fonction post-constitutive sur des identifiants déjà formés. Elle peut être
+constante, non injective ou non numérique : toute propriété de fidélité,
+d’adéquation ou de séparation des valeurs doit être prouvée séparément.
+
+L’existence d’une `ExactHistoryInterpretation` établit une correspondance exacte
+entre occurrences libres et concrètes. Elle ne rend pas cette correspondance
+unique parmi toutes les bijections possibles. Lorsque l’identité canonique des
+occurrences importe, le chantier doit utiliser l’interprétation construite par
+le producteur concerné et son `occurrenceAgreement`, pas seulement l’existence
+d’un bus inversible.
 
 Pour les carriers hétérogènes du pipeline, une petite structure locale
 est admise si l’encodage dans `History` exige une somme artificielle ou masque les
@@ -211,7 +258,15 @@ par un séparateur ou une factorisation positive, jamais par anticipation.
 - la projection terminale `EnvModelM → TerminalSlice → no False` ;
 - les séparateurs et factorisations δ ;
 - l’analyse β indépendante et sa comparaison postérieure avec δ ;
-- le séparateur ι `.plain` jusqu’à l’échec relationnel de `headInPiR`.
+- le séparateur ι `.plain` jusqu’à l’échec relationnel de `headInPiR` ;
+- l’affaiblissement compilé du front-door RHS de `indBottomPlain` : la lecture
+  du type inféré et la membership du RHS ont été supprimées de sa prémisse
+  sans modifier la conclusion ;
+- la factorisation positive
+  `InferReads + InferClaim → InferSubjectWellDenoted`, puis
+  `run accepté + InferSubjectWellDenoted → PlainRhsFrontDoor`, ainsi qu’un
+  séparateur montrant que `B0W` et une occurrence d’inférence réellement
+  acceptée ne reconstruisent pas ce front-door.
 
 Ces preuves appartiennent au checkout de dissection externe. Leurs empreintes et
 leurs axiomes hérités sont rapportés dans les documents scientifiques ; elles ne
@@ -484,6 +539,12 @@ conservée est l’identité d’occurrences. Une relation plus riche est admise
 transformation conserve autre chose qu’une injection, mais ce contenu doit être
 explicite dans le type du témoin.
 
+Lorsque la transformation est représentée par un accord exact de
+`ExactNonClosingRealization`, l’injectivité doit être obtenue par le théorème
+`realize_injective`, et non dupliquée comme hypothèse primitive. Les readouts ne
+doivent intervenir qu’après cette constitution : ils annotent les occurrences
+transportées, ils ne prouvent ni leur identité ni leur provenance.
+
 ### Fermeture
 
 - module compilé ;
@@ -667,13 +728,124 @@ est sélectionnée, `iotaRecFueled` s’exécute, la continuation est certifiée
 deux constituants du RHS sont bien dénotés, mais leur composition échoue déjà
 sur la clause relationnelle `headInPiR`.
 
+Le chemin positif du producteur `.plain` a maintenant été affaibli séparément.
+Une recompilation temporaire du vrai `indBottomPlain`, ensuite restauré
+bit-pour-bit, montre que son front-door RHS ne consomme ni le témoin de lecture
+du type inféré ni la membership du RHS dans ce type. Il consomme exactement :
+
+```text
+∀ ψ, ∃ Ra,
+  denoteMeta rhs = some Ra
+  ∧ ∀ ρ, WellDenotedV ρ Ra
+```
+
+La production de cette interface se factorise sans conserver le type inféré :
+
+```text
+InferReads + InferClaim
+        ↓ projection
+InferSubjectWellDenoted
+
+run d’inférence accepté + lecture opérationnelle
++ InferSubjectWellDenoted
+        ↓
+PlainRhsFrontDoor
+```
+
+Un second séparateur, fondé sur une application effectivement acceptée par
+`inferTypeCore`, montre que `B0W + run RHS accepté` ne suffit pas à reconstruire
+`PlainRhsFrontDoor`. Ce résultat isole la coupure sémantique après l’acceptation
+opérationnelle. Il ne prétend pas encore fournir un `IotaRuleRun` complet : les
+autres obligations d’installation de cette structure restent une frontière
+explicite.
+
+La descente dans la branche application de `InferSubjectWellDenoted` a ensuite
+isolé, sans employer l’interface commune δ/β, le premier résidu relationnel
+positif :
+
+```text
+PlainMembershipTransport context before after :=
+  ∀ ρ, Sat context ρ →
+  ∀ x, x ∈ interp before → x ∈ interp after
+```
+
+Pour cette analyse indépendante :
+
+```text
+égalité sémantique gardée
+        ↓ strictement
+PlainMembershipTransport
+        ↓ avec la membership inférée de la tête
+headInPiR sur la lecture exacte du whnf
+```
+
+La stricte faiblesse est non vacue : `Sort 0 → Sort 1` transporte au moins
+`empty`, alors que l’égalité de leurs interprétations implique une
+self-membership impossible. Sur le contre-modèle applicatif accepté, le même
+`whnf`, la même lecture source et la même lecture réduite ne reconstruisent pas
+`PlainMembershipTransport`, car celle-ci produirait exactement le
+`headInPiR` déjà réfuté. Tous ces raccords compilent ; leurs `#print axioms`
+rapportent uniquement les axiomes hérités de ConLeche (`propext`,
+`Classical.choice`, `Quot.sound`).
+
+Sur ce même témoin, les deux autres clauses du frame sont maintenant prouvées
+positivement : la lecture de l’argument appartient au domaine `Sort 0`, et la
+condition de niveau zéro est vacue parce que `pwBit .never = 1`. Le séparateur
+courant est donc entièrement localisé sur `headInPiR`. Cela ne prouve pas encore
+que les deux clauses sont uniformément reconstructibles sur toute occurrence
+`.plain` ; le prochain test doit rester générique et chercher un nouveau
+séparateur s’il échoue.
+
+Un second contre-modèle applicatif accepté a ensuite testé indépendamment la
+membership de l’argument. Il construit un environnement `B0W` où :
+
+```text
+lecture exacte de l’application                    ✓
+run inferTypeCore réellement accepté               ✓
+WellDenoted de la tête et de l’argument             ✓
+transport de la tête (identité)                     ✓
+headInPiR sur un domaine vide                       ✓
+condition de niveau zéro                            ✓
+membership de l’argument dans le domaine vide       ✗
+```
+
+La nouvelle coupure n’exige pas une seconde forme de capacité : elle réutilise
+exactement `PlainMembershipTransport`, cette fois entre la lecture du type
+inféré de l’argument et la lecture du domaine du `forall`. Le transport est
+réfuté constructivement parce que l’argument appartient à son univers inféré
+mais ne peut appartenir au domaine vide. Ainsi, dans la preuve positive de
+`infer_app_claim`, la même relation gardée intervient déjà à deux raccords
+distincts :
+
+```text
+type inféré de la tête → whnf fonctionnel
+type inféré de l’argument → domaine du forall
+```
+
+Le second séparateur compile et son audit d’axiomes rapporte seulement les
+axiomes hérités de ConLeche. Sa portée reste celle d’une occurrence d’inference
+acceptée, pas encore celle d’un `IotaRuleRun` d’installation complet.
+
+Cette convergence de forme avec la capacité δ/β n’est pas encore une
+comparaison : le nom et les théorèmes δ/β restent absents de la définition ι.
+Il faut d’abord poursuivre la branche positive après ce premier résidu et
+stabiliser `.plain` puis `.nested`.
+
 Travail restant, dans cet ordre :
 
-1. poursuivre le weakening de `.plain` jusqu’à stabiliser sa capacité propre ;
-2. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
-3. stabiliser l’interface ι seulement après les deux branches ;
-4. comparer ensuite seulement δ, β et ι ;
-5. conclure par construction d’une capacité commune, impossibilité dans une
+1. reprendre la construction positive de `WellDenotedV` après les deux usages
+   de `PlainMembershipTransport` et tester la condition de niveau zéro de
+   manière générique ; arrêter au premier nouveau résidu et construire son
+   séparateur ;
+2. tester le raccord de l’ensemble des résidus au producteur `IotaRuleRun`
+   complet, ou maintenir
+   explicitement la portée plus faible si ce raccord exige une nouvelle
+   obligation ;
+3. poursuivre le weakening de `.plain` jusqu’à stabiliser sa capacité propre ;
+4. analyser `.nested` depuis son producteur réel, sans vocabulaire imposé ;
+5. stabiliser l’interface ι seulement après les deux branches ;
+6. comparer ensuite seulement δ, β et ι ;
+7. conclure par construction d’une capacité commune, impossibilité dans une
    classe `K` explicitement définie, ou maintien honnête de la question ouverte.
 
 L’absence de construction n’est jamais une preuve d’impossibilité.
@@ -846,6 +1018,15 @@ occurrence, puis l’histoire finie obtenue doit rester exactement traçable.
 8. construire un séparateur pour toute projection qui oublie une détermination
    ensuite requise.
 
+La construction doit d’abord produire l’histoire et ses identifiants, puis
+installer les demandes évaluées au moyen d’un `OccurrenceReadout`. Les
+aller-retour `perimeterReadout` / `occurrenceReadoutOfPerimeter` et, lorsqu’une
+réalisation concrète intervient, `pullbackReadout` / `pushforwardReadout`, sont
+les adaptateurs de référence. Ils ne dispensent jamais de prouver séparément
+l’adéquation de la valeur lue à l’occurrence source. Une bijection alternative
+peut satisfaire les mêmes aller-retour ; la canonicité requiert donc le raccord
+structurel fourni par l’accord d’occurrences du producteur.
+
 Une simple collecte syntaxique des `Sort` n’est pas une couverture sémantique.
 
 Le premier test décisif de cette sous-gate est de déterminer si la preuve
@@ -879,6 +1060,15 @@ Pour une histoire finie de support fixée, construire positivement :
 5. l’indexation exacte entre `univ n` et `univChain`, y compris le décalage des
    niveaux positifs ;
 6. les séparateurs montrant quelles relations ne peuvent pas être oubliées.
+
+Lorsque des correspondances locales exactes avec les étages construits sont
+disponibles, tenter d’abord la reconstruction locale-vers-globale exécutable sur
+le modèle de `ExactNonClosingRealization.toPerimeterExtension`. L’accord exact
+doit fournir l’injectivité comme conséquence, puis la factorisation globale doit
+rester une donnée de `Type` calculable. Une preuve propositionnelle d’existence,
+une sélection classique ou une définition `noncomputable` ne ferme pas cette
+sous-gate. Sur des données closes représentatives, ajouter un test de réduction
+ou de génération de code dès que la construction produit un objet calculable.
 
 La frontière des univers de Lean doit être explicitée. Si Lean ne permet pas de
 construire une tour arbitraire uniforme dans un même niveau métathéorique, le
@@ -925,6 +1115,9 @@ k := History.length S
 Prouver que la tour réalisée possède exactement la hauteur utile ou une hauteur
 suffisante explicitement reliée à `k`. Ne jamais présenter `k` comme ayant été
 déduit d’une simple taille de fichier ou du seul nombre d’occurrences dans `U`.
+Formellement, traiter `k` comme une lecture tardive du support déjà constitué :
+la construction de `S`, ses occurrences et leur réalisation ne doit dépendre ni
+de `k` ni d’une autre annotation numérique obtenue a posteriori.
 
 #### Issues scientifiques admises
 

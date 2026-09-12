@@ -293,7 +293,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les trois bibliothèques Lake, audite 565
+La compilation épinglée construit les trois bibliothèques Lake, audite 650
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -309,7 +309,7 @@ d'incomplétude de Gödel. Les cycles formels et l’architecture constitutive s
 constructifs et n’emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni
 déclaration `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`.
 Lean génère toutefois des déclarations auxiliaires `.injEq` qui dépendent de
-`propext` ; aucune des 444 déclarations explicitement auditées ne dépend de
+`propext` ; aucune des 650 déclarations explicitement auditées ne dépend de
 celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis

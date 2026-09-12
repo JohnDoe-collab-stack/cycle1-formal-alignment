@@ -8,7 +8,7 @@ Navigation: [structural synthesis](structural_foundations.md) ·
 
 ## Status
 
-This document describes the self-contained Cycle 2 extension implemented in
+This document describes the minimal Cycle 2 extension implemented in
 `Cycle2/DiagonalizationKernel.lean` and `Cycle2/ReflectiveAlignment.lean`.
 Every Lean declaration named below is compiled with Lean 4.33.1 and covered by
 the repository's final `#print axioms` audit.
@@ -287,31 +287,22 @@ lake build Cycle2ReflectiveExtension
 ```
 
 The Cycle 2 source files end with `#print axioms` for all 28 of their explicit
-top-level declarations. The complete build runs 460 `#print axioms` commands
-over 459 distinct declarations; one declaration is re-audited by the
-`Cycle2.lean` aggregator. Every report states that the named declaration has no
-axiom dependency. Source integrity is checked on Linux or macOS with:
+top-level declarations. The complete build audits 650 declarations and reports
+no axiom dependency. Source integrity is checked with either:
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-On Windows, use PowerShell 7:
+or:
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-or Windows PowerShell:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
-```
-
 ## 13. Stabilized conclusion
 
-Cycle 2 machine-checks a self-contained constructive kernel of reflective
-non-closure.
+Cycle 2 machine-checks a minimal constructive kernel of reflective non-closure.
 It constructs the escaping status, proves its non-representability, transports
 Cycle 1 normative adequacy through exact representation of determined statuses,
 and demonstrates that this exactness does not collapse into global closure. Its formal
