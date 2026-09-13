@@ -10,6 +10,29 @@ representations, transported without merging the layers, and only then made
 available to independent readouts.  This organization requires a global
 interpretation of local results.
 
+The same constitutive determination is followed through the facade as follows:
+
+```text
+constitutive positions/requirements of the perimeter
+        ↓ exact agreement
+local occurrences in an arbitrary history
+        ↓ local-to-global reconstruction
+canonical perimeter as an initial factor
+        ├──────────────────────────────────┐
+        ↓                                  ↓
+one-occurrence continuation            perimeter positions
+        ↓                                  ↕
+perimeter preserved as a prefix        free occurrences
+        ↓                                  ↕
+exact realization of the               concrete occurrences in
+extended history                       each realization
+        ↓                                  ↓
+exit from the regime and               coordination through
+from the specification                 the same index
+                                           ↓
+                                       readouts attached only afterward
+```
+
 This file is therefore a human-scale facade over the structural foundation.  It
 exposes three articulated entry points and introduces no new assumption:
 
