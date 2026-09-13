@@ -214,6 +214,10 @@ French counterparts are linked from the top of every scientific document.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implements the
   circular construction, independent norm, relative adequacy, and canonical
   operational exit.
+- [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
+  supplies a constructive, observable, non-identity
+  `ConcreteContinuationAlgebra` without becoming a dependency of the
+  structural foundation or facade.
 - [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
   implements the abstract constructive diagonal kernel using only `Init`.
 - [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observes
@@ -244,7 +248,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles both Lake libraries, audits 347 declarations through
+The pinned build compiles both Lake libraries, audits 353 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
@@ -257,7 +261,7 @@ diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 347 explicitly audited
+declarations that depend on `propext`; none of the 353 explicitly audited
 declarations depends on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required

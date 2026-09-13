@@ -218,6 +218,10 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
+- [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
+  fournit une `ConcreteContinuationAlgebra` constructive, observable et non
+  identitaire, sans devenir une dépendance du fondement structurel ni de la
+  façade.
 - [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
   implémente le noyau diagonal constructif abstrait en n'important que `Init`.
 - [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observe
@@ -249,7 +253,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 347
+La compilation épinglée construit les deux bibliothèques Lake, audite 353
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -265,7 +269,7 @@ d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
 toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 347 déclarations explicitement auditées ne dépend de celles-ci ni
+aucune des 353 déclarations explicitement auditées ne dépend de celles-ci ni
 d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis

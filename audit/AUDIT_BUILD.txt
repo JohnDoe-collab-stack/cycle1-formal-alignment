@@ -1,7 +1,7 @@
 Structural foundations artifact — reproducible build and axiom audit
 =====================================================================
 
-Audit date: 2026-09-12
+Audit date: 2026-09-13
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
 Release version: 2.0.0
 Audit scope: Cycle 1 and the isolated minimal Cycle 2 reflective extension
@@ -33,11 +33,11 @@ Results:
   Exit code: 0
   Build completed successfully: yes
   Warnings: 0
-  Axiom audit declarations: 347
+  Axiom audit declarations: 353
   Unexpected axiom lines: 0
 
-The six declaration-bearing Lean modules and the import-only `Cycle2.lean`
-aggregator each contain one final axiom-audit block. Every one of the 347
+The seven declaration-bearing Lean modules and the import-only `Cycle2.lean`
+aggregator each contain one final axiom-audit block. Every one of the 353
 reports states that the named declaration does not depend on any axioms.
 
 Source-policy scan
@@ -62,6 +62,7 @@ Scientific source SHA-256
 c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
 a8f8efac53cc934c081fbc3b463b4af070dc0b8e3eae635f21977d4fd0cf27b1  StrongPerimetralTurning.lean
 96401a6560008f7704618bab2f2d9a005302b11592062d6bf6f3376658f3dfda  StructuralEntrypoint.lean
+026fcbfab7cdc473ede95c4f1d6bfefadece456d28dc24009a5eff9382480149  Examples/ConcreteContinuation/LoggedAlgebra.lean
 887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
@@ -71,8 +72,8 @@ cf749af55b51bc5a2d7ca3461c7ad7e957e8a8585f3a2893a741a301426597d7  docs/en/relati
 df39450178b8889f253b15b24534ad31fbce0104dde3388e52418b1d0b7e7be5  docs/en/structural_foundations.md
 d534d6de4c3dea74efb1ea1ed9b9843d00254705745827bcae122defdac76fb4  docs/fr/methode_roles_constitutifs_relationnels.md
 ab0d92ca7ddf1041d060d9c1be3d8001d669d516dc702c12ba2a57e1417fa240  docs/en/relational_constitutive_roles_method.md
-b147074143bb1842a5474669f4aee6f258103c0a69013787382bc252d6feef51  docs/fr/alignement_reflexif.md
-0c582394f6e94a6ba95e8b106d4e9856ebf669d0a4b63be02bee65103792d40f  docs/en/reflective_alignment.md
+18747e527c56d3d5195c3b13b835e4aec70b2cd8c08e0e2700f89425f7e774f0  docs/fr/alignement_reflexif.md
+0933b7dd64285ee2b632ab1d81978fb5481559db550925bb1e4cdbdaed798847  docs/en/reflective_alignment.md
 
 Manifest verification
 ---------------------
