@@ -33,9 +33,10 @@ from the specification                 the same index
                                        readouts attached only afterward
 ```
 
-The facade thus preserves the differences of status displayed above while
-demonstrating the exact transports that allow a single constitutive
-determination to pass through them.
+The facade preserves differences of status while demonstrating the exact
+transports that allow a single constitutive determination to pass through
+them. Here, identity means the persistence of that determination across
+distinct layers through those transports.
 
 This file is therefore a human-scale facade over the structural foundation.  It
 exposes three articulated entry points and introduces no new assumption:
