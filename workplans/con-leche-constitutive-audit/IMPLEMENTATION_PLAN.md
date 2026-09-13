@@ -33,6 +33,11 @@ scientifiques attendus.
 - δ constitue le cas de référence gelé ;
 - β a été analysé indépendamment puis comparé à δ : les deux chemins convergent
   vers la même préservation gardée des appartenances ;
+- le résidu ultérieur du certificat `ReducePinRun` a forcé un nouveau test ι,
+  distinct du séparateur `.plain` antérieur : une occurrence réelle de
+  `PUnit.rec` produisant l’identité sur `Nat` ferme localement le run, la
+  lecture exacte de sa source annotée et le transport sémantique du certificat,
+  sans `DefEqClaim` global ni nouvelle mémoire historique ;
 - ι a été lancé indépendamment : le cas `.plain` possède un séparateur
   local porté par une exécution inductive complète, du
   `ProvisionRecsRun` interne jusqu’à `IndRecsRun`, `DeclIndRun` et `DeclRun`,
@@ -1692,27 +1697,136 @@ faible à persister, mais une présentation structurée du jugement consommé.
 Le scratch compile sans `sorryAx`; son empreinte SHA-256 est
 `3B7F90C3CA8EB3E455A27084D9C5FD8D6EADAAB11BC8B4CA550339378ADD994B`.
 
+Le séparateur demandé est désormais construit dans
+`ScratchReduceIdentitySeparator.lean`. Il fournit un vrai `ReducePinRun` pour
+`Lean.reduceNat`, un témoin `B0W` avant et un témoin `B0W` après. La réalisation
+successeur attribue toutefois à l'opération la valeur sémantique bien typée de
+`Nat.succ`; l'identité requise est alors réfutée constructivement sur `0`.
+Ainsi, l'existence état par état d'une slice terminale ne détermine pas la
+compatibilité historique exigée par le futur consommateur `ofReduceNat`.
+
+Le filtre de productibilité est traité séparément dans le même scratch. Le
+théorème `noEnvModelM_has_badSuccessorAssignment` montre qu'aucun `EnvModelM`
+sur le même environnement ne peut posséder l'affectation sémantique du mauvais
+successeur : le champ producteur réel `ReduceOps` force l'identité et exclut ce
+contre-modèle. Ce second résultat ne rétracte donc pas le séparateur sur `B0W`;
+il localise exactement l'information que la constitution riche ajoute et que
+l'ombre terminale oublie. Le scratch compile sans `sorryAx`; son empreinte
+SHA-256 est
+`DAF96A202BB3E91D9EACE9ACAB2FF223DBB8DC02056A9CAAB260B127076560E5`.
+
+Ce premier séparateur état-par-état a depuis été renforcé. Dans
+`ScratchReduceIdentityLocalSeparator.lean`, le même témoin sémantique ancien
+est conservé et un vrai `ReducePinRun` est construit ; l'obligation exacte
+`ReduceCertificateSemanticTransport` est alors réfutée directement, sans
+choisir de témoin successeur. Son empreinte SHA-256 est
+`7FBA2A1301AA53AFA9C7EBC976C7DB50589B49AAF75ABA233DE4562EF9BBFBD2`.
+
+Le filtre d'atteignabilité syntaxique est également franchi dans
+`ScratchReduceIdentityReachableSeparator.lean`. Le préfixe réel
+`basis Nat ; defn alias` est accepté depuis `Env.empty`, puis la transition
+`ReducePinRun` est exécutée sur l'environnement obtenu. Une réalisation `B0W`
+affaiblie de cet environnement atteint peut encore attribuer `Nat.succ` à
+l'alias et réfuter le transport du certificat. Il s'agit d'une atteignabilité
+de l'environnement syntaxique, non de l'affirmation que cette mauvaise
+réalisation est la sortie riche du fold. Le scratch, d'empreinte
+`14DB9A4BC675DDDCC9FCDB87D6CBC4C4D77DC4579DDC0540B2EFEF4BBBE8BDA5`,
+compile sans `sorryAx`.
+
+`ScratchReduceIdentitySupport.lean` a ensuite testé le premier enrichissement
+facile. La propriété `StoredReduceIdentity`, obtenue en retirant de `ReduceOps`
+le conjunct de stockage du type élément, est constructivement équivalente à
+`ReduceOps` sur un `EnvModel` : le conjunct retiré se reconstruit déjà depuis
+les pins et `EnvWF`. Surtout, l'ajout de toutes les identités des opérations
+déjà stockées ne ferme pas la nouvelle installation : le certificat peut
+déplier une autre définition ancienne, ici l'alias. Le séparateur atteignable
+survit à cet ajout. Le scratch a pour empreinte
+`9BD837D6D2BB2B2D10CFAC39B361E2B54E843841C66E1354C1FD1812CE5C3698`.
+
+La première factorisation positive de ce résidu est maintenant compilée dans
+`ScratchReduceIdentityFromDelta.lean`. Le producteur δ affaibli
+`AcvalDefnReadableSeed` fournit une projection encore plus petite,
+`AcvalDefnReadableAppAgreement`, qui oublie entièrement l'observation de
+membership et ne conserve que l'accord applicatif sur les arguments réellement
+lus. Au niveau local des deux lectures, un séparateur non vacue montre que cet
+accord applicatif n'implique pas la seed complète : les applications peuvent
+coïncider alors que sa loi d'observation de membership échoue. Cette stricte
+séparation locale ne vaut pas encore théorème de stricte faiblesse entre les
+deux providers globaux. Pour l'alias atteint et l'unique variable du certificat, cette relation
+donne l'accord entre l'application de la tête stockée et celle du corps lambda ;
+la loi sémantique de la lambda identité produit alors exactement
+`ReduceCertificateSemanticTransport`. Ni `DefEqClaim` ni `EnvModelM` complet
+n'apparaissent dans cette preuve. Le même contre-modèle réfute cette projection,
+donc la nouvelle interface n'est pas cachée dans `B0W`. Ce raccord prouve une
+réutilisation transversale réelle de la capacité historique δ ; il ne prouve
+pas encore qu'elle traite tout `ReducePinRun`. Son empreinte SHA-256 est
+`749C8D00D40AC0A6316A5AE0514E13651338B3F6443E767928A0F608CC792B0C`.
+
+Le premier test indépendant β est fermé dans
+`ScratchReduceIdentityFromBeta.lean`. Une valeur réelle, constituée par
+l'application de la lambda identité sur le type `Nat → Nat` à la lambda
+identité sur `Nat`, satisfait le vrai `ReducePinRun`. Sa lecture annotée est
+reconstruite depuis le run et les pins déjà présents ; deux applications de la
+loi sémantique positive des lambdas donnent ensuite exactement
+`ReduceCertificateSemanticTransport`. Ainsi cette occurrence β n'exige aucune
+capacité historique supplémentaire au-delà de `B0W`, contrairement à
+l'occurrence δ précédente. Cette asymétrie est un résultat sur les producteurs,
+pas encore une couverture de toutes les exécutions possibles de
+`isDefEqCore`. Le scratch compile sans `sorryAx`, a pour empreinte SHA-256
+`0563B9E912C1A3E8DE89CA1D7D7C6C37A524CF7EDDD7BA1E1DE3BB8DFA7B3769`,
+et ses audits ne rapportent que les trois axiomes hérités de ConLeche.
+
+Le troisième producteur imposé par le même résidu est maintenant fermé dans
+`ScratchReduceIdentityFromIota.lean`. Le préfixe réel des bases `PUnit` puis
+`Nat` est accepté et le fold riche fournit séparément l'existence d'un
+`WalkWitness` à cet état productible ; une occurrence exacte de `PUnit.rec`
+sélectionne la lambda identité sur `Nat`, et son certificat est vérifié par le vrai
+`isDefEqCore`. La dissection conserve deux lectures distinctes : celle du RHS
+sélectionné et celle de la valeur source stockée par `ReducePinRun`. La preuve
+finale porte bien sur cette dernière, de lecture
+`punitRec [0, 1] motive identity PUnit.unit`. Les pins de la base, la loi
+`punitRecV_app` et l'appartenance du certificat à `Nat` reconstruisent alors
+directement `ReduceCertificateSemanticTransport`. Ainsi, comme β, cette
+occurrence ι concrète se ferme depuis `B0W` sans champ persistant nouveau ; elle
+ne constitue pas encore le `DeclOpaqueRun` complet qui enveloppe cette
+sous-transition et ne généralise pas encore le résultat à tout `ReducePinRun`.
+Le scratch compile
+sans `sorryAx`, a pour empreinte SHA-256
+`35425F793B19B560537AD917607F0B278EBF6B26F463548EA8935D5F199B8ED0`, et
+ses audits ne rapportent que les trois axiomes hérités de ConLeche.
+
 L’ordre obligatoire est désormais :
 
-1. construire un séparateur contre la reconstruction de l'identité de
-   l'opération depuis `B0W + ReducePinRun`, en conservant le vrai certificat
-   opérationnel ; contrôler ensuite séparément son atteignabilité/productibilité ;
-2. si le séparateur survit, chercher la plus faible donnée historique qui produit
-   cette identité ; s'il est exclu par le producteur réel, enregistrer au
-   contraire la reconstruction locale et ne rien ajouter au carrier ;
-3. transporter `StoredEqValueAtUniverseOne` dans les branches réelles et le fold,
+1. raccorder les occurrences reduce déjà fermées à leur `DeclOpaqueRun`, puis au
+   `DeclRun`, sans remplacer les preuves kernel des sous-runs par une simple
+   observation exécutable de `checkDecl` ;
+2. ouvrir le producteur sémantique du certificat d'un `ReducePinRun` générique
+   et tester, sans réintroduire `DefEqClaim` comme primitive, quelles capacités
+   δ/β/ι déjà isolées reconstruisent son exécution ; les cas alias-δ, β et
+   l'occurrence identité ι compilés sont trois raccords positifs de forces
+   différentes, pas encore le théorème uniforme ;
+3. affaiblir `AcvalDefnReadableAppAgreement` lui-même seulement si la preuve
+   générique en consomme moins, puis construire un séparateur avant toute
+   revendication de stricte faiblesse ou de persistance ;
+4. si cette capacité demeure nécessaire, prouver sa conservation sur les
+   transitions réelles et distinguer sa donnée productrice de son interface
+   exportée ; ne pas remplacer ce travail par le stockage des identités des
+   seuls reduce déjà installés, désormais séparé comme insuffisant ;
+5. transporter `StoredEqValueAtUniverseOne` dans les branches réelles et le fold,
    puis le raccorder au parcours cached de `FullyChecked` ; cette interface plus
    forte remplace l'ancienne capacité limitée à `propext`, elle ne s'y ajoute pas ;
-4. raccorder l'identité produite et la loi `Eq.{1}` au vrai `DeclAxiomRun`
+6. raccorder l'identité produite et la loi `Eq.{1}` au vrai `DeclAxiomRun`
    `ofReduceNat`/`ofReduceBool`, puis fermer leur nouvelle ligne terminale ;
-5. raccorder les quatre sous-branches axiomatiques désormais fermées au dispatch
+7. raccorder les quatre sous-branches axiomatiques désormais fermées au dispatch
    `DeclRun`, puis reprendre la boucle au premier résidu concret suivant ;
-6. ne parler d'un enrichissement de carrier qu'après nécessité transitionnelle,
+8. ne parler d'un enrichissement de carrier qu'après nécessité transitionnelle,
    non-reconstructibilité locale et portée d'atteignabilité établies séparément.
 
 Les branches ι `.plain` supplémentaires et `.nested` ne sont pas des tâches
-immédiates. Elles ne seront rouvertes que si un résidu concret de la fermeture
-les rend nécessaires.
+immédiates. Le seul retour à ι autorisé à ce stade est l'occurrence identité
+précise qu'a imposée le certificat reduce ; elle est désormais fermée. Les
+autres branches ne seront rouvertes que si un nouveau résidu concret de la
+fermeture les rend nécessaires.
 
 L’absence de construction n’est jamais une preuve d’impossibilité.
 
@@ -2230,7 +2344,14 @@ travail immédiat
   Gate 5b  factorisation locale de `propext` par relations `Iff` et `Eq` fermée
   Gate 5c.3  `StoredIffRecBits` reconstruit sur le fold pur et sur `FullyChecked`
   Gate 5c.3  relation `Eq` locale factorisée, produite directement et séparée de B0W
-  Gate 5c.3  tester sa conservation sur chaque transition réelle avant tout B1
+  Gate 5c.3  certificat reduce isolé, séparé localement et sur environnement atteint
+  Gate 5c.3  identités reduce anciennes séparées comme insuffisantes
+  Gate 5c.3  raccord positif alias-δ vers le certificat reduce fermé sans DefEqClaim
+  Gate 5c.3  certificat reduce β fermé localement depuis B0W sans mémoire nouvelle
+  Gate 5c.3  certificat reduce ι identité fermé sur la lecture source exacte
+  Gate 5c.3  raccorder les cas reduce au vrai DeclOpaqueRun puis DeclRun
+  Gate 5c.3  généraliser ce raccord au certificat de tout ReducePinRun
+  Gate 5c.3  tester la conservation des capacités restantes avant tout B1
 
 réduction de l’hypothèse d’univers
   Gate 5c.0  geler les dépendances SetTheory/EnvModel/fold/capstone
