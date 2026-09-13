@@ -321,6 +321,20 @@ par un séparateur ou une factorisation positive, jamais par anticipation.
 - la projection terminale `EnvModelM → TerminalSlice → no False` ;
 - les séparateurs et factorisations δ ;
 - l’analyse β indépendante et sa comparaison postérieure avec δ ;
+- la fermeture du readback historique sur les branches `defn`, `thm`,
+  `opaque` et `axiomSkip`, puis la factorisation de l'installation `propext`
+  par les deux relations locales effectivement consommées ;
+- le weakening de la première de ces relations : la membership terminale de
+  `Iff.rec` et six faits sur les régimes des binders de son élimination à
+  niveaux nuls suffisent à reconstruire « le `Iff` stocké force l'égalité » ;
+- le raccord aux deux producteurs historiques réels de `Iff.rec`, modelé et
+  natif : leurs runs d'inférence du type épinglé reconstruisent les six faits,
+  lesquels sont ensuite préservés par toutes les branches de `DeclRun` et par
+  le fold pur accepté depuis `Env.empty` ;
+- le raccord cached correspondant : le vrai `InstallRun` de `FullyChecked`
+  transporte directement `EnvWF` et `StoredIffRecBits`, y compris sur les deux
+  voies inductives et les six blocs de base, sans appeler
+  `fullyChecked_sound` ni construire `EnvModelM` ;
 - le séparateur ι `.plain` jusqu’à l’échec relationnel de `headInPiR` ;
 - l’affaiblissement compilé du front-door RHS de `indBottomPlain` : la lecture
   du type inféré et la membership du RHS ont été supprimées de sa prémisse
@@ -1348,28 +1362,353 @@ information reconstructible depuis l’histoire, ou mémoire effectivement
 nécessaire. Seuls les prochains séparateurs et leur test d’atteignabilité
 peuvent trancher entre ces statuts.
 
+Le premier raccord à l’histoire complète est maintenant compilé dans
+`ScratchDeltaFoldHistory.lean`, avec deux statuts volontairement séparés.
+D’une part, `AcvalDefnInst` implique `StoredDefnBodiesReadable`, donc tout
+témoin produit par le fold riche et tout environnement accepté par
+`checkDeclsPure` possède une base sémantique satisfaisant ce résidu. Cette
+projection réutilise explicitement `EnvModelM.defn_reads` : elle exclut le
+séparateur illisible de la classe riche productible, mais ne ferme pas la
+réduction spécialisée. D’autre part, indépendamment du carrier riche, tout
+`coreCons` frais qui n’installe pas une définition conserve les lectures des
+anciens corps par crossing monotone. Le raccord est fermé pour une vraie
+branche `thm` : le support local déjà isolé construit la même `TerminalSlice`
+successeur, et la lisibilité des corps suit sans `EnvModelM`, `defn_reads` ni
+égalité tête/corps. Le même raccord est maintenant fermé séparément pour une
+vraie branche `opaque`; son certificat optionnel de réduction n’est pas
+consommé par le readback. Ainsi, à cet étage, ces deux déclarations non
+définitionnelles n’ajoutent aucune nouvelle obligation de lecture des corps ;
+elles transportent seulement l’information historiquement produite par les
+déclarations `defn` antérieures.
+
+La sous-branche `axiomSkip`, qui ne modifie pas l’environnement, est également
+fermée par conservation littérale des deux témoins. Pour les trois branches
+d’axiome qui installent une tête, le lemme générique montre déjà que la
+lisibilité des anciens corps suivra dès que leur `TerminalSlice` successeur sera
+construite. Le premier résidu n’est donc plus le readback : il se situe dans la
+construction positive de cette slice, notamment dans l’appartenance de la
+nouvelle feuille axiomatique à la lecture de son type. Ce résidu appartient à
+l’audit de la branche `axiom`; il doit être factorisé puis séparé avant de
+poursuivre vers `basis` ou `ind`.
+
+Ce résultat ne justifie toujours pas un champ persistant. La prochaine étape
+doit ouvrir seulement la première branche axiomatique installante et isoler les
+données exactes nécessaires à sa nouvelle ligne de membership. Un recours
+direct à `EnvModelM.storedDefnBodiesReadable` ou aux théorèmes riches
+`axiomStd`/`axiomTrustCompiler`/`axiomOfReduce` à cet endroit ne compterait que
+comme contrôle de suffisance riche, pas comme fermeture du candidat affaibli.
+
+La première branche installante, `propext`, possède maintenant sa factorisation
+positive exacte dans `ScratchDeltaFoldHistory.lean`. Le vrai
+`ConstantValRun`, le pin `propext`, les lectures du type stocké et les trois bits
+de produits reconstruisent toute la nouvelle ligne terminale dès que deux
+relations locales sont fournies sur la même réalisation :
+
+```text
+Iff stocké force A = B
+
+Eq stocké, à l'instance u := 1,
+se lit comme eqv A B
+```
+
+Ces deux relations suffisent à construire l'appartenance de la feuille
+canonique `propext` à la lecture exacte de son type, puis la même
+`TerminalSlice` successeur et la conservation des lectures de corps. Les deux
+projections depuis `EnvModelM` ont été recompilées uniquement comme contrôle :
+elles confirment que la factorisation affaiblie conserve exactement les indices
+de la preuve riche, mais elles ne sont pas utilisées comme fermeture du
+carrier spécialisé.
+
+Le weakening de la première relation a d'abord été poursuivi séparément dans
+`ScratchPropextIffWeakening.lean`. Une première preuve positive supprimait la
+théorie globale des types validés et ne conservait que l'`AnnotValid` de la
+lecture exacte du seul type stocké de `Iff.rec` à la valuation de niveaux
+nulle. Cette frontière était encore trop forte.
+
+`ScratchPropextProducer.lean` descend maintenant sous cet `AnnotValid`. La
+preuve d'élimination du recursor consomme exactement six faits de régime : les
+cinq binders de la spine `A`, `B`, motif, mineur et témoin sont au régime zéro,
+et le binder interne du motif est non nul. Les quatre annotations internes au
+mineur restent arbitraires. La membership terminale du recursor, combinée à
+ces six faits seulement, suffit à dériver que le `Iff` stocké force l'égalité.
+Il s'agit d'une factorisation positive strictement plus locale, pas encore
+d'une affirmation de minimalité.
+
+Un premier séparateur **sémantique local** est compilé, sans nouvelle
+déclaration calculatoire dans `Type`. Il interprète le télescope exact de
+`Iff.rec` avec tous ses bits au régime zéro. Le point de preuve habite encore ce
+télescope ; simultanément, une valeur de `Iff` à graphe constant relie réellement
+`empty` et `unitSet`, qui restent distincts. La membership du recursor ne force
+donc pas à elle seule l'égalité. Ce contre-modèle montre que l'`AnnotValid`
+consommé par la factorisation positive n'est pas éliminable par la seule ligne
+terminale de membership.
+
+La comparaison aux producteurs historiques réels est désormais compilée. Le
+noyau producteur a été affaibli jusqu'au run `inferTypeCore` du type stocké
+épinglé. Ce même noyau est fourni indépendamment par le `MemberValRun` de la
+voie modelée et par `checkNativeRec` dans la voie native. Dans les deux cas, il
+reconstruit les cinq égalités de régime zéro et la non-nullité du binder interne
+du motif. Le séparateur « tous les bits à zéro » est donc exclu des sorties des
+deux producteurs opérationnels pertinents.
+
+La capacité historique obtenue est pin-gardée : elle ne demande les six faits
+que lorsqu'un lookup `Iff.rec` porte exactement le type effacé canonique. Cette
+garde évite de contraindre une déclaration homonyme non standard. Sa stabilité
+est prouvée séparément sur les membres non-recursors, le provisionnement et le
+fold des règles, les projections, la voie inductive modelée, la voie native,
+les déclarations `defn`, `thm`, `opaque`, `axiom`, les six blocs de base et le
+dispatch `DeclRun` complet. Le fold `checkDeclsPure` la reconstruit ensuite
+depuis `Env.empty` sans appeler `EnvModelM.type_wellDenotedV` ni les interfaces
+globales `InferClaim` ou `DefEqClaim`.
+
+Ainsi, pour le parcours pur accepté, les six faits sont une conséquence
+reconstructible de l'histoire et ne justifient pas un champ de `B1`. La
+membership terminale de `Iff.rec` et cette conséquence suffisent au consommateur
+`propext`; l'ancienne prémisse locale `AnnotValid` disparaît entièrement de ce
+raccord spécialisé. Il ne s'agit toujours pas d'une minimalité : aucun
+séparateur ne montre que les six faits constituent la plus faible interface.
+Le raccord au parcours cached exact de `FullyChecked` est maintenant compilé
+dans `ScratchCachedBridge.lean`. L’usage de `EnvModelM` par le pont publié se
+réduisait ici à sa projection `EnvWF`. Cette dernière est reconstruite
+directement depuis les données syntaxiques des runs : les quatre déclarations
+à une constante, les six blocs de base, la voie inductive modelée et la voie
+inductive native sont toutes fermées séparément. Le walk de `InstallRun`
+transporte ensuite le couple
+`EnvWF × StoredIffRecBits`; les déclarations de valeur différées consomment
+leurs vrais certificats `GroupChecked` à leur position de phase B. Le théorème
+terminal donne donc :
+
+```text
+FullyChecked
+→ EnvWF final
+  ∧ StoredIffRecBits final
+```
+
+sans appel à `fullyChecked_sound`, sans construction de `EnvModelM` et sans
+réintroduction de `InferClaim` ou `DefEqClaim` dans le carrier. Le scratch
+compile avec Lean 4.33.0 ; son empreinte SHA-256 est
+`E7794DE48615C5C7E20377F9CA9B4AEEEFF5ACE548BC50483870ECEF143A4C4E` et ses
+audits rapportent uniquement `propext`, `Classical.choice` et `Quot.sound`,
+hérités de ConLeche, sans `sorryAx`.
+
+Le filtre d'atteignabilité a ensuite exclu exactement ce premier
+contre-modèle. `ScratchChoiceReachability.lean` prouve qu'aucun
+`MemberValRun .verified` ne peut produire le `Nonempty` effondré : le corps
+`Sort 0` infère `Sort 1`, donc la validation impose `.never` au binder
+extérieur, contradictoirement à `.ifAllZero []`. Cette exclusion est
+indépendante du fuel, de l'environnement, du membre brut et des noms du bloc.
+Le scratch compile sans `sorryAx`; son empreinte SHA-256 est
+`8EC8E2B46AB7DFA016BC924D80AB6EDB477E60F4E275F2CC5378C6195EA9D631`.
+
+Le test a alors été repris avec les métadonnées canoniques. Une sémantique
+pathologique du former `Nonempty` et de son constructeur satisfait encore
+séparément leurs lignes terminales, mais ne s'étend pas librement au recursor
+canonique. `ScratchChoiceCanonicalClosure.lean` explique positivement cette
+résistance : à type canonique du recursor, sa seule ligne terminale de
+membership force déjà un témoin du type sous-jacent; la membership du
+constructeur donne la direction inverse et reconstruit l'accord avec la double
+négation. Ces deux conséquences ferment le résidu local de `choice` sans
+`EnvModelM`, `InferClaim` ni interface globale d'`AnnotValid`. Ce contrôle exact
+compile avec l'empreinte SHA-256
+`5F0E0B1F12CB23EE6B7E29F3F4182680F65A15748B51C1B3339468F41E522EA0`.
+
+Le weakening producteur/consommateur a ensuite montré que le type annoté
+canonique complet de `Nonempty.rec` était encore une enveloppe trop forte.
+`ScratchChoiceCanonicalProducer.lean` inverse le vrai `inferTypeCore`, puis les
+frontières `MemberValRun` et `ConstantValRun`, et n'extrait que cinq régimes :
+les quatre binders extérieurs consommés sont propositionnels et le domaine du
+motive est strictement positif. Le binder interne au minor est délibérément
+absent. Son empreinte SHA-256 est
+`8FC99BF468C4173FBB04927C6A6E9C57B84D41C27A05AF060F08397FDECD01A6`.
+
+`ScratchChoiceWeakenedClosure.lean` referme ensuite le consommateur depuis ces
+cinq faits seulement. Le minor est construit séparément selon son régime
+arbitraire : `pt` au régime propositionnel, une lambda au régime positif; son
+domaine est vide sous l'hypothèse contradictoire, donc aucune propriété du
+binder interne n'est requise. Les cinq bits suffisent à reconstruire
+`StoredNonemptyForcesWitness`, `ChoiceDnegAgreement`, puis la membership de la
+feuille `choice`. La capacité productrice provisoire
+`StoredNonemptyChoiceSupport` est gardée par les pins exacts; l'exactitude du
+constructeur est correctement indexée par la présence du même former épinglé,
+au lieu d'être exigée isolément. Le scratch compile sans `sorryAx`, avec
+l'empreinte SHA-256
+`FA2948497EC975A77C275B41112837E541B76A5EB3794E1286373D54FA136B99` ; les
+audits n'ajoutent que les axiomes hérités de ConLeche.
+
+Ainsi le séparateur initial ne force pas encore une mémoire persistante : il a
+révélé une donnée de constitution que le producteur vérifié exclut, puis cette
+donnée a elle-même été affaiblie jusqu'aux cinq régimes effectivement consommés.
+Le raccord ouvert est maintenant précis : construire et transporter le support
+pin-guarded depuis les producteurs inductifs modelé et natif. Cette étape doit
+préserver explicitement la relation historique former→constructeur; elle ne
+doit ni revenir au type canonique complet du recursor, ni réintroduire le modèle
+sémantique général.
+
+Ce résultat ferme le pont cached pour la première relation locale du cas
+`propext` : les bits historiques requis pour montrer que le `Iff` stocké force
+l’égalité sont reconstructibles depuis `FullyChecked` et ne justifient donc
+toujours aucun champ de `B1`. Il ne ferme pas encore la nouvelle feuille
+terminale `propext`. Le premier résidu est désormais la seconde relation locale
+de la factorisation positive : reconstruire, sans `EnvModelM.eq_law`, que le
+`Eq` stocké à l’instance exacte `u := 1` se lit comme `eqv A B`. C’est cette
+relation qu’il faut maintenant descendre vers ses producteurs réels, affaiblir
+et séparer avant de rouvrir une autre branche.
+
+Cette seconde relation a maintenant franchi les deux premiers tests dans
+`ScratchPropextEqProducer.lean`. La preuve positive factorise la loi consommée
+par `propext` à travers l’équation de la seule feuille `Eq` à l’instance
+`u := 1`; `eqValAV_app₃` suffit ensuite à produire exactement `eqv A B`. Le
+producteur de base a été reconstruit directement au niveau de la slice par
+`TerminalSlice.consEq` : il installe la tour canonique `eqValAV` depuis
+`TerminalSlice + fraîcheur + EnvWF`, sans construire `EnvModelM` ni appeler
+`EqLaw`.
+
+Le séparateur requis est également compilé. Une `TerminalSlice` contenant le
+vrai `eqA`, dont la feuille est une relation toujours fausse, satisfait encore
+la lecture et la membership du type stocké de `Eq`; elle réfute pourtant aussi
+bien l’équation canonique de feuille que la loi occurrence-spécifique
+`StoredEqValueAtPropext`. Ainsi :
+
+```text
+TerminalSlice + Eq bien typé
+↛ Eq se lit comme eqv à l’occurrence propext
+```
+
+Ce résultat montre une insuffisance constructive réelle de `B0W`, et non un
+échec de recherche de preuve. Il force une capacité sémantique historique sur
+la réalisation choisie, mais ne justifie pas encore un champ de `B1` : il reste
+à démontrer que la capacité occurrence-spécifique est produite puis conservée
+par toutes les transitions réelles qui peuvent suivre l’installation de `Eq`.
+L’équation complète de feuille reste une enveloppe productrice ; seule la loi
+de valeur occurrence-spécifique est actuellement démontrée nécessaire au
+consommateur. Le scratch compile avec Lean 4.33.0, sans `sorryAx`; son empreinte
+SHA-256 est
+`2D5B8D8CB3D20359531B36C2D99E4B0624721AE2FEAFE8BB51C0EE3E0B3EDCC6`, et les
+audits rapportent seulement `propext`, `Classical.choice` et `Quot.sound`,
+hérités de ConLeche. La conservation générique est également fermée : tout
+`TerminalSlice.cons` à un nom distinct de `Eq` conserve
+`StoredEqValueAtPropext` sans consommer aucune propriété sémantique de la
+nouvelle feuille. La première spécialisation réelle est fermée : les branches
+`defn`, `thm` et `opaque` reconstruisent chacune leur successeur exact depuis
+leur support local, puis conservent la loi `Eq` par le seul fait que le checker
+interdit à ces déclarations ordinaires d’utiliser le nom réservé `Eq`. Le garde
+propositionnel propre à `thm` et le certificat optionnel de réduction propre à
+`opaque` n’interviennent pas dans cette conservation. Aucune nouvelle prémisse
+sémantique n’est requise.
+
+La branche `axiom` est désormais décomposée sans hypothèse uniforme cachée.
+Le constructeur générique qui installe une feuille d’axiome reconstruit la
+slice exacte depuis `ConstantValRun` et les seuls faits sémantiques locaux de
+la feuille ; la capacité `Eq` est ensuite préservée uniquement par la
+réservation du nom. Le skip toléré conserve littéralement le témoin. La
+sous-branche `Lean.trustCompiler` est entièrement fermée depuis la slice : son
+pin identifie le type stocké à `True`, et la feuille stockée de `True.intro`
+fournit déjà la membership requise. La sous-branche standard `propext` est
+également fermée sans modèle riche : `StoredIffRecBits` et
+`StoredEqValueAtPropext` produisent directement la membership de la nouvelle
+feuille, qui conserve ensuite la loi `Eq`.
+
+Les deux résidus axiomatiques restants sont exposés à leur bonne granularité.
+Pour `choice`, toutes les obligations syntaxiques et la dépendance en niveau
+sont reconstruites depuis le pin ; seul reste le jugement de membership de la
+feuille canonique `choice` dans la lecture exacte de son type stocké. Pour
+`ofReduceNat`/`ofReduceBool`, la feuille `.prf` et toutes ses obligations
+structurelles sont immédiates ; seul reste son jugement de membership. Ces
+jugements sont des obligations transitionnelles locales, pas des champs
+proposés pour `B1`.
+
+Le premier weakening du résidu `choice` est maintenant compilé. La preuve
+positive réelle se factorise, après les lectures et le pinning déjà
+reconstructibles, par deux relations seulement : l'accord entre la lecture du
+`Nonempty` stocké et l'espace de double négation attendu
+(`ChoiceDnegAgreement`), puis le fait que toute valeur appartenant à cette
+lecture stockée force effectivement un témoin du type sous-jacent
+(`StoredNonemptyForcesWitness`). Ces relations suffisent au jugement local de
+membership de la feuille `choice`, mais ne sont pas revendiquées minimales.
+
+`ScratchChoiceSeparator.lean` construit une `TerminalSlice` complète dont les
+types stockés sont lus exactement et dont toutes les lignes de membership sont
+habitées, tout en interprétant la famille `Nonempty` de façon effondrée. Sur
+cette réalisation, les deux relations locales sont réfutées constructivement à
+`A := SetTheory.empty`. Le même scratch ferme en outre, sans `native_decide`,
+le `ConstantValRun` du type canonique de `choice`, le garde
+`stdAxiomOk = true`, puis un véritable `DeclAxiomRun .verified` installant
+`choice`. Avec la fermeture eta, il fournit donc un témoin `B0W` concret et une
+transition `choice` réellement acceptée sur lesquels les deux relations locales
+restent impossibles. Il s'agit d'une non-reconstruction universelle depuis
+`B0W + transition`, et non d'un simple échec de recherche de preuve.
+
+Ce séparateur ne franchit pas encore le filtre d'atteignabilité. Les métadonnées
+de binders de la famille `Nonempty` effondrée diffèrent de celles des sorties
+canoniques `nonemptyA` et `nonemptyRecA`; le checker de l'axiome `choice` ne
+revalide pas cette histoire antérieure. Il n'est donc pas encore établi qu'un
+préfixe produit depuis `Env.empty` puisse porter ce témoin. Le scratch compile
+avec Lean 4.33.0 ; son empreinte SHA-256 est
+`B0807BC1F1C800E1AD2B310B17EF26C1D06012F542D94250E0BA051BAB3289AA`, et ses
+audits rapportent uniquement `propext`, `Classical.choice` et `Quot.sound`,
+hérités de ConLeche, sans `sorryAx`.
+
+La frontière `choice` est désormais fermée au niveau historique recherché.
+`ScratchChoiceSupportTransport.lean` transporte
+`StoredNonemptyChoiceSupport` et l'auxiliaire d'ordre
+`PinnedIntroResolvesFormer` à travers les deux voies inductives réelles
+(modelée et native), les constructeurs, recursors et projections, les six
+blocs de base, les quatre déclarations ordinaires et le dispatch `DeclRun`
+complet. Le fold pur les reconstruit depuis `Env.empty` sans `EnvModelM`.
+Son empreinte SHA-256 est
+`B07628460CFED68E27968ADF6D193050475BF3717F69184E30D1DAC01C680F31`.
+Le pont cached a été généralisé seulement après apparition de cette seconde
+propriété indépendante; `ScratchCachedBridge.lean`, d'empreinte
+`161D6281FE8547396628E65800C22EBE0113172CB24A794B39B81F3E6A9A1B64`,
+reconstruit donc la propriété finale depuis le vrai `InstallRun`.
+`ScratchChoiceCachedClosure.lean`, d'empreinte
+`B27129ACA537AB44FD5822679C09E79BFBE5B45ABD5F32E6AA2B1DA31C371A3B`,
+compose ce résultat avec le consommateur affaibli : `FullyChecked` fournit le
+support historique exact, puis la vraie installation de `choice` étend la
+slice sans `fullyChecked_sound`, `EnvModelM`, `InferClaim` ni `DefEqClaim`.
+
+L'analyse indépendante de `ofReduceNat`/`ofReduceBool` est ouverte dans
+`ScratchOfReduceClosure.lean`. La membership de `.prf` se factorise exactement
+par deux relations locales : la valeur de `Eq.{1}` sur tout type élément
+appartenant à `univ 1`, et l'identité de l'opération de réduction sur les
+éléments de son type. La seconde occurrence force un renforcement réel de
+l'ancienne capacité `Eq` limitée au cas `propext`; la nouvelle interface
+`StoredEqValueAtUniverseOne` se projette encore vers celle de `propext`, est
+produite par le cons canonique de `Eq`, et se transporte à travers tout cons
+frais de nom distinct. Une adaptation du séparateur `falseEqSlice` prouve
+constructivement que la terminal slice ne détermine pas cette interface plus
+forte. Le scratch compile sans `sorryAx`; son empreinte SHA-256 est
+`E30B4832425E2C4ABED24D5D799F9EBEF122CA3103D9C15765A5F3281EAAC906`.
+
+Le producteur réel de l'identité a ensuite été coupé à sa première dépendance
+sémantique dans `ScratchReduceIdentityProducer.lean`. Le `ReducePinRun`
+contient un succès opérationnel précis de `isDefEqCore`; une seule instance
+de `DefEqClaim` transforme ce certificat en égalité sémantique locale, sans
+reconstruire `ReduceOps`. Sous la closedness déjà disponible pour la feuille,
+cette égalité du certificat est démontrée équivalente à l'identité de
+l'opération sur son type d'éléments. Le weakening occurrence-spécifique a donc
+atteint son plancher : cette égalité n'est pas une capacité intermédiaire plus
+faible à persister, mais une présentation structurée du jugement consommé.
+Le scratch compile sans `sorryAx`; son empreinte SHA-256 est
+`3B7F90C3CA8EB3E455A27084D9C5FD8D6EADAAB11BC8B4CA550339378ADD994B`.
+
 L’ordre obligatoire est désormais :
 
-1. extraire du producteur stocké uniquement la capacité nécessaire aux
-   occurrences δ admissibles réellement rencontrées ;
-2. prouver qu’elle produit la `GuardedMembershipPreservation` requise ;
-3. conserver comme témoin positif la chaîne concrète de deux définitions,
-   désormais fermée avec `WalkWitness + provider` ;
-4. utiliser le représentant inféré localement produit par
-   `InferReads + InferClaim` pour les nouveaux arguments des anciennes
-   définitions, sans persister ces deux théories globales ;
-5. isoler, dans la transition générique, la seed locale de la définition
-   fraîche et le transport des définitions anciennes ;
-6. tester la conservation depuis un témoin ancien déterminé vers un témoin
-   nouveau relié par la construction réelle de la branche `defn` ;
-7. extraire la plus faible compatibilité historique qui exclut le successeur
-   terminal incohérent déjà construit, sans y encoder la conclusion ;
-8. tenter de reconstruire cette compatibilité depuis `B0W + DeclDefnRun` et,
-   au premier échec, fournir un séparateur concret ;
-9. seulement si cette compatibilité est nécessaire, non reconstructible et
-   stable, enrichir minimalement un candidat témoin ;
-10. reprendre la même boucle au premier résidu suivant, sans anticiper les autres
-   branches.
+1. construire un séparateur contre la reconstruction de l'identité de
+   l'opération depuis `B0W + ReducePinRun`, en conservant le vrai certificat
+   opérationnel ; contrôler ensuite séparément son atteignabilité/productibilité ;
+2. si le séparateur survit, chercher la plus faible donnée historique qui produit
+   cette identité ; s'il est exclu par le producteur réel, enregistrer au
+   contraire la reconstruction locale et ne rien ajouter au carrier ;
+3. transporter `StoredEqValueAtUniverseOne` dans les branches réelles et le fold,
+   puis le raccorder au parcours cached de `FullyChecked` ; cette interface plus
+   forte remplace l'ancienne capacité limitée à `propext`, elle ne s'y ajoute pas ;
+4. raccorder l'identité produite et la loi `Eq.{1}` au vrai `DeclAxiomRun`
+   `ofReduceNat`/`ofReduceBool`, puis fermer leur nouvelle ligne terminale ;
+5. raccorder les quatre sous-branches axiomatiques désormais fermées au dispatch
+   `DeclRun`, puis reprendre la boucle au premier résidu concret suivant ;
+6. ne parler d'un enrichissement de carrier qu'après nécessité transitionnelle,
+   non-reconstructibilité locale et portée d'atteignabilité établies séparément.
 
 Les branches ι `.plain` supplémentaires et `.nested` ne sont pas des tâches
 immédiates. Elles ne seront rouvertes que si un résidu concret de la fermeture
@@ -1888,6 +2227,10 @@ travail immédiat
   Gate 5b  dériver l’obligation le long de l’histoire constituée du fold
   Gate 5b  décider reconstruction locale ou persistance seulement après fermeture
   Gate 5b  ne rouvrir ι que si la fermeture produit un résidu ι concret
+  Gate 5b  factorisation locale de `propext` par relations `Iff` et `Eq` fermée
+  Gate 5c.3  `StoredIffRecBits` reconstruit sur le fold pur et sur `FullyChecked`
+  Gate 5c.3  relation `Eq` locale factorisée, produite directement et séparée de B0W
+  Gate 5c.3  tester sa conservation sur chaque transition réelle avant tout B1
 
 réduction de l’hypothèse d’univers
   Gate 5c.0  geler les dépendances SetTheory/EnvModel/fold/capstone
