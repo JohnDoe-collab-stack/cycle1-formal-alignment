@@ -837,6 +837,20 @@ Cette précision illustre la discipline générale du document : distinguer ce q
 Lean nomme directement de ce que l'on obtient par composition de résultats
 vérifiés.
 
+La façade rend désormais cette composition directement inspectable.
+`ExactReadoutBus.concreteOccurrenceSpoke` rassemble, pour chaque réalisation,
+le transport exact entre les identités périmétrales et ses occurrences
+concrètes. `concreteOccurrenceTransport` raccorde ensuite deux réalisations en
+composant leurs deux rayons autour de ce centre commun, et
+`concreteOccurrenceTransport_atPosition` démontre que l'occurrence sélectionnée
+dans chaque réalisation correspond à la même position. La spécialisation
+`exactConcreteOccurrenceTransport` emploie les deux bus canoniques du dépôt.
+Cette construction choisit une coordination exacte ; elle ne démontre pas
+l'unicité de toute coordination possible.
+`concreteOccurrenceTransport_forward_comp` établit en outre, ponctuellement,
+que le transport direct coïncide avec le transport passant par une troisième
+réalisation.
+
 ### 11.6 Ajouter une lecture sans reconstruire l'objet
 
 Une fois les occurrences constituées, une lecture occurrence-indexée à valeurs
@@ -861,6 +875,16 @@ De même, `ExactHistoryInterpretation.pullbackReadout` et
 une histoire libre et sa réalisation concrète. Les lois d'aller-retour des
 occurrences donnent immédiatement les lois ponctuelles correspondantes pour
 les lectures.
+
+Dans la façade, `ExactReadoutBus.transportConcreteReadout` compose ces
+correspondances pour reindexer directement une lecture d'une réalisation
+concrète vers une autre. `transportConcreteReadout_atPosition` établit que les
+occurrences associées à une même position reçoivent la même valeur, et
+`transportConcreteReadout_roundTrip` restitue ponctuellement la lecture de
+départ. `transportConcreteReadout_comp` montre que ce reindexage est lui aussi
+indépendant de toute réalisation intermédiaire. Il s'agit d'une co-indexation
+exacte des valeurs transportées, non d'une compatibilité sémantique automatique
+entre plusieurs lectures indépendantes.
 
 La conséquence est architecturale :
 

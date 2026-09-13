@@ -295,7 +295,7 @@ lake build Cycle2ReflectiveExtension
 
 Les fichiers sources du cycle 2 se terminent par des `#print axioms` couvrant
 leurs 28 déclarations explicites de premier niveau. La compilation complète
-audite 353 déclarations et ne rapporte aucune dépendance axiomatique. L'intégrité
+audite 363 déclarations et ne rapporte aucune dépendance axiomatique. L'intégrité
 des sources se vérifie avec:
 
 ```bash

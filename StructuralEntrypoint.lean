@@ -3,22 +3,29 @@ import StrongPerimetralTurning
 /-!
 # Structural entry point
 
-This file is a human-scale facade over the structural foundation.  It exposes
-three complementary entry points and introduces no new assumption:
+The theoretical unit of this project is neither a particular layer nor a final
+result, but the demonstrated continuity of a single determination across
+several distinct and interdependent layers.  Roles are established before their
+representations, transported without merging the layers, and only then made
+available to independent readouts.  This organization requires a global
+interpretation of local results.
+
+This file is therefore a human-scale facade over the structural foundation.  It
+exposes three articulated entry points and introduces no new assumption:
 
 * exact local realization in any rooted generated history reconstructs the
   canonical perimeter as an initial factor of that history;
 * the canonical perimeter is exactly realized and satisfies both the
-  operational regime and the independent specification;
-* one generated step beyond that perimeter is a strict continuation;
-* its continuation contains exactly one occurrence, and the resulting history,
-  like every rooted generated history, admits an `ExactConcreteRealization` in
-  every supplied concrete continuation algebra;
-* the same candidate lies outside both the operational regime and the
-  independent specification.
+  operational regime and the independent specification, while one generated
+  step beyond it is a strict one-occurrence continuation which remains exactly
+  realizable in every supplied concrete continuation algebra but lies outside
+  both the regime and the specification;
 * the canonical facade construction supplies mutually inverse correspondences
   between perimeter positions, free occurrences, and concrete occurrences
-  before any readout or value type is chosen.
+  before any readout or value type is chosen; two supplied concrete
+  realizations are then coordinated through those same positions, so their
+  occurrence readouts can be reindexed without adding an independent pairwise
+  matching.
 
 The short constructions below do not replace the underlying proofs.  They make
 the local-to-global reconstruction, the canonical exit, and the structural
@@ -162,6 +169,186 @@ namespace ExactReadoutBus
 universe uValue
 
 /--
+One exact spoke of the star-shaped bus, from perimeter identities directly to
+the concrete occurrences of one supplied realization.
+
+The spoke composes the already established position/free-occurrence and
+free/concrete-occurrence correspondences.  It introduces no pairwise matching
+with any other realization.
+-/
+def concreteOccurrenceSpoke
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    (bus : ExactReadoutBus P A) :
+    ExactTypeTransport
+      (NonClosingPosition P.perimeter)
+      (History.Occurrence
+        (A.realizeHistory (perimeterHistory P))) :=
+  { forward := fun position =>
+      bus.concreteInterpretation.forwardOccurrence
+        (bus.perimeterOccurrences.forward position)
+    backward := fun occurrence =>
+      bus.perimeterOccurrences.backward
+        (bus.concreteInterpretation.backwardOccurrence occurrence)
+    forwardBackward := by
+      intro position
+      change
+        bus.perimeterOccurrences.backward
+            (bus.concreteInterpretation.backwardOccurrence
+              (bus.concreteInterpretation.forwardOccurrence
+                (bus.perimeterOccurrences.forward position))) =
+          position
+      rw [bus.concreteInterpretation.forwardBackward]
+      rw [bus.perimeterOccurrences.forwardBackward]
+    backwardForward := by
+      intro occurrence
+      change
+        bus.concreteInterpretation.forwardOccurrence
+            (bus.perimeterOccurrences.forward
+              (bus.perimeterOccurrences.backward
+                (bus.concreteInterpretation.backwardOccurrence occurrence))) =
+          occurrence
+      rw [bus.perimeterOccurrences.backwardForward]
+      rw [bus.concreteInterpretation.backwardForward] }
+
+/--
+The concrete occurrence selected by one spoke at a perimeter position.
+
+This is one spoke of the structural bus: the position is first sent to its free
+occurrence and then to the corresponding occurrence in the supplied concrete
+realization.  No readout value is involved.
+-/
+def concreteOccurrenceAt
+    {P : CircularPresentation}
+    {A : ConcreteContinuationAlgebra P}
+    (bus : ExactReadoutBus P A)
+    (position : NonClosingPosition P.perimeter) :
+    History.Occurrence
+      (A.realizeHistory (perimeterHistory P)) :=
+  bus.concreteOccurrenceSpoke.forward position
+
+/--
+Coordinate the concrete occurrences of two supplied realizations through their
+shared perimeter identities.
+
+The forward map follows the exact route
+
+```text
+source concrete occurrence
+  -> free occurrence
+  -> perimeter position
+  -> free occurrence
+  -> target concrete occurrence
+```
+
+and the backward map follows the reverse route.  Thus no independent pairwise
+matching between the two concrete realizations is added.  The result is exact
+for the two buses supplied here; it does not assert that every possible exact
+coordination is equal to this one, nor does it impose a semantic relation on
+values later attached to the coordinated occurrences.
+-/
+def concreteOccurrenceTransport
+    {P : CircularPresentation}
+    {A B : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (targetBus : ExactReadoutBus P B) :
+    ExactTypeTransport
+      (History.Occurrence
+        (A.realizeHistory (perimeterHistory P)))
+      (History.Occurrence
+        (B.realizeHistory (perimeterHistory P))) :=
+  { forward := fun occurrence =>
+      targetBus.concreteOccurrenceSpoke.forward
+        (sourceBus.concreteOccurrenceSpoke.backward occurrence)
+    backward := fun occurrence =>
+      sourceBus.concreteOccurrenceSpoke.forward
+        (targetBus.concreteOccurrenceSpoke.backward occurrence)
+    forwardBackward := by
+      intro occurrence
+      change
+        sourceBus.concreteOccurrenceSpoke.forward
+            (targetBus.concreteOccurrenceSpoke.backward
+              (targetBus.concreteOccurrenceSpoke.forward
+                (sourceBus.concreteOccurrenceSpoke.backward occurrence))) =
+          occurrence
+      rw [targetBus.concreteOccurrenceSpoke.forwardBackward]
+      rw [sourceBus.concreteOccurrenceSpoke.backwardForward]
+    backwardForward := by
+      intro occurrence
+      change
+        targetBus.concreteOccurrenceSpoke.forward
+            (sourceBus.concreteOccurrenceSpoke.backward
+              (sourceBus.concreteOccurrenceSpoke.forward
+                (targetBus.concreteOccurrenceSpoke.backward occurrence))) =
+          occurrence
+      rw [sourceBus.concreteOccurrenceSpoke.forwardBackward]
+      rw [targetBus.concreteOccurrenceSpoke.backwardForward] }
+
+/--
+The concrete-to-concrete transport preserves the common perimeter index
+pointwise.  This is the precise synchronization supplied by the structural bus:
+the two concrete occurrences are coordinated because both realize the same
+position, not because their values were compared after construction.
+-/
+theorem concreteOccurrenceTransport_atPosition
+    {P : CircularPresentation}
+    {A B : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (targetBus : ExactReadoutBus P B)
+    (position : NonClosingPosition P.perimeter) :
+    (sourceBus.concreteOccurrenceTransport targetBus).forward
+        (sourceBus.concreteOccurrenceAt position) =
+      targetBus.concreteOccurrenceAt position := by
+  change
+    targetBus.concreteOccurrenceSpoke.forward
+        (sourceBus.concreteOccurrenceSpoke.backward
+          (sourceBus.concreteOccurrenceSpoke.forward position)) =
+      targetBus.concreteOccurrenceSpoke.forward position
+  rw [sourceBus.concreteOccurrenceSpoke.forwardBackward]
+
+/--
+Concrete occurrence transport is pointwise independent of an intermediate bus.
+All three transports are induced by the same perimeter identities; no function
+extensionality or additional pairwise coherence datum is required.
+-/
+theorem concreteOccurrenceTransport_forward_comp
+    {P : CircularPresentation}
+    {A B C : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (middleBus : ExactReadoutBus P B)
+    (targetBus : ExactReadoutBus P C)
+    (occurrence :
+      History.Occurrence
+        (A.realizeHistory (perimeterHistory P))) :
+    (middleBus.concreteOccurrenceTransport targetBus).forward
+        ((sourceBus.concreteOccurrenceTransport middleBus).forward
+          occurrence) =
+      (sourceBus.concreteOccurrenceTransport targetBus).forward occurrence := by
+  change
+    targetBus.concreteOccurrenceSpoke.forward
+        (middleBus.concreteOccurrenceSpoke.backward
+          (middleBus.concreteOccurrenceSpoke.forward
+            (sourceBus.concreteOccurrenceSpoke.backward occurrence))) =
+      targetBus.concreteOccurrenceSpoke.forward
+        (sourceBus.concreteOccurrenceSpoke.backward occurrence)
+  rw [middleBus.concreteOccurrenceSpoke.forwardBackward]
+
+/--
+The repository's canonical concrete-to-concrete coordination.  Each spoke is
+the canonical `exactReadoutBus`; canonicity here names this chosen construction,
+not a uniqueness theorem for all inhabitants of `ExactReadoutBus`.
+-/
+def exactConcreteOccurrenceTransport
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P) :
+    ExactTypeTransport
+      (History.Occurrence
+        (A.realizeHistory (perimeterHistory P)))
+      (History.Occurrence
+        (B.realizeHistory (perimeterHistory P))) :=
+  (exactReadoutBus P A).concreteOccurrenceTransport (exactReadoutBus P B)
+
+/--
 Attach an arbitrary readout to perimeter identities and read it on the
 corresponding concrete occurrences. The value type is completely independent
 of the structural bus.
@@ -176,9 +363,7 @@ def toConcreteReadout
         (A.realizeHistory (perimeterHistory P)) →
       Value :=
   fun occurrence =>
-    readout
-      (bus.perimeterOccurrences.backward
-        (bus.concreteInterpretation.backwardOccurrence occurrence))
+    readout (bus.concreteOccurrenceSpoke.backward occurrence)
 
 /--
 Read a concrete occurrence-indexed evaluation back on the canonical perimeter
@@ -195,9 +380,120 @@ def toPerimeterReadout
         Value) :
     NonClosingPosition P.perimeter → Value :=
   fun position =>
+    readout (bus.concreteOccurrenceSpoke.forward position)
+
+/--
+Reindex a supplied concrete readout from one realization to another through the
+shared structural bus.  This transports the indexing of the values only; it
+does not assert any semantic compatibility between independently supplied
+readouts.
+-/
+def transportConcreteReadout
+    {P : CircularPresentation}
+    {A B : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (targetBus : ExactReadoutBus P B)
+    {Value : Type uValue}
+    (readout :
+      History.Occurrence
+          (A.realizeHistory (perimeterHistory P)) →
+        Value) :
+    History.Occurrence
+        (B.realizeHistory (perimeterHistory P)) →
+      Value :=
+  fun occurrence =>
     readout
-      (bus.concreteInterpretation.forwardOccurrence
-        (bus.perimeterOccurrences.forward position))
+      ((sourceBus.concreteOccurrenceTransport targetBus).backward occurrence)
+
+/--
+A readout transported between two concrete realizations assigns the same value
+to the occurrences selected by the same perimeter position.
+-/
+theorem transportConcreteReadout_atPosition
+    {P : CircularPresentation}
+    {A B : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (targetBus : ExactReadoutBus P B)
+    {Value : Type uValue}
+    (readout :
+      History.Occurrence
+          (A.realizeHistory (perimeterHistory P)) →
+        Value)
+    (position : NonClosingPosition P.perimeter) :
+    sourceBus.transportConcreteReadout targetBus readout
+        (targetBus.concreteOccurrenceAt position) =
+      readout (sourceBus.concreteOccurrenceAt position) := by
+  change
+    readout
+        (sourceBus.concreteOccurrenceSpoke.forward
+          (targetBus.concreteOccurrenceSpoke.backward
+            (targetBus.concreteOccurrenceSpoke.forward position))) =
+      readout (sourceBus.concreteOccurrenceSpoke.forward position)
+  rw [targetBus.concreteOccurrenceSpoke.forwardBackward]
+
+/-- Reindexing a concrete readout to another bus and back recovers it pointwise. -/
+theorem transportConcreteReadout_roundTrip
+    {P : CircularPresentation}
+    {A B : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (targetBus : ExactReadoutBus P B)
+    {Value : Type uValue}
+    (readout :
+      History.Occurrence
+          (A.realizeHistory (perimeterHistory P)) →
+        Value)
+    (occurrence :
+      History.Occurrence
+        (A.realizeHistory (perimeterHistory P))) :
+    targetBus.transportConcreteReadout sourceBus
+        (sourceBus.transportConcreteReadout targetBus readout) occurrence =
+      readout occurrence := by
+  change
+    readout
+        ((sourceBus.concreteOccurrenceTransport targetBus).backward
+          ((targetBus.concreteOccurrenceTransport sourceBus).backward
+            occurrence)) =
+      readout occurrence
+  change
+    readout
+        ((sourceBus.concreteOccurrenceTransport targetBus).backward
+          ((sourceBus.concreteOccurrenceTransport targetBus).forward
+            occurrence)) =
+      readout occurrence
+  rw [(sourceBus.concreteOccurrenceTransport targetBus).forwardBackward]
+
+/--
+Concrete readout reindexing is pointwise independent of an intermediate bus.
+This is the readout consequence of concrete occurrence transport coherence; it
+adds no semantic relation between independently supplied values.
+-/
+theorem transportConcreteReadout_comp
+    {P : CircularPresentation}
+    {A B C : ConcreteContinuationAlgebra P}
+    (sourceBus : ExactReadoutBus P A)
+    (middleBus : ExactReadoutBus P B)
+    (targetBus : ExactReadoutBus P C)
+    {Value : Type uValue}
+    (readout :
+      History.Occurrence
+          (A.realizeHistory (perimeterHistory P)) →
+        Value)
+    (occurrence :
+      History.Occurrence
+        (C.realizeHistory (perimeterHistory P))) :
+    middleBus.transportConcreteReadout targetBus
+        (sourceBus.transportConcreteReadout middleBus readout) occurrence =
+      sourceBus.transportConcreteReadout targetBus readout occurrence := by
+  change
+    readout
+        ((sourceBus.concreteOccurrenceTransport middleBus).backward
+          ((middleBus.concreteOccurrenceTransport targetBus).backward
+            occurrence)) =
+      readout
+        ((sourceBus.concreteOccurrenceTransport targetBus).backward occurrence)
+  exact congrArg readout
+    (concreteOccurrenceTransport_forward_comp
+      targetBus middleBus sourceBus occurrence)
 
 /-- Perimeter readouts are recovered pointwise after transport to the realization. -/
 theorem toPerimeterReadout_toConcreteReadout
@@ -211,13 +507,10 @@ theorem toPerimeterReadout_toConcreteReadout
       readout position := by
   change
     readout
-      (bus.perimeterOccurrences.backward
-        (bus.concreteInterpretation.backwardOccurrence
-          (bus.concreteInterpretation.forwardOccurrence
-            (bus.perimeterOccurrences.forward position)))) =
+      (bus.concreteOccurrenceSpoke.backward
+        (bus.concreteOccurrenceSpoke.forward position)) =
       readout position
-  rw [bus.concreteInterpretation.forwardBackward]
-  rw [bus.perimeterOccurrences.forwardBackward]
+  rw [bus.concreteOccurrenceSpoke.forwardBackward]
 
 /-- Concrete occurrence readouts are recovered pointwise after transport back. -/
 theorem toConcreteReadout_toPerimeterReadout
@@ -236,13 +529,10 @@ theorem toConcreteReadout_toPerimeterReadout
       readout occurrence := by
   change
     readout
-      (bus.concreteInterpretation.forwardOccurrence
-        (bus.perimeterOccurrences.forward
-          (bus.perimeterOccurrences.backward
-            (bus.concreteInterpretation.backwardOccurrence occurrence)))) =
+      (bus.concreteOccurrenceSpoke.forward
+        (bus.concreteOccurrenceSpoke.backward occurrence)) =
       readout occurrence
-  rw [bus.perimeterOccurrences.backwardForward]
-  rw [bus.concreteInterpretation.backwardForward]
+  rw [bus.concreteOccurrenceSpoke.backwardForward]
 
 end ExactReadoutBus
 
@@ -254,8 +544,18 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.exactPerimeterAndFaithfulExit
 #print axioms StructuralEntrypoint.ExactReadoutBus
 #print axioms StructuralEntrypoint.exactReadoutBus
+#print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceSpoke
+#print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceAt
+#print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceTransport
+#print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceTransport_atPosition
+#print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceTransport_forward_comp
+#print axioms StructuralEntrypoint.ExactReadoutBus.exactConcreteOccurrenceTransport
 #print axioms StructuralEntrypoint.ExactReadoutBus.toConcreteReadout
 #print axioms StructuralEntrypoint.ExactReadoutBus.toPerimeterReadout
+#print axioms StructuralEntrypoint.ExactReadoutBus.transportConcreteReadout
+#print axioms StructuralEntrypoint.ExactReadoutBus.transportConcreteReadout_atPosition
+#print axioms StructuralEntrypoint.ExactReadoutBus.transportConcreteReadout_roundTrip
+#print axioms StructuralEntrypoint.ExactReadoutBus.transportConcreteReadout_comp
 #print axioms StructuralEntrypoint.ExactReadoutBus.toPerimeterReadout_toConcreteReadout
 #print axioms StructuralEntrypoint.ExactReadoutBus.toConcreteReadout_toPerimeterReadout
 /- AXIOM_AUDIT_END -/

@@ -15,6 +15,15 @@
 > déterminés est compatible avec un statut diagonal construit hors de toute
 > clôture réflexive globale de l'évaluateur.
 
+## Unité théorique
+
+L’unité théorique de ce projet n’est ni une couche particulière ni un résultat
+final, mais la continuité démontrée d’une même détermination à travers plusieurs
+couches distinctes et interdépendantes. Les rôles sont établis avant leurs
+représentations, transportés sans fusion des couches, puis seulement ouverts à
+des lectures indépendantes. Cette organisation impose une interprétation
+globale des résultats locaux.
+
 ## Point d'entrée vérifié par la machine
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est le chemin le plus
@@ -29,7 +38,13 @@ fournie et reste extérieure au régime comme à la spécification. Un troisièm
 expose l'habitant canonique d'un bus structurel dont les correspondances sont
 mutuellement inverses ; l'interface elle-même n'affirme ni la canonicité ni
 l'unicité de son habitant. Les lectures arbitraires ne sont branchées qu'après
-la constitution de ce bus, indépendamment de leur type de valeurs.
+la constitution de ce bus, indépendamment de leur type de valeurs. Deux
+réalisations concrètes fournies sont coordonnées par les mêmes identités
+périmétrales plutôt que par un raccord pair à pair supplémentaire ; on obtient
+ainsi une co-indexation exacte et un reindexage sans perte des lectures, mais
+aucune compatibilité sémantique automatique entre des valeurs fournies
+indépendamment. Les deux transports sont ponctuellement indépendants de toute
+réalisation intermédiaire.
 
 ## Architecture
 
@@ -253,7 +268,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 353
+La compilation épinglée construit les deux bibliothèques Lake, audite 363
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -269,7 +284,7 @@ d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
 toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 353 déclarations explicitement auditées ne dépend de celles-ci ni
+aucune des 363 déclarations explicitement auditées ne dépend de celles-ci ni
 d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis

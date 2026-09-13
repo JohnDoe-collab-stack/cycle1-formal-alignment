@@ -820,6 +820,19 @@ name of an additional binary theorem. The distinction illustrates the general
 discipline of this document: separate what Lean names directly from what is
 obtained by composing verified results.
 
+The facade now makes this composition directly inspectable.
+`ExactReadoutBus.concreteOccurrenceSpoke` packages, for each realization, the
+exact transport between perimeter identities and its concrete occurrences.
+`concreteOccurrenceTransport` then connects two realizations by composing their
+two spokes around that common center, and
+`concreteOccurrenceTransport_atPosition` proves that the occurrence selected in
+each realization corresponds to the same position. The
+`exactConcreteOccurrenceTransport` specialization uses the repository's two
+canonical buses. This construction selects an exact coordination; it does not
+prove uniqueness among all possible coordinations.
+`concreteOccurrenceTransport_forward_comp` additionally proves, pointwise, that
+direct transport agrees with transport through a third realization.
+
 ### 11.6 Adding a readout without reconstructing the object
 
 Once occurrences have been constituted, an occurrence-indexed readout with
@@ -843,6 +856,16 @@ Likewise, `ExactHistoryInterpretation.pullbackReadout` and
 `ExactHistoryInterpretation.pushforwardReadout` transport a readout between a
 free history and its concrete realization. The occurrence round trips
 immediately yield the corresponding pointwise laws for readouts.
+
+In the facade, `ExactReadoutBus.transportConcreteReadout` composes these
+correspondences to reindex a readout directly from one concrete realization to
+another. `transportConcreteReadout_atPosition` proves that occurrences attached
+to the same position receive the same transported value, while
+`transportConcreteReadout_roundTrip` recovers the original readout pointwise.
+`transportConcreteReadout_comp` shows that this reindexing is likewise
+independent of any intermediate realization. This is exact co-indexation of
+transported values, not automatic semantic compatibility between independently
+supplied readouts.
 
 The consequence is architectural:
 

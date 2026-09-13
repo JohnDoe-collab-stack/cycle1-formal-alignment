@@ -14,6 +14,15 @@
 > representation of those determined statuses is compatible with a constructed
 > diagonal status outside every global reflective closure of the evaluator.
 
+## Theoretical unit
+
+The theoretical unit of this project is neither a particular layer nor a final
+result, but the demonstrated continuity of a single determination across
+several distinct and interdependent layers. Roles are established before their
+representations, transported without merging the layers, and only then made
+available to independent readouts. This organization requires a global
+interpretation of local results.
+
 ## Machine-checked entry point
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) is the shortest route
@@ -28,7 +37,11 @@ specification. A third exposes the canonical inhabitant of a structural bus
 whose correspondences are mutually inverse; the interface itself does not
 assert that its inhabitant is canonical or unique. Arbitrary readouts are
 attached only after that bus has been constituted, independently of their value
-type.
+type. Two supplied concrete realizations are coordinated through the same
+perimeter identities rather than by an additional pairwise matching; this gives
+exact co-indexation and lossless readout reindexing, but does not assert semantic
+compatibility between independently supplied values. Both transports are
+pointwise independent of any intermediate realization.
 
 ## Architecture
 
@@ -248,7 +261,7 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles both Lake libraries, audits 353 declarations through
+The pinned build compiles both Lake libraries, audits 363 declarations through
 the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
@@ -261,7 +274,7 @@ diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 353 explicitly audited
+declarations that depend on `propext`; none of the 363 explicitly audited
 declarations depends on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required
