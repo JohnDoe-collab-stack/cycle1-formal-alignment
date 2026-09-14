@@ -56,6 +56,18 @@ aucune compatibilité sémantique automatique entre des valeurs fournies
 indépendamment. Les deux transports sont ponctuellement indépendants de toute
 réalisation intermédiaire.
 
+Le résultat à un pas est aussi itéré sur le producteur réel du Cycle 1 à toute
+profondeur finie. Chaque étape générée ajoute exactement une occurrence
+nouvelle tout en conservant les occurrences antérieures. Le prolongement à
+travers les étapes suivantes commute ponctuellement avec le changement de
+réalisation concrète exacte, et les transports verticaux comme horizontaux sont
+indépendants des étapes intermédiaires. Les lectures restent en aval : un
+exemple exécutable non constant conserve les valeurs `7` et `11` du périmètre,
+puis les valeurs nouvelles `10`, `20` et `30`, à travers trois étapes dans les
+réalisations libre et journalisée. Ce théorème fini ne formalise pas un
+transformer et n'impose aucun accord entre des lectures fournies
+indépendamment.
+
 ## Architecture
 
 ```text
@@ -100,6 +112,11 @@ S(H)   := CircularSpecificationSatisfaction P H
 `R(H)` est l'admission par le régime opérationnel. `S(H)` est la satisfaction
 d'une norme définie indépendamment de ce régime.
 
+Dans cette instance du Cycle 1, `R(H)` et `S(H)` sont chacune habitées
+exactement lorsque `H = perimeterDeployment P`. Elles sont donc coextensives
+sur les histoires, bien que leurs types de témoins, leurs définitions et leurs
+chemins de preuve restent distincts.
+
 La preuve construit deux applications entre les types de témoins :
 
 ```text
@@ -123,7 +140,11 @@ est une continuation stricte du déploiement canonique. Il reste localement
 exact, conserve la précédence et l'adjacence canoniques et possède une
 `ExactConcreteRealization A h⁺` pour toute
 `ConcreteContinuationAlgebra P` fournie, comme toute histoire générée
-enracinée. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous deux constructivement réfutés.
+enracinée. Une fois une telle algèbre fournie, la réalisation exacte est une
+garantie uniforme de préservation, non une condition sélectionnant les
+histoires ; l'obligation située en amont est de construire l'algèbre qui
+satisfait l'interface. Pourtant, `R(h⁺)` et `S(h⁺)` sont tous deux
+constructivement réfutés.
 Ces réfutations sont relatives à la `CircularPresentation` fournie, en
 particulier à son champ explicite `rejectInitialContraction`. La réfutation
 normative est directe : elle ne déduit pas l'échec de la norme indépendante du
@@ -245,12 +266,24 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
-- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) définit
+- [`Alignment/Constitutive.lean`](Alignment/Constitutive.lean) définit
   l'alignement exact à un pas indépendant du contenu, puis dérive la naturalité,
   la cohérence des chemins et l'unicité ponctuelle relative.
+- [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean)
+  dérive la persistance verticale finie, le transport horizontal entre
+  réalisations et leur carré commutatif depuis un même indice constitutif.
+- [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
+  attache ensuite les lectures finies et prouve la persistance de toute
+  distinction qu'elles établissent déjà.
 - [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
   construit la persistance canonique à un pas et instancie l'alignement abstrait
   en maintenant séparés l'admission et le statut relatif à la spécification.
+- [`Cycle1/IteratedConstitutivePersistence.lean`](Cycle1/IteratedConstitutivePersistence.lean)
+  instancie la persistance finie avec les histoires réellement produites par
+  `generate`/`appendGenerated` et leurs occurrences libres et concrètes natives.
+- [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
+  calcule et démontre une lecture non constante à travers trois étapes générées
+  et deux réalisations concrètes distinctes.
 - [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
   fournit une `ConcreteContinuationAlgebra` constructive, observable et non
   identitaire, sans devenir une dépendance du fondement structurel ni de la
@@ -286,10 +319,17 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 411
-déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
-dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
-les commandes sont consignés dans
+`MANIFEST.sha256` couvre les sources Lean publiées et les documents
+scientifiques canoniques qu'il énumère. Les métadonnées du dépôt et les
+documents d'accès, dont les présents README, sont extérieurs à ce manifeste des
+sources scientifiques.
+
+La compilation épinglée construit les deux bibliothèques Lake et exécute 440
+commandes `#print axioms` portant sur 439 déclarations distinctes ; une
+déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`. Chaque
+rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
+L'environnement exact, les décomptes, les empreintes et les commandes sont
+consignés dans
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
 
 ## Portée, licence et citation
@@ -302,8 +342,8 @@ d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
 toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 411 déclarations explicitement auditées ne dépend de celles-ci ni
-d'un autre axiome.
+aucune des 439 déclarations distinctes explicitement auditées ne dépend de
+celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
 pour le compiler ou l'auditer. Le code et la documentation sont distribués sous

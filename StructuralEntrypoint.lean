@@ -1,4 +1,4 @@
-import Cycle1.ConstitutivePersistence
+import Cycle1.IteratedConstitutivePersistence
 
 /-!
 # Structural entry point
@@ -51,6 +51,9 @@ exposes the following articulated results and introduces no new assumption:
 * that one-step continuation has an exact old/fresh occurrence split whose
   realizations commute with change of concrete representation and whose
   induced transports are pointwise independent of intermediate realizations;
+* the same constitution extends to every finite number of real Cycle 1 steps:
+  earlier identities persist, each step contributes one fresh identity, and
+  finite extension commutes with change of exact concrete realization;
 * the canonical facade construction supplies mutually inverse correspondences
   between perimeter positions, free occurrences, and concrete occurrences
   before any readout or value type is chosen; two supplied concrete
@@ -98,10 +101,13 @@ The canonical human-scale certificate: exact reconstruction of the perimeter
 does not close construction.  The canonical one-step continuation contains
 exactly one occurrence, and the resulting history, like every rooted generated
 history, admits an `ExactConcreteRealization` in every supplied concrete
-continuation algebra.  That history nevertheless exits the established regime
-and its independent norm.  Both refutations are relative to the supplied
-`CircularPresentation`, in particular its explicit
-`rejectInitialContraction` field.
+continuation algebra.  This realization field records a positive preservation
+witness; once the algebra is supplied, it is not a condition selecting
+histories.  In this Cycle 1 instance, the regime and the independently defined
+norm each hold exactly of the canonical perimeter, although their witness types
+and proof routes remain distinct.  The continued history exits both.  Both
+refutations are relative to the supplied `CircularPresentation`, in particular
+its explicit `rejectInitialContraction` field.
 -/
 structure ExactPerimeterAndFaithfulExit
     (P : CircularPresentation)
@@ -118,6 +124,7 @@ structure ExactPerimeterAndFaithfulExit
   continuationHasExactlyOneOccurrence :
     History.ExactlyOne
       (oneStepFaithfullyLabelledExtension P).continuation
+  /-- Positive exact-transport witness, not a history-selection condition. -/
   continuationFaithful :
     ExactConcreteRealization A (oneStepAfterPerimeter P)
   continuationOutsideRegime :
@@ -179,6 +186,119 @@ def canonicalConstitutiveAlignmentRealization
     (A : ConcreteContinuationAlgebra P) :
     (canonicalConstitutiveAlignment P).Realization :=
   ConstitutivePersistence.canonicalOneStepAlignmentRealization P A
+
+/-!
+The one-step alignment above extends constructively to every finite number of
+actual Cycle 1 generations.  Each stage is produced by `generate` and
+`appendGenerated`; it is not an abstract chain postulated by the facade.
+
+Every determination, once constituted, persists through every later stage of
+any finite prefix of this generated chain, and that persistence commutes with
+change of exact realization.  A readout assembled afterward by finite extension
+therefore preserves every distinction it already makes on those determinations.
+This does not yet instantiate a transformer and does not identify independently
+supplied readouts.
+-/
+
+/-- The exact free occurrence carrier after `n` actual Cycle 1 generations. -/
+def finiteConstitutivePersistence
+    (P : CircularPresentation)
+    (n : Nat) :
+    FiniteConstitutiveAlignment
+      (ConstitutivePersistence.InitialFreeOccurrence P) n :=
+  IteratedConstitutivePersistence.cycle1Alignment P n
+
+/-- One supplied algebra realizes the actual Cycle 1 carrier at depth `n`. -/
+def finiteConstitutivePersistenceRealization
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    (n : Nat) :
+    (finiteConstitutivePersistence P n).Realization :=
+  IteratedConstitutivePersistence.cycle1Realization P A n
+
+/--
+Finite extension and change of realization commute on the actual Cycle 1
+occurrences, including identities first constituted after the perimeter.
+-/
+theorem finiteExtensionRealizationNaturality
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    {sourceDepth targetDepth : Nat}
+    (depth : DepthExtension sourceDepth targetDepth)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A sourceDepth).Concrete) :
+    (((finiteConstitutivePersistenceRealization P A targetDepth).transport
+        (finiteConstitutivePersistenceRealization P B targetDepth)).forward
+      ((finiteConstitutivePersistenceRealization P A sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P A targetDepth)
+        depth occurrence)) =
+      (finiteConstitutivePersistenceRealization P B sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P B targetDepth)
+        depth
+        (((finiteConstitutivePersistenceRealization P A sourceDepth).transport
+          (finiteConstitutivePersistenceRealization P B sourceDepth)).forward
+          occurrence) :=
+  IteratedConstitutivePersistence.cycle1_extend_transport_natural
+    P A B depth occurrence
+
+/-- Change of realization is pointwise independent of an intermediate algebra. -/
+theorem finiteTransportPathCoherence
+    (P : CircularPresentation)
+    (A B C : ConcreteContinuationAlgebra P)
+    (depth : Nat)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A depth).Concrete) :
+    (((finiteConstitutivePersistenceRealization P B depth).transport
+        (finiteConstitutivePersistenceRealization P C depth)).forward
+      (((finiteConstitutivePersistenceRealization P A depth).transport
+        (finiteConstitutivePersistenceRealization P B depth)).forward
+        occurrence)) =
+      (((finiteConstitutivePersistenceRealization P A depth).transport
+        (finiteConstitutivePersistenceRealization P C depth)).forward
+        occurrence) :=
+  FiniteConstitutiveAlignment.Realization.transport_comp
+    (finiteConstitutivePersistenceRealization P A depth)
+    (finiteConstitutivePersistenceRealization P B depth)
+    (finiteConstitutivePersistenceRealization P C depth)
+    occurrence
+
+/--
+Any distinction made by a finitely assembled readout persists on the exact
+concrete occurrences through every later Cycle 1 stage.
+-/
+theorem finiteReadoutDistinctionPersists
+    {Value : Type}
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    (initialReadout :
+      ConstitutivePersistence.InitialFreeOccurrence P → Value)
+    {sourceDepth targetDepth : Nat}
+    (depth : DepthExtension sourceDepth targetDepth)
+    (targetValues : FiniteFreshValues Value targetDepth)
+    (first second :
+      (finiteConstitutivePersistenceRealization P A sourceDepth).Concrete)
+    (distinguished :
+      (finiteConstitutivePersistenceRealization P A sourceDepth).realizeReadout
+          (iteratedReadout initialReadout
+            (FiniteFreshValues.take depth targetValues)) first ≠
+        (finiteConstitutivePersistenceRealization P A sourceDepth).realizeReadout
+          (iteratedReadout initialReadout
+            (FiniteFreshValues.take depth targetValues)) second) :
+    (finiteConstitutivePersistenceRealization P A targetDepth).realizeReadout
+          (iteratedReadout initialReadout targetValues)
+          ((finiteConstitutivePersistenceRealization P A sourceDepth).extend
+            (finiteConstitutivePersistenceRealization P A targetDepth)
+            depth first) ≠
+      (finiteConstitutivePersistenceRealization P A targetDepth).realizeReadout
+          (iteratedReadout initialReadout targetValues)
+          ((finiteConstitutivePersistenceRealization P A sourceDepth).extend
+            (finiteConstitutivePersistenceRealization P A targetDepth)
+            depth second) :=
+  FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_distinction
+    initialReadout
+    (finiteConstitutivePersistenceRealization P A sourceDepth)
+    (finiteConstitutivePersistenceRealization P A targetDepth)
+    depth targetValues first second distinguished
 
 /--
 Structural bus from perimeter positions to free occurrences and then to
@@ -604,6 +724,11 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.exactPerimeterAndFaithfulExit
 #print axioms StructuralEntrypoint.canonicalConstitutiveAlignment
 #print axioms StructuralEntrypoint.canonicalConstitutiveAlignmentRealization
+#print axioms StructuralEntrypoint.finiteConstitutivePersistence
+#print axioms StructuralEntrypoint.finiteConstitutivePersistenceRealization
+#print axioms StructuralEntrypoint.finiteExtensionRealizationNaturality
+#print axioms StructuralEntrypoint.finiteTransportPathCoherence
+#print axioms StructuralEntrypoint.finiteReadoutDistinctionPersists
 #print axioms StructuralEntrypoint.ExactReadoutBus
 #print axioms StructuralEntrypoint.exactReadoutBus
 #print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceSpoke

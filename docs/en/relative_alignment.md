@@ -158,6 +158,11 @@ status by itself.
 `CircularRefinement`. The norm has its own positive model and its own canonical
 counterexample. Its content is therefore not a translation of the regime.
 
+For this Cycle 1 instance, the regime and the norm nevertheless have the same
+extension on histories: each is inhabited exactly at
+`perimeterDeployment P`. This carrier-level coextension is a derived result;
+it does not identify their witness types, definitions, or proof routes.
+
 ### 2.3 Regime ≠ adequacy of the regime
 
 `CircularRefinement` is a regime carrying rich operational data.
@@ -184,7 +189,7 @@ diagnostic.
 
 ## 3. The independent norm
 
-The Cycle 1 norm is minimal:
+The Cycle 1 norm has exactly two primitive components:
 
 ```lean
 structure CircularSpecificationSatisfaction
@@ -472,6 +477,37 @@ These instantiations establish scope; the content-independent signature carries
 the generality.  The current development proves that this interface is
 sufficient, but does not claim a strict minimality theorem for all of its
 fields.
+
+### 6.2 Finite constitutive persistence
+
+The one-step split is iterated without an ω-chain. `DepthExtension k n` is a
+positive finite witness that depth `n` was reached from depth `k`, and
+`IteratedCarrier I n` retains the initial carrier while adding one fresh
+identity at every step. Exact spokes induce both vertical extension `E` and
+horizontal change of realization `T`; neither is stored as independent
+matching data. Lean proves, pointwise,
+
+```text
+E[A,l,n](E[A,k,l](x)) = E[A,k,n](x)
+T[n,B,C](T[n,A,B](x)) = T[n,A,C](x)
+T[n,A,B](E[A,k,n](x)) = E[B,k,n](T[k,A,B](x)).
+```
+
+`Cycle1.IteratedConstitutivePersistence` instantiates these laws with the
+actual histories built recursively by `generate` and `appendGenerated`. At
+each successor stage, prior occurrences are the native `.earlier` occurrences
+and the new identity is the native `.last` occurrence. The result covers an
+identity from its own finite birth depth, not only identities already present
+at the perimeter.
+
+Readouts are attached afterward. Their arbitrary value type plays no role in
+the commuting square. Under finite readout extension, a distinction already
+present at depth `k` persists at every supplied later depth. The closed
+three-step example computes
+the perimeter values `7` and `11` and the successive fresh values `10`, `20`,
+and `30` in both the free and logged realizations. This establishes executable
+scope, not a transformer instantiation or semantic agreement between
+independently supplied readouts.
 
 ---
 

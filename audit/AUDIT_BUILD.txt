@@ -4,7 +4,9 @@ Structural foundations artifact — reproducible build and axiom audit
 Audit date: 2026-09-14
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
 Release version: 2.0.0
-Audit scope: Cycle 1 and the isolated minimal Cycle 2 reflective extension
+Record scope: platform-specific reproduction on the environment stated below
+Audit scope: Cycle 1 and the isolated self-contained Cycle 2 reflective
+  extension
 Scientific-source identity: MANIFEST.sha256
 
 This repository contains every source and configuration file required for the
@@ -32,14 +34,17 @@ Results:
 
   Exit code: 0
   Build completed successfully: yes
-  Build jobs: 14
+  Build jobs: 18
   Warnings: 0
-  Axiom audit declarations: 411
+  Axiom audit commands: 440
+  Distinct declarations audited: 439
   Unexpected axiom lines: 0
 
-The ten declaration-bearing Lean modules and the import-only `Cycle2.lean`
-aggregator each contain one final axiom-audit block. Every one of the 411
-reports states that the named declaration does not depend on any axioms.
+The fourteen declaration-bearing Lean modules and the import-only `Cycle2.lean`
+aggregator each contain one final axiom-audit block. The blocks run 440
+`#print axioms` commands over 439 distinct declarations; the aggregator
+re-audits `Cycle2.ReflectiveAlignment.circularDiagonalStatusExit`. Every report
+states that the named declaration does not depend on any axioms.
 
 Source-policy scan
 ------------------
@@ -64,21 +69,25 @@ Scientific source SHA-256
 c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
 7eccdabea8aee0b84c317753220964802be8bac6a4e1e3767b97f90b5a9b5cfd  ExactTypeTransport.lean
 fd5a9b3667b0c28b5d497c2b14ae38f6f01c0642b18d23e142fe1503ed586d26  StrongPerimetralTurning.lean
-fb3fe6cdd40dd75be238c32f1466c1f6391d8385909139312b2e69d62322a1d8  ConstitutiveAlignment.lean
-bc547f494c6c0c006da7905ac1f60f9d6b52a98cd6367fd488529d917df2e29f  Cycle1/ConstitutivePersistence.lean
-bfe80a574621bbc79627dd91943edf6186c28bb1b846309124133ebb9919cfde  StructuralEntrypoint.lean
+fb3fe6cdd40dd75be238c32f1466c1f6391d8385909139312b2e69d62322a1d8  Alignment/Constitutive.lean
+17a3d51a83d4a2951e7ad5bb3e3a68af06e955974c5a02b1b61160ed033831f8  Alignment/FinitePersistence.lean
+0450939ebe156ccf264eb568faf10927a449877aa035b2aadda008f397d020f7  Alignment/ReadoutPersistence.lean
+172fa9a8726dd00f605d1bc461c567811421d11a2d7f639981d14c482e12d9bc  Cycle1/ConstitutivePersistence.lean
+2987643b36ede0de0159f413f0a814e8ff8fddd2997b6b2d49a67d641baa0692  Cycle1/IteratedConstitutivePersistence.lean
+d253ab2c8ac4215f668fee40aa6f85f925bea8b2174af175dcf6bde67f114d89  StructuralEntrypoint.lean
 1d817aeb02be040c762f8c6b0352d6c53d182aa3042357c35d72db44d41c9048  Examples/ConcreteContinuation/LoggedAlgebra.lean
+e3a10200c948517c316641893e2f77ddd1a9ce5191ab2475c5e66ed6f4fd8faf  Examples/Alignment/IteratedReadout.lean
 887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-27f64115f67cba7e35e918e3cb548031b69be0b6b77046267dcea315a33c24b3  docs/fr/alignement_relatif.md
-89a36ece4e0300afa33170032673ff76751b4136ce0065a9180de4317d6417f0  docs/en/relative_alignment.md
-9569c8850a5f81017451ff843df2f3d55c23cdb8a6f2c39d2ef22ae854d77795  docs/fr/fondements_structurels.md
-813a67f9e348bfebecf50183020f34327255f7531985976de60c9ec914a07520  docs/en/structural_foundations.md
+2fb35910cb808283b311c5b4845344aa159b5d040f59e2645ddd27046027da9c  docs/fr/alignement_relatif.md
+0fddd8d49b3ed4191f6f076e2850c0ef0451d8b62c6063645b23d8f09e2ebbc5  docs/en/relative_alignment.md
+35a42ac381d734c96eb6560277998802a9637dc2800ab2eba6801cdc88375620  docs/fr/fondements_structurels.md
+2f844ef698f342223d891822c0d4d1afc78ebc3ecebe2d8d1cdfb67e83ec3e81  docs/en/structural_foundations.md
 6750c7158fbbfe84d9989334662aa5f0df24b059d0d9115c68bb29932f16a52b  docs/fr/methode_roles_constitutifs_relationnels.md
 c9da42f9c69248368d51c548fd23d4270d505eb6aebdb7f6f44f1edf5f258978  docs/en/relational_constitutive_roles_method.md
-9145fb325bf120042084a65742133082f4c0aeccf74b0ae5924fc4ad5a354220  docs/fr/alignement_reflexif.md
-c32fa9699405404386a16ae9286696d0f9e49d7a0ec4ae9e037b95799f2acd59  docs/en/reflective_alignment.md
+f8b3cf96e58f35fc8f42bcc44ddd372f9c509fb1daf2b6dbaebfabea669cece1  docs/fr/alignement_reflexif.md
+4fc589ef0af15334b4b51788e2b8a4cee5e8f0756c010c43c5149b2bc987daad  docs/en/reflective_alignment.md
 
 Manifest verification
 ---------------------
@@ -104,6 +113,7 @@ Or on Windows:
 
   powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-This file is a convenience record of one successful clean reproduction. The
-authoritative check consists in rerunning these commands with the pinned
-toolchain on the repository contents matched by MANIFEST.sha256.
+This file is a platform-specific convenience record of one successful clean
+reproduction. The authoritative check consists in rerunning these commands
+with the pinned toolchain on the repository contents matched by
+MANIFEST.sha256.

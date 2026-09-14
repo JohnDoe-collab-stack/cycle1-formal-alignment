@@ -51,6 +51,16 @@ exact co-indexation and lossless readout reindexing, but does not assert semanti
 compatibility between independently supplied values. Both transports are
 pointwise independent of any intermediate realization.
 
+The one-step result is also iterated over the actual Cycle 1 producer at every
+finite depth. Each generated stage adds exactly one fresh occurrence while
+retaining all earlier occurrences. Extension through later stages commutes
+pointwise with change of exact concrete realization, and both vertical and
+horizontal transports are independent of intermediate stages. Readouts remain
+downstream: a non-constant executable example preserves values `7` and `11`
+from the perimeter and fresh values `10`, `20`, and `30` through three steps in
+both the free and logged realizations. This finite theorem does not formalize a
+transformer or impose agreement between independently supplied readouts.
+
 ## Architecture
 
 ```text
@@ -95,6 +105,10 @@ S(H)   := CircularSpecificationSatisfaction P H
 admission by the operational regime. `S(H)` is satisfaction of a norm defined
 independently of that regime.
 
+In this Cycle 1 instance, `R(H)` and `S(H)` each hold exactly when
+`H = perimeterDeployment P`. They are therefore coextensive on histories, even
+though their witness types, definitions, and proof routes remain distinct.
+
 The proof constructs two maps between witness types:
 
 ```text
@@ -118,6 +132,10 @@ is a strict continuation of the canonical deployment. It remains locally exact,
 preserves canonical precedence and adjacency, and has an
 `ExactConcreteRealization A h⁺` for every supplied
 `ConcreteContinuationAlgebra P`, as does every rooted generated history.
+Once such an algebra has been supplied, exact realization is a uniform
+preservation guarantee rather than a condition selecting histories; the
+upstream obligation is the construction of the algebra satisfying the
+interface.
 Nevertheless, both `R(h⁺)` and `S(h⁺)` are constructively refuted. These
 refutations are relative to the supplied `CircularPresentation`, in particular
 its explicit `rejectInitialContraction` field. The normative refutation is
@@ -237,12 +255,24 @@ French counterparts are linked from the top of every scientific document.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implements the
   circular construction, independent norm, relative adequacy, and canonical
   operational exit.
-- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) defines the
+- [`Alignment/Constitutive.lean`](Alignment/Constitutive.lean) defines the
   content-independent exact one-step alignment and derives naturality,
   path coherence, and relative pointwise uniqueness.
+- [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean)
+  derives finite vertical persistence, horizontal realization transport, and
+  their commuting square from one shared constitutive index.
+- [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
+  attaches finite readouts afterward and proves persistence of every
+  distinction they already make.
 - [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
   constructs the canonical one-step persistence and instantiates the abstract
   alignment while keeping admission and specification status separate.
+- [`Cycle1/IteratedConstitutivePersistence.lean`](Cycle1/IteratedConstitutivePersistence.lean)
+  instantiates finite persistence with the real `generate`/`appendGenerated`
+  histories and their native free and concrete occurrences.
+- [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
+  computes and proves a non-constant readout across three generated stages and
+  two distinct concrete realizations.
 - [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
   supplies a constructive, observable, non-identity
   `ConcreteContinuationAlgebra` without becoming a dependency of the
@@ -277,8 +307,14 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles both Lake libraries, audits 411 declarations through
-the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
+`MANIFEST.sha256` covers the published Lean sources and the canonical
+scientific documents listed in it. Repository metadata and access documents,
+including these READMEs, are outside that scientific-source manifest.
+
+The pinned build compiles both Lake libraries and runs 440 `#print axioms`
+commands over 439 distinct declarations; one declaration is re-audited by the
+`Cycle2.lean` aggregator. Every report states that the named declaration has no
+axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
 
@@ -290,8 +326,8 @@ diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 411 explicitly audited
-declarations depends on them or on any other axiom.
+declarations that depend on `propext`; none of the 439 distinct declarations
+explicitly audited depends on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required
 to build or audit it. Code and documentation are distributed under Apache-2.0.

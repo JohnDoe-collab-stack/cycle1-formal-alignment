@@ -422,6 +422,18 @@ concaténation. L'égalité numérique est dérivée de la classification struct
 non l'inverse. La totalité n'est donc pas définie par l'additivité : les lectures
 numériques suivent une structure déjà constituée et préservée.
 
+### 5.4 Persistance avant lecture
+
+La décomposition des occurrences entre ancien et nouveau s'étend désormais à
+toute profondeur finie positivement fournie. Le transport exact entre
+réalisations et le prolongement constitutif fini sont tous deux dérivés du même
+indice, et leur carré commutatif ponctuel est démontré sur les histoires réelles
+du Cycle 1. Une lecture assemblée ensuite par prolongement fini conserve donc
+une distinction depuis la profondeur où ses identités ont été constituées. Le
+théorème est
+polymorphe en profondeur finie, en réalisations et en type de valeurs ;
+l'exemple exécutable à trois étapes n'en établit que la portée démontrée.
+
 ## 6. Cycle 1 — Alignement relatif et sortie opérationnelle
 
 L'application circulaire relie les trois modules:
@@ -766,7 +778,7 @@ d'un candidat change.
 > clôture globale.**
 
 Le Cycle 1 est mathématiquement clos relativement à `CircularPresentation`. Le
-Cycle 2 est stabilisé comme extension réflexive constructive minimale. Leur
+Cycle 2 est stabilisé comme extension réflexive constructive autonome. Leur
 articulation constitue l'architecture du dépôt.
 
 ## 12. Documentation et conception

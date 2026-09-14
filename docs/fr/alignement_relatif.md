@@ -157,6 +157,12 @@ La fidélité de réalisation garantit que la structure demandée est correcteme
 La norme possède son propre modèle positif et son propre contre-exemple
 canonique. Son contenu ne provient donc pas d'une simple traduction du régime.
 
+Dans cette instance du Cycle 1, le régime et la norme ont néanmoins la même
+extension sur les histoires : chacun est habité exactement en
+`perimeterDeployment P`. Cette coextension au niveau du porteur est un résultat
+dérivé ; elle n'identifie ni leurs types de témoins, ni leurs définitions, ni
+leurs chemins de preuve.
+
 ### 2.3 Régime ≠ adéquation du régime
 
 `CircularRefinement` est un régime de données opérationnelles riches.
@@ -185,7 +191,7 @@ Le premier diagnostic ne dépend pas du second.
 
 ## 3. La norme indépendante
 
-La norme du cycle 1 est minimale:
+La norme du cycle 1 possède exactement deux composantes primitives:
 
 ```lean
 structure CircularSpecificationSatisfaction
@@ -478,6 +484,38 @@ porteurs du même alignement. Ces instanciations en établissent la portée ; la
 signature indépendante du contenu en porte la généralité. Le développement
 actuel démontre la suffisance de cette interface, mais ne revendique pas de
 théorème de minimalité stricte pour l'ensemble de ses champs.
+
+### 6.2 Persistance constitutive finie
+
+La décomposition à un pas est itérée sans chaîne ω. `DepthExtension k n` est
+un témoin fini positif que la profondeur `n` a été atteinte depuis `k`, et
+`IteratedCarrier I n` conserve le porteur initial tout en ajoutant une identité
+nouvelle à chaque étape. Les raccords exacts induisent le prolongement vertical
+`E` et le changement horizontal de réalisation `T` ; aucun des deux n'est
+stocké comme donnée de matching indépendante. Lean démontre ponctuellement :
+
+```text
+E[A,l,n](E[A,k,l](x)) = E[A,k,n](x)
+T[n,B,C](T[n,A,B](x)) = T[n,A,C](x)
+T[n,A,B](E[A,k,n](x)) = E[B,k,n](T[k,A,B](x)).
+```
+
+`Cycle1.IteratedConstitutivePersistence` instancie ces lois avec les histoires
+réelles construites récursivement par `generate` et `appendGenerated`. À chaque
+étape successeur, les occurrences antérieures sont les occurrences natives
+`.earlier` et l'identité nouvelle est l'occurrence native `.last`. Le résultat
+couvre une identité depuis sa propre profondeur finie de constitution, et non
+seulement les identités déjà présentes au périmètre.
+
+Les lectures sont attachées ensuite. Leur type arbitraire de valeurs ne joue
+aucun rôle dans le carré commutatif. Sous le prolongement fini de la lecture,
+toute distinction déjà établie à la profondeur `k` persiste à chaque profondeur
+ultérieure fournie.
+L'exemple clos à trois étapes calcule les valeurs périmétrales `7` et `11`, puis
+les valeurs nouvelles successives `10`, `20` et `30`, dans les réalisations
+libre et journalisée. Cela établit une portée exécutable, non l'instanciation
+d'un transformer ni un accord sémantique entre des lectures fournies
+indépendamment.
 
 ---
 

@@ -420,6 +420,17 @@ numerical equality is derived from structural classification, not the reverse.
 Totality is therefore not defined by additivity: numerical readings follow an
 already constituted and preserved structure.
 
+### 5.4 Persistence before readout
+
+The old/fresh occurrence split now extends to every positively supplied finite
+depth. Exact realization transport and finite constitutive extension are both
+derived from the same index, and their pointwise commuting square is proved on
+the actual Cycle 1 histories. Consequently, a readout assembled afterward by
+finite extension retains a distinction from the depth at which its identities
+were constituted.
+The theorem is polymorphic in the finite depth, realizations, and value type;
+the executable three-step example establishes only its demonstrated scope.
+
 ## 6. Cycle 1 — Relative alignment and operational exit
 
 The circular application connects the three modules:
@@ -759,8 +770,8 @@ status changes.
 > representation coexists with a constructed failure of global closure.**
 
 Cycle 1 is mathematically closed relative to `CircularPresentation`. Cycle 2 is
-stabilized as a minimal constructive reflective extension. Their articulation is
-the architecture of the repository.
+stabilized as a self-contained constructive reflective extension. Their
+articulation is the architecture of the repository.
 
 ## 12. Documentation and authorship
 

@@ -9,10 +9,14 @@ roots = [
   "AbstractSegmentedTurning",
   "ExactTypeTransport",
   "StrongPerimetralTurning",
-  "ConstitutiveAlignment",
+  "Alignment.Constitutive",
+  "Alignment.FinitePersistence",
+  "Alignment.ReadoutPersistence",
   "Cycle1.ConstitutivePersistence",
+  "Cycle1.IteratedConstitutivePersistence",
   "StructuralEntrypoint",
-  "Examples.ConcreteContinuation.LoggedAlgebra"
+  "Examples.ConcreteContinuation.LoggedAlgebra",
+  "Examples.Alignment.IteratedReadout"
 ]
 
 [[lean_lib]]
