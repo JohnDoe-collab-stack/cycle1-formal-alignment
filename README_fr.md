@@ -34,7 +34,17 @@ l'injectivité est dérivée de l'accord exact plutôt que supposée. Un deuxiè
 point d'entrée réunit le périmètre canonique, son adéquation opérationnelle et
 normative, puis une continuation à une occurrence qui, comme toute histoire
 générée enracinée, admet une réalisation concrète exacte dans toute algèbre
-fournie et reste extérieure au régime comme à la spécification. Un troisième
+fournie et reste extérieure au régime comme à la spécification. Cette même
+continuation instancie l’interface indépendante du contenu
+`ExactOneStepConstitutiveAlignment` : son porteur d’occurrences se décompose
+exactement entre les occurrences antérieures et une occurrence nouvelle,
+tandis que chaque algèbre fournie en donne une réalisation exacte distincte de
+ses porteurs. À ce niveau abstrait, cela n'affirme aucune préservation
+indépendante des étiquettes, de l'ordre ou de la sémantique des pas ; l'instance
+canonique démontre en outre que ses éléments ancien et nouveau induits sont les
+occurrences concrètes natives. Les transports induits préservent les deux
+parties et composent ponctuellement sans raccord pair à pair ajouté
+indépendamment. Un troisième
 expose l'habitant canonique d'un bus structurel dont les correspondances sont
 mutuellement inverses ; l'interface elle-même n'affirme ni la canonicité ni
 l'unicité de son habitant. Les lectures arbitraires ne sont branchées qu'après
@@ -230,9 +240,17 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   abstrait sur l'occurrence résiduelle.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) définit la
   classification exacte d'un régime et les sorties typées.
+- [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isole les transports
+  exacts constructifs à deux inverses, indépendamment du contenu du Cycle 1.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
+- [`ConstitutiveAlignment.lean`](ConstitutiveAlignment.lean) définit
+  l'alignement exact à un pas indépendant du contenu, puis dérive la naturalité,
+  la cohérence des chemins et l'unicité ponctuelle relative.
+- [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
+  construit la persistance canonique à un pas et instancie l'alignement abstrait
+  en maintenant séparés l'admission et le statut relatif à la spécification.
 - [`Examples/ConcreteContinuation/LoggedAlgebra.lean`](Examples/ConcreteContinuation/LoggedAlgebra.lean)
   fournit une `ConcreteContinuationAlgebra` constructive, observable et non
   identitaire, sans devenir une dépendance du fondement structurel ni de la
@@ -268,7 +286,7 @@ Sous Windows PowerShell :
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-La compilation épinglée construit les deux bibliothèques Lake, audite 363
+La compilation épinglée construit les deux bibliothèques Lake, audite 411
 déclarations au moyen des blocs finaux `#print axioms` et ne rapporte aucune
 dépendance axiomatique. L'environnement exact, les décomptes, les empreintes et
 les commandes sont consignés dans
@@ -284,7 +302,7 @@ d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
 toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 363 déclarations explicitement auditées ne dépend de celles-ci ni
+aucune des 411 déclarations explicitement auditées ne dépend de celles-ci ni
 d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis

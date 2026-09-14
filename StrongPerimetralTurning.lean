@@ -1,4 +1,5 @@
 import AbstractSegmentedTurning
+import ExactTypeTransport
 
 /- The proposition-valued definitions below are intentionally transparent,
    and the independent input families intentionally keep distinct universes. -/
@@ -3666,27 +3667,6 @@ theorem sourceCursorFuture
     FreeConstitution.root BoundaryDifference.initial
 
 end NonClosingPrecedes
-
-structure ExactTypeTransport
-    (Source : Type uA)
-    (Target : Type uB) where
-  forward : Source → Target
-  backward : Target → Source
-  forwardBackward : (source : Source) → backward (forward source) = source
-  backwardForward : (target : Target) → forward (backward target) = target
-
-def ExactTypeTransport.reflexive
-    (Carrier : Type uA) : ExactTypeTransport Carrier Carrier :=
-  { forward := id
-    backward := id
-    forwardBackward := fun _ => rfl
-    backwardForward := fun _ => rfl }
-
-def ExactTypeTransport.ofEquality
-    {Source Target : Type uA}
-    (equality : Source = Target) : ExactTypeTransport Source Target := by
-  cases equality
-  exact ExactTypeTransport.reflexive Source
 
 abbrev ExactCompatibleTransport := ExactTypeTransport
 

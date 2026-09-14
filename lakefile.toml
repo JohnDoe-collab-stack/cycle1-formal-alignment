@@ -7,7 +7,10 @@ name = "Cycle1Alignment"
 roots = [
   "SegmentedResidualRole",
   "AbstractSegmentedTurning",
+  "ExactTypeTransport",
   "StrongPerimetralTurning",
+  "ConstitutiveAlignment",
+  "Cycle1.ConstitutivePersistence",
   "StructuralEntrypoint",
   "Examples.ConcreteContinuation.LoggedAlgebra"
 ]

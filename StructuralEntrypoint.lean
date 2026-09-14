@@ -1,4 +1,4 @@
-import StrongPerimetralTurning
+import Cycle1.ConstitutivePersistence
 
 /-!
 # Structural entry point
@@ -39,7 +39,7 @@ them. Here, identity means the persistence of that determination across
 distinct layers through those transports.
 
 This file is therefore a human-scale facade over the structural foundation.  It
-exposes three articulated entry points and introduces no new assumption:
+exposes the following articulated results and introduces no new assumption:
 
 * exact local realization in any rooted generated history reconstructs the
   canonical perimeter as an initial factor of that history;
@@ -48,6 +48,9 @@ exposes three articulated entry points and introduces no new assumption:
   step beyond it is a strict one-occurrence continuation which remains exactly
   realizable in every supplied concrete continuation algebra but lies outside
   both the regime and the specification;
+* that one-step continuation has an exact old/fresh occurrence split whose
+  realizations commute with change of concrete representation and whose
+  induced transports are pointwise independent of intermediate realizations;
 * the canonical facade construction supplies mutually inverse correspondences
   between perimeter positions, free occurrences, and concrete occurrences
   before any readout or value type is chosen; two supplied concrete
@@ -56,8 +59,9 @@ exposes three articulated entry points and introduces no new assumption:
   matching.
 
 The short constructions below do not replace the underlying proofs.  They make
-the local-to-global reconstruction, the canonical exit, and the structural
-readout bus available in one human-scale file.
+the local-to-global reconstruction, the canonical exit, its exact one-step
+constitutive alignment, and the structural readout bus available in one
+human-scale file.
 -/
 
 namespace StructuralEntrypoint
@@ -147,6 +151,34 @@ def exactPerimeterAndFaithfulExit
       oneStepAfterPerimeter_notCircularRefinement P
     continuationOutsideSpecification :=
       oneStepAfterPerimeter_notSpecificationSatisfaction P }
+
+/-!
+The transition exposed above also instantiates a content-independent notion of
+exact one-step constitutive alignment.  The abstract interface contains only
+an exact old/fresh split.  Each concrete algebra supplies a separate exact
+carrier realization of that split.  At this content-independent level,
+`Realization` asserts no preservation of labels, order, or step semantics.
+Naturality, path coherence, and relative pointwise uniqueness are then derived
+by `ExactOneStepConstitutiveAlignment.Realization`; they are not additional
+matching data.  In the canonical instance, the induced old and fresh elements
+are proved to be the native concrete occurrences `.earlier` and `.last`.
+
+This layer contains no admission, specification, or readout value.  Those
+remain distinct before being articulated by the surrounding facade.
+-/
+
+/-- The canonical one-step transition as a content-independent alignment. -/
+def canonicalConstitutiveAlignment
+    (P : CircularPresentation) :
+    ExactOneStepConstitutiveAlignment :=
+  ConstitutivePersistence.canonicalOneStepAlignment P
+
+/-- One supplied concrete algebra as an exact carrier realization. -/
+def canonicalConstitutiveAlignmentRealization
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    (canonicalConstitutiveAlignment P).Realization :=
+  ConstitutivePersistence.canonicalOneStepAlignmentRealization P A
 
 /--
 Structural bus from perimeter positions to free occurrences and then to
@@ -570,6 +602,8 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.localExactnessReconstructsPerimeter
 #print axioms StructuralEntrypoint.ExactPerimeterAndFaithfulExit
 #print axioms StructuralEntrypoint.exactPerimeterAndFaithfulExit
+#print axioms StructuralEntrypoint.canonicalConstitutiveAlignment
+#print axioms StructuralEntrypoint.canonicalConstitutiveAlignmentRealization
 #print axioms StructuralEntrypoint.ExactReadoutBus
 #print axioms StructuralEntrypoint.exactReadoutBus
 #print axioms StructuralEntrypoint.ExactReadoutBus.concreteOccurrenceSpoke

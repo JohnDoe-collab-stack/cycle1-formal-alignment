@@ -422,6 +422,59 @@ This step is the constructive lock that enables carrier completeness.
 
 ---
 
+### 6.1 Exact one-step constitutive persistence
+
+The canonical continuation also supports a content-independent result that is
+separate from its later admission and normative statuses.  Write `I0` for the
+free occurrences of the perimeter and `I1` for those of its one-step
+continuation.  `ConstitutivePersistence.freeOccurrenceSplit` constructs an
+exact two-sided transport:
+
+```text
+I0 + Unit  <->  I1
+```
+
+Thus every occurrence of the continuation is classified constructively as
+either one prior occurrence or the distinguished fresh occurrence.  For every
+supplied concrete algebra `A`, exact interpretation gives separate spokes:
+
+```text
+I0 <-> C0[A]
+I1 <-> C1[A]
+```
+
+Transport between two realizations is derived through these shared indices; no
+pairwise concrete matching is added.  Lean proves the old/fresh naturality laws
+and pointwise path coherence:
+
+```text
+T1[A,B](old[A](x)) = old[B](T0[A,B](x))
+T1[A,B](fresh[A])  = fresh[B]
+T[B,C](T[A,B](x))  = T[A,C](x)
+```
+
+A candidate extended transport is also pointwise determined once its action is
+fixed on every prior occurrence and on the fresh occurrence.  This is relative
+uniqueness under the complete split, not uniqueness of every possible exact
+correspondence.
+
+`ExactOneStepConstitutiveAlignment` extracts exactly the transition carrier and
+its old/fresh split.  Its separate `Realization` structure contains only the two
+concrete carriers and their exact spokes.  It is therefore an exact carrier
+realization, not by itself a claim about labels, order, or step semantics.
+Neither structure mentions a `CircularPresentation`, admission, a
+specification, or a readout.  The canonical Cycle 1 continuation instantiates
+this abstraction and additionally proves that the induced old and fresh
+elements are the native concrete occurrences `.earlier` and `.last`.  The
+logged non-identity algebra supplies a concrete carrier realization of the same
+alignment.
+These instantiations establish scope; the content-independent signature carries
+the generality.  The current development proves that this interface is
+sufficient, but does not claim a strict minimality theorem for all of its
+fields.
+
+---
+
 ## 7. Soundness and completeness
 
 Three closed results establish relative alignment.
@@ -725,6 +778,13 @@ The precise statement is therefore:
 | derived precedence | `ExactNonClosingRealization.preservesPrecedence` |
 | derived adjacency | `ExactNonClosingRealization.preservesNext` |
 | reconstruction of the perimeter prefix | `ExactNonClosingRealization.toPerimeterExtension` |
+| exact one-step split | `ConstitutivePersistence.freeOccurrenceSplit` |
+| abstract one-step alignment | `ExactOneStepConstitutiveAlignment` |
+| exact realization of an alignment | `ExactOneStepConstitutiveAlignment.Realization` |
+| canonical abstract alignment | `ConstitutivePersistence.canonicalOneStepAlignment` |
+| agreement with the native old occurrence | `ConstitutivePersistence.concreteOldEmbedding_isEarlier` |
+| agreement with the native fresh occurrence | `ConstitutivePersistence.concreteNewOccurrence_isLast` |
+| concrete path coherence | `ConstitutivePersistence.extendedConcreteTransport_forward_comp` |
 | trajectory norm | `CircularClosureMeaning` |
 | independent norm | `CircularSpecificationSatisfaction` |
 | positive model of the norm | `perimeterDeployment_specificationSatisfaction` |

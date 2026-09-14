@@ -725,10 +725,10 @@ déterminé.
 | non-clôture réflexive globale | `noGlobalReflectiveClosure` |
 | statuts alignés exacts avec extérieur diagonal | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-Les déclarations du Cycle 1 se trouvent dans les trois modules Lean racine. Le
-noyau diagonal indépendant se trouve dans `Cycle2/DiagonalizationKernel.lean` ;
-le raccord depuis l'adéquation du Cycle 1 est confiné à
-`Cycle2/ReflectiveAlignment.lean`.
+La bibliothèque du Cycle 1 est assemblée depuis les huit racines Lean listées
+dans `lakefile.toml`. Le noyau diagonal indépendant se trouve dans
+`Cycle2/DiagonalizationKernel.lean` ; le raccord depuis l'adéquation du Cycle 1
+est confiné à `Cycle2/ReflectiveAlignment.lean`.
 
 ## 11. Conclusion générale
 

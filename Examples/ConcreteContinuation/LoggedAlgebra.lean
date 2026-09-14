@@ -1,4 +1,4 @@
-import StrongPerimetralTurning
+import Cycle1.ConstitutivePersistence
 
 /-!
 # A non-identity concrete continuation algebra
@@ -253,6 +253,18 @@ def oneStepLoggedRealization :
       (oneStepAfterPerimeter examplePresentation) :=
   exactLoggedRealization (oneStepAfterPerimeter examplePresentation)
 
+/--
+The non-identity logged algebra realizes the same content-independent one-step
+carrier alignment as the free example.  This witnesses the concrete scope of
+the general carrier-realization interface without adding a pairwise matching
+or claiming independent preservation of labels, order, or step semantics.
+-/
+def oneStepLoggedAlignmentRealization :
+    (ConstitutivePersistence.canonicalOneStepAlignment
+      examplePresentation).Realization :=
+  ConstitutivePersistence.canonicalOneStepAlignmentRealization
+    examplePresentation loggedConcreteAlgebra
+
 end StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -262,4 +274,5 @@ end StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra
 #print axioms StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra.explicitObservations_remain_distinct
 #print axioms StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra.exactLoggedRealization
 #print axioms StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra.oneStepLoggedRealization
+#print axioms StrongPerimetralTurning.Examples.ConcreteContinuation.LoggedAlgebra.oneStepLoggedAlignmentRealization
 /- AXIOM_AUDIT_END -/

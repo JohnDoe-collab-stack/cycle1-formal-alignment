@@ -427,6 +427,60 @@ Cette étape est le verrou constructif qui permet ensuite la carrier completenes
 
 ---
 
+### 6.1 Persistance constitutive exacte à un pas
+
+La continuation canonique porte aussi un résultat indépendant du contenu,
+distinct de ses statuts ultérieurs d'admission et de satisfaction normative.
+Notons `I0` les occurrences libres du périmètre et `I1` celles de sa
+continuation à un pas. `ConstitutivePersistence.freeOccurrenceSplit` construit
+un transport exact à deux inverses :
+
+```text
+I0 + Unit  <->  I1
+```
+
+Chaque occurrence de la continuation est ainsi classée constructivement comme
+une occurrence antérieure ou comme l'occurrence nouvelle distinguée. Pour toute
+algèbre concrète fournie `A`, l'interprétation exacte donne deux raccords
+séparés :
+
+```text
+I0 <-> C0[A]
+I1 <-> C1[A]
+```
+
+Le transport entre deux réalisations est dérivé de ces indices communs ; aucun
+raccord concret pair à pair n'est ajouté. Lean démontre la naturalité des
+parties ancienne et nouvelle ainsi que la cohérence ponctuelle des chemins :
+
+```text
+T1[A,B](old[A](x)) = old[B](T0[A,B](x))
+T1[A,B](fresh[A])  = fresh[B]
+T[B,C](T[A,B](x))  = T[A,C](x)
+```
+
+Un transport candidat sur le porteur étendu est aussi déterminé ponctuellement
+dès que son action est fixée sur chaque occurrence antérieure et sur
+l'occurrence nouvelle. Il s'agit d'une unicité relative à la décomposition
+complète, non de l'unicité de toute correspondance exacte possible.
+
+`ExactOneStepConstitutiveAlignment` extrait exactement le porteur de transition
+et sa décomposition ancienne/nouvelle. Sa structure `Realization`, maintenue
+séparée, ne contient que les deux porteurs concrets et leurs raccords exacts. Il
+s'agit donc d'une réalisation exacte des porteurs, non d'une affirmation portant
+à elle seule sur les étiquettes, l'ordre ou la sémantique des pas. Aucune des
+deux structures ne mentionne une `CircularPresentation`, une admission, une
+spécification ou un readout. La continuation canonique du Cycle 1 instancie
+cette abstraction et démontre en outre que les éléments ancien et nouveau
+induits sont les occurrences concrètes natives `.earlier` et `.last`.
+L'algèbre journalisée non identitaire fournit une réalisation concrète des
+porteurs du même alignement. Ces instanciations en établissent la portée ; la
+signature indépendante du contenu en porte la généralité. Le développement
+actuel démontre la suffisance de cette interface, mais ne revendique pas de
+théorème de minimalité stricte pour l'ensemble de ses champs.
+
+---
+
 ## 7. Soundness et completeness
 
 Trois résultats clos établissent l'alignement relatif.
@@ -749,6 +803,13 @@ Il ne faut pas non plus dire que le régime est désaligné avec `S` dans ce cas
 | précédence dérivée | `ExactNonClosingRealization.preservesPrecedence` |
 | adjacence dérivée | `ExactNonClosingRealization.preservesNext` |
 | reconstruction du préfixe périmétral | `ExactNonClosingRealization.toPerimeterExtension` |
+| décomposition exacte à un pas | `ConstitutivePersistence.freeOccurrenceSplit` |
+| alignement abstrait à un pas | `ExactOneStepConstitutiveAlignment` |
+| réalisation exacte d'un alignement | `ExactOneStepConstitutiveAlignment.Realization` |
+| alignement abstrait canonique | `ConstitutivePersistence.canonicalOneStepAlignment` |
+| accord avec l'occurrence ancienne native | `ConstitutivePersistence.concreteOldEmbedding_isEarlier` |
+| accord avec l'occurrence nouvelle native | `ConstitutivePersistence.concreteNewOccurrence_isLast` |
+| cohérence concrète des chemins | `ConstitutivePersistence.extendedConcreteTransport_forward_comp` |
 | norme trajectorielle | `CircularClosureMeaning` |
 | norme indépendante | `CircularSpecificationSatisfaction` |
 | modèle positif de la norme | `perimeterDeployment_specificationSatisfaction` |

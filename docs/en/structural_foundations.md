@@ -719,9 +719,10 @@ information and localize the boundary at which a specified status changes.
 | global reflective non-closure | `noGlobalReflectiveClosure` |
 | exact aligned statuses with a diagonal exterior | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-The Cycle 1 declarations are in the three root Lean modules. The independent
-diagonal kernel is in `Cycle2/DiagonalizationKernel.lean`; the bridge from Cycle
-1 adequacy is confined to `Cycle2/ReflectiveAlignment.lean`.
+The Cycle 1 library is assembled from the eight Lean roots listed in
+`lakefile.toml`. The independent diagonal kernel is in
+`Cycle2/DiagonalizationKernel.lean`; the bridge from Cycle 1 adequacy is
+confined to `Cycle2/ReflectiveAlignment.lean`.
 
 ## 11. General conclusion
 
