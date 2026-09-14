@@ -98,6 +98,23 @@ def sumUnit
           rw [transport.backwardForward]
       | inr witness => cases witness; rfl }
 
+/-- Pointwise agreement of exact forward maps determines their backward maps. -/
+theorem backward_eq_of_forward_eq
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    (first second : ExactTypeTransport Source Target)
+    (forwardAgreement :
+      (source : Source) → first.forward source = second.forward source)
+    (target : Target) :
+    first.backward target = second.backward target := by
+  calc
+    first.backward target =
+      first.backward (second.forward (second.backward target)) := by
+        rw [second.backwardForward]
+    _ = first.backward (first.forward (second.backward target)) := by
+        rw [forwardAgreement (second.backward target)]
+    _ = second.backward target := first.forwardBackward _
+
 end ExactTypeTransport
 end StrongPerimetralTurning
 
@@ -108,4 +125,5 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.ExactTypeTransport.reverse
 #print axioms StrongPerimetralTurning.ExactTypeTransport.compose
 #print axioms StrongPerimetralTurning.ExactTypeTransport.sumUnit
+#print axioms StrongPerimetralTurning.ExactTypeTransport.backward_eq_of_forward_eq
 /- AXIOM_AUDIT_END -/

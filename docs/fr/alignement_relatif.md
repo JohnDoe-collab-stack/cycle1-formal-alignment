@@ -500,6 +500,18 @@ T[n,B,C](T[n,A,B](x)) = T[n,A,C](x)
 T[n,A,B](E[A,k,n](x)) = E[B,k,n](T[k,A,B](x)).
 ```
 
+Pour deux témoins quelconques `d₁ d₂ : DepthExtension k n`, Lean démontre
+aussi ponctuellement `E[d₁](x) = E[d₂](x)`. La preuve n'identifie pas les
+témoins proof-relevant : elle attribue à chaque identité un code structurel
+indépendant de la profondeur, démontre l'injectivité de ce code à chaque
+profondeur fixée, puis son invariance sous tout prolongement. Le prolongement
+concret induit, le paquet fini de valeurs retenu et chaque valeur de lecture
+retenue sont donc indépendants du témoin. À la profondeur un, les deux
+directions du raccord fini coïncident ponctuellement avec la décomposition à
+un pas déjà établie, le transport
+horizontal fini coïncide ponctuellement avec `extendedTransport`, et le
+prolongement de profondeur `0 → 1` est l'application `old` à un pas.
+
 `Cycle1.IteratedConstitutivePersistence` instancie ces lois avec les histoires
 réelles construites récursivement par `generate` et `appendGenerated`. À chaque
 étape successeur, les occurrences antérieures sont les occurrences natives

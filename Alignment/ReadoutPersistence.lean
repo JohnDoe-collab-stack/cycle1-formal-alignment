@@ -139,6 +139,84 @@ theorem iteratedReadout_embedFrom
       | mk priorValues freshValue =>
           exact inductionHypothesis priorValues
 
+/--
+At every earlier identity, the retained readout value depends only on the
+source and target depths, not on the supplied extension witness.
+-/
+theorem iteratedReadout_take_witness_independent
+    {Initial : Type uInitial}
+    {Value : Type uValue}
+    (initialReadout : Initial → Value)
+    {source target : Nat}
+    (first second : DepthExtension source target)
+    (targetValues : FiniteFreshValues Value target)
+    (identity : IteratedCarrier Initial source) :
+    iteratedReadout initialReadout
+        (FiniteFreshValues.take first targetValues) identity =
+      iteratedReadout initialReadout
+        (FiniteFreshValues.take second targetValues) identity := by
+  calc
+    iteratedReadout initialReadout
+        (FiniteFreshValues.take first targetValues) identity =
+      iteratedReadout initialReadout targetValues
+        (IteratedCarrier.embedFrom first identity) :=
+          (iteratedReadout_embedFrom initialReadout first targetValues identity).symm
+    _ = iteratedReadout initialReadout targetValues
+        (IteratedCarrier.embedFrom second identity) :=
+          congrArg (iteratedReadout initialReadout targetValues)
+            (IteratedCarrier.embedFrom_witness_independent first second identity)
+    _ = iteratedReadout initialReadout
+        (FiniteFreshValues.take second targetValues) identity :=
+          iteratedReadout_embedFrom initialReadout second targetValues identity
+
+namespace FiniteFreshValues
+
+/--
+A finite value package is determined by its readout on the fresh identities.
+`PEmpty` removes any unrelated initial value from this characterization.
+-/
+theorem eq_of_iteratedReadout_eq
+    {Value : Type uValue}
+    {depth : Nat}
+    (first second : FiniteFreshValues Value depth)
+    (agreement :
+      (identity : IteratedCarrier (PEmpty : Type) depth) →
+        iteratedReadout (Initial := PEmpty) PEmpty.elim first identity =
+          iteratedReadout (Initial := PEmpty) PEmpty.elim second identity) :
+    first = second := by
+  induction depth with
+  | zero =>
+      cases first
+      cases second
+      rfl
+  | succ depth inductionHypothesis =>
+      cases first with
+      | mk firstPrior firstFresh =>
+          cases second with
+          | mk secondPrior secondFresh =>
+              have priorEqual : firstPrior = secondPrior :=
+                inductionHypothesis firstPrior secondPrior
+                  (fun identity => agreement (.inl identity))
+              have freshEqual : firstFresh = secondFresh :=
+                agreement (.inr ())
+              cases priorEqual
+              cases freshEqual
+              rfl
+
+/-- The retained finite value package is independent of the depth witness. -/
+theorem take_witness_independent
+    {Value : Type uValue}
+    {source target : Nat}
+    (first second : DepthExtension source target)
+    (targetValues : FiniteFreshValues Value target) :
+    take first targetValues = take second targetValues := by
+  apply eq_of_iteratedReadout_eq
+  intro identity
+  exact iteratedReadout_take_witness_independent
+    (Initial := PEmpty) PEmpty.elim first second targetValues identity
+
+end FiniteFreshValues
+
 /-- A distinction already made by a readout persists through finite extension. -/
 theorem iteratedReadout_distinction
     {Initial : Type uInitial}
@@ -334,6 +412,9 @@ end StrongPerimetralTurning
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms StrongPerimetralTurning.iteratedReadout_embedFrom
+#print axioms StrongPerimetralTurning.iteratedReadout_take_witness_independent
+#print axioms StrongPerimetralTurning.FiniteFreshValues.eq_of_iteratedReadout_eq
+#print axioms StrongPerimetralTurning.FiniteFreshValues.take_witness_independent
 #print axioms StrongPerimetralTurning.iteratedReadout_distinction
 #print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.transportReadout_comp
 #print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_extend

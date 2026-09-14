@@ -295,7 +295,7 @@ lake build Cycle2ReflectiveExtension
 
 Les fichiers sources du cycle 2 se terminent par des `#print axioms` couvrant
 leurs 28 déclarations explicites de premier niveau. La compilation complète
-exécute 440 commandes `#print axioms` portant sur 439 déclarations distinctes ;
+exécute 454 commandes `#print axioms` portant sur 453 déclarations distinctes ;
 une déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`.
 Chaque rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
 L'intégrité des sources se vérifie avec:

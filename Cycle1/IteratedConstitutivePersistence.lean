@@ -143,6 +143,18 @@ theorem cycle1Alignment_one_forward
     | inl occurrence => rfl
     | inr witness => cases witness; rfl
 
+/-- The depth-one finite spoke also agrees backwards with the one-step split. -/
+theorem cycle1Alignment_one_backward
+    (P : CircularPresentation)
+    (occurrence : ConstitutivePersistence.ExtendedFreeOccurrence P) :
+    (cycle1Alignment P 1).carrierSpoke.backward occurrence =
+      (ConstitutivePersistence.freeOccurrenceSplit P).backward occurrence :=
+  ExactTypeTransport.backward_eq_of_forward_eq
+    (cycle1Alignment P 1).carrierSpoke
+    (ConstitutivePersistence.freeOccurrenceSplit P)
+    (cycle1Alignment_one_forward P)
+    occurrence
+
 /-! ## Exact concrete realizations of the iterated histories -/
 
 /-- Expose an exact interpretation as the transport it already contains. -/
@@ -236,6 +248,39 @@ theorem cycle1_extend_transport_natural
     (cycle1Realization P B targetDepth)
     depth occurrence
 
+/--
+At depth one, finite horizontal transport is pointwise the established
+one-step transport.  Thus the iterated construction conservatively extends the
+earlier interface in both directions, not only at the level of carrier types.
+-/
+theorem cycle1Transport_one_eq_oneStep
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (occurrence : (cycle1Realization P A 1).Concrete) :
+    ((cycle1Realization P A 1).transport
+        (cycle1Realization P B 1)).forward occurrence =
+      ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
+        (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B)).forward
+          occurrence := by
+  have roundTrip :=
+    (cycle1Alignment P 1).carrierSpoke.backwardForward
+      ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedSpoke.backward
+        occurrence)
+  exact congrArg
+    (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B).extendedSpoke.forward
+    roundTrip
+
+/-- Depth `0 → 1` extension is pointwise the established one-step old map. -/
+theorem cycle1Extension_zero_one_eq_oneStep
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    (occurrence : (cycle1Realization P A 0).Concrete) :
+    (cycle1Realization P A 0).extend
+        (cycle1Realization P A 1) (.step (.refl 0)) occurrence =
+      (ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).old
+        occurrence :=
+  rfl
+
 end IteratedConstitutivePersistence
 end StrongPerimetralTurning
 
@@ -244,6 +289,9 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.successorOccurrenceSplit
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedOccurrenceSpoke
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Alignment_one_forward
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Alignment_one_backward
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1_extend_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
 /- AXIOM_AUDIT_END -/

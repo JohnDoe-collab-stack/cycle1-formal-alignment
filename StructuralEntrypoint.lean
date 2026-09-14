@@ -53,7 +53,10 @@ exposes the following articulated results and introduces no new assumption:
   induced transports are pointwise independent of intermediate realizations;
 * the same constitution extends to every finite number of real Cycle 1 steps:
   earlier identities persist, each step contributes one fresh identity, and
-  finite extension commutes with change of exact concrete realization;
+  finite extension is independent of its proof-relevant depth witness and
+  commutes with change of exact concrete realization; at depth one its
+  horizontal and vertical maps agree pointwise with the established one-step
+  interface;
 * the canonical facade construction supplies mutually inverse correspondences
   between perimeter positions, free occurrences, and concrete occurrences
   before any readout or value type is chosen; two supplied concrete
@@ -240,6 +243,58 @@ theorem finiteExtensionRealizationNaturality
           occurrence) :=
   IteratedConstitutivePersistence.cycle1_extend_transport_natural
     P A B depth occurrence
+
+/--
+Finite extension on actual Cycle 1 realizations depends only on its source and
+target depths, not on the proof-relevant `DepthExtension` witness supplied.
+-/
+theorem finiteExtensionWitnessIndependent
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    {sourceDepth targetDepth : Nat}
+    (first second : DepthExtension sourceDepth targetDepth)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A sourceDepth).Concrete) :
+    (finiteConstitutivePersistenceRealization P A sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P A targetDepth)
+        first occurrence =
+      (finiteConstitutivePersistenceRealization P A sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P A targetDepth)
+        second occurrence :=
+  FiniteConstitutiveAlignment.Realization.extend_witness_independent
+    (finiteConstitutivePersistenceRealization P A sourceDepth)
+    (finiteConstitutivePersistenceRealization P A targetDepth)
+    first second occurrence
+
+/--
+The finite horizontal transport at depth one is pointwise the previously
+established one-step transport, so iteration adds no competing correspondence
+at its base case.
+-/
+theorem finiteDepthOneTransportMatchesOneStep
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A 1).Concrete) :
+    (((finiteConstitutivePersistenceRealization P A 1).transport
+        (finiteConstitutivePersistenceRealization P B 1)).forward occurrence) =
+      (((canonicalConstitutiveAlignmentRealization P A).extendedTransport
+        (canonicalConstitutiveAlignmentRealization P B)).forward occurrence) :=
+  IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
+    P A B occurrence
+
+/-- The finite depth `0 → 1` extension is pointwise the one-step old map. -/
+theorem finiteDepthZeroOneExtensionMatchesOneStep
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A 0).Concrete) :
+    (finiteConstitutivePersistenceRealization P A 0).extend
+        (finiteConstitutivePersistenceRealization P A 1)
+        (.step (.refl 0)) occurrence =
+      (canonicalConstitutiveAlignmentRealization P A).old occurrence :=
+  IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
+    P A occurrence
 
 /-- Change of realization is pointwise independent of an intermediate algebra. -/
 theorem finiteTransportPathCoherence
@@ -727,6 +782,9 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.finiteConstitutivePersistence
 #print axioms StructuralEntrypoint.finiteConstitutivePersistenceRealization
 #print axioms StructuralEntrypoint.finiteExtensionRealizationNaturality
+#print axioms StructuralEntrypoint.finiteExtensionWitnessIndependent
+#print axioms StructuralEntrypoint.finiteDepthOneTransportMatchesOneStep
+#print axioms StructuralEntrypoint.finiteDepthZeroOneExtensionMatchesOneStep
 #print axioms StructuralEntrypoint.finiteTransportPathCoherence
 #print axioms StructuralEntrypoint.finiteReadoutDistinctionPersists
 #print axioms StructuralEntrypoint.ExactReadoutBus

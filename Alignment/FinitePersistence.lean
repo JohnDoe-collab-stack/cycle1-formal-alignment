@@ -89,6 +89,98 @@ def embedInitial
     Initial → IteratedCarrier Initial n :=
   embedFrom (DepthExtension.zeroTo n)
 
+/--
+A depth-independent structural code for finite identities.  Initial identities
+retain their identity; every fresh identity retains the depth at which it was
+introduced.  The code deliberately forgets the later carrier in which the
+identity is observed.
+-/
+def identityCode
+    {Initial : Type uInitial} :
+    {depth : Nat} → IteratedCarrier Initial depth → Initial ⊕ Nat
+  | 0, identity => .inl identity
+  | _ + 1, .inl identity => identityCode identity
+  | n + 1, .inr () => .inr n
+
+theorem identityCode_fresh_lt
+    {Initial : Type uInitial}
+    {depth freshDepth : Nat}
+    (identity : IteratedCarrier Initial depth)
+    (equality : identityCode identity = Sum.inr freshDepth) :
+    freshDepth < depth := by
+  induction depth with
+  | zero =>
+      cases equality
+  | succ depth inductionHypothesis =>
+      cases identity with
+      | inl prior =>
+          exact Nat.le.step (inductionHypothesis prior equality)
+      | inr fresh =>
+          cases fresh
+          have depthEqual : depth = freshDepth := Sum.inr.inj equality
+          cases depthEqual
+          exact Nat.le_refl (freshDepth + 1)
+
+/-- The structural code loses no identity information at a fixed depth. -/
+theorem identityCode_injective
+    {Initial : Type uInitial}
+    {depth : Nat} :
+    Function.Injective (@identityCode Initial depth) := by
+  induction depth with
+  | zero =>
+      intro first second equality
+      exact Sum.inl.inj equality
+  | succ depth inductionHypothesis =>
+      intro first second equality
+      cases first with
+      | inl firstPrior =>
+          cases second with
+          | inl secondPrior =>
+              exact congrArg Sum.inl (inductionHypothesis equality)
+          | inr secondFresh =>
+              cases secondFresh
+              exact False.elim
+                (Nat.not_succ_le_self depth
+                  (identityCode_fresh_lt firstPrior equality))
+      | inr firstFresh =>
+          cases firstFresh
+          cases second with
+          | inl secondPrior =>
+              exact False.elim
+                (Nat.not_succ_le_self depth
+                  (identityCode_fresh_lt secondPrior equality.symm))
+          | inr secondFresh =>
+              cases secondFresh
+              rfl
+
+/-- Every finite extension preserves the same structural identity code. -/
+theorem identityCode_embedFrom
+    {Initial : Type uInitial}
+    {source target : Nat}
+    (depth : DepthExtension source target)
+    (identity : IteratedCarrier Initial source) :
+    identityCode (embedFrom depth identity) = identityCode identity := by
+  induction depth with
+  | refl => rfl
+  | step prior inductionHypothesis =>
+      exact inductionHypothesis
+
+/--
+The embedded identity depends only on the two depths, not on the supplied
+proof-relevant path between them.  This compares the observable construction,
+not the `DepthExtension` witnesses themselves.
+-/
+theorem embedFrom_witness_independent
+    {Initial : Type uInitial}
+    {source target : Nat}
+    (first second : DepthExtension source target)
+    (identity : IteratedCarrier Initial source) :
+    embedFrom first identity = embedFrom second identity := by
+  apply identityCode_injective
+  exact
+    (identityCode_embedFrom first identity).trans
+      (identityCode_embedFrom second identity).symm
+
 theorem embedFrom_refl
     {Initial : Type uInitial}
     {n : Nat}
@@ -306,6 +398,22 @@ theorem extend_atIndex
       target.indexedSpoke.forward (IteratedCarrier.embedFrom depth identity)
   rw [source.indexedSpoke.forwardBackward]
 
+/-- Concrete finite extension is independent of its depth witness. -/
+theorem extend_witness_independent
+    {Initial : Type uInitial}
+    {sourceDepth targetDepth : Nat}
+    {sourceAlignment : FiniteConstitutiveAlignment Initial sourceDepth}
+    {targetAlignment : FiniteConstitutiveAlignment Initial targetDepth}
+    (source : sourceAlignment.Realization)
+    (target : targetAlignment.Realization)
+    (first second : DepthExtension sourceDepth targetDepth)
+    (identity : source.Concrete) :
+    source.extend target first identity =
+      source.extend target second identity := by
+  exact congrArg target.indexedSpoke.forward
+    (IteratedCarrier.embedFrom_witness_independent first second
+      (source.indexedSpoke.backward identity))
+
 theorem extend_refl
     {Initial : Type uInitial}
     {depth : Nat}
@@ -386,10 +494,14 @@ end StrongPerimetralTurning
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms StrongPerimetralTurning.IteratedCarrier.oneStepTransport
+#print axioms StrongPerimetralTurning.IteratedCarrier.identityCode_injective
+#print axioms StrongPerimetralTurning.IteratedCarrier.identityCode_embedFrom
+#print axioms StrongPerimetralTurning.IteratedCarrier.embedFrom_witness_independent
 #print axioms StrongPerimetralTurning.IteratedCarrier.embedFrom_injective
 #print axioms StrongPerimetralTurning.IteratedCarrier.embedInitial_injective
 #print axioms StrongPerimetralTurning.IteratedCarrier.embedPrevious_ne_fresh_later
 #print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment
+#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_witness_independent
 #print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_comp
 #print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_natural
 /- AXIOM_AUDIT_END -/

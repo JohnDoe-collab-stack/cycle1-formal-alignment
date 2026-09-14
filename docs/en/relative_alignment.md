@@ -493,6 +493,17 @@ T[n,B,C](T[n,A,B](x)) = T[n,A,C](x)
 T[n,A,B](E[A,k,n](x)) = E[B,k,n](T[k,A,B](x)).
 ```
 
+For any two witnesses `d₁ d₂ : DepthExtension k n`, Lean also proves
+pointwise that `E[d₁](x) = E[d₂](x)`.  The proof does not identify the
+proof-relevant witnesses: it assigns each identity a depth-independent
+structural code, proves that code injective at each fixed depth, and proves it
+invariant under every extension.  The induced concrete extension, the retained
+finite value package, and every retained readout value are therefore
+witness-independent.  At depth one, both directions of the finite index spoke
+agree pointwise with the established
+one-step split, the finite horizontal transport agrees pointwise with
+`extendedTransport`, and the depth `0 → 1` extension is the one-step `old` map.
+
 `Cycle1.IteratedConstitutivePersistence` instantiates these laws with the
 actual histories built recursively by `generate` and `appendGenerated`. At
 each successor stage, prior occurrences are the native `.earlier` occurrences

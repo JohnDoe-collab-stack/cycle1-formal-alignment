@@ -55,7 +55,10 @@ The one-step result is also iterated over the actual Cycle 1 producer at every
 finite depth. Each generated stage adds exactly one fresh occurrence while
 retaining all earlier occurrences. Extension through later stages commutes
 pointwise with change of exact concrete realization, and both vertical and
-horizontal transports are independent of intermediate stages. Readouts remain
+horizontal transports are independent of intermediate stages. The vertical
+extension is also pointwise independent of the proof-relevant
+`DepthExtension` witness, and the depth-one horizontal and vertical maps agree
+pointwise with the earlier one-step interface. Readouts remain
 downstream: a non-constant executable example preserves values `7` and `11`
 from the perimeter and fresh values `10`, `20`, and `30` through three steps in
 both the free and logged realizations. This finite theorem does not formalize a
@@ -311,8 +314,8 @@ pwsh -NoProfile -File scripts/verify-manifest.ps1
 scientific documents listed in it. Repository metadata and access documents,
 including these READMEs, are outside that scientific-source manifest.
 
-The pinned build compiles both Lake libraries and runs 440 `#print axioms`
-commands over 439 distinct declarations; one declaration is re-audited by the
+The pinned build compiles both Lake libraries and runs 454 `#print axioms`
+commands over 453 distinct declarations; one declaration is re-audited by the
 `Cycle2.lean` aggregator. Every report states that the named declaration has no
 axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
@@ -326,7 +329,7 @@ diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 439 distinct declarations
+declarations that depend on `propext`; none of the 453 distinct declarations
 explicitly audited depends on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required
