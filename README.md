@@ -57,8 +57,10 @@ retaining all earlier occurrences. Extension through later stages commutes
 pointwise with change of exact concrete realization, and both vertical and
 horizontal transports are independent of intermediate stages. The vertical
 extension is also pointwise independent of the proof-relevant
-`DepthExtension` witness, and the depth-one horizontal and vertical maps agree
-pointwise with the earlier one-step interface. Readouts remain
+`DepthExtension` witness, including when its source and target use different
+supplied realizations. At depth one, both directions of horizontal transport,
+the realized fresh identity, and the vertical old map agree pointwise with the
+earlier one-step interface. Readouts remain
 downstream: a non-constant executable example preserves values `7` and `11`
 from the perimeter and fresh values `10`, `20`, and `30` through three steps in
 both the free and logged realizations. This finite theorem does not formalize a
@@ -304,18 +306,29 @@ Verify the scientific-source manifest on Linux or macOS:
 bash scripts/verify-manifest.sh
 ```
 
-On Windows PowerShell:
+On Windows, use PowerShell 7:
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
+or Windows PowerShell:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+```
+
 `MANIFEST.sha256` covers the published Lean sources and the canonical
 scientific documents listed in it. Repository metadata and access documents,
 including these READMEs, are outside that scientific-source manifest.
+Specifically, the manifest does not hash-anchor `lean-toolchain`,
+`lakefile.toml`, `lake-manifest.json`, the verification scripts, the CI
+workflow, `audit/AUDIT_BUILD.txt`, the `MANIFEST.sha256` file itself, or either
+README. Their identity is therefore fixed by the audited Git commit, not by
+`MANIFEST.sha256`.
 
-The pinned build compiles both Lake libraries and runs 454 `#print axioms`
-commands over 453 distinct declarations; one declaration is re-audited by the
+The pinned build compiles both Lake libraries and runs 460 `#print axioms`
+commands over 459 distinct declarations; one declaration is re-audited by the
 `Cycle2.lean` aggregator. Every report states that the named declaration has no
 axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
@@ -329,7 +342,7 @@ diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 453 distinct declarations
+declarations that depend on `propext`; none of the 459 distinct declarations
 explicitly audited depends on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required

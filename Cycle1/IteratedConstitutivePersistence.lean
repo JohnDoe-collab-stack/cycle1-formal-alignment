@@ -249,6 +249,25 @@ theorem cycle1_extend_transport_natural
     depth occurrence
 
 /--
+Finite extension between two supplied concrete realizations depends only on
+its source and target depths, not on the `DepthExtension` witness.
+-/
+theorem cycle1Extension_witness_independent
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    {sourceDepth targetDepth : Nat}
+    (first second : DepthExtension sourceDepth targetDepth)
+    (occurrence : (cycle1Realization P A sourceDepth).Concrete) :
+    (cycle1Realization P A sourceDepth).extend
+        (cycle1Realization P B targetDepth) first occurrence =
+      (cycle1Realization P A sourceDepth).extend
+        (cycle1Realization P B targetDepth) second occurrence :=
+  FiniteConstitutiveAlignment.Realization.extend_witness_independent
+    (cycle1Realization P A sourceDepth)
+    (cycle1Realization P B targetDepth)
+    first second occurrence
+
+/--
 At depth one, finite horizontal transport is pointwise the established
 one-step transport.  Thus the iterated construction conservatively extends the
 earlier interface in both directions, not only at the level of carrier types.
@@ -269,6 +288,35 @@ theorem cycle1Transport_one_eq_oneStep
   exact congrArg
     (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B).extendedSpoke.forward
     roundTrip
+
+/--
+At depth one, the backward finite horizontal transport is pointwise the
+backward map of the established one-step transport.
+-/
+theorem cycle1Transport_one_backward_eq_oneStep
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (occurrence : (cycle1Realization P B 1).Concrete) :
+    ((cycle1Realization P A 1).transport
+        (cycle1Realization P B 1)).backward occurrence =
+      ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
+        (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B)).backward
+          occurrence :=
+  ExactTypeTransport.backward_eq_of_forward_eq
+    ((cycle1Realization P A 1).transport (cycle1Realization P B 1))
+    ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
+      (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B))
+    (cycle1Transport_one_eq_oneStep P A B)
+    occurrence
+
+/-- The finite fresh identity at depth one is the established one-step fresh identity. -/
+theorem cycle1Realization_one_fresh_eq_oneStep
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    (cycle1Realization P A 1).indexedSpoke.forward
+        (IteratedCarrier.freshAtStep 0) =
+      (ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).fresh :=
+  rfl
 
 /-- Depth `0 → 1` extension is pointwise the established one-step old map. -/
 theorem cycle1Extension_zero_one_eq_oneStep
@@ -292,6 +340,9 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Alignment_one_backward
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1_extend_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_witness_independent
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_backward_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
 /- AXIOM_AUDIT_END -/

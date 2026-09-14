@@ -1525,10 +1525,16 @@ ou macOS avec :
 bash scripts/verify-manifest.sh
 ```
 
-Sous Windows PowerShell :
+Sous Windows, avec PowerShell 7 :
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+ou avec Windows PowerShell :
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 L'audit d'une adaptation future devrait en outre vérifier :

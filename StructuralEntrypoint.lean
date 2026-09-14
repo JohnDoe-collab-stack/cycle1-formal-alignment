@@ -54,9 +54,10 @@ exposes the following articulated results and introduces no new assumption:
 * the same constitution extends to every finite number of real Cycle 1 steps:
   earlier identities persist, each step contributes one fresh identity, and
   finite extension is independent of its proof-relevant depth witness and
-  commutes with change of exact concrete realization; at depth one its
-  horizontal and vertical maps agree pointwise with the established one-step
-  interface;
+  commutes with change of exact concrete realization; this independence also
+  holds when source and target use different supplied realizations; at depth
+  one both directions of horizontal transport, the fresh identity, and the
+  vertical old map agree pointwise with the established one-step interface;
 * the canonical facade construction supplies mutually inverse correspondences
   between perimeter positions, free occurrences, and concrete occurrences
   before any readout or value type is chosen; two supplied concrete
@@ -267,6 +268,26 @@ theorem finiteExtensionWitnessIndependent
     first second occurrence
 
 /--
+Finite extension remains witness-independent when its source and target are
+two different supplied concrete realizations.
+-/
+theorem finiteExtensionWitnessIndependentAcrossRealizations
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    {sourceDepth targetDepth : Nat}
+    (first second : DepthExtension sourceDepth targetDepth)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A sourceDepth).Concrete) :
+    (finiteConstitutivePersistenceRealization P A sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P B targetDepth)
+        first occurrence =
+      (finiteConstitutivePersistenceRealization P A sourceDepth).extend
+        (finiteConstitutivePersistenceRealization P B targetDepth)
+        second occurrence :=
+  IteratedConstitutivePersistence.cycle1Extension_witness_independent
+    P A B first second occurrence
+
+/--
 The finite horizontal transport at depth one is pointwise the previously
 established one-step transport, so iteration adds no competing correspondence
 at its base case.
@@ -282,6 +303,31 @@ theorem finiteDepthOneTransportMatchesOneStep
         (canonicalConstitutiveAlignmentRealization P B)).forward occurrence) :=
   IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
     P A B occurrence
+
+/--
+The backward finite horizontal transport at depth one is pointwise the
+backward map of the previously established one-step transport.
+-/
+theorem finiteDepthOneBackwardTransportMatchesOneStep
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P B 1).Concrete) :
+    (((finiteConstitutivePersistenceRealization P A 1).transport
+        (finiteConstitutivePersistenceRealization P B 1)).backward occurrence) =
+      (((canonicalConstitutiveAlignmentRealization P A).extendedTransport
+        (canonicalConstitutiveAlignmentRealization P B)).backward occurrence) :=
+  IteratedConstitutivePersistence.cycle1Transport_one_backward_eq_oneStep
+    P A B occurrence
+
+/-- The finite fresh identity at depth one is the one-step fresh identity. -/
+theorem finiteDepthOneFreshMatchesOneStep
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    (finiteConstitutivePersistenceRealization P A 1).indexedSpoke.forward
+        (IteratedCarrier.freshAtStep 0) =
+      (canonicalConstitutiveAlignmentRealization P A).fresh :=
+  IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep P A
 
 /-- The finite depth `0 → 1` extension is pointwise the one-step old map. -/
 theorem finiteDepthZeroOneExtensionMatchesOneStep
@@ -783,7 +829,10 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.finiteConstitutivePersistenceRealization
 #print axioms StructuralEntrypoint.finiteExtensionRealizationNaturality
 #print axioms StructuralEntrypoint.finiteExtensionWitnessIndependent
+#print axioms StructuralEntrypoint.finiteExtensionWitnessIndependentAcrossRealizations
 #print axioms StructuralEntrypoint.finiteDepthOneTransportMatchesOneStep
+#print axioms StructuralEntrypoint.finiteDepthOneBackwardTransportMatchesOneStep
+#print axioms StructuralEntrypoint.finiteDepthOneFreshMatchesOneStep
 #print axioms StructuralEntrypoint.finiteDepthZeroOneExtensionMatchesOneStep
 #print axioms StructuralEntrypoint.finiteTransportPathCoherence
 #print axioms StructuralEntrypoint.finiteReadoutDistinctionPersists

@@ -1494,10 +1494,16 @@ From the repository root, verify the integrity manifest on Linux or macOS with:
 bash scripts/verify-manifest.sh
 ```
 
-On Windows PowerShell:
+On Windows, use PowerShell 7:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+or Windows PowerShell:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 An audit of a future adaptation should additionally verify:

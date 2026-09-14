@@ -13,6 +13,13 @@ This repository contains every source and configuration file required for the
 checks below. No earlier repository, private workspace, or external source
 history is required.
 
+MANIFEST.sha256 hash-anchors only the Lean sources and canonical scientific
+documents that it lists. It does not hash-anchor lean-toolchain, lakefile.toml,
+lake-manifest.json, the verification scripts, the CI workflow,
+audit/AUDIT_BUILD.txt, the MANIFEST.sha256 file itself, or either README. The
+audited Git commit, rather than MANIFEST.sha256, fixes the identity of those
+excluded operational and access files.
+
 Environment
 -----------
 
@@ -36,13 +43,13 @@ Results:
   Build completed successfully: yes
   Build jobs: 18
   Warnings: 0
-  Axiom audit commands: 454
-  Distinct declarations audited: 453
+  Axiom audit commands: 460
+  Distinct declarations audited: 459
   Unexpected axiom lines: 0
 
 The fourteen declaration-bearing Lean modules and the import-only `Cycle2.lean`
-aggregator each contain one final axiom-audit block. The blocks run 454
-`#print axioms` commands over 453 distinct declarations; the aggregator
+aggregator each contain one final axiom-audit block. The blocks run 460
+`#print axioms` commands over 459 distinct declarations; the aggregator
 re-audits `Cycle2.ReflectiveAlignment.circularDiagonalStatusExit`. Every report
 states that the named declaration does not depend on any axioms.
 
@@ -73,21 +80,21 @@ fb3fe6cdd40dd75be238c32f1466c1f6391d8385909139312b2e69d62322a1d8  Alignment/Cons
 af70348b3b6338484b8df560b0b408613f1c24293f2c596a73e0ccf476dd8a01  Alignment/FinitePersistence.lean
 1cf15ac165ea0b5e0a39578a2a2e7f363fbc8f4bda5d1d5d10e1da2555c69915  Alignment/ReadoutPersistence.lean
 172fa9a8726dd00f605d1bc461c567811421d11a2d7f639981d14c482e12d9bc  Cycle1/ConstitutivePersistence.lean
-69a3b969e3ba3c1a741c40ac4548e9ae3bb6621c900e34dc2e52035347932f5a  Cycle1/IteratedConstitutivePersistence.lean
-c8a69f22e335b74137ebf36cd478618c60551f1f78980f73987627c9f5250230  StructuralEntrypoint.lean
+45d4f4b2cc891009469d490a4c54ed11bb64e0a818f60ff43b61160f2a508548  Cycle1/IteratedConstitutivePersistence.lean
+05cc8fd8c01db8848107378d8ae3e86dc1f3b397ad7107300c9c8fdd6a8baba8  StructuralEntrypoint.lean
 1d817aeb02be040c762f8c6b0352d6c53d182aa3042357c35d72db44d41c9048  Examples/ConcreteContinuation/LoggedAlgebra.lean
 e3a10200c948517c316641893e2f77ddd1a9ce5191ab2475c5e66ed6f4fd8faf  Examples/Alignment/IteratedReadout.lean
 887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
 78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
 08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-750186efd1388aadc0c85ac1ac6b652482c4ea6128999ec10694819ee6ff5811  docs/fr/alignement_relatif.md
-b1ec9008e9020429655ea96fb128a7426b77db2a6fcfde4109c043c739c7bcb3  docs/en/relative_alignment.md
+d5e3da3481903bce3d5573622d2cb267dbe5bc438b505373580b194cd842db03  docs/fr/alignement_relatif.md
+9d87315eef468c282f08893fc99f91ff6167e40f8b67b4c619f15add895dd542  docs/en/relative_alignment.md
 35a42ac381d734c96eb6560277998802a9637dc2800ab2eba6801cdc88375620  docs/fr/fondements_structurels.md
 2f844ef698f342223d891822c0d4d1afc78ebc3ecebe2d8d1cdfb67e83ec3e81  docs/en/structural_foundations.md
-6750c7158fbbfe84d9989334662aa5f0df24b059d0d9115c68bb29932f16a52b  docs/fr/methode_roles_constitutifs_relationnels.md
-c9da42f9c69248368d51c548fd23d4270d505eb6aebdb7f6f44f1edf5f258978  docs/en/relational_constitutive_roles_method.md
-8b0254bb885a841faa95d7b6f331e184d5440356872dd37d82bc0646ecdb8d62  docs/fr/alignement_reflexif.md
-980ec5186dd0f6b74868eb92421a33079c895755963aa10cb3b88a070e736979  docs/en/reflective_alignment.md
+ba8a38160b4e2f6be3e00f73e192a3968f3a8d33cffd4da10454d4d50f7f2a8d  docs/fr/methode_roles_constitutifs_relationnels.md
+0770def9da662a447c26d49915a033d047104e60bdbddd328c9a02906b7752d1  docs/en/relational_constitutive_roles_method.md
+e7c110db71230aa81907e5627290debeb871029af9121676a80bdd815204bde8  docs/fr/alignement_reflexif.md
+e643d8457142ee1f30ce0b2604d0f1b49453c04e4a64c2de897d7c139ce45a95  docs/en/reflective_alignment.md
 
 Manifest verification
 ---------------------
@@ -109,9 +116,13 @@ Then verify scientific-source integrity on Linux or macOS:
 
   bash scripts/verify-manifest.sh
 
-Or on Windows:
+On Windows, use PowerShell 7:
 
-  powershell -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+  pwsh -NoProfile -File scripts/verify-manifest.ps1
+
+or Windows PowerShell:
+
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
 This file is a platform-specific convenience record of one successful clean
 reproduction. The authoritative check consists in rerunning these commands

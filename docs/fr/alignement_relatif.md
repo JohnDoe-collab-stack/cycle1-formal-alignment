@@ -506,11 +506,13 @@ témoins proof-relevant : elle attribue à chaque identité un code structurel
 indépendant de la profondeur, démontre l'injectivité de ce code à chaque
 profondeur fixée, puis son invariance sous tout prolongement. Le prolongement
 concret induit, le paquet fini de valeurs retenu et chaque valeur de lecture
-retenue sont donc indépendants du témoin. À la profondeur un, les deux
-directions du raccord fini coïncident ponctuellement avec la décomposition à
-un pas déjà établie, le transport
-horizontal fini coïncide ponctuellement avec `extendedTransport`, et le
-prolongement de profondeur `0 → 1` est l'application `old` à un pas.
+retenue sont donc indépendants du témoin. Le prolongement concret le reste
+lorsque sa source et sa cible utilisent deux réalisations fournies distinctes.
+À la profondeur un, les deux directions du raccord fini et les deux directions
+du transport horizontal fini coïncident ponctuellement avec les interfaces à
+un pas déjà établies. L'identité nouvelle finie réalisée est l'identité `fresh`
+à un pas, et le prolongement de profondeur `0 → 1` est l'application `old` à
+un pas.
 
 `Cycle1.IteratedConstitutivePersistence` instancie ces lois avec les histoires
 réelles construites récursivement par `generate` et `appendGenerated`. À chaque
@@ -922,16 +924,22 @@ lake clean
 lake build
 ```
 
-Puis vérifier le manifeste des sources scientifiques avec :
+Puis vérifier le manifeste des sources scientifiques sous Linux ou macOS avec :
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-ou :
+Sous Windows, avec PowerShell 7 :
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+ou avec Windows PowerShell :
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 L'environnement complet, les empreintes des sources, les décomptes de

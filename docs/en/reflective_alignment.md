@@ -287,19 +287,25 @@ lake build Cycle2ReflectiveExtension
 ```
 
 The Cycle 2 source files end with `#print axioms` for all 28 of their explicit
-top-level declarations. The complete build runs 454 `#print axioms` commands
-over 453 distinct declarations; one declaration is re-audited by the
+top-level declarations. The complete build runs 460 `#print axioms` commands
+over 459 distinct declarations; one declaration is re-audited by the
 `Cycle2.lean` aggregator. Every report states that the named declaration has no
-axiom dependency. Source integrity is checked with either:
+axiom dependency. Source integrity is checked on Linux or macOS with:
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-or:
+On Windows, use PowerShell 7:
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+or Windows PowerShell:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 ## 13. Stabilized conclusion

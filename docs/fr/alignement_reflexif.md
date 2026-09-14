@@ -295,19 +295,25 @@ lake build Cycle2ReflectiveExtension
 
 Les fichiers sources du cycle 2 se terminent par des `#print axioms` couvrant
 leurs 28 déclarations explicites de premier niveau. La compilation complète
-exécute 454 commandes `#print axioms` portant sur 453 déclarations distinctes ;
+exécute 460 commandes `#print axioms` portant sur 459 déclarations distinctes ;
 une déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`.
 Chaque rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
-L'intégrité des sources se vérifie avec:
+L'intégrité des sources se vérifie sous Linux ou macOS avec :
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-ou:
+Sous Windows, avec PowerShell 7 :
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+ou avec Windows PowerShell :
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 ## 13. Conclusion stabilisée

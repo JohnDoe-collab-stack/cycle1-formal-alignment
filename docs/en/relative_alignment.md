@@ -499,10 +499,12 @@ proof-relevant witnesses: it assigns each identity a depth-independent
 structural code, proves that code injective at each fixed depth, and proves it
 invariant under every extension.  The induced concrete extension, the retained
 finite value package, and every retained readout value are therefore
-witness-independent.  At depth one, both directions of the finite index spoke
-agree pointwise with the established
-one-step split, the finite horizontal transport agrees pointwise with
-`extendedTransport`, and the depth `0 → 1` extension is the one-step `old` map.
+witness-independent.  Concrete extension remains witness-independent when its
+source and target use different supplied realizations.  At depth one, both
+directions of the finite index spoke and both directions of finite horizontal
+transport agree pointwise with the established one-step interfaces.  The
+realized finite fresh identity is the one-step `fresh` identity, and the depth
+`0 → 1` extension is the one-step `old` map.
 
 `Cycle1.IteratedConstitutivePersistence` instantiates these laws with the
 actual histories built recursively by `generate` and `appendGenerated`. At
@@ -893,16 +895,22 @@ lake clean
 lake build
 ```
 
-Then verify the scientific-source manifest with either:
+Then verify the scientific-source manifest on Linux or macOS with:
 
 ```bash
 bash scripts/verify-manifest.sh
 ```
 
-or:
+On Windows, use PowerShell 7:
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
+```
+
+or Windows PowerShell:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 ```
 
 The complete environment, source hashes, build counts, and axiom-audit result

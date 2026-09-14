@@ -61,7 +61,12 @@ profondeur finie. Chaque étape générée ajoute exactement une occurrence
 nouvelle tout en conservant les occurrences antérieures. Le prolongement à
 travers les étapes suivantes commute ponctuellement avec le changement de
 réalisation concrète exacte, et les transports verticaux comme horizontaux sont
-indépendants des étapes intermédiaires. Les lectures restent en aval : un
+indépendants des étapes intermédiaires. Le prolongement vertical est aussi
+ponctuellement indépendant du témoin proof-relevant `DepthExtension`, y compris
+lorsque sa source et sa cible utilisent deux réalisations fournies distinctes.
+À la profondeur un, les deux directions du transport horizontal, l'identité
+nouvelle réalisée et l'application verticale `old` coïncident ponctuellement
+avec l'interface à un pas antérieure. Les lectures restent en aval : un
 exemple exécutable non constant conserve les valeurs `7` et `11` du périmètre,
 puis les valeurs nouvelles `10`, `20` et `30`, à travers trois étapes dans les
 réalisations libre et journalisée. Ce théorème fini ne formalise pas un
@@ -313,19 +318,29 @@ Vérifier le manifeste des sources scientifiques sous Linux ou macOS :
 bash scripts/verify-manifest.sh
 ```
 
-Sous Windows PowerShell :
+Sous Windows, avec PowerShell 7 :
 
 ```powershell
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
+ou avec Windows PowerShell :
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
+```
+
 `MANIFEST.sha256` couvre les sources Lean publiées et les documents
 scientifiques canoniques qu'il énumère. Les métadonnées du dépôt et les
 documents d'accès, dont les présents README, sont extérieurs à ce manifeste des
-sources scientifiques.
+sources scientifiques. Plus précisément, le manifeste ne protège pas par
+empreinte `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, les scripts
+de vérification, le workflow CI, `audit/AUDIT_BUILD.txt`, le manifeste lui-même
+ni les deux README. Leur identité est donc fixée par le commit Git audité, et
+non par `MANIFEST.sha256`.
 
-La compilation épinglée construit les deux bibliothèques Lake et exécute 440
-commandes `#print axioms` portant sur 439 déclarations distinctes ; une
+La compilation épinglée construit les deux bibliothèques Lake et exécute 460
+commandes `#print axioms` portant sur 459 déclarations distinctes ; une
 déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`. Chaque
 rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
 L'environnement exact, les décomptes, les empreintes et les commandes sont
@@ -342,7 +357,7 @@ d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
 toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 439 déclarations distinctes explicitement auditées ne dépend de
+aucune des 459 déclarations distinctes explicitement auditées ne dépend de
 celles-ci ni d'un autre axiome.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
