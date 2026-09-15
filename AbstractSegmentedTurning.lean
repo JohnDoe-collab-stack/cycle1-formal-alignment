@@ -521,6 +521,46 @@ residual occurrence produced by that extension, and an admitted positive
 boundary must build its attempted totalization from the same residual data.
 -/
 
+/- The weak positive boundary used by the coupled core.  It retains only the
+   candidate context, strict extension, residual core, and positive witness. -/
+structure CorePositiveResidualBoundary
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    (generator : BoundaryGenerator Carrier Extension)
+    (Context : Carrier → Type uContext)
+    (NewOccurrence : {candidate : Carrier} → Context candidate → Type uNew)
+    (InternalRole : Type uInternal)
+    (ResidualRole : Type uResidual)
+    (residual : SegmentedResidualRole.ContractibleRole ResidualRole)
+    (candidate : Carrier) where
+  context : Context candidate
+  strict : Extension generator.boundary candidate
+  core :
+    SegmentedResidualRole.ResidualDeterminationCore
+      InternalRole ResidualRole (NewOccurrence context) residual
+  positive : SegmentedResidualRole.PositiveNewPart (NewOccurrence context)
+
+namespace CorePositiveResidualBoundary
+
+def uniqueResidualOccurrence
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    {candidate : Carrier}
+    (boundary : CorePositiveResidualBoundary generator Context
+      NewOccurrence InternalRole ResidualRole residual candidate) :
+    SegmentedResidualRole.CoreUniqueResidualOccurrence boundary.core :=
+  SegmentedResidualRole.positiveCore_hasUniqueResidualOccurrence
+    boundary.core boundary.positive
+
+end CorePositiveResidualBoundary
+
 structure PositiveResidualBoundary
     {Carrier : Type uCarrier}
     {Extension : Carrier → Carrier → Type uExtension}
@@ -542,6 +582,35 @@ structure PositiveResidualBoundary
     InternalRole ResidualRole OldOccurrence
     (NewOccurrence context) (CombinedOccurrence context) internal residual
   positive : SegmentedResidualRole.PositiveNewPart (NewOccurrence context)
+
+def PositiveResidualBoundary.toCoreBoundary
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {CombinedOccurrence :
+      {candidate : Carrier} → Context candidate → Type uCombined}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {internal : SegmentedResidualRole.ExactInternalRealization
+      InternalRole OldOccurrence}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    {candidate : Carrier}
+    (boundary : PositiveResidualBoundary generator Context
+      NewOccurrence CombinedOccurrence
+      InternalRole ResidualRole OldOccurrence internal residual candidate) :
+    CorePositiveResidualBoundary generator Context
+      NewOccurrence InternalRole ResidualRole residual candidate :=
+  { context := boundary.context
+    strict := boundary.strict
+    core :=
+      boundary.extension
+        |>.toResidualUniquenessKernel
+        |>.toDeterminationCore
+    positive := boundary.positive }
 
 namespace PositiveResidualBoundary
 
@@ -565,10 +634,220 @@ def uniqueResidualOccurrence
       NewOccurrence CombinedOccurrence
       InternalRole ResidualRole OldOccurrence internal residual candidate) :
     SegmentedResidualRole.UniqueResidualOccurrence boundary.extension :=
-  SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence
-    boundary.extension boundary.positive
+  SegmentedResidualRole.CoreUniqueResidualOccurrence.toRich
+    (CorePositiveResidualBoundary.uniqueResidualOccurrence
+      boundary.toCoreBoundary)
 
 end PositiveResidualBoundary
+
+set_option linter.checkUnivs false in
+structure CoreCoupledObstructedRegime
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    (generator : BoundaryGenerator Carrier Extension)
+    (Context : Carrier → Type uContext)
+    (NewOccurrence : {candidate : Carrier} → Context candidate → Type uNew)
+    (InternalRole : Type uInternal)
+    (ResidualRole : Type uResidual)
+    (residual : SegmentedResidualRole.ContractibleRole ResidualRole) where
+  Regime : Carrier → Type uRegime
+  Interpretation : Carrier → Type uInterpretation
+  Attempt :
+    {candidate : Carrier} → Interpretation candidate → Type uAttempt
+  canonicalRegime : Regime generator.boundary
+  interpretResidual :
+    {candidate : Carrier} →
+    (boundary : CorePositiveResidualBoundary generator Context
+      NewOccurrence InternalRole ResidualRole residual candidate) →
+    (unique : SegmentedResidualRole.CoreUniqueResidualOccurrence
+      boundary.core) →
+      Interpretation candidate
+  analyzeRegime :
+    {candidate : Carrier} →
+    (regime : Regime candidate) →
+      PLift (candidate = generator.boundary) ⊕
+        (Σ boundary : CorePositiveResidualBoundary generator Context
+          NewOccurrence InternalRole ResidualRole residual candidate,
+          Attempt
+            (interpretResidual boundary
+              boundary.uniqueResidualOccurrence))
+  rejectTotalization :
+    {candidate : Carrier} →
+    (interpretation : Interpretation candidate) →
+      Attempt interpretation → False
+
+namespace CoreCoupledObstructedRegime
+
+def exactClassification
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) :
+    ExactRegimeClassification generator.boundary coupled.Regime :=
+  { regimeImpliesEquality := by
+      intro candidate regime
+      cases coupled.analyzeRegime regime with
+      | inl equality => exact equality.down
+      | inr residualBranch =>
+          rcases residualBranch with ⟨boundary, attempt⟩
+          let interpretation := coupled.interpretResidual boundary
+            boundary.uniqueResidualOccurrence
+          exact False.elim
+            (coupled.rejectTotalization interpretation attempt)
+    equalityBuildsRegime := by
+      intro candidate equality
+      cases equality
+      exact coupled.canonicalRegime }
+
+def toObstructedRegime
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) :
+    ObstructedRegime generator :=
+  { Regime := coupled.Regime
+    Interpretation := coupled.Interpretation
+    Attempt := coupled.Attempt
+    canonicalRegime := coupled.canonicalRegime
+    classifyOrTotalize := by
+      intro candidate regime
+      cases coupled.analyzeRegime regime with
+      | inl equality => exact .inl equality
+      | inr residualBranch =>
+          rcases residualBranch with ⟨boundary, attempt⟩
+          let interpretation := coupled.interpretResidual boundary
+            boundary.uniqueResidualOccurrence
+          exact .inr ⟨interpretation, attempt⟩
+    rejectTotalization := coupled.rejectTotalization }
+
+theorem admittedPositiveBoundary_rejected
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual)
+    {candidate : Carrier}
+    (boundary : CorePositiveResidualBoundary generator Context
+      NewOccurrence InternalRole ResidualRole residual candidate)
+    (attempt : coupled.Attempt
+      (coupled.interpretResidual boundary
+        boundary.uniqueResidualOccurrence)) :
+    False :=
+  coupled.rejectTotalization
+    (coupled.interpretResidual boundary boundary.uniqueResidualOccurrence)
+    attempt
+
+theorem continuation_outside_regime
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) :
+    coupled.Regime generator.continuation → False := by
+  intro regime
+  exact generator.continuation_ne_boundary
+    (coupled.exactClassification.regimeImpliesEquality regime)
+
+theorem no_strict_regime_extension
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) :
+    (Σ candidate : Carrier,
+      Extension generator.boundary candidate × coupled.Regime candidate) →
+      False := by
+  rintro ⟨candidate, extension, regime⟩
+  have equality := coupled.exactClassification.regimeImpliesEquality regime
+  cases equality
+  exact generator.extensionIrreflexive generator.boundary extension
+
+end CoreCoupledObstructedRegime
+
+structure CoreCoupledTurningConclusion
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) where
+  exactRelativeClassification :
+    ExactRegimeClassification generator.boundary coupled.Regime
+  generatedContinuation :
+    Extension generator.boundary generator.continuation
+  continuationIsStrict : generator.continuation ≠ generator.boundary
+  continuationOutsideRegime :
+    coupled.Regime generator.continuation → False
+  admittedPositiveBoundaryRejected :
+    {candidate : Carrier} →
+    (boundary : CorePositiveResidualBoundary generator Context
+      NewOccurrence InternalRole ResidualRole residual candidate) →
+    coupled.Attempt
+      (coupled.interpretResidual boundary
+        boundary.uniqueResidualOccurrence) →
+      False
+  noStrictRegimeExtension :
+    (Σ candidate : Carrier,
+      Extension generator.boundary candidate × coupled.Regime candidate) →
+      False
+
+def coreCoupledTurning
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual) :
+    CoreCoupledTurningConclusion coupled :=
+  { exactRelativeClassification := coupled.exactClassification
+    generatedContinuation := generator.generates
+    continuationIsStrict := generator.continuation_ne_boundary
+    continuationOutsideRegime := coupled.continuation_outside_regime
+    admittedPositiveBoundaryRejected :=
+      coupled.admittedPositiveBoundary_rejected
+    noStrictRegimeExtension := coupled.no_strict_regime_extension }
 
 set_option linter.checkUnivs false in
 structure CoupledObstructedRegime
@@ -842,6 +1121,17 @@ end AbstractSegmentedTurning
 #print axioms AbstractSegmentedTurning.SegmentedBoundary.toCoreBoundary
 #print axioms AbstractSegmentedTurning.CoreTurningConclusion
 #print axioms AbstractSegmentedTurning.coreTurning
+#print axioms AbstractSegmentedTurning.CorePositiveResidualBoundary
+#print axioms AbstractSegmentedTurning.CorePositiveResidualBoundary.uniqueResidualOccurrence
+#print axioms AbstractSegmentedTurning.PositiveResidualBoundary.toCoreBoundary
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.exactClassification
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.toObstructedRegime
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.admittedPositiveBoundary_rejected
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.continuation_outside_regime
+#print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.no_strict_regime_extension
+#print axioms AbstractSegmentedTurning.CoreCoupledTurningConclusion
+#print axioms AbstractSegmentedTurning.coreCoupledTurning
 #print axioms AbstractSegmentedTurning.abstractTurning
 #print axioms AbstractSegmentedTurning.PositiveResidualBoundary.uniqueResidualOccurrence
 #print axioms AbstractSegmentedTurning.CoupledObstructedRegime.exactClassification
