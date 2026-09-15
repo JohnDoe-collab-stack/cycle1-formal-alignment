@@ -6,6 +6,7 @@ defaultTargets = ["Cycle1Alignment", "Cycle2ReflectiveExtension"]
 name = "Cycle1Alignment"
 roots = [
   "SegmentedResidualRole",
+  "SegmentedResidualRoleStrictness",
   "AbstractSegmentedTurning",
   "ExactTypeTransport",
   "StrongPerimetralTurning",

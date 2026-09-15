@@ -68,6 +68,130 @@ structure FaithfulExtension
     (first second : ExtendedOccurrence) →
       label first = label second → first = second
 
+/- The residual derivation consumes only the forward placement of internal
+   roles.  This kernel keeps exactly the fields used by that derivation; it
+   does not claim that every retained field is indispensable to every possible
+   proof of the same conclusion. -/
+structure ResidualUniquenessKernel
+    (InternalRole : Type uInternal)
+    (ResidualRole : Type uResidual)
+    (OldOccurrence : Type uOld)
+    (NewOccurrence : Type uNew)
+    (ExtendedOccurrence : Type uExtended)
+    (residual : ContractibleRole ResidualRole) where
+  roleToOccurrence : InternalRole → OldOccurrence
+  embedOld : OldOccurrence → ExtendedOccurrence
+  embedNew : NewOccurrence → ExtendedOccurrence
+  oldNewDisjoint :
+    (oldOccurrence : OldOccurrence) →
+    (newOccurrence : NewOccurrence) →
+      embedOld oldOccurrence ≠ embedNew newOccurrence
+  embedNewInjective : Function.Injective embedNew
+  label : ExtendedOccurrence → InternalRole ⊕ ResidualRole
+  preservesInternal :
+    (role : InternalRole) →
+      label (embedOld (roleToOccurrence role)) = .inl role
+  labelFaithful :
+    (first second : ExtendedOccurrence) →
+      label first = label second → first = second
+
+namespace FaithfulExtension
+
+def toResidualUniquenessKernel
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual) :
+    ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual :=
+  { roleToOccurrence := internal.roleToOccurrence
+    embedOld := extension.embedOld
+    embedNew := extension.embedNew
+    oldNewDisjoint := extension.oldNewDisjoint
+    embedNewInjective := extension.embedNewInjective
+    label := extension.label
+    preservesInternal := extension.preservesInternal
+    labelFaithful := extension.labelFaithful }
+
+end FaithfulExtension
+
+namespace ResidualUniquenessKernel
+
+theorem newOccurrence_cannotReuseInternalRole
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (newOccurrence : NewOccurrence)
+    (role : InternalRole)
+    (labelEquality :
+      kernel.label (kernel.embedNew newOccurrence) = .inl role) :
+    False := by
+  have sameLabel :
+      kernel.label (kernel.embedOld (kernel.roleToOccurrence role)) =
+        kernel.label (kernel.embedNew newOccurrence) :=
+    (kernel.preservesInternal role).trans labelEquality.symm
+  have sameOccurrence := kernel.labelFaithful
+    (kernel.embedOld (kernel.roleToOccurrence role))
+    (kernel.embedNew newOccurrence) sameLabel
+  exact kernel.oldNewDisjoint
+    (kernel.roleToOccurrence role) newOccurrence sameOccurrence
+
+theorem newOccurrence_label_is_residual
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (newOccurrence : NewOccurrence) :
+    kernel.label (kernel.embedNew newOccurrence) =
+      .inr residual.center := by
+  cases labelEquality : kernel.label (kernel.embedNew newOccurrence) with
+  | inl role =>
+      exact False.elim
+        (kernel.newOccurrence_cannotReuseInternalRole
+          newOccurrence role labelEquality)
+  | inr role =>
+      exact congrArg Sum.inr (residual.contracts role)
+
+theorem newOccurrences_unique
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (first second : NewOccurrence) : first = second := by
+  have sameLabel :
+      kernel.label (kernel.embedNew first) =
+        kernel.label (kernel.embedNew second) :=
+    (kernel.newOccurrence_label_is_residual first).trans
+      (kernel.newOccurrence_label_is_residual second).symm
+  exact kernel.embedNewInjective
+    (kernel.labelFaithful
+      (kernel.embedNew first) (kernel.embedNew second) sameLabel)
+
+end ResidualUniquenessKernel
+
 namespace FaithfulExtension
 
 theorem newOccurrence_cannotReuseInternalRole
@@ -85,17 +209,10 @@ theorem newOccurrence_cannotReuseInternalRole
     (role : InternalRole)
     (labelEquality :
       extension.label (extension.embedNew newOccurrence) = .inl role) :
-    False := by
-  have sameLabel :
-      extension.label
-          (extension.embedOld (internal.roleToOccurrence role)) =
-        extension.label (extension.embedNew newOccurrence) :=
-    (extension.preservesInternal role).trans labelEquality.symm
-  have sameOccurrence := extension.labelFaithful
-    (extension.embedOld (internal.roleToOccurrence role))
-    (extension.embedNew newOccurrence) sameLabel
-  exact extension.oldNewDisjoint
-    (internal.roleToOccurrence role) newOccurrence sameOccurrence
+    False :=
+  extension.toResidualUniquenessKernel
+    |>.newOccurrence_cannotReuseInternalRole
+      newOccurrence role labelEquality
 
 theorem newOccurrence_label_is_residual
     {InternalRole : Type uInternal}
@@ -110,14 +227,9 @@ theorem newOccurrence_label_is_residual
       ExtendedOccurrence internal residual)
     (newOccurrence : NewOccurrence) :
     extension.label (extension.embedNew newOccurrence) =
-      .inr residual.center := by
-  cases labelEquality : extension.label (extension.embedNew newOccurrence) with
-  | inl role =>
-      exact False.elim
-        (extension.newOccurrence_cannotReuseInternalRole
-          newOccurrence role labelEquality)
-  | inr role =>
-      exact congrArg Sum.inr (residual.contracts role)
+      .inr residual.center :=
+  extension.toResidualUniquenessKernel
+    |>.newOccurrence_label_is_residual newOccurrence
 
 theorem newOccurrences_unique
     {InternalRole : Type uInternal}
@@ -130,21 +242,355 @@ theorem newOccurrences_unique
     (extension : FaithfulExtension
       InternalRole ResidualRole OldOccurrence NewOccurrence
       ExtendedOccurrence internal residual)
-    (first second : NewOccurrence) : first = second := by
-  have sameLabel :
-      extension.label (extension.embedNew first) =
-        extension.label (extension.embedNew second) :=
-    (extension.newOccurrence_label_is_residual first).trans
-      (extension.newOccurrence_label_is_residual second).symm
-  exact extension.embedNewInjective
-    (extension.labelFaithful
-      (extension.embedNew first) (extension.embedNew second) sameLabel)
+    (first second : NewOccurrence) : first = second :=
+  extension.toResidualUniquenessKernel
+    |>.newOccurrences_unique first second
 
 end FaithfulExtension
 
 /- A positive new part supplies an actual new occurrence. -/
 structure PositiveNewPart (NewOccurrence : Type uNew) where
   occurrence : NewOccurrence
+
+/- The weak kernel still produces the same proof-relevant residual output: an
+   actual new occurrence, its exact residual label, and its uniqueness. -/
+structure KernelUniqueResidualOccurrence
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual) where
+  occurrence : NewOccurrence
+  labelIsResidual :
+    kernel.label (kernel.embedNew occurrence) = .inr residual.center
+  unique : (other : NewOccurrence) → other = occurrence
+
+def positiveKernel_hasUniqueResidualOccurrence
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (positive : PositiveNewPart NewOccurrence) :
+    KernelUniqueResidualOccurrence kernel :=
+  { occurrence := positive.occurrence
+    labelIsResidual :=
+      kernel.newOccurrence_label_is_residual positive.occurrence
+    unique := fun other =>
+      kernel.newOccurrences_unique other positive.occurrence }
+
+/- Constructive internality retains both the role and its exact label.  A
+   subtype is used so the role remains projectable data while its certificate
+   remains proposition-valued. -/
+def OldLabelsInternal
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual) :=
+  (old : OldOccurrence) →
+    { role : InternalRole //
+      kernel.label (kernel.embedOld old) = .inl role }
+
+/- A compatible completion fixes the kernel's forward map definitionally and
+   asks only for its inverse and the two round trips. -/
+structure ExactInternalCompletion
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual) where
+  occurrenceToRole : OldOccurrence → InternalRole
+  occurrenceRoundTrip :
+    (occurrence : OldOccurrence) →
+      kernel.roleToOccurrence (occurrenceToRole occurrence) = occurrence
+  roleRoundTrip :
+    (role : InternalRole) →
+      occurrenceToRole (kernel.roleToOccurrence role) = role
+
+structure ExactReconstructionConditions
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual) where
+  oldLabelsInternal : OldLabelsInternal kernel
+  embedOldInjective : Function.Injective kernel.embedOld
+
+namespace ExactReconstructionConditions
+
+def toExactInternalCompletion
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    {kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual}
+    (conditions : ExactReconstructionConditions kernel) :
+    ExactInternalCompletion kernel :=
+  { occurrenceToRole := fun old => (conditions.oldLabelsInternal old).1
+    occurrenceRoundTrip := by
+      intro old
+      let labelled := conditions.oldLabelsInternal old
+      apply conditions.embedOldInjective
+      apply kernel.labelFaithful
+      exact (kernel.preservesInternal labelled.1).trans labelled.2.symm
+    roleRoundTrip := by
+      intro role
+      let labelled := conditions.oldLabelsInternal
+        (kernel.roleToOccurrence role)
+      exact Sum.inl.inj
+        (labelled.2.symm.trans (kernel.preservesInternal role)) }
+
+end ExactReconstructionConditions
+
+namespace ExactInternalCompletion
+
+def toExactInternalRealization
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    {kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual}
+    (completion : ExactInternalCompletion kernel) :
+    ExactInternalRealization InternalRole OldOccurrence :=
+  { roleToOccurrence := kernel.roleToOccurrence
+    occurrenceToRole := completion.occurrenceToRole
+    occurrenceRoundTrip := completion.occurrenceRoundTrip
+    roleRoundTrip := completion.roleRoundTrip }
+
+def toReconstructionConditions
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    {kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual}
+    (completion : ExactInternalCompletion kernel) :
+    ExactReconstructionConditions kernel :=
+  { oldLabelsInternal := fun old =>
+      { val := completion.occurrenceToRole old
+        property :=
+          (congrArg
+            (fun occurrence => kernel.label (kernel.embedOld occurrence))
+            (completion.occurrenceRoundTrip old).symm).trans
+              (kernel.preservesInternal (completion.occurrenceToRole old)) }
+    embedOldInjective := by
+      intro first second imageEquality
+      have firstLabel :
+          kernel.label (kernel.embedOld first) =
+            .inl (completion.occurrenceToRole first) :=
+        (congrArg
+          (fun occurrence => kernel.label (kernel.embedOld occurrence))
+          (completion.occurrenceRoundTrip first).symm).trans
+            (kernel.preservesInternal (completion.occurrenceToRole first))
+      have secondLabel :
+          kernel.label (kernel.embedOld second) =
+            .inl (completion.occurrenceToRole second) :=
+        (congrArg
+          (fun occurrence => kernel.label (kernel.embedOld occurrence))
+          (completion.occurrenceRoundTrip second).symm).trans
+            (kernel.preservesInternal (completion.occurrenceToRole second))
+      have roleEquality :
+          completion.occurrenceToRole first =
+            completion.occurrenceToRole second :=
+        Sum.inl.inj
+          (firstLabel.symm.trans
+            ((congrArg kernel.label imageEquality).trans secondLabel))
+      exact (completion.occurrenceRoundTrip first).symm.trans
+        ((congrArg kernel.roleToOccurrence roleEquality).trans
+          (completion.occurrenceRoundTrip second)) }
+
+theorem occurrenceToRole_pointwise_unique
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    {kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual}
+    (first second : ExactInternalCompletion kernel)
+    (old : OldOccurrence) :
+    first.occurrenceToRole old = second.occurrenceToRole old :=
+  (congrArg first.occurrenceToRole
+      (second.occurrenceRoundTrip old).symm).trans
+    (first.roleRoundTrip (second.occurrenceToRole old))
+
+end ExactInternalCompletion
+
+namespace ResidualUniquenessKernel
+
+def oldLabelsInternal_of_positive
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (positive : PositiveNewPart NewOccurrence) :
+    OldLabelsInternal kernel := fun old => by
+  cases labelEquality : kernel.label (kernel.embedOld old) with
+  | inl role => exact ⟨role, rfl⟩
+  | inr role =>
+      exact False.elim (by
+        have oldLabelIsResidual :
+            kernel.label (kernel.embedOld old) = .inr residual.center :=
+          labelEquality.trans (congrArg Sum.inr (residual.contracts role))
+        have sameLabel :
+            kernel.label (kernel.embedOld old) =
+              kernel.label (kernel.embedNew positive.occurrence) :=
+          oldLabelIsResidual.trans
+            (kernel.newOccurrence_label_is_residual
+              positive.occurrence).symm
+        exact kernel.oldNewDisjoint old positive.occurrence
+          (kernel.labelFaithful
+            (kernel.embedOld old)
+            (kernel.embedNew positive.occurrence)
+            sameLabel))
+
+def toExactInternalCompletion_of_positive
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual)
+    (positive : PositiveNewPart NewOccurrence)
+    (embedOldInjective : Function.Injective kernel.embedOld) :
+    ExactInternalCompletion kernel :=
+  ExactReconstructionConditions.toExactInternalCompletion
+    { oldLabelsInternal := kernel.oldLabelsInternal_of_positive positive
+      embedOldInjective := embedOldInjective }
+
+end ResidualUniquenessKernel
+
+namespace FaithfulExtension
+
+def internalCompletion
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual) :
+    ExactInternalCompletion extension.toResidualUniquenessKernel :=
+  { occurrenceToRole := internal.occurrenceToRole
+    occurrenceRoundTrip := internal.occurrenceRoundTrip
+    roleRoundTrip := internal.roleRoundTrip }
+
+theorem embedOld_injective
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual) :
+    Function.Injective extension.embedOld :=
+  extension.internalCompletion.toReconstructionConditions.embedOldInjective
+
+def reconstructInternalCompletion
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual)
+    (positive : PositiveNewPart NewOccurrence)
+    (embedOldInjective : Function.Injective extension.embedOld) :
+    ExactInternalCompletion extension.toResidualUniquenessKernel :=
+  extension.toResidualUniquenessKernel
+    |>.toExactInternalCompletion_of_positive positive embedOldInjective
+
+theorem reconstructed_roleToOccurrence_agrees
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual)
+    (positive : PositiveNewPart NewOccurrence)
+    (embedOldInjective : Function.Injective extension.embedOld)
+    (role : InternalRole) :
+    (extension.reconstructInternalCompletion positive embedOldInjective
+      |>.toExactInternalRealization).roleToOccurrence role =
+        internal.roleToOccurrence role :=
+  rfl
+
+theorem reconstructed_occurrenceToRole_agrees
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual)
+    (positive : PositiveNewPart NewOccurrence)
+    (embedOldInjective : Function.Injective extension.embedOld)
+    (old : OldOccurrence) :
+    (extension.reconstructInternalCompletion positive embedOldInjective).occurrenceToRole
+        old = internal.occurrenceToRole old :=
+  ExactInternalCompletion.occurrenceToRole_pointwise_unique
+    (extension.reconstructInternalCompletion positive embedOldInjective)
+    extension.internalCompletion old
+
+end FaithfulExtension
 
 /- The constructive output packages existence, the exact residual label, and
    uniqueness. -/
@@ -177,18 +623,56 @@ def positiveExtension_hasUniqueResidualOccurrence
       ExtendedOccurrence internal residual)
     (positive : PositiveNewPart NewOccurrence) :
     UniqueResidualOccurrence extension :=
-  { occurrence := positive.occurrence
-    labelIsResidual :=
-      extension.newOccurrence_label_is_residual positive.occurrence
-    unique := fun other =>
-      extension.newOccurrences_unique other positive.occurrence }
+  let result := positiveKernel_hasUniqueResidualOccurrence
+    extension.toResidualUniquenessKernel positive
+  { occurrence := result.occurrence
+    labelIsResidual := result.labelIsResidual
+    unique := result.unique }
+
+theorem positiveExtension_result_occurrence
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual)
+    (positive : PositiveNewPart NewOccurrence) :
+    (positiveExtension_hasUniqueResidualOccurrence extension positive).occurrence =
+      positive.occurrence :=
+  rfl
 
 end SegmentedResidualRole
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms SegmentedResidualRole.ExactInternalRealization
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel
+#print axioms SegmentedResidualRole.FaithfulExtension.toResidualUniquenessKernel
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrence_cannotReuseInternalRole
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrence_label_is_residual
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrences_unique
 #print axioms SegmentedResidualRole.FaithfulExtension.newOccurrence_cannotReuseInternalRole
 #print axioms SegmentedResidualRole.FaithfulExtension.newOccurrence_label_is_residual
 #print axioms SegmentedResidualRole.FaithfulExtension.newOccurrences_unique
+#print axioms SegmentedResidualRole.KernelUniqueResidualOccurrence
+#print axioms SegmentedResidualRole.positiveKernel_hasUniqueResidualOccurrence
+#print axioms SegmentedResidualRole.OldLabelsInternal
+#print axioms SegmentedResidualRole.ExactInternalCompletion
+#print axioms SegmentedResidualRole.ExactReconstructionConditions
+#print axioms SegmentedResidualRole.ExactReconstructionConditions.toExactInternalCompletion
+#print axioms SegmentedResidualRole.ExactInternalCompletion.toExactInternalRealization
+#print axioms SegmentedResidualRole.ExactInternalCompletion.toReconstructionConditions
+#print axioms SegmentedResidualRole.ExactInternalCompletion.occurrenceToRole_pointwise_unique
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.oldLabelsInternal_of_positive
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.toExactInternalCompletion_of_positive
+#print axioms SegmentedResidualRole.FaithfulExtension.internalCompletion
+#print axioms SegmentedResidualRole.FaithfulExtension.embedOld_injective
+#print axioms SegmentedResidualRole.FaithfulExtension.reconstructInternalCompletion
+#print axioms SegmentedResidualRole.FaithfulExtension.reconstructed_roleToOccurrence_agrees
+#print axioms SegmentedResidualRole.FaithfulExtension.reconstructed_occurrenceToRole_agrees
 #print axioms SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence
+#print axioms SegmentedResidualRole.positiveExtension_result_occurrence
 /- AXIOM_AUDIT_END -/

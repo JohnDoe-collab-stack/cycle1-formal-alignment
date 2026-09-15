@@ -922,6 +922,24 @@ Le théorème abstrait
 qu'une extension positive fidèlement segmentée possède une occurrence
 résiduelle unique.
 
+`ResidualUniquenessKernel` isole maintenant les dépendances consommées par
+cette dérivation. `SegmentedResidualRoleStrictness.lean` fournit un noyau
+positif qui produit encore l'occurrence résiduelle unique alors qu'aucune
+`ExactInternalRealization` n'existe sur ses types de rôles internes et
+d'anciennes occurrences. Cet affaiblissement strict concerne la détermination
+résiduelle ; il ne préserve pas, à lui seul, l'individuation exacte de toutes
+les anciennes occurrences.
+
+Pour un noyau fixé, `ExactInternalCompletion` et
+`ExactReconstructionConditions` donnent les deux directions constructives du
+critère de reconstruction. La complétion exacte se reconstruit à partir d'une
+étiquette interne pour chaque ancienne occurrence et de l'injectivité de
+`embedOld` ; la positivité construit les étiquettes internes. Sur le producteur
+réel de `StrongPerimetralTurning`, les applications directe et inverse
+reconstruites coïncident point par point avec `requirementToOccurrence` et
+`occurrenceToRequirement`, et le résultat résiduel faible choisit la même
+occurrence fournie que le résultat public riche.
+
 Dans l'application périmétrale, `positiveContinuation_exactlyOne` établit :
 
 ```text
@@ -1508,6 +1526,7 @@ géométrie circulaire du premier cas.
 Les résultats Lean cités sont répartis dans :
 
 - [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean) ;
+- [`SegmentedResidualRoleStrictness.lean`](../../SegmentedResidualRoleStrictness.lean) ;
 - [`AbstractSegmentedTurning.lean`](../../AbstractSegmentedTurning.lean) ;
 - [`StrongPerimetralTurning.lean`](../../StrongPerimetralTurning.lean).
 

@@ -262,8 +262,13 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 
 ## Architecture des sources
 
-- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) démontre le résultat
-  abstrait sur l'occurrence résiduelle.
+- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) isole les
+  dépendances consommées par le résultat abstrait sur l'occurrence résiduelle,
+  caractérise la reconstruction exacte et conserve l'interface riche existante.
+- [`SegmentedResidualRoleStrictness.lean`](SegmentedResidualRoleStrictness.lean)
+  fournit un séparateur positif : le noyau faible produit son occurrence
+  résiduelle unique alors qu'aucune réalisation interne exacte n'existe sur les
+  types du séparateur.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) définit la
   classification exacte d'un régime et les sorties typées.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isole les transports

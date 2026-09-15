@@ -251,8 +251,13 @@ French counterparts are linked from the top of every scientific document.
 
 ## Source architecture
 
-- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) proves the abstract
-  residual-occurrence result.
+- [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) isolates the
+  dependencies consumed by the abstract residual-occurrence result,
+  characterizes exact reconstruction, and preserves the existing rich API.
+- [`SegmentedResidualRoleStrictness.lean`](SegmentedResidualRoleStrictness.lean)
+  gives a positive separator: the weak kernel produces its unique residual
+  occurrence although no exact internal realization exists on the separator
+  types.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) defines exact
   regime classification and typed exits.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isolates constructive

@@ -5331,6 +5331,17 @@ def toSegmentedResidualExtension
     preservesInternal := labelled.preservesNonClosingLabels
     labelFaithful := labelled.requirementFaithful }
 
+theorem segmentedResidualExtension_embedOld_injective
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (labelled : FaithfullyLabelledPerimeterExtension P history) :
+    Function.Injective labelled.toSegmentedResidualExtension.embedOld := by
+  intro first second equality
+  have embeddedEquality :=
+    transportOccurrence_injective labelled.extension.recompose equality
+  exact History.embedLeftOccurrence_injective
+    labelled.continuation embeddedEquality
+
 theorem newOccurrence_cannotReuseNonClosingRequirement
     {P : CircularPresentation}
     {history : RootedGeneratedHistory P}
@@ -5372,6 +5383,65 @@ structure PositiveContinuation
   path : History.Positive
     (@GeneratedStep P) (perimeterEndpoint P) history.endpoint
   historyExact : extension.continuation = path.toHistory
+
+namespace PositiveContinuation
+
+def toResidualPositive
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    {labelled : FaithfullyLabelledPerimeterExtension P history}
+    (positive : PositiveContinuation labelled.extension) :
+    SegmentedResidualRole.PositiveNewPart
+      (History.Occurrence labelled.continuation) :=
+  { occurrence :=
+      transportOccurrence positive.historyExact.symm
+        positive.path.lastOccurrence }
+
+end PositiveContinuation
+
+namespace FaithfullyLabelledPerimeterExtension
+
+def reconstructedInternalCompletion
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (labelled : FaithfullyLabelledPerimeterExtension P history)
+    (positive : PositiveContinuation labelled.extension) :
+    SegmentedResidualRole.ExactInternalCompletion
+      labelled.toSegmentedResidualExtension.toResidualUniquenessKernel :=
+  labelled.toSegmentedResidualExtension.reconstructInternalCompletion
+    positive.toResidualPositive
+    labelled.segmentedResidualExtension_embedOld_injective
+
+theorem reconstructed_roleToOccurrence_agrees
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (labelled : FaithfullyLabelledPerimeterExtension P history)
+    (positive : PositiveContinuation labelled.extension)
+    (position : NonClosingPosition P.perimeter) :
+    (labelled.reconstructedInternalCompletion positive
+      |>.toExactInternalRealization).roleToOccurrence position =
+        requirementToOccurrence P position :=
+  labelled.toSegmentedResidualExtension
+    |>.reconstructed_roleToOccurrence_agrees
+      positive.toResidualPositive
+      labelled.segmentedResidualExtension_embedOld_injective
+      position
+
+theorem reconstructed_occurrenceToRole_agrees
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (labelled : FaithfullyLabelledPerimeterExtension P history)
+    (positive : PositiveContinuation labelled.extension)
+    (occurrence : History.Occurrence (perimeterHistory P)) :
+    (labelled.reconstructedInternalCompletion positive).occurrenceToRole
+        occurrence = occurrenceToRequirement P occurrence :=
+  labelled.toSegmentedResidualExtension
+    |>.reconstructed_occurrenceToRole_agrees
+      positive.toResidualPositive
+      labelled.segmentedResidualExtension_embedOld_injective
+      occurrence
+
+end FaithfullyLabelledPerimeterExtension
 
 def oneStepAfterPerimeter_positiveContinuation
     (P : CircularPresentation) :
@@ -6060,6 +6130,87 @@ def oneStepSegmentedBoundary
       { occurrence :=
           transportOccurrence positive.historyExact.symm
             positive.path.lastOccurrence } }
+
+def oneStepResidualPositive
+    (P : CircularPresentation) :
+    SegmentedResidualRole.PositiveNewPart
+      (History.Occurrence
+        (oneStepFaithfullyLabelledExtension P).continuation) :=
+  (oneStepAfterPerimeter_positiveContinuation P).toResidualPositive
+
+def oneStepReconstructedInternalCompletion
+    (P : CircularPresentation) :
+    SegmentedResidualRole.ExactInternalCompletion
+      ((oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+        |>.toResidualUniquenessKernel) :=
+  (oneStepFaithfullyLabelledExtension P).reconstructedInternalCompletion
+    (oneStepAfterPerimeter_positiveContinuation P)
+
+def oneStepReconstructedInternalRealization
+    (P : CircularPresentation) :
+    SegmentedResidualRole.ExactInternalRealization
+      (NonClosingPosition P.perimeter)
+      (History.Occurrence (perimeterHistory P)) :=
+  (oneStepReconstructedInternalCompletion P).toExactInternalRealization
+
+theorem oneStepReconstructed_roleToOccurrence_agrees
+    (P : CircularPresentation)
+    (position : NonClosingPosition P.perimeter) :
+    (oneStepReconstructedInternalRealization P).roleToOccurrence position =
+      requirementToOccurrence P position :=
+  (oneStepFaithfullyLabelledExtension P)
+    |>.reconstructed_roleToOccurrence_agrees
+      (oneStepAfterPerimeter_positiveContinuation P) position
+
+theorem oneStepReconstructed_occurrenceToRole_agrees
+    (P : CircularPresentation)
+    (occurrence : History.Occurrence (perimeterHistory P)) :
+    (oneStepReconstructedInternalRealization P).occurrenceToRole occurrence =
+      occurrenceToRequirement P occurrence :=
+  (oneStepFaithfullyLabelledExtension P)
+    |>.reconstructed_occurrenceToRole_agrees
+      (oneStepAfterPerimeter_positiveContinuation P) occurrence
+
+def oneStepWeakResidualOccurrence
+    (P : CircularPresentation) :
+    SegmentedResidualRole.KernelUniqueResidualOccurrence
+      ((oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+        |>.toResidualUniquenessKernel) :=
+  SegmentedResidualRole.positiveKernel_hasUniqueResidualOccurrence
+    ((oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+      |>.toResidualUniquenessKernel)
+    (oneStepResidualPositive P)
+
+def oneStepPublicResidualOccurrence
+    (P : CircularPresentation) :
+    SegmentedResidualRole.UniqueResidualOccurrence
+      (oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension :=
+  SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence
+    (oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+    (oneStepResidualPositive P)
+
+theorem oneStepResidualOccurrence_agrees
+    (P : CircularPresentation) :
+    (oneStepWeakResidualOccurrence P).occurrence =
+      (oneStepPublicResidualOccurrence P).occurrence :=
+  rfl
+
+theorem oneStepWeakResidualOccurrence_label_is_final
+    (P : CircularPresentation) :
+    let kernel :=
+      (oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+        |>.toResidualUniquenessKernel
+    kernel.label
+        (kernel.embedNew (oneStepWeakResidualOccurrence P).occurrence) =
+      .inr FinalRequirement.distinguished :=
+  (oneStepWeakResidualOccurrence P).labelIsResidual
+
+theorem oneStepWeakResidualOccurrence_unique
+    (P : CircularPresentation)
+    (other : History.Occurrence
+      (oneStepFaithfullyLabelledExtension P).continuation) :
+    other = (oneStepWeakResidualOccurrence P).occurrence :=
+  (oneStepWeakResidualOccurrence P).unique other
 
 structure FinalJunctionRealization
     (P : CircularPresentation)
@@ -8462,10 +8613,25 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.finalRequirementContractible
 #print axioms StrongPerimetralTurning.perimeterInternalRoleRealization
 #print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.toSegmentedResidualExtension
+#print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.segmentedResidualExtension_embedOld_injective
 #print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.newOccurrence_cannotReuseNonClosingRequirement
 #print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.newOccurrence_label_is_final
 #print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.continuation_occurrences_unique
+#print axioms StrongPerimetralTurning.PositiveContinuation.toResidualPositive
+#print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.reconstructedInternalCompletion
+#print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.reconstructed_roleToOccurrence_agrees
+#print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.reconstructed_occurrenceToRole_agrees
 #print axioms StrongPerimetralTurning.oneStepSegmentedBoundary
+#print axioms StrongPerimetralTurning.oneStepResidualPositive
+#print axioms StrongPerimetralTurning.oneStepReconstructedInternalCompletion
+#print axioms StrongPerimetralTurning.oneStepReconstructedInternalRealization
+#print axioms StrongPerimetralTurning.oneStepReconstructed_roleToOccurrence_agrees
+#print axioms StrongPerimetralTurning.oneStepReconstructed_occurrenceToRole_agrees
+#print axioms StrongPerimetralTurning.oneStepWeakResidualOccurrence
+#print axioms StrongPerimetralTurning.oneStepPublicResidualOccurrence
+#print axioms StrongPerimetralTurning.oneStepResidualOccurrence_agrees
+#print axioms StrongPerimetralTurning.oneStepWeakResidualOccurrence_label_is_final
+#print axioms StrongPerimetralTurning.oneStepWeakResidualOccurrence_unique
 #print axioms StrongPerimetralTurning.positiveContinuation_exactlyOne
 #print axioms StrongPerimetralTurning.finalBoundaryOccurrence
 #print axioms StrongPerimetralTurning.FinalBoundaryOccurrence.compatibility_is_leaveBoundary

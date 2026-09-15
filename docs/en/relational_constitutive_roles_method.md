@@ -902,6 +902,22 @@ The abstract theorem
 establishes that a faithfully segmented positive extension has a unique
 residual occurrence.
 
+`ResidualUniquenessKernel` now isolates the dependencies consumed by this
+derivation.  `SegmentedResidualRoleStrictness.lean` supplies a positive kernel
+that still produces the unique residual occurrence while no
+`ExactInternalRealization` exists on its internal-role and old-occurrence
+types.  This strict weakening concerns residual determination; by itself it
+does not preserve the exact individuation of all old occurrences.
+
+For a fixed kernel, `ExactInternalCompletion` and
+`ExactReconstructionConditions` give the two constructive directions of the
+reconstruction criterion.  Exact completion is recoverable from an internal
+label for every old occurrence and injectivity of `embedOld`; positivity
+constructs the internal labels.  On the actual `StrongPerimetralTurning`
+producer, the reconstructed forward and backward maps agree pointwise with
+`requirementToOccurrence` and `occurrenceToRequirement`, and the weak residual
+result selects the same supplied occurrence as the rich public result.
+
 In the perimetral application, `positiveContinuation_exactlyOne` establishes:
 
 ```text
@@ -1478,6 +1494,7 @@ case.
 The cited Lean results are distributed across:
 
 - [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean);
+- [`SegmentedResidualRoleStrictness.lean`](../../SegmentedResidualRoleStrictness.lean);
 - [`AbstractSegmentedTurning.lean`](../../AbstractSegmentedTurning.lean);
 - [`StrongPerimetralTurning.lean`](../../StrongPerimetralTurning.lean).
 

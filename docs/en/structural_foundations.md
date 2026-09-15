@@ -435,12 +435,25 @@ the executable three-step example establishes only its demonstrated scope.
 
 The circular application connects the three modules:
 
-- [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean) establishes the
-  abstract result on residual occurrences;
+- [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean) isolates the
+  dependencies consumed by the abstract residual-occurrence derivation and
+  characterizes exact reconstruction;
+- [`SegmentedResidualRoleStrictness.lean`](../../SegmentedResidualRoleStrictness.lean)
+  gives a positive separator for the strict weakening;
 - [`AbstractSegmentedTurning.lean`](../../AbstractSegmentedTurning.lean) connects it
   to regime classification and exit;
 - [`StrongPerimetralTurning.lean`](../../StrongPerimetralTurning.lean) constructs the
   histories, perimeter, interpretations, and alignment instance.
+
+The complete rich contract projects to a strictly weaker residual kernel in the
+general class: the separator kernel has a positive unique residual occurrence
+although its old occurrences admit no exact internal realization.  For a fixed
+kernel, a compatible exact completion is constructively recoverable exactly
+from internal labels for every old occurrence together with injectivity of the
+old embedding.  Positivity supplies the internal-label condition.  In the
+actual `StrongPerimetralTurning` producer, the old embedding is injective and
+the reconstructed maps agree pointwise with `requirementToOccurrence` and
+`occurrenceToRequirement`.
 
 It distinguishes compatibility of a junction, identification of the endpoints,
 and the continuation actually produced. In the four-node example, the junction
@@ -730,7 +743,7 @@ information and localize the boundary at which a specified status changes.
 | global reflective non-closure | `noGlobalReflectiveClosure` |
 | exact aligned statuses with a diagonal exterior | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-The Cycle 1 library is assembled from the eight Lean roots listed in
+The Cycle 1 library is assembled from the Lean roots listed in
 `lakefile.toml`. The independent diagonal kernel is in
 `Cycle2/DiagonalizationKernel.lean`; the bridge from Cycle 1 adequacy is
 confined to `Cycle2/ReflectiveAlignment.lean`.

@@ -438,12 +438,26 @@ l'exemple exécutable à trois étapes n'en établit que la portée démontrée.
 
 L'application circulaire relie les trois modules:
 
-- [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean) établit le résultat
-  abstrait sur les occurrences résiduelles;
+- [`SegmentedResidualRole.lean`](../../SegmentedResidualRole.lean) isole les
+  dépendances consommées par la dérivation abstraite de l'occurrence résiduelle
+  et caractérise la reconstruction exacte ;
+- [`SegmentedResidualRoleStrictness.lean`](../../SegmentedResidualRoleStrictness.lean)
+  fournit un séparateur positif pour l'affaiblissement strict ;
 - [`AbstractSegmentedTurning.lean`](../../AbstractSegmentedTurning.lean) le raccorde à
   la classification et à la sortie d'un régime;
 - [`StrongPerimetralTurning.lean`](../../StrongPerimetralTurning.lean) construit les
   histoires, le périmètre, les interprétations et l'instance d'alignement.
+
+Le contrat riche complet se projette, dans la classe générale, vers un noyau
+résiduel strictement plus faible : le noyau séparateur possède une occurrence
+résiduelle positive et unique alors que ses anciennes occurrences n'admettent
+aucune réalisation interne exacte. Pour un noyau fixé, une complétion exacte
+compatible est reconstructible constructivement exactement à partir d'une
+étiquette interne pour chaque ancienne occurrence et de l'injectivité de
+l'ancien plongement. La positivité fournit la condition d'étiquetage interne.
+Dans le producteur réel de `StrongPerimetralTurning`, l'ancien plongement est
+injectif et les applications reconstruites coïncident point par point avec
+`requirementToOccurrence` et `occurrenceToRequirement`.
 
 Elle distingue la compatibilité d'une jonction, l'identification des extrémités
 et la continuation effectivement produite. Dans l'exemple à quatre nœuds, la
@@ -737,7 +751,7 @@ déterminé.
 | non-clôture réflexive globale | `noGlobalReflectiveClosure` |
 | statuts alignés exacts avec extérieur diagonal | `exactCircularStatusRepresentation_hasDiagonalOutside` |
 
-La bibliothèque du Cycle 1 est assemblée depuis les huit racines Lean listées
+La bibliothèque du Cycle 1 est assemblée depuis les racines Lean listées
 dans `lakefile.toml`. Le noyau diagonal indépendant se trouve dans
 `Cycle2/DiagonalizationKernel.lean` ; le raccord depuis l'adéquation du Cycle 1
 est confiné à `Cycle2/ReflectiveAlignment.lean`.
