@@ -263,8 +263,23 @@ def reindexImplementation
 
 end UniformRegimeExit
 
-/- The occurrence layer associates the generic residual-role theorem with the
-   generated boundary continuation.  It introduces no closure semantics. -/
+/- The weak occurrence layer carries only the residual-determination data
+   consumed by the core turning theorem. -/
+structure CoreSegmentedBoundary
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    (_generator : BoundaryGenerator Carrier Extension)
+    (InternalRole : Type uInternal)
+    (ResidualRole : Type uResidual)
+    (NewOccurrence : Type uNew)
+    (residual : SegmentedResidualRole.ContractibleRole ResidualRole) where
+  core :
+    SegmentedResidualRole.ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual
+  positive : SegmentedResidualRole.PositiveNewPart NewOccurrence
+
+/- The rich occurrence layer remains available as the compatibility boundary
+   for existing consumers. -/
 structure SegmentedBoundary
     {Carrier : Type uCarrier}
     {Extension : Carrier → Carrier → Type uExtension}
@@ -281,6 +296,31 @@ structure SegmentedBoundary
     InternalRole ResidualRole OldOccurrence NewOccurrence CombinedOccurrence
     internal residual
   positive : SegmentedResidualRole.PositiveNewPart NewOccurrence
+
+/- The boundary's residual core is obtained through the explicit adapter
+   chain, while the rich boundary remains available to its consumers. -/
+def SegmentedBoundary.toCoreBoundary
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {CombinedOccurrence : Type uCombined}
+    {internal : SegmentedResidualRole.ExactInternalRealization
+      InternalRole OldOccurrence}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (segmented : SegmentedBoundary generator
+      InternalRole ResidualRole OldOccurrence NewOccurrence CombinedOccurrence
+      internal residual) :
+    CoreSegmentedBoundary
+      generator InternalRole ResidualRole NewOccurrence residual :=
+  { core :=
+      segmented.extension
+        |>.toResidualUniquenessKernel
+        |>.toDeterminationCore
+    positive := segmented.positive }
 
 /- A regime is analyzed without assuming its maximality.  An admitted
    candidate yields either equality with the canonical boundary or an actual
@@ -353,6 +393,60 @@ theorem no_strict_regime_extension
 
 end ObstructedRegime
 
+/- The complete turning conclusion at the factorized core boundary level. -/
+structure CoreTurningConclusion
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (segmented : CoreSegmentedBoundary generator
+      InternalRole ResidualRole NewOccurrence residual)
+    (obstructed : ObstructedRegime generator) where
+  uniqueResidualOccurrence :
+    SegmentedResidualRole.CoreUniqueResidualOccurrence segmented.core
+  exactRelativeClassification :
+    ExactRegimeClassification generator.boundary obstructed.Regime
+  generatedContinuation :
+    Extension generator.boundary generator.continuation
+  continuationIsStrict : generator.continuation ≠ generator.boundary
+  continuationOutsideRegime :
+    obstructed.Regime generator.continuation → False
+  noStrictRegimeExtension :
+    (Σ candidate : Carrier,
+      Extension generator.boundary candidate × obstructed.Regime candidate) →
+      False
+  totalizationRejected :
+    {candidate : Carrier} →
+    (interpretation : obstructed.Interpretation candidate) →
+      obstructed.Attempt interpretation → False
+
+/- This is the fundamental theorem: it consumes only the core boundary and
+   the obstructed regime, with no rich realization data in its signature. -/
+def coreTurning
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (segmented : CoreSegmentedBoundary generator
+      InternalRole ResidualRole NewOccurrence residual)
+    (obstructed : ObstructedRegime generator) :
+    CoreTurningConclusion segmented obstructed :=
+  { uniqueResidualOccurrence :=
+      SegmentedResidualRole.positiveCore_hasUniqueResidualOccurrence
+        segmented.core segmented.positive
+    exactRelativeClassification := obstructed.exactClassification
+    generatedContinuation := generator.generates
+    continuationIsStrict := generator.continuation_ne_boundary
+    continuationOutsideRegime := obstructed.continuation_outside_regime
+    noStrictRegimeExtension := obstructed.no_strict_regime_extension
+    totalizationRejected := obstructed.rejectTotalization }
+
 /- The conclusion keeps all four outputs as explicit constructive data. -/
 structure TurningConclusion
     {Carrier : Type uCarrier}
@@ -404,16 +498,16 @@ def abstractTurning
       InternalRole ResidualRole OldOccurrence NewOccurrence CombinedOccurrence
       internal residual)
     (obstructed : ObstructedRegime generator) :
-    TurningConclusion segmented obstructed :=
-  { uniqueResidualOccurrence :=
-      SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence
-        segmented.extension segmented.positive
-    exactRelativeClassification := obstructed.exactClassification
-    generatedContinuation := generator.generates
-    continuationIsStrict := generator.continuation_ne_boundary
-    continuationOutsideRegime := obstructed.continuation_outside_regime
-    noStrictRegimeExtension := obstructed.no_strict_regime_extension
-    totalizationRejected := obstructed.rejectTotalization }
+    TurningConclusion segmented obstructed := by
+  let coreResult := coreTurning segmented.toCoreBoundary obstructed
+  exact
+    { uniqueResidualOccurrence := coreResult.uniqueResidualOccurrence.toRich
+      exactRelativeClassification := coreResult.exactRelativeClassification
+      generatedContinuation := coreResult.generatedContinuation
+      continuationIsStrict := coreResult.continuationIsStrict
+      continuationOutsideRegime := coreResult.continuationOutsideRegime
+      noStrictRegimeExtension := coreResult.noStrictRegimeExtension
+      totalizationRejected := coreResult.totalizationRejected }
 
 /-! ## Residual-to-turning coupling
 
@@ -744,6 +838,10 @@ end AbstractSegmentedTurning
 #print axioms AbstractSegmentedTurning.ObstructedRegime.exactClassification
 #print axioms AbstractSegmentedTurning.ObstructedRegime.continuation_outside_regime
 #print axioms AbstractSegmentedTurning.ObstructedRegime.no_strict_regime_extension
+#print axioms AbstractSegmentedTurning.CoreSegmentedBoundary
+#print axioms AbstractSegmentedTurning.SegmentedBoundary.toCoreBoundary
+#print axioms AbstractSegmentedTurning.CoreTurningConclusion
+#print axioms AbstractSegmentedTurning.coreTurning
 #print axioms AbstractSegmentedTurning.abstractTurning
 #print axioms AbstractSegmentedTurning.PositiveResidualBoundary.uniqueResidualOccurrence
 #print axioms AbstractSegmentedTurning.CoupledObstructedRegime.exactClassification
