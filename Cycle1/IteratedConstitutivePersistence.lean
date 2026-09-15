@@ -318,6 +318,125 @@ theorem cycle1Realization_one_fresh_eq_oneStep
       (ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).fresh :=
   rfl
 
+/-! ## Persistence of the operational residual identity -/
+
+/--
+At depth one, the fresh identity of the finite Cycle 1 realization is exactly
+the concrete operational residual occurrence.
+-/
+theorem cycle1Realization_one_fresh_eq_residual
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    (cycle1Realization P A 1).indexedSpoke.forward
+        (IteratedCarrier.freshAtStep 0) =
+      ConstitutivePersistence.oneStepResidualConcreteOccurrence P A :=
+  (cycle1Realization_one_fresh_eq_oneStep P A).trans
+    (ConstitutivePersistence.canonicalAlignmentRealization_fresh_eq_residualConcreteOccurrence P A)
+
+/--
+The concrete operational residual identity is preserved by change of exact
+realization at depth one.
+-/
+theorem cycle1ResidualOccurrence_transport_natural
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P) :
+    ((cycle1Realization P A 1).transport
+        (cycle1Realization P B 1)).forward
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
+      ConstitutivePersistence.oneStepResidualConcreteOccurrence P B := by
+  rw [← cycle1Realization_one_fresh_eq_residual P A]
+  exact
+    (FiniteConstitutiveAlignment.Realization.transport_atIndex
+      (cycle1Realization P A 1)
+      (cycle1Realization P B 1)
+      (IteratedCarrier.freshAtStep 0)).trans
+      (cycle1Realization_one_fresh_eq_residual P B)
+
+/--
+Once the first operational residual occurrence has been constituted, that
+identity persists through every later finite Cycle 1 depth.
+-/
+theorem cycle1ResidualOccurrence_persists
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    {targetDepth : Nat}
+    (depth : DepthExtension 1 targetDepth) :
+    (cycle1Realization P A 1).extend
+        (cycle1Realization P A targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
+      (cycle1Realization P A targetDepth).indexedSpoke.forward
+        (IteratedCarrier.embedFrom depth
+          (IteratedCarrier.freshAtStep 0)) := by
+  calc
+    (cycle1Realization P A 1).extend
+        (cycle1Realization P A targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
+      (cycle1Realization P A 1).extend
+        (cycle1Realization P A targetDepth)
+        depth
+        ((cycle1Realization P A 1).indexedSpoke.forward
+          (IteratedCarrier.freshAtStep 0)) :=
+      congrArg
+        ((cycle1Realization P A 1).extend
+          (cycle1Realization P A targetDepth) depth)
+        (cycle1Realization_one_fresh_eq_residual P A).symm
+    _ =
+      (cycle1Realization P A targetDepth).indexedSpoke.forward
+        (IteratedCarrier.embedFrom depth
+          (IteratedCarrier.freshAtStep 0)) :=
+      FiniteConstitutiveAlignment.Realization.extend_atIndex
+        (cycle1Realization P A 1)
+        (cycle1Realization P A targetDepth)
+        depth
+        (IteratedCarrier.freshAtStep 0)
+
+/--
+Persistence of the operational residual identity commutes with change of exact
+concrete realization.
+-/
+theorem cycle1ResidualOccurrence_extension_transport_natural
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    {targetDepth : Nat}
+    (depth : DepthExtension 1 targetDepth) :
+    ((cycle1Realization P A targetDepth).transport
+        (cycle1Realization P B targetDepth)).forward
+        ((cycle1Realization P A 1).extend
+          (cycle1Realization P A targetDepth)
+          depth
+          (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) =
+      (cycle1Realization P B 1).extend
+        (cycle1Realization P B targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) := by
+  calc
+    ((cycle1Realization P A targetDepth).transport
+        (cycle1Realization P B targetDepth)).forward
+        ((cycle1Realization P A 1).extend
+          (cycle1Realization P A targetDepth)
+          depth
+          (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) =
+      (cycle1Realization P B 1).extend
+        (cycle1Realization P B targetDepth)
+        depth
+        (((cycle1Realization P A 1).transport
+          (cycle1Realization P B 1)).forward
+          (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) :=
+      cycle1_extend_transport_natural
+        P A B depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)
+    _ =
+      (cycle1Realization P B 1).extend
+        (cycle1Realization P B targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) :=
+      congrArg
+        ((cycle1Realization P B 1).extend
+          (cycle1Realization P B targetDepth) depth)
+        (cycle1ResidualOccurrence_transport_natural P A B)
+
 /-- Depth `0 → 1` extension is pointwise the established one-step old map. -/
 theorem cycle1Extension_zero_one_eq_oneStep
     (P : CircularPresentation)
@@ -344,5 +463,9 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_backward_eq_oneStep
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_residual
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_persists
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_extension_transport_natural
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
 /- AXIOM_AUDIT_END -/

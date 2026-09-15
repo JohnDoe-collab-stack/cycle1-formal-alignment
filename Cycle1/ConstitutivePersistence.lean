@@ -516,6 +516,92 @@ theorem canonicalAlignment_extendedTransport_at
       (extendedConcreteTransport P A B).forward occurrence := by
   rfl
 
+/-! ## Operational meaning of the fresh alignment identity -/
+
+/--
+The residual occurrence determined by the weak residual kernel, embedded into
+the full free occurrence carrier used by the one-step constitutive alignment.
+-/
+def oneStepResidualFreeOccurrence
+    (P : CircularPresentation) :
+    ExtendedFreeOccurrence P :=
+  (oneStepFaithfullyLabelledExtension P).newOccurrence
+    (oneStepWeakResidualOccurrence P).occurrence
+
+/--
+In the actual Cycle 1 instance, the fresh constitutive identity is exactly the
+full-history image of the weak residual occurrence.
+-/
+theorem canonicalAlignment_fresh_eq_residualFreeOccurrence
+    (P : CircularPresentation) :
+    (canonicalOneStepAlignment P).fresh =
+      oneStepResidualFreeOccurrence P := by
+  rfl
+
+/--
+The same full-history occurrence is the residual occurrence consumed by the
+published operational turning construction.
+-/
+theorem residualFreeOccurrence_agrees_with_consumedTurning
+    (P : CircularPresentation) :
+    oneStepResidualFreeOccurrence P =
+      (oneStepFaithfullyLabelledExtension P).newOccurrence
+        ((abstractTurningOfCircularPresentation P).uniqueResidualOccurrence.occurrence) := by
+  unfold oneStepResidualFreeOccurrence
+  exact congrArg
+    (oneStepFaithfullyLabelledExtension P).newOccurrence
+    (oneStepWeakResidualOccurrence_agrees_with_consumedTurning P)
+
+/--
+The fresh identity of the actual one-step Cycle 1 alignment carries the final
+residual role.
+-/
+theorem canonicalAlignment_fresh_label_is_final
+    (P : CircularPresentation) :
+    (oneStepFaithfullyLabelledExtension P).label
+        (canonicalOneStepAlignment P).fresh =
+      .inr FinalRequirement.distinguished := by
+  rw [canonicalAlignment_fresh_eq_residualFreeOccurrence]
+  unfold oneStepResidualFreeOccurrence
+  change
+    let kernel :=
+      (oneStepFaithfullyLabelledExtension P).toSegmentedResidualExtension
+        |>.toResidualUniquenessKernel
+    kernel.label
+        (kernel.embedNew (oneStepWeakResidualOccurrence P).occurrence) =
+      .inr FinalRequirement.distinguished
+  exact oneStepWeakResidualOccurrence_label_is_final P
+
+/--
+Concrete realization of the operational residual identity in a supplied
+continuation algebra.
+-/
+def oneStepResidualConcreteOccurrence
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    ExtendedConcreteOccurrence P A :=
+  (extendedInterpretation P A).forwardOccurrence
+    (oneStepResidualFreeOccurrence P)
+
+/--
+The fresh identity of every canonical realization induced by a supplied
+`ConcreteContinuationAlgebra` is exactly the concrete realization of the
+operational residual occurrence.
+-/
+theorem canonicalAlignmentRealization_fresh_eq_residualConcreteOccurrence
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P) :
+    (canonicalOneStepAlignmentRealization P A).fresh =
+      oneStepResidualConcreteOccurrence P A := by
+  change
+    (extendedInterpretation P A).forwardOccurrence
+        (canonicalOneStepAlignment P).fresh =
+      (extendedInterpretation P A).forwardOccurrence
+        (oneStepResidualFreeOccurrence P)
+  exact congrArg
+    (extendedInterpretation P A).forwardOccurrence
+    (canonicalAlignment_fresh_eq_residualFreeOccurrence P)
+
 /-! ## Status remains a separate layer -/
 
 universe uE uI uK uD uP uEnd uLoop
@@ -646,6 +732,12 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignment_concreteSplit_eq
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignment_initialTransport_at
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignment_extendedTransport_at
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.oneStepResidualFreeOccurrence
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignment_fresh_eq_residualFreeOccurrence
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.residualFreeOccurrence_agrees_with_consumedTurning
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignment_fresh_label_is_final
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.oneStepResidualConcreteOccurrence
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.canonicalAlignmentRealization_fresh_eq_residualConcreteOccurrence
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.OneStepPersistenceStatus
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.oneStepPersistenceStatus
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.OneStepConstitutivePersistence

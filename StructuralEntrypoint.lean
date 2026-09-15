@@ -329,6 +329,67 @@ theorem finiteDepthOneFreshMatchesOneStep
       (canonicalConstitutiveAlignmentRealization P A).fresh :=
   IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep P A
 
+/-! ## Operational meaning of aligned persistence -/
+
+/--
+The fresh identity of the canonical one-step alignment is exactly the
+full-history residual occurrence consumed by the operational turning theorem.
+-/
+theorem oneStepAlignmentFreshIsConsumedResidual
+    (P : CircularPresentation) :
+    (canonicalConstitutiveAlignment P).fresh =
+      (oneStepFaithfullyLabelledExtension P).newOccurrence
+        ((abstractTurningOfCircularPresentation P).uniqueResidualOccurrence.occurrence) := by
+  change
+    (ConstitutivePersistence.canonicalOneStepAlignment P).fresh =
+      (oneStepFaithfullyLabelledExtension P).newOccurrence
+        ((abstractTurningOfCircularPresentation P).uniqueResidualOccurrence.occurrence)
+  exact
+    (ConstitutivePersistence.canonicalAlignment_fresh_eq_residualFreeOccurrence P).trans
+      (ConstitutivePersistence.residualFreeOccurrence_agrees_with_consumedTurning P)
+
+/--
+The operational residual occurrence constituted at the first exit persists as
+the same constitutive identity through every later finite Cycle 1 depth.
+-/
+theorem finiteOperationalResidualPersists
+    (P : CircularPresentation)
+    (A : ConcreteContinuationAlgebra P)
+    {targetDepth : Nat}
+    (depth : DepthExtension 1 targetDepth) :
+    (finiteConstitutivePersistenceRealization P A 1).extend
+        (finiteConstitutivePersistenceRealization P A targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
+      (finiteConstitutivePersistenceRealization P A targetDepth).indexedSpoke.forward
+          (IteratedCarrier.embedFrom depth
+            (IteratedCarrier.freshAtStep 0)) := by
+  simpa [finiteConstitutivePersistenceRealization, finiteConstitutivePersistence] using
+    (IteratedConstitutivePersistence.cycle1ResidualOccurrence_persists P A depth)
+
+/--
+Persistence of the operational residual occurrence is natural across supplied
+exact concrete realizations.
+-/
+theorem finiteOperationalResidualNaturality
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    {targetDepth : Nat}
+    (depth : DepthExtension 1 targetDepth) :
+    ((finiteConstitutivePersistenceRealization P A targetDepth).transport
+        (finiteConstitutivePersistenceRealization P B targetDepth)).forward
+        ((finiteConstitutivePersistenceRealization P A 1).extend
+          (finiteConstitutivePersistenceRealization P A targetDepth)
+          depth
+          (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) =
+      (finiteConstitutivePersistenceRealization P B 1).extend
+        (finiteConstitutivePersistenceRealization P B targetDepth)
+        depth
+        (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) := by
+  simpa [finiteConstitutivePersistenceRealization, finiteConstitutivePersistence] using
+    (IteratedConstitutivePersistence.cycle1ResidualOccurrence_extension_transport_natural
+      P A B depth)
+
 /-- The finite depth `0 → 1` extension is pointwise the one-step old map. -/
 theorem finiteDepthZeroOneExtensionMatchesOneStep
     (P : CircularPresentation)
@@ -833,6 +894,9 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.finiteDepthOneTransportMatchesOneStep
 #print axioms StructuralEntrypoint.finiteDepthOneBackwardTransportMatchesOneStep
 #print axioms StructuralEntrypoint.finiteDepthOneFreshMatchesOneStep
+#print axioms StructuralEntrypoint.oneStepAlignmentFreshIsConsumedResidual
+#print axioms StructuralEntrypoint.finiteOperationalResidualPersists
+#print axioms StructuralEntrypoint.finiteOperationalResidualNaturality
 #print axioms StructuralEntrypoint.finiteDepthZeroOneExtensionMatchesOneStep
 #print axioms StructuralEntrypoint.finiteTransportPathCoherence
 #print axioms StructuralEntrypoint.finiteReadoutDistinctionPersists
