@@ -5466,7 +5466,6 @@ def reconstructedInternalCompletion
       labelled.toSegmentedResidualExtension.toResidualUniquenessKernel :=
   labelled.toSegmentedResidualExtension.reconstructInternalCompletion
     positive.toResidualPositive
-    labelled.segmentedResidualExtension_embedOld_injective
 
 theorem reconstructed_roleToOccurrence_agrees
     {P : CircularPresentation}
@@ -5479,9 +5478,7 @@ theorem reconstructed_roleToOccurrence_agrees
         requirementToOccurrence P position :=
   labelled.toSegmentedResidualExtension
     |>.reconstructed_roleToOccurrence_agrees
-      positive.toResidualPositive
-      labelled.segmentedResidualExtension_embedOld_injective
-      position
+      positive.toResidualPositive position
 
 theorem reconstructed_occurrenceToRole_agrees
     {P : CircularPresentation}
@@ -5493,9 +5490,7 @@ theorem reconstructed_occurrenceToRole_agrees
         occurrence = occurrenceToRequirement P occurrence :=
   labelled.toSegmentedResidualExtension
     |>.reconstructed_occurrenceToRole_agrees
-      positive.toResidualPositive
-      labelled.segmentedResidualExtension_embedOld_injective
-      occurrence
+      positive.toResidualPositive occurrence
 
 end FaithfullyLabelledPerimeterExtension
 

@@ -654,11 +654,27 @@ def reconstructInternalCompletion
     (extension : FaithfulExtension
       InternalRole ResidualRole OldOccurrence NewOccurrence
       ExtendedOccurrence internal residual)
-    (positive : PositiveNewPart NewOccurrence)
-    (embedOldInjective : Function.Injective extension.embedOld) :
+    (positive : PositiveNewPart NewOccurrence) :
     ExactInternalCompletion extension.toResidualUniquenessKernel :=
   extension.toResidualUniquenessKernel
-    |>.toExactInternalCompletion_of_positive positive embedOldInjective
+    |>.toExactInternalCompletion_of_positive positive extension.embedOld_injective
+
+theorem reconstructed_roleToOccurrence_eq
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {internal : ExactInternalRealization InternalRole OldOccurrence}
+    {residual : ContractibleRole ResidualRole}
+    (extension : FaithfulExtension
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence internal residual)
+    (positive : PositiveNewPart NewOccurrence) :
+    (extension.reconstructInternalCompletion positive
+      |>.toExactInternalRealization).roleToOccurrence =
+        internal.roleToOccurrence :=
+  rfl
 
 theorem reconstructed_roleToOccurrence_agrees
     {InternalRole : Type uInternal}
@@ -672,9 +688,8 @@ theorem reconstructed_roleToOccurrence_agrees
       InternalRole ResidualRole OldOccurrence NewOccurrence
       ExtendedOccurrence internal residual)
     (positive : PositiveNewPart NewOccurrence)
-    (embedOldInjective : Function.Injective extension.embedOld)
     (role : InternalRole) :
-    (extension.reconstructInternalCompletion positive embedOldInjective
+    (extension.reconstructInternalCompletion positive
       |>.toExactInternalRealization).roleToOccurrence role =
         internal.roleToOccurrence role :=
   rfl
@@ -691,12 +706,11 @@ theorem reconstructed_occurrenceToRole_agrees
       InternalRole ResidualRole OldOccurrence NewOccurrence
       ExtendedOccurrence internal residual)
     (positive : PositiveNewPart NewOccurrence)
-    (embedOldInjective : Function.Injective extension.embedOld)
     (old : OldOccurrence) :
-    (extension.reconstructInternalCompletion positive embedOldInjective).occurrenceToRole
+    (extension.reconstructInternalCompletion positive).occurrenceToRole
         old = internal.occurrenceToRole old :=
   ExactInternalCompletion.occurrenceToRole_pointwise_unique
-    (extension.reconstructInternalCompletion positive embedOldInjective)
+    (extension.reconstructInternalCompletion positive)
     extension.internalCompletion old
 
 end FaithfulExtension
@@ -804,6 +818,7 @@ end SegmentedResidualRole
 #print axioms SegmentedResidualRole.FaithfulExtension.internalCompletion
 #print axioms SegmentedResidualRole.FaithfulExtension.embedOld_injective
 #print axioms SegmentedResidualRole.FaithfulExtension.reconstructInternalCompletion
+#print axioms SegmentedResidualRole.FaithfulExtension.reconstructed_roleToOccurrence_eq
 #print axioms SegmentedResidualRole.FaithfulExtension.reconstructed_roleToOccurrence_agrees
 #print axioms SegmentedResidualRole.FaithfulExtension.reconstructed_occurrenceToRole_agrees
 #print axioms SegmentedResidualRole.positiveExtension_hasUniqueResidualOccurrence
