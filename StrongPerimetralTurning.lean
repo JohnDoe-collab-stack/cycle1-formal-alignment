@@ -6109,6 +6109,181 @@ def identityCircularRefinement (P : CircularPresentation) :
     realizesFinal := fun positive =>
       False.elim (rootContinuation_not_positive P positive) }
 
+/-! ## Core circular regime
+
+This layer separates the structural regime data from the historical circular
+refinement and supplies the direct core path.  The historical rich turning
+wrapper remains available separately. -/
+
+structure CoreCircularResidualContext
+    (P : CircularPresentation)
+    (history : RootedGeneratedHistory P) where
+  extension : PerimeterExtension P history
+  positive : PositiveContinuation extension
+
+def coreCircularBoundaryType
+    (P : CircularPresentation)
+    (history : RootedGeneratedHistory P) : Type _ :=
+  AbstractSegmentedTurning.CorePositiveResidualBoundary
+    (perimetralBoundaryGenerator P)
+    (fun _candidate => CoreCircularResidualContext P _candidate)
+    (fun {_candidate} context =>
+      History.Occurrence context.extension.continuation)
+    (NonClosingPosition P.perimeter)
+    (FinalRequirement P)
+    (finalRequirementContractible P)
+    history
+
+def coreCircularPositiveResidualBoundary
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (extension : PerimeterExtension P history)
+    (positive : PositiveContinuation extension)
+    (core : SegmentedResidualRole.ResidualDeterminationCore
+      (NonClosingPosition P.perimeter)
+      (FinalRequirement P)
+      (History.Occurrence extension.continuation)
+      (finalRequirementContractible P)) :
+    coreCircularBoundaryType P history :=
+  { context := { extension := extension, positive := positive }
+    strict :=
+      { continuation := positive.path
+        historyExact := by
+          change History.append (perimeterHistory P)
+            positive.path.toHistory = history.history
+          rw [← positive.historyExact]
+          exact extension.recompose }
+    core := core
+    positive :=
+      { occurrence :=
+          transportOccurrence positive.historyExact.symm
+            positive.path.lastOccurrence } }
+
+structure CoreResidualClosureInterpretation
+    {P : CircularPresentation}
+    (history : RootedGeneratedHistory P) where
+  boundary : coreCircularBoundaryType P history
+  residualOccurrence :
+    History.Occurrence boundary.context.extension.continuation
+  residualOccurrenceIsPositive :
+    residualOccurrence = boundary.positive.occurrence
+  residualLabelIsResidual :
+    boundary.core.newLabel residualOccurrence =
+      .inr (finalRequirementContractible P).center
+  obstruction : PositiveClosureObstruction P
+
+def coreInterpretResidual
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (boundary : coreCircularBoundaryType P history)
+    (unique : SegmentedResidualRole.CoreUniqueResidualOccurrence
+      boundary.core) :
+    CoreResidualClosureInterpretation history :=
+  { boundary := boundary
+    residualOccurrence := unique.occurrence
+    residualOccurrenceIsPositive :=
+      (unique.unique boundary.positive.occurrence).symm
+    residualLabelIsResidual := unique.labelIsResidual
+    obstruction := P.positiveClosureObstruction }
+
+structure CoreResidualClosureAttempt
+    {P : CircularPresentation}
+    (history : RootedGeneratedHistory P)
+    (interpretation : CoreResidualClosureInterpretation history) where
+  explicitTotalization : ExplicitTotalization P
+  implicitTotalization : ImplicitTotalization P
+
+def rejectCoreResidualClosureAttempt
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    {interpretation : CoreResidualClosureInterpretation history}
+    (attempt : CoreResidualClosureAttempt history interpretation) : False :=
+  interpretation.obstruction.rejectsContraction
+    (explicitTotalizationContractsClosureDifference
+      attempt.explicitTotalization).initialPoleContraction
+
+def CoreCircularPositiveBranch
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (extension : PerimeterExtension P history)
+    (positive : PositiveContinuation extension) : Type _ :=
+    Σ core : SegmentedResidualRole.ResidualDeterminationCore
+      (NonClosingPosition P.perimeter)
+      (FinalRequirement P)
+      (History.Occurrence extension.continuation)
+      (finalRequirementContractible P),
+    CoreResidualClosureAttempt
+        _
+        (coreInterpretResidual
+        (coreCircularPositiveResidualBoundary extension positive core)
+        (AbstractSegmentedTurning.CorePositiveResidualBoundary.uniqueResidualOccurrence
+          (coreCircularPositiveResidualBoundary extension positive core)))
+
+structure CoreCircularRefinement
+    (P : CircularPresentation)
+    (history : RootedGeneratedHistory P) where
+  extension : PerimeterExtension P history
+  positiveBranch :
+    (positive : PositiveContinuation extension) →
+      CoreCircularPositiveBranch extension positive
+
+def identityCoreCircularRefinement (P : CircularPresentation) :
+    CoreCircularRefinement P (perimeterDeployment P) :=
+  { extension := identityPerimeterExtension P
+    positiveBranch := fun positive =>
+      False.elim (rootContinuation_not_positive P positive) }
+
+def CircularRefinement.toCoreCircularRefinement
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (refinement : CircularRefinement P history) :
+    CoreCircularRefinement P history :=
+  { extension := refinement.extension
+    positiveBranch := fun positive =>
+      let richAttempt := refinement.realizesFinal positive
+      let core :=
+        refinement.toLabelled.toSegmentedResidualExtension
+          |>.toResidualUniquenessKernel
+          |>.toDeterminationCore
+      ⟨core,
+        { explicitTotalization := richAttempt.explicitTotalization
+          implicitTotalization := richAttempt.implicitTotalization }⟩ }
+
+theorem coreCircularRefinement_history_eq_perimeter
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P}
+    (refinement : CoreCircularRefinement P history) :
+    history = perimeterDeployment P := by
+  cases History.appendRootOrPositive
+      (perimeterHistory P) refinement.extension.continuation with
+  | inl rootData =>
+      rcases rootData with ⟨endpointEquality, continuationEquality⟩
+      exact rootedGeneratedHistory_ext endpointEquality.down
+        ((heq_of_eq refinement.extension.recompose.symm).trans
+          continuationEquality.down)
+  | inr positiveData =>
+      rcases positiveData with ⟨positive, continuationEquality⟩
+      let positiveContinuation : PositiveContinuation refinement.extension :=
+        { path := positive
+          historyExact := continuationEquality.down }
+      rcases refinement.positiveBranch positiveContinuation with
+        ⟨core, attempt⟩
+      exact False.elim (rejectCoreResidualClosureAttempt attempt)
+
+theorem circularRefinement_nonempty_iff_coreCircularRefinement_nonempty
+    {P : CircularPresentation}
+    {history : RootedGeneratedHistory P} :
+    Nonempty (CircularRefinement P history) ↔
+      Nonempty (CoreCircularRefinement P history) := by
+  constructor
+  · rintro ⟨refinement⟩
+    exact ⟨refinement.toCoreCircularRefinement⟩
+  · rintro ⟨refinement⟩
+    have historyEquality :=
+      coreCircularRefinement_history_eq_perimeter refinement
+    cases historyEquality
+    exact ⟨identityCircularRefinement P⟩
+
 /- Regime completeness by carrier classification: no operational field of
    `CircularRefinement` is reconstructed from the independent specification. -/
 def circularSpecification_complete
@@ -6681,6 +6856,68 @@ def analyzeCircularRegimeWithResidualAttempt
       exact .inr
         (circularResidualBranch refinement positiveContinuation)
 
+/-! ## Direct core coupled circular regime
+
+This is the production coupled path.  Its regime, interpretation, attempt,
+and residual boundary are all core-level data; the historical rich regime is
+not used to determine the residual occurrence. -/
+def perimetralCoreCoupledRegime
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.CoreCoupledObstructedRegime
+      (perimetralBoundaryGenerator P)
+      (fun history => CoreCircularResidualContext P history)
+      (fun {_history} context =>
+        History.Occurrence context.extension.continuation)
+      (NonClosingPosition P.perimeter)
+      (FinalRequirement P)
+      (finalRequirementContractible P) :=
+  { Regime := CoreCircularRefinement P
+    Interpretation := fun history => CoreResidualClosureInterpretation history
+    Attempt := fun {history} interpretation =>
+      CoreResidualClosureAttempt history interpretation
+    canonicalRegime := identityCoreCircularRefinement P
+    interpretResidual := fun boundary unique =>
+      coreInterpretResidual boundary unique
+    analyzeRegime := by
+      intro candidate refinement
+      cases History.appendRootOrPositive
+          (perimeterHistory P) refinement.extension.continuation with
+      | inl rootData =>
+          rcases rootData with ⟨endpointEquality, continuationEquality⟩
+          exact .inl ⟨rootedGeneratedHistory_ext endpointEquality.down
+            ((heq_of_eq refinement.extension.recompose.symm).trans
+              continuationEquality.down)⟩
+      | inr positiveData =>
+          rcases positiveData with ⟨positive, continuationEquality⟩
+          let positiveContinuation : PositiveContinuation refinement.extension :=
+            { path := positive
+              historyExact := continuationEquality.down }
+          rcases refinement.positiveBranch positiveContinuation with
+            ⟨core, attempt⟩
+          let boundary :=
+            coreCircularPositiveResidualBoundary
+              refinement.extension positiveContinuation core
+          exact .inr ⟨boundary, attempt⟩
+    rejectTotalization := by
+      intro candidate interpretation attempt
+      exact rejectCoreResidualClosureAttempt attempt }
+
+theorem perimetralCoreCoupledInterpretation_occurrence
+    (P : CircularPresentation)
+    {history : RootedGeneratedHistory P}
+    (boundary : coreCircularBoundaryType P history)
+    (unique : SegmentedResidualRole.CoreUniqueResidualOccurrence
+      boundary.core) :
+    ((perimetralCoreCoupledRegime P).interpretResidual boundary unique).residualOccurrence =
+      unique.occurrence := by
+  rfl
+
+def perimetralCoreObstructedRegime
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.ObstructedRegime
+      (perimetralBoundaryGenerator P) :=
+  (perimetralCoreCoupledRegime P).toObstructedRegime
+
 def perimetralCoupledRegime
     (P : CircularPresentation) :
     AbstractSegmentedTurning.CoupledObstructedRegime
@@ -6714,19 +6951,19 @@ def oneStepCoreTurning
     (P : CircularPresentation) :
     AbstractSegmentedTurning.CoreTurningConclusion
       (oneStepCoreSegmentedBoundary P)
-      (perimetralObstructedRegime P) :=
+      (perimetralCoreObstructedRegime P) :=
   AbstractSegmentedTurning.coreTurning
     (oneStepCoreSegmentedBoundary P)
-    (perimetralObstructedRegime P)
+    (perimetralCoreObstructedRegime P)
 
-/- Reattach the result of the direct core turning to the historical public
-   extension.  The occurrence and its uniqueness come from the core result;
-   only the public rich label is checked at this boundary. -/
+/- Reattach the direct core turning to the historical rich boundary type.  The
+   occurrence and its uniqueness come from the core result; only the public
+   rich label is checked at this boundary. -/
 def oneStepCoreTurning_toPublic
     (P : CircularPresentation) :
     AbstractSegmentedTurning.TurningConclusion
       (oneStepSegmentedBoundary P)
-      (perimetralObstructedRegime P) :=
+      (perimetralCoreObstructedRegime P) :=
   let coreResult := oneStepCoreTurning P
   { uniqueResidualOccurrence :=
       { occurrence := coreResult.uniqueResidualOccurrence.occurrence
@@ -6740,19 +6977,42 @@ def oneStepCoreTurning_toPublic
     noStrictRegimeExtension := coreResult.noStrictRegimeExtension
     totalizationRejected := coreResult.totalizationRejected }
 
-def coupledTurningOfCircularPresentation
+def perimetralCoreCoupledTurning
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.CoreCoupledTurningConclusion
+      (perimetralCoreCoupledRegime P) :=
+  AbstractSegmentedTurning.coreCoupledTurning
+    (perimetralCoreCoupledRegime P)
+
+def historicalCoupledTurningOfCircularPresentation
     (P : CircularPresentation) :
     AbstractSegmentedTurning.CoupledTurningConclusion
       (perimetralCoupledRegime P) :=
   AbstractSegmentedTurning.coupledTurning (perimetralCoupledRegime P)
 
+def coupledTurningOfCircularPresentation
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.CoreCoupledTurningConclusion
+      (perimetralCoreCoupledRegime P) :=
+  perimetralCoreCoupledTurning P
+
+/- The historical rich turning remains available under an explicit name. -/
+def historicalAbstractTurningOfCircularPresentation
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.TurningConclusion
+      (oneStepSegmentedBoundary P)
+      (perimetralObstructedRegime P) :=
+  AbstractSegmentedTurning.abstractTurning
+    (oneStepSegmentedBoundary P)
+    (perimetralObstructedRegime P)
+
 /- The whole circle-independent turning theorem is now instantiated by the
-   canonical perimeter, its residual occurrence, and its obstructed regime. -/
+   direct core path, its residual occurrence, and its core obstructed regime. -/
 def abstractTurningOfCircularPresentation
     (P : CircularPresentation) :
     AbstractSegmentedTurning.TurningConclusion
       (oneStepSegmentedBoundary P)
-      (perimetralObstructedRegime P) := by
+      (perimetralCoreObstructedRegime P) := by
   exact oneStepCoreTurning_toPublic P
 
 theorem oneStepCoreResidualOccurrence_agrees_with_weak
@@ -6782,7 +7042,7 @@ theorem noIntermediateRefinement
     {history : RootedGeneratedHistory P}
     (refinement : CircularRefinement P history) :
     history = perimeterDeployment P :=
-  (coupledTurningOfCircularPresentation P).exactRelativeClassification
+  (historicalCoupledTurningOfCircularPresentation P).exactRelativeClassification
     |>.regimeImpliesEquality refinement
 
 structure ExactCircularRefinementClassification
@@ -6798,7 +7058,7 @@ def exactCircularRefinementClassification
     (history : RootedGeneratedHistory P) :
     ExactCircularRefinementClassification P history :=
   let classification :=
-    (coupledTurningOfCircularPresentation P).exactRelativeClassification
+    (historicalCoupledTurningOfCircularPresentation P).exactRelativeClassification
   { refinementImpliesEquality :=
       classification.regimeImpliesEquality
     equalityBuildsRefinement :=
@@ -6807,7 +7067,7 @@ def exactCircularRefinementClassification
 theorem oneStepAfterPerimeter_notCircularRefinement
     (P : CircularPresentation) :
     CircularRefinement P (oneStepAfterPerimeter P) → False :=
-  (coupledTurningOfCircularPresentation P).continuationOutsideRegime
+  (historicalCoupledTurningOfCircularPresentation P).continuationOutsideRegime
 
 def strictRefinementProducesFinalJunctionRealization
     {P : CircularPresentation}
@@ -6862,7 +7122,7 @@ theorem noStrictSamePerimeterExtension
     (Σ history : RootedGeneratedHistory P,
       StrictConstitutivePrefix (perimeterDeployment P) history ×
         CircularRefinement P history) → False :=
-  (coupledTurningOfCircularPresentation P).noStrictRegimeExtension
+  (historicalCoupledTurningOfCircularPresentation P).noStrictRegimeExtension
 
 inductive PerimetrallyAdmissible
     (P : CircularPresentation) : RootedGeneratedHistory P → Type _
@@ -8694,6 +8954,19 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.PerimeterExtension.oldOccurrence_injective
 #print axioms StrongPerimetralTurning.PerimeterExtension.toExactNonClosingRealization
 #print axioms StrongPerimetralTurning.identityCircularRefinement
+#print axioms StrongPerimetralTurning.CoreCircularResidualContext
+#print axioms StrongPerimetralTurning.coreCircularBoundaryType
+#print axioms StrongPerimetralTurning.coreCircularPositiveResidualBoundary
+#print axioms StrongPerimetralTurning.CoreResidualClosureInterpretation
+#print axioms StrongPerimetralTurning.coreInterpretResidual
+#print axioms StrongPerimetralTurning.CoreResidualClosureAttempt
+#print axioms StrongPerimetralTurning.rejectCoreResidualClosureAttempt
+#print axioms StrongPerimetralTurning.CoreCircularPositiveBranch
+#print axioms StrongPerimetralTurning.CoreCircularRefinement
+#print axioms StrongPerimetralTurning.identityCoreCircularRefinement
+#print axioms StrongPerimetralTurning.CircularRefinement.toCoreCircularRefinement
+#print axioms StrongPerimetralTurning.coreCircularRefinement_history_eq_perimeter
+#print axioms StrongPerimetralTurning.circularRefinement_nonempty_iff_coreCircularRefinement_nonempty
 #print axioms StrongPerimetralTurning.oneStepAfterPerimeter_is_extension
 #print axioms StrongPerimetralTurning.oneStepResidualDeterminationCore
 #print axioms StrongPerimetralTurning.oneStepCorePositive
@@ -8780,11 +9053,17 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.circularResidualBranch
 #print axioms StrongPerimetralTurning.rejectResidualBilateralClosureAttempt
 #print axioms StrongPerimetralTurning.analyzeCircularRegimeWithResidualAttempt
+#print axioms StrongPerimetralTurning.perimetralCoreCoupledRegime
+#print axioms StrongPerimetralTurning.perimetralCoreCoupledInterpretation_occurrence
+#print axioms StrongPerimetralTurning.perimetralCoreObstructedRegime
 #print axioms StrongPerimetralTurning.perimetralCoupledRegime
 #print axioms StrongPerimetralTurning.perimetralObstructedRegime
 #print axioms StrongPerimetralTurning.oneStepCoreTurning
 #print axioms StrongPerimetralTurning.oneStepCoreTurning_toPublic
+#print axioms StrongPerimetralTurning.perimetralCoreCoupledTurning
+#print axioms StrongPerimetralTurning.historicalCoupledTurningOfCircularPresentation
 #print axioms StrongPerimetralTurning.coupledTurningOfCircularPresentation
+#print axioms StrongPerimetralTurning.historicalAbstractTurningOfCircularPresentation
 #print axioms StrongPerimetralTurning.abstractTurningOfCircularPresentation
 #print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence_agrees_with_weak
 #print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence_agrees_with_consumedTurning
