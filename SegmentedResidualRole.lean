@@ -95,6 +95,88 @@ structure ResidualUniquenessKernel
     (first second : ExtendedOccurrence) →
       label first = label second → first = second
 
+/- A positive new part supplies an actual new occurrence. -/
+structure PositiveNewPart (NewOccurrence : Type uNew) where
+  occurrence : NewOccurrence
+
+/- The actually consumed residual-determination interface.  It retains only
+   the new occurrence, its internal-or-residual label, injectivity of that
+   label, and exclusion of internal labels.  In particular, this core has no
+   dependency on old occurrences or on an extended occurrence carrier. -/
+structure ResidualDeterminationCore
+    (InternalRole : Type uInternal)
+    (ResidualRole : Type uResidual)
+    (NewOccurrence : Type uNew)
+    (residual : ContractibleRole ResidualRole) where
+  newLabel : NewOccurrence → InternalRole ⊕ ResidualRole
+  newLabelInjective : Function.Injective newLabel
+  noInternalReuse :
+    (occurrence : NewOccurrence) →
+    (role : InternalRole) →
+      newLabel occurrence ≠ .inl role
+
+namespace ResidualDeterminationCore
+
+theorem label_is_residual
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : ContractibleRole ResidualRole}
+    (core : ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual)
+    (occurrence : NewOccurrence) :
+    core.newLabel occurrence = .inr residual.center := by
+  cases labelEquality : core.newLabel occurrence with
+  | inl role =>
+      exact False.elim
+        (core.noInternalReuse occurrence role labelEquality)
+  | inr role =>
+      exact congrArg Sum.inr (residual.contracts role)
+
+theorem occurrences_unique
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : ContractibleRole ResidualRole}
+    (core : ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual)
+    (first second : NewOccurrence) :
+    first = second := by
+  have sameLabel :
+      core.newLabel first = core.newLabel second :=
+    (core.label_is_residual first).trans
+      (core.label_is_residual second).symm
+  exact core.newLabelInjective sameLabel
+
+end ResidualDeterminationCore
+
+/- The proof-relevant output of the factorized core is indexed only by that
+   core.  No old-occurrence or extended-carrier data is required here. -/
+structure CoreUniqueResidualOccurrence
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : ContractibleRole ResidualRole}
+    (core : ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual) where
+  occurrence : NewOccurrence
+  labelIsResidual :
+    core.newLabel occurrence = .inr residual.center
+  unique : (other : NewOccurrence) → other = occurrence
+
+def positiveCore_hasUniqueResidualOccurrence
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {NewOccurrence : Type uNew}
+    {residual : ContractibleRole ResidualRole}
+    (core : ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual)
+    (positive : PositiveNewPart NewOccurrence) :
+    CoreUniqueResidualOccurrence core :=
+  { occurrence := positive.occurrence
+    labelIsResidual := core.label_is_residual positive.occurrence
+    unique := fun other => core.occurrences_unique other positive.occurrence }
+
 namespace FaithfulExtension
 
 def toResidualUniquenessKernel
@@ -149,6 +231,30 @@ theorem newOccurrence_cannotReuseInternalRole
   exact kernel.oldNewDisjoint
     (kernel.roleToOccurrence role) newOccurrence sameOccurrence
 
+def toDeterminationCore
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {NewOccurrence : Type uNew}
+    {ExtendedOccurrence : Type uExtended}
+    {residual : ContractibleRole ResidualRole}
+    (kernel : ResidualUniquenessKernel
+      InternalRole ResidualRole OldOccurrence NewOccurrence
+      ExtendedOccurrence residual) :
+    ResidualDeterminationCore
+      InternalRole ResidualRole NewOccurrence residual :=
+  { newLabel := fun occurrence =>
+      kernel.label (kernel.embedNew occurrence)
+    newLabelInjective := by
+      intro first second labelEquality
+      apply kernel.embedNewInjective
+      exact kernel.labelFaithful
+        (kernel.embedNew first) (kernel.embedNew second) labelEquality
+    noInternalReuse := by
+      intro occurrence role labelEquality
+      exact kernel.newOccurrence_cannotReuseInternalRole
+        occurrence role labelEquality }
+
 theorem newOccurrence_label_is_residual
     {InternalRole : Type uInternal}
     {ResidualRole : Type uResidual}
@@ -161,14 +267,9 @@ theorem newOccurrence_label_is_residual
       ExtendedOccurrence residual)
     (newOccurrence : NewOccurrence) :
     kernel.label (kernel.embedNew newOccurrence) =
-      .inr residual.center := by
-  cases labelEquality : kernel.label (kernel.embedNew newOccurrence) with
-  | inl role =>
-      exact False.elim
-        (kernel.newOccurrence_cannotReuseInternalRole
-          newOccurrence role labelEquality)
-  | inr role =>
-      exact congrArg Sum.inr (residual.contracts role)
+      .inr residual.center :=
+  kernel.toDeterminationCore
+    |>.label_is_residual newOccurrence
 
 theorem newOccurrences_unique
     {InternalRole : Type uInternal}
@@ -181,14 +282,8 @@ theorem newOccurrences_unique
       InternalRole ResidualRole OldOccurrence NewOccurrence
       ExtendedOccurrence residual)
     (first second : NewOccurrence) : first = second := by
-  have sameLabel :
-      kernel.label (kernel.embedNew first) =
-        kernel.label (kernel.embedNew second) :=
-    (kernel.newOccurrence_label_is_residual first).trans
-      (kernel.newOccurrence_label_is_residual second).symm
-  exact kernel.embedNewInjective
-    (kernel.labelFaithful
-      (kernel.embedNew first) (kernel.embedNew second) sameLabel)
+  exact kernel.toDeterminationCore
+    |>.occurrences_unique first second
 
 end ResidualUniquenessKernel
 
@@ -248,10 +343,6 @@ theorem newOccurrences_unique
 
 end FaithfulExtension
 
-/- A positive new part supplies an actual new occurrence. -/
-structure PositiveNewPart (NewOccurrence : Type uNew) where
-  occurrence : NewOccurrence
-
 /- The weak kernel still produces the same proof-relevant residual output: an
    actual new occurrence, its exact residual label, and its uniqueness. -/
 structure KernelUniqueResidualOccurrence
@@ -281,11 +372,11 @@ def positiveKernel_hasUniqueResidualOccurrence
       ExtendedOccurrence residual)
     (positive : PositiveNewPart NewOccurrence) :
     KernelUniqueResidualOccurrence kernel :=
-  { occurrence := positive.occurrence
-    labelIsResidual :=
-      kernel.newOccurrence_label_is_residual positive.occurrence
-    unique := fun other =>
-      kernel.newOccurrences_unique other positive.occurrence }
+  let result := positiveCore_hasUniqueResidualOccurrence
+    kernel.toDeterminationCore positive
+  { occurrence := result.occurrence
+    labelIsResidual := result.labelIsResidual
+    unique := result.unique }
 
 /- Constructive internality retains both the role and its exact label.  A
    subtype is used so the role remains projectable data while its certificate
@@ -650,8 +741,14 @@ end SegmentedResidualRole
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms SegmentedResidualRole.ExactInternalRealization
 #print axioms SegmentedResidualRole.ResidualUniquenessKernel
+#print axioms SegmentedResidualRole.ResidualDeterminationCore
+#print axioms SegmentedResidualRole.ResidualDeterminationCore.label_is_residual
+#print axioms SegmentedResidualRole.ResidualDeterminationCore.occurrences_unique
+#print axioms SegmentedResidualRole.CoreUniqueResidualOccurrence
+#print axioms SegmentedResidualRole.positiveCore_hasUniqueResidualOccurrence
 #print axioms SegmentedResidualRole.FaithfulExtension.toResidualUniquenessKernel
 #print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrence_cannotReuseInternalRole
+#print axioms SegmentedResidualRole.ResidualUniquenessKernel.toDeterminationCore
 #print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrence_label_is_residual
 #print axioms SegmentedResidualRole.ResidualUniquenessKernel.newOccurrences_unique
 #print axioms SegmentedResidualRole.FaithfulExtension.newOccurrence_cannotReuseInternalRole
