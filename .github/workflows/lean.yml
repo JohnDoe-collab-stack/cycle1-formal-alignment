@@ -39,7 +39,7 @@ jobs:
 
       - name: Build regression library
         shell: pwsh
-        run: lake build AuditRegression
+        run: '& "$HOME\.elan\bin\lake.exe" build AuditRegression'
 
       - name: Verify manifest with PowerShell
         shell: pwsh
