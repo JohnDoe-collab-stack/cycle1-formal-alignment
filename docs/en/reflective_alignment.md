@@ -144,11 +144,12 @@ is derived by applying the proposed closure to `diagonalStatus eval` and then
 invoking `diagonalStatus_notRepresentable`. The witness of failure is therefore
 explicit and remains tied to the evaluator it escapes.
 
-`diagonalFixedPoint` also packages the corresponding Lawvere-style observation:
-global representation would give a fixed point for every operator
-`Prop → Prop`. Taking negation explains why that global premise cannot hold.
-The theorem does not add a consistency or incompleteness result; its premise is
-precisely the closure already refuted above.
+`diagonalFixedPoint_ofRepresentable` formalizes the corresponding Lawvere-style
+observation: local representability of the diagonal predicate transformed by an
+operator `Prop → Prop` yields a fixed point for that operator. This premise is
+local and does not assume `GlobalReflectiveClosure`. It is not a consistency or
+incompleteness result; global closure remains precisely the property refuted
+above.
 
 ## 6. Representation-level exit
 

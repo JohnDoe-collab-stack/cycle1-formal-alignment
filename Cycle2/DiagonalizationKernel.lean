@@ -46,17 +46,32 @@ theorem noGlobalReflectiveClosure
   intro closure
   exact diagonalStatus_notRepresentable eval (closure (diagonalStatus eval))
 
-/- Weak point-surjectivity yields a fixed point for every propositional
-   operator.  The point is derived from representation, not assumed. -/
-theorem diagonalFixedPoint
+/- Local representability of the operator-transformed diagonal predicate
+   yields a fixed point for that operator.  The fixed point is derived from
+   the representing program; no global reflective closure is assumed. -/
+theorem diagonalFixedPoint_ofRepresentable
     {Code : Type uCode}
     {eval : Code → Code → Prop}
-    (closure : GlobalReflectiveClosure eval)
-    (operator : Prop → Prop) :
+    (operator : Prop → Prop)
+    (represented :
+      InternallyRepresentable eval
+        (fun input => operator (eval input input))) :
     ∃ proposition : Prop, proposition ↔ operator proposition := by
-  obtain ⟨program, represents⟩ :=
-    closure (fun input => operator (eval input input))
+  obtain ⟨program, represents⟩ := represented
   exact ⟨eval program program, represents program⟩
+
+/- The local premise is inhabited by a concrete evaluator/operator pair. -/
+theorem diagonalFixedPoint_ofRepresentable_unit_example :
+    ∃ proposition : Prop, proposition ↔ True := by
+  let eval : Unit → Unit → Prop := fun _ _ => True
+  let operator : Prop → Prop := fun _ => True
+  have represented :
+      InternallyRepresentable eval
+        (fun input => operator (eval input input)) := by
+    refine ⟨(), ?_⟩
+    intro input
+    rfl
+  exact diagonalFixedPoint_ofRepresentable operator represented
 
 structure StatusRepresentationExit
     {Code : Type uCode}
@@ -81,7 +96,8 @@ end Cycle2
 #print axioms Cycle2.DiagonalizationKernel.GlobalReflectiveClosure
 #print axioms Cycle2.DiagonalizationKernel.diagonalStatus_notRepresentable
 #print axioms Cycle2.DiagonalizationKernel.noGlobalReflectiveClosure
-#print axioms Cycle2.DiagonalizationKernel.diagonalFixedPoint
+#print axioms Cycle2.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable
+#print axioms Cycle2.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable_unit_example
 #print axioms Cycle2.DiagonalizationKernel.StatusRepresentationExit
 #print axioms Cycle2.DiagonalizationKernel.diagonalStatusExit
 /- AXIOM_AUDIT_END -/

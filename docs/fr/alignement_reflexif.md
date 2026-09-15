@@ -146,11 +146,12 @@ est dérivé en appliquant la clôture proposée à `diagonalStatus eval`, puis 
 invoquant `diagonalStatus_notRepresentable`. Le témoin de l'échec est donc
 explicite et reste lié à l'évaluateur auquel il échappe.
 
-`diagonalFixedPoint` condense également l'observation correspondante de type
-Lawvere: la représentation globale fournirait un point fixe à tout opérateur
-`Prop → Prop`. Le choix de la négation explique pourquoi cette prémisse globale
-ne peut tenir. Ce théorème n'ajoute aucun résultat de cohérence ou
-d'incomplétude; sa prémisse est précisément la clôture déjà réfutée ci-dessus.
+`diagonalFixedPoint_ofRepresentable` formalise également l'observation
+correspondante de type Lawvere: la représentabilité locale du prédicat diagonal
+transformé par un opérateur `Prop → Prop` fournit un point fixe pour cet
+opérateur. Cette prémisse est locale et ne suppose pas `GlobalReflectiveClosure`.
+Elle ne constitue pas un résultat de cohérence ou d'incomplétude; la clôture
+globale reste précisément la propriété réfutée ci-dessus.
 
 ## 6. Sortie au niveau de la représentation
 
