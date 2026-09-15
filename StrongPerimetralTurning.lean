@@ -4997,6 +4997,18 @@ def oneStepCoreResidualOccurrence
     (oneStepResidualDeterminationCore P)
     (oneStepCorePositive P)
 
+def oneStepCoreSegmentedBoundary
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.CoreSegmentedBoundary
+      (perimetralBoundaryGenerator P)
+      (NonClosingPosition P.perimeter)
+      (FinalRequirement P)
+      (History.Occurrence
+        (oneStepAfterPerimeter_is_extension P).continuation)
+      (finalRequirementContractible P) :=
+  { core := oneStepResidualDeterminationCore P
+    positive := oneStepCorePositive P }
+
 def oneStepAfterPerimeter_nonClosingRealization
     (P : CircularPresentation) :
     ExactNonClosingRealization P (oneStepAfterPerimeter P) :=
@@ -6703,6 +6715,36 @@ def perimetralObstructedRegime
       (perimetralBoundaryGenerator P) :=
   (perimetralCoupledRegime P).toObstructedRegime
 
+def oneStepCoreTurning
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.CoreTurningConclusion
+      (oneStepCoreSegmentedBoundary P)
+      (perimetralObstructedRegime P) :=
+  AbstractSegmentedTurning.coreTurning
+    (oneStepCoreSegmentedBoundary P)
+    (perimetralObstructedRegime P)
+
+/- Reattach the result of the direct core turning to the historical public
+   extension.  The occurrence and its uniqueness come from the core result;
+   only the public rich label is checked at this boundary. -/
+def oneStepCoreTurning_toPublic
+    (P : CircularPresentation) :
+    AbstractSegmentedTurning.TurningConclusion
+      (oneStepSegmentedBoundary P)
+      (perimetralObstructedRegime P) :=
+  let coreResult := oneStepCoreTurning P
+  { uniqueResidualOccurrence :=
+      { occurrence := coreResult.uniqueResidualOccurrence.occurrence
+        labelIsResidual := by rfl
+        unique := fun other =>
+          coreResult.uniqueResidualOccurrence.unique other }
+    exactRelativeClassification := coreResult.exactRelativeClassification
+    generatedContinuation := coreResult.generatedContinuation
+    continuationIsStrict := coreResult.continuationIsStrict
+    continuationOutsideRegime := coreResult.continuationOutsideRegime
+    noStrictRegimeExtension := coreResult.noStrictRegimeExtension
+    totalizationRejected := coreResult.totalizationRejected }
+
 def coupledTurningOfCircularPresentation
     (P : CircularPresentation) :
     AbstractSegmentedTurning.CoupledTurningConclusion
@@ -6715,10 +6757,20 @@ def abstractTurningOfCircularPresentation
     (P : CircularPresentation) :
     AbstractSegmentedTurning.TurningConclusion
       (oneStepSegmentedBoundary P)
-      (perimetralObstructedRegime P) :=
-  AbstractSegmentedTurning.abstractTurning
-    (oneStepSegmentedBoundary P)
-    (perimetralObstructedRegime P)
+      (perimetralObstructedRegime P) := by
+  exact oneStepCoreTurning_toPublic P
+
+theorem oneStepCoreResidualOccurrence_agrees_with_weak
+    (P : CircularPresentation) :
+    (oneStepCoreResidualOccurrence P).occurrence =
+      (oneStepWeakResidualOccurrence P).occurrence :=
+  rfl
+
+theorem oneStepCoreResidualOccurrence_agrees_with_consumedTurning
+    (P : CircularPresentation) :
+    (oneStepCoreResidualOccurrence P).occurrence =
+      ((abstractTurningOfCircularPresentation P).uniqueResidualOccurrence).occurrence :=
+  rfl
 
 /- The abstract turning consumes the same residual occurrence as the weak
    producer-facing construction.  This is a direct agreement with the
@@ -6727,7 +6779,8 @@ theorem oneStepWeakResidualOccurrence_agrees_with_consumedTurning
     (P : CircularPresentation) :
     (oneStepWeakResidualOccurrence P).occurrence =
       (abstractTurningOfCircularPresentation P).uniqueResidualOccurrence.occurrence :=
-  rfl
+  (oneStepCoreResidualOccurrence_agrees_with_weak P).symm.trans
+    (oneStepCoreResidualOccurrence_agrees_with_consumedTurning P)
 
 theorem noIntermediateRefinement
     {P : CircularPresentation}
@@ -8650,6 +8703,7 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.oneStepResidualDeterminationCore
 #print axioms StrongPerimetralTurning.oneStepCorePositive
 #print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence
+#print axioms StrongPerimetralTurning.oneStepCoreSegmentedBoundary
 #print axioms StrongPerimetralTurning.oneStepAfterPerimeter_nonClosingRealization
 #print axioms StrongPerimetralTurning.CircularClosureMeaning
 #print axioms StrongPerimetralTurning.perimeterDeployment_closureMeaning
@@ -8733,8 +8787,12 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.analyzeCircularRegimeWithResidualAttempt
 #print axioms StrongPerimetralTurning.perimetralCoupledRegime
 #print axioms StrongPerimetralTurning.perimetralObstructedRegime
+#print axioms StrongPerimetralTurning.oneStepCoreTurning
+#print axioms StrongPerimetralTurning.oneStepCoreTurning_toPublic
 #print axioms StrongPerimetralTurning.coupledTurningOfCircularPresentation
 #print axioms StrongPerimetralTurning.abstractTurningOfCircularPresentation
+#print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence_agrees_with_weak
+#print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence_agrees_with_consumedTurning
 #print axioms StrongPerimetralTurning.oneStepWeakResidualOccurrence_agrees_with_consumedTurning
 #print axioms StrongPerimetralTurning.strictRefinementProducesFinalJunctionRealization
 #print axioms StrongPerimetralTurning.FinalLoopRealization.endpointEquality
