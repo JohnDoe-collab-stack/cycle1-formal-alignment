@@ -84,23 +84,27 @@ socle structurel
 Cycle 1 — alignement relatif
   régime opérationnel et norme indépendante
   → transformation de témoins dans chaque sens
-  → adéquation exacte
-  ├── continuation à une occurrence
+  ├── voie de construction de la continuation (indépendante de l'adéquation)
+  │     génération et concaténation
+  │     → continuation à une occurrence
   │     → sortie opérationnelle localisée
   │     → OOD structurel
   │
-  └── observation propositionnelle par `Nonempty`
+  └── adéquation exacte
+        observation propositionnelle par `Nonempty`
         → équivalence des deux statuts habités
         → tiré en arrière et transport vers les codes
         → représentation exacte de statuts déterminés
-        + diagonalisation de l'évaluateur
+        → diagonalisation de l'évaluateur
         → statut diagonal non représentable
         → échec de la clôture réflexive globale
 ```
 
-La bifurcation intervient après l'adéquation du Cycle 1. Le développement
-diagonal ne découle pas de `oneStepAfterPerimeter`, et aucun théorème n'identifie
-la sortie opérationnelle à la sortie représentationnelle.
+La continuation est construite par génération et concaténation après le
+périmètre ; elle n'attend pas l'adéquation du Cycle 1. La voie réflexive utilise
+l'adéquation pour transporter les deux statuts habités vers leurs codes. Le
+développement diagonal ne découle pas de `oneStepAfterPerimeter`, et aucun
+théorème n'identifie la sortie opérationnelle à la sortie représentationnelle.
 
 ## Cycle 1 — Alignement relatif
 
@@ -339,18 +343,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.
 scientifiques canoniques qu'il énumère. Les métadonnées du dépôt et les
 documents d'accès, dont les présents README, sont extérieurs à ce manifeste des
 sources scientifiques. Plus précisément, le manifeste ne protège pas par
-empreinte `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, les scripts
-de vérification, le workflow CI, `audit/AUDIT_BUILD.txt`, le manifeste lui-même
+empreinte `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, le workflow
+CI, `audit/AUDIT_BUILD.txt`, le manifeste lui-même
 ni les deux README. Leur identité est donc fixée par le commit Git audité, et
 non par `MANIFEST.sha256`.
 
-La compilation épinglée construit les deux bibliothèques Lake et exécute 460
-commandes `#print axioms` portant sur 459 déclarations distinctes ; une
-déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`. Chaque
-rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
-L'environnement exact, les décomptes, les empreintes et les commandes sont
-consignés dans
-[`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
+Chaque fichier Lean se termine par un bloc explicite `#print axioms` pour ses
+déclarations principales. La bibliothèque de production et la bibliothèque de
+régression constructive se compilent avec :
+
+```bash
+lake build
+lake build AuditRegression
+```
 
 ## Portée, licence et citation
 
@@ -360,13 +365,12 @@ est un argument diagonal sémantique abstrait, non une formalisation de la
 syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
 d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
-`noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Lean génère
-toutefois des déclarations auxiliaires `.injEq` qui dépendent de `propext` ;
-aucune des 459 déclarations distinctes explicitement auditées ne dépend de
-celles-ci ni d'un autre axiome.
+`noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Les blocs
+`#print axioms` placés à la fin des fichiers sources n'établissent aucune
+dépendance axiomatique pour les déclarations qu'ils nomment.
 
 Le dépôt est un artefact autonome : aucun historique source privé n'est requis
-pour le compiler ou l'auditer. Le code et la documentation sont distribués sous
+pour le compiler ou l'inspecter. Le code et la documentation sont distribués sous
 licence Apache-2.0. Les métadonnées de citation figurent dans
 [`CITATION.cff`](CITATION.cff).
 

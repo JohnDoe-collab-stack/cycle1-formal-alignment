@@ -49,25 +49,34 @@ structural foundation
 Cycle 1 — relative alignment
   operational regime and independent norm
   → witness transformation in each direction
-  → exact adequacy
-  ├── one-occurrence continuation
+  ├── continuation construction path (independent of adequacy)
+  │     generation and concatenation
+  │     → one-occurrence continuation
   │     → localized operational exit
   │     → structural OOD
   │
-  └── proposition-level observation by `Nonempty`
+  └── exact adequacy
+        proposition-level observation by `Nonempty`
         → equivalence of the two inhabited statuses
         → pullback and transport to codes
         → exact representation of determined statuses
-        + evaluator diagonalization
+        → evaluator diagonalization
         → non-representable diagonal status
         → failure of global reflective closure
 ```
 
-The diagram is a dependency graph, not one theorem. Its bifurcation occurs only
-after the two Cycle 1 witness transformations have established adequacy. The
-operational branch continues through `oneStepAfterPerimeter`; the reflective
-branch begins by observing the inhabitability of the two adequate witness
-families. No edge runs from the operational exit to diagonalization.
+The diagram is a dependency graph, not one theorem. The continuation is built
+by the constitutive generation and concatenation operations after the perimeter;
+its construction does not wait for an adequacy proof. Adequacy is used on the
+separate reflective path to transport the two inhabited statuses into their
+codes. No edge runs from the operational exit to diagonalization, and no edge
+from diagonalization is needed to construct the continuation.
+
+Cycle 2 diagonalization is therefore carried by its autonomous reflective
+kernel. It depends neither on the operational continuation nor on its regime
+exit; its connection to Cycle 1 is only through the adequate statuses whose
+representation is transported. This separation is constitutive of the graph,
+not merely a presentation convention.
 
 | Transition | Status | Main Lean anchor |
 |---|---|---|

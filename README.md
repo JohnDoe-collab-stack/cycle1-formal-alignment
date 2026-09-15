@@ -77,23 +77,27 @@ structural foundation
 Cycle 1 — relative alignment
   operational regime and independent norm
   → witness transformation in each direction
-  → exact adequacy
-  ├── one-occurrence continuation
+  ├── continuation construction path (independent of adequacy)
+  │     generation and concatenation
+  │     → one-occurrence continuation
   │     → localized operational exit
   │     → structural OOD
   │
-  └── proposition-level observation by `Nonempty`
+  └── exact adequacy
+        proposition-level observation by `Nonempty`
         → equivalence of the two inhabited statuses
         → pullback and transport to codes
         → exact representation of determined statuses
-        + evaluator diagonalization
+        → evaluator diagonalization
         → non-representable diagonal status
         → failure of global reflective closure
 ```
 
-The split occurs after Cycle 1 adequacy. The diagonal development does not
-follow from `oneStepAfterPerimeter`, and no theorem identifies the operational
-exit with the representational one.
+The continuation is constructed by generation and concatenation after the
+perimeter; it does not wait for Cycle 1 adequacy. The reflective path uses
+adequacy to transport the two inhabited statuses into their codes. The
+diagonal development does not follow from `oneStepAfterPerimeter`, and no
+theorem identifies the operational exit with the representational one.
 
 ## Cycle 1 — Relative alignment
 
@@ -240,7 +244,7 @@ failure of the independent norm.
 - [Cycle 1 — Relative alignment](docs/en/relative_alignment.md) — detailed
   proof, signatures, adequacy, and operational exit.
 - [Method of relational constitutive roles](docs/en/relational_constitutive_roles_method.md)
-  — reusable construction, separation, reconstruction, and audit protocol.
+  — reusable construction, separation, and reconstruction method.
 - [Cycle 2 — Reflective alignment](docs/en/reflective_alignment.md) — exact
   representation, diagonalization, and global non-closure.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
@@ -327,17 +331,18 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.
 scientific documents listed in it. Repository metadata and access documents,
 including these READMEs, are outside that scientific-source manifest.
 Specifically, the manifest does not hash-anchor `lean-toolchain`,
-`lakefile.toml`, `lake-manifest.json`, the verification scripts, the CI
+`lakefile.toml`, `lake-manifest.json`, the CI
 workflow, `audit/AUDIT_BUILD.txt`, the `MANIFEST.sha256` file itself, or either
 README. Their identity is therefore fixed by the audited Git commit, not by
 `MANIFEST.sha256`.
 
-The pinned build compiles both Lake libraries and runs 460 `#print axioms`
-commands over 459 distinct declarations; one declaration is re-audited by the
-`Cycle2.lean` aggregator. Every report states that the named declaration has no
-axiomatic dependency. Exact
-environment, counts, hashes, and commands are recorded in
-[`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
+Every Lean source ends with an explicit `#print axioms` block. The production
+library and the constructive regression library are compiled with:
+
+```bash
+lake build
+lake build AuditRegression
+```
 
 ## Scope, license, and citation
 
@@ -346,12 +351,12 @@ theory of every norm or alignment problem. Cycle 2 is an abstract semantic
 diagonal argument, not a formalization of syntax, provability, arithmetization,
 or Gödel's incompleteness theorems. Their source declarations are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
-`Classical`, `propext`, or `Quot.sound`. Lean does generate auxiliary `.injEq`
-declarations that depend on `propext`; none of the 459 distinct declarations
-explicitly audited depends on them or on any other axiom.
+`Classical`, `propext`, or `Quot.sound`. Lean may generate auxiliary declarations
+internally; the declarations named in the source audit blocks have no axiomatic
+dependency.
 
 The repository is a standalone artifact: no private source history is required
-to build or audit it. Code and documentation are distributed under Apache-2.0.
+to build or inspect it. Code and documentation are distributed under Apache-2.0.
 Citation metadata is provided in [`CITATION.cff`](CITATION.cff).
 
 ## Authorship

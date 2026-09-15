@@ -22,10 +22,11 @@ Four levels of claim are kept separate:
 
 ## Place in the overall architecture
 
-Cycle 2 is not an independent branch attached directly to the structural base.
-It begins from the adequacy already established by the two Cycle 1 witness maps,
-observes that adequacy at proposition level through `Nonempty`, and only then
-transports it into the representation layer:
+The reflective part of Cycle 2 begins from the adequacy established by the two
+Cycle 1 witness maps, observes that adequacy at proposition level through
+`Nonempty`, and only then transports it into the representation layer. This is
+separate from the operational continuation path, which is constructed by
+generation and concatenation after the perimeter:
 
 ```text
 Cycle 1 witness maps
@@ -37,8 +38,9 @@ Cycle 1 witness maps
   → determined exact representation with global non-closure
 ```
 
-The operational continuation `oneStepAfterPerimeter` belongs to another branch
-after Cycle 1 adequacy. It is not an input to the diagonal proof.
+The operational continuation `oneStepAfterPerimeter` is not an input to the
+diagonal proof. Adequacy is needed for the reflective transport, not for
+constructing the continuation.
 
 ## 1. Purpose
 
@@ -279,18 +281,17 @@ lake clean
 lake build
 ```
 
-To build the two libraries separately:
+To build the production libraries and the regression library separately:
 
 ```bash
 lake build Cycle1Alignment
 lake build Cycle2ReflectiveExtension
+lake build AuditRegression
 ```
 
-The Cycle 2 source files end with `#print axioms` for all 28 of their explicit
-top-level declarations. The complete build runs 460 `#print axioms` commands
-over 459 distinct declarations; one declaration is re-audited by the
-`Cycle2.lean` aggregator. Every report states that the named declaration has no
-axiom dependency. Source integrity is checked on Linux or macOS with:
+The Cycle 2 source files end with explicit `#print axioms` blocks for their
+public declarations. The production and regression libraries can be compiled
+with the pinned toolchain. Source integrity is checked on Linux or macOS with:
 
 ```bash
 bash scripts/verify-manifest.sh

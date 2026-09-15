@@ -22,10 +22,11 @@ Quatre niveaux d'énoncés sont maintenus séparés:
 
 ## Place dans l'architecture générale
 
-Le Cycle 2 n'est pas une branche indépendante raccordée directement au socle
-structurel. Il part de l'adéquation déjà établie par les deux applications de
-témoins du Cycle 1, observe cette adéquation au niveau propositionnel par
-`Nonempty`, puis seulement la transporte dans la couche de représentation :
+La partie réflexive du Cycle 2 part de l'adéquation déjà établie par les deux
+applications de témoins du Cycle 1, observe cette adéquation au niveau
+propositionnel par `Nonempty`, puis seulement la transporte dans la couche de
+représentation. Elle est distincte de la voie de continuation opérationnelle,
+construite par génération et concaténation après le périmètre :
 
 ```text
 applications de témoins du Cycle 1
@@ -37,9 +38,9 @@ applications de témoins du Cycle 1
   → représentation exacte déterminée avec non-clôture globale
 ```
 
-La continuation opérationnelle `oneStepAfterPerimeter` appartient à une autre
-branche située après l'adéquation du Cycle 1. Elle n'est pas une entrée de la
-preuve diagonale.
+La continuation opérationnelle `oneStepAfterPerimeter` n'est pas une entrée de
+la preuve diagonale. L'adéquation est nécessaire au transport réflexif, non à la
+construction de la continuation.
 
 ## 1. Objet
 
@@ -286,18 +287,17 @@ lake clean
 lake build
 ```
 
-Pour construire séparément les deux bibliothèques:
+Pour construire séparément les bibliothèques de production et de régression :
 
 ```bash
 lake build Cycle1Alignment
 lake build Cycle2ReflectiveExtension
+lake build AuditRegression
 ```
 
-Les fichiers sources du cycle 2 se terminent par des `#print axioms` couvrant
-leurs 28 déclarations explicites de premier niveau. La compilation complète
-exécute 460 commandes `#print axioms` portant sur 459 déclarations distinctes ;
-une déclaration est auditée une seconde fois par l'agrégateur `Cycle2.lean`.
-Chaque rapport affirme que la déclaration nommée ne dépend d'aucun axiome.
+Les fichiers sources du Cycle 2 se terminent par des blocs explicites
+`#print axioms` couvrant leurs déclarations publiques. Les bibliothèques de
+production et de régression se compilent avec la chaîne d'outils épinglée.
 L'intégrité des sources se vérifie sous Linux ou macOS avec :
 
 ```bash

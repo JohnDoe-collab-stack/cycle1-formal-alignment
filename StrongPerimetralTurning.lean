@@ -6138,6 +6138,16 @@ def oneStepResidualPositive
         (oneStepFaithfullyLabelledExtension P).continuation) :=
   (oneStepAfterPerimeter_positiveContinuation P).toResidualPositive
 
+/- This is the positive occurrence stored by the segmented boundary itself.
+   The equality is exported so the residual result can be checked against the
+   exact producer field rather than only against an adapter defined alongside
+   it. -/
+theorem oneStepResidualPositive_agrees_with_segmentedBoundary
+    (P : CircularPresentation) :
+    (oneStepResidualPositive P).occurrence =
+      (oneStepSegmentedBoundary P).positive.occurrence :=
+  rfl
+
 def oneStepReconstructedInternalCompletion
     (P : CircularPresentation) :
     SegmentedResidualRole.ExactInternalCompletion
@@ -6665,6 +6675,15 @@ def abstractTurningOfCircularPresentation
   AbstractSegmentedTurning.abstractTurning
     (oneStepSegmentedBoundary P)
     (perimetralObstructedRegime P)
+
+/- The abstract turning consumes the same residual occurrence as the weak
+   producer-facing construction.  This is a direct agreement with the
+   published consumer, not an agreement between two new adapters. -/
+theorem oneStepWeakResidualOccurrence_agrees_with_consumedTurning
+    (P : CircularPresentation) :
+    (oneStepWeakResidualOccurrence P).occurrence =
+      (abstractTurningOfCircularPresentation P).uniqueResidualOccurrence.occurrence :=
+  rfl
 
 theorem noIntermediateRefinement
     {P : CircularPresentation}
@@ -8623,6 +8642,7 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.FaithfullyLabelledPerimeterExtension.reconstructed_occurrenceToRole_agrees
 #print axioms StrongPerimetralTurning.oneStepSegmentedBoundary
 #print axioms StrongPerimetralTurning.oneStepResidualPositive
+#print axioms StrongPerimetralTurning.oneStepResidualPositive_agrees_with_segmentedBoundary
 #print axioms StrongPerimetralTurning.oneStepReconstructedInternalCompletion
 #print axioms StrongPerimetralTurning.oneStepReconstructedInternalRealization
 #print axioms StrongPerimetralTurning.oneStepReconstructed_roleToOccurrence_agrees
@@ -8668,6 +8688,7 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.perimetralObstructedRegime
 #print axioms StrongPerimetralTurning.coupledTurningOfCircularPresentation
 #print axioms StrongPerimetralTurning.abstractTurningOfCircularPresentation
+#print axioms StrongPerimetralTurning.oneStepWeakResidualOccurrence_agrees_with_consumedTurning
 #print axioms StrongPerimetralTurning.strictRefinementProducesFinalJunctionRealization
 #print axioms StrongPerimetralTurning.FinalLoopRealization.endpointEquality
 #print axioms StrongPerimetralTurning.FinalLoopRealization.toFinalIdentification

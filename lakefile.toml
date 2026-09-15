@@ -23,3 +23,10 @@ roots = [
 [[lean_lib]]
 name = "Cycle2ReflectiveExtension"
 roots = ["Cycle2"]
+
+[[lean_lib]]
+name = "AuditRegression"
+roots = [
+  "Tests.ResidualAuditRegression",
+  "Tests.DynamicAlignmentRegression"
+]

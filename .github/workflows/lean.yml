@@ -20,5 +20,31 @@ jobs:
       - name: Build Lean project
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
 
+      - name: Build regression library
+        run: lake build AuditRegression
+
       - name: Verify scientific-file manifest
         run: bash scripts/verify-manifest.sh
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Build Lean project
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
+
+      - name: Build regression library
+        shell: pwsh
+        run: lake build AuditRegression
+
+      - name: Verify manifest with PowerShell
+        shell: pwsh
+        run: ./scripts/verify-manifest.ps1
+
+      - name: Verify manifest with Windows PowerShell
+        shell: powershell
+        run: ./scripts/verify-manifest.ps1

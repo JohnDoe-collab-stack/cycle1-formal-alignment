@@ -51,26 +51,35 @@ socle structurel
 Cycle 1 — alignement relatif
   régime opérationnel et norme indépendante
   → transformation de témoins dans chaque sens
-  → adéquation exacte
-  ├── continuation à une occurrence
+  ├── voie de construction de la continuation (indépendante de l'adéquation)
+  │     génération et concaténation
+  │     → continuation à une occurrence
   │     → sortie opérationnelle localisée
   │     → OOD structurel
   │
-  └── observation propositionnelle par `Nonempty`
+  └── adéquation exacte
+        observation propositionnelle par `Nonempty`
         → équivalence des deux statuts habités
         → tiré en arrière et transport vers les codes
         → représentation exacte de statuts déterminés
-        + diagonalisation de l'évaluateur
+        → diagonalisation de l'évaluateur
         → statut diagonal non représentable
         → échec de la clôture réflexive globale
 ```
 
-Ce diagramme est un graphe de dépendances, non un théorème unique. Sa bifurcation
-intervient seulement après que les deux transformations de témoins du Cycle 1
-ont établi l'adéquation. La branche opérationnelle se poursuit par
-`oneStepAfterPerimeter` ; la branche réflexive commence par observer
-l'habitabilité des deux familles de témoins adéquates. Aucune arête ne va de la
-sortie opérationnelle vers la diagonalisation.
+Ce diagramme est un graphe de dépendances, non un théorème unique. La
+continuation est construite par les opérations constitutives de génération et de
+concaténation après le périmètre; sa construction n'attend pas une preuve
+d'adéquation. L'adéquation intervient sur la voie réflexive séparée pour
+transporter les deux statuts habités vers leurs codes. Aucune arête ne va de la
+sortie opérationnelle vers la diagonalisation, et aucune arête issue de la
+diagonalisation n'est nécessaire pour construire la continuation.
+
+La diagonalisation du Cycle 2 est donc portée par son noyau réflexif autonome.
+Elle ne dépend ni de la continuation opérationnelle ni de sa sortie du régime ;
+le raccord au Cycle 1 se fait seulement par les statuts adéquats dont la
+représentation est transportée. Cette séparation est constitutive du graphe et
+non une simple convention de présentation.
 
 | Transition | Statut | Ancrage Lean principal |
 |---|---|---|
