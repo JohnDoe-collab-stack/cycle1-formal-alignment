@@ -4953,6 +4953,50 @@ def oneStepAfterPerimeter_is_extension (P : CircularPresentation) :
   { continuation := .extend .root (generate_after_perimeter P).2
     recompose := rfl }
 
+/-! ## Direct Cycle 1 residual-determination core
+
+This is the core consumed by the canonical one-step construction.  Its label
+is defined directly on the exactly-one continuation occurrence; no rich
+perimeter realization or residual-labelling adapter is involved. -/
+def oneStepResidualDeterminationCore
+    (P : CircularPresentation) :
+    SegmentedResidualRole.ResidualDeterminationCore
+      (NonClosingPosition P.perimeter)
+      (FinalRequirement P)
+      (History.Occurrence
+        (oneStepAfterPerimeter_is_extension P).continuation)
+      (finalRequirementContractible P) := by
+  let exactlyOne :
+      History.ExactlyOne
+        (oneStepAfterPerimeter_is_extension P).continuation := by
+    change History.ExactlyOne
+      (.extend .root (generate_after_perimeter P).2)
+    exact .single (generate_after_perimeter P).2
+  refine
+    { newLabel := fun _ => .inr .distinguished
+      newLabelInjective := ?_
+      noInternalReuse := ?_ }
+  · intro first second _
+    exact (exactlyOne.occurrence_unique first).trans
+      (exactlyOne.occurrence_unique second).symm
+  · intro occurrence role equality
+    cases equality
+
+def oneStepCorePositive
+    (P : CircularPresentation) :
+    SegmentedResidualRole.PositiveNewPart
+      (History.Occurrence
+        (oneStepAfterPerimeter_is_extension P).continuation) :=
+  { occurrence := .last }
+
+def oneStepCoreResidualOccurrence
+    (P : CircularPresentation) :
+    SegmentedResidualRole.CoreUniqueResidualOccurrence
+      (oneStepResidualDeterminationCore P) :=
+  SegmentedResidualRole.positiveCore_hasUniqueResidualOccurrence
+    (oneStepResidualDeterminationCore P)
+    (oneStepCorePositive P)
+
 def oneStepAfterPerimeter_nonClosingRealization
     (P : CircularPresentation) :
     ExactNonClosingRealization P (oneStepAfterPerimeter P) :=
@@ -8603,6 +8647,9 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.PerimeterExtension.toExactNonClosingRealization
 #print axioms StrongPerimetralTurning.identityCircularRefinement
 #print axioms StrongPerimetralTurning.oneStepAfterPerimeter_is_extension
+#print axioms StrongPerimetralTurning.oneStepResidualDeterminationCore
+#print axioms StrongPerimetralTurning.oneStepCorePositive
+#print axioms StrongPerimetralTurning.oneStepCoreResidualOccurrence
 #print axioms StrongPerimetralTurning.oneStepAfterPerimeter_nonClosingRealization
 #print axioms StrongPerimetralTurning.CircularClosureMeaning
 #print axioms StrongPerimetralTurning.perimeterDeployment_closureMeaning
