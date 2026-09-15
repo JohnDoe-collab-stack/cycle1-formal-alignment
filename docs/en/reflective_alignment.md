@@ -287,8 +287,9 @@ lake build Cycle2ReflectiveExtension
 ```
 
 The Cycle 2 source files end with `#print axioms` for all 28 of their explicit
-top-level declarations. The complete build audits 650 declarations and reports
-no axiom dependency. Source integrity is checked with either:
+top-level declarations. The complete build executes 763 audit commands covering
+699 distinct declarations and reports no axiom dependency. Source integrity is
+checked with either:
 
 ```bash
 bash scripts/verify-manifest.sh

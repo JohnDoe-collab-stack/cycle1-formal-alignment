@@ -287,8 +287,9 @@ On Windows PowerShell:
 pwsh -NoProfile -File scripts/verify-manifest.ps1
 ```
 
-The pinned build compiles all three Lake libraries, audits 650 declarations
-through the final `#print axioms` blocks, and reports no axiomatic dependency. Exact
+The pinned build compiles all three Lake libraries and executes 763
+`#print axioms` commands covering 699 distinct declarations; every report states
+that the audited declaration has no axiomatic dependency. Exact
 environment, counts, hashes, and commands are recorded in
 [`audit/AUDIT_BUILD.txt`](audit/AUDIT_BUILD.txt).
 
@@ -301,7 +302,7 @@ or Gödel's incompleteness theorems. The formal cycles and constitutive
 architecture are constructive and use no `sorry`, `admit`, declared `axiom`,
 `noncomputable` declaration, `Classical`, `propext`, or `Quot.sound`. Lean does
 generate auxiliary `.injEq` declarations that depend on `propext`; none of the
-650 explicitly audited declarations depend on them or on any other axiom.
+699 explicitly audited declarations depend on them or on any other axiom.
 
 The repository is a standalone artifact: no private source history is required
 to build or audit it. Code and documentation are distributed under Apache-2.0.
