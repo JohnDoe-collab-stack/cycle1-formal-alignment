@@ -1044,6 +1044,56 @@ theorem no_strict_regime_extension
 
 end CoupledObstructedRegime
 
+/- The historical coupled regime can be viewed through the core interface
+   without pretending that a core boundary reconstructs a rich boundary.
+   The compatibility attempt explicitly carries the rich boundary needed by
+   the historical interpretation. -/
+def CoupledObstructedRegime.toCoreCoupled
+    {Carrier : Type uCarrier}
+    {Extension : Carrier → Carrier → Type uExtension}
+    {generator : BoundaryGenerator Carrier Extension}
+    {Context : Carrier → Type uContext}
+    {NewOccurrence :
+      {candidate : Carrier} → Context candidate → Type uNew}
+    {CombinedOccurrence :
+      {candidate : Carrier} → Context candidate → Type uCombined}
+    {InternalRole : Type uInternal}
+    {ResidualRole : Type uResidual}
+    {OldOccurrence : Type uOld}
+    {internal : SegmentedResidualRole.ExactInternalRealization
+      InternalRole OldOccurrence}
+    {residual : SegmentedResidualRole.ContractibleRole ResidualRole}
+    (coupled : CoupledObstructedRegime generator Context
+      NewOccurrence CombinedOccurrence
+      InternalRole ResidualRole OldOccurrence internal residual) :
+    CoreCoupledObstructedRegime generator Context
+      NewOccurrence InternalRole ResidualRole residual :=
+  { Regime := coupled.Regime
+    Interpretation := fun _ => Unit
+    Attempt := fun {candidate} _ =>
+      Σ boundary : PositiveResidualBoundary generator Context
+        NewOccurrence CombinedOccurrence
+        InternalRole ResidualRole OldOccurrence internal residual candidate,
+        coupled.Attempt
+          (coupled.interpretResidual boundary
+            boundary.uniqueResidualOccurrence)
+    canonicalRegime := coupled.canonicalRegime
+    interpretResidual := fun {_} _ _ => ()
+    analyzeRegime := by
+      intro candidate regime
+      cases coupled.analyzeRegime regime with
+      | inl equality => exact .inl equality
+      | inr residualBranch =>
+          rcases residualBranch with ⟨boundary, attempt⟩
+          exact .inr ⟨boundary.toCoreBoundary, ⟨boundary, attempt⟩⟩
+    rejectTotalization := by
+      intro candidate interpretation attempt
+      rcases attempt with ⟨boundary, richAttempt⟩
+      exact coupled.rejectTotalization
+        (coupled.interpretResidual boundary
+          boundary.uniqueResidualOccurrence)
+        richAttempt }
+
 structure CoupledTurningConclusion
     {Carrier : Type uCarrier}
     {Extension : Carrier → Carrier → Type uExtension}
@@ -1101,14 +1151,25 @@ def coupledTurning
     (coupled : CoupledObstructedRegime generator Context
       NewOccurrence CombinedOccurrence
       InternalRole ResidualRole OldOccurrence internal residual) :
-    CoupledTurningConclusion coupled :=
-  { exactRelativeClassification := coupled.exactClassification
-    generatedContinuation := generator.generates
-    continuationIsStrict := generator.continuation_ne_boundary
-    continuationOutsideRegime := coupled.continuation_outside_regime
-    admittedPositiveBoundaryRejected :=
-      coupled.admittedPositiveBoundary_rejected
-    noStrictRegimeExtension := coupled.no_strict_regime_extension }
+    CoupledTurningConclusion coupled := by
+  let coreCoupled := CoupledObstructedRegime.toCoreCoupled coupled
+  let coreResult := coreCoupledTurning coreCoupled
+  exact
+    { exactRelativeClassification := coreResult.exactRelativeClassification
+      generatedContinuation := coreResult.generatedContinuation
+      continuationIsStrict := coreResult.continuationIsStrict
+      continuationOutsideRegime := coreResult.continuationOutsideRegime
+      admittedPositiveBoundaryRejected := by
+        intro candidate boundary attempt
+        let coreBoundary := boundary.toCoreBoundary
+        let coreAttempt :
+            coreCoupled.Attempt
+              (coreCoupled.interpretResidual coreBoundary
+                coreBoundary.uniqueResidualOccurrence) :=
+          ⟨boundary, attempt⟩
+        exact coreResult.admittedPositiveBoundaryRejected
+          coreBoundary coreAttempt
+      noStrictRegimeExtension := coreResult.noStrictRegimeExtension }
 
 end AbstractSegmentedTurning
 
@@ -1132,6 +1193,7 @@ end AbstractSegmentedTurning
 #print axioms AbstractSegmentedTurning.CoreCoupledObstructedRegime.no_strict_regime_extension
 #print axioms AbstractSegmentedTurning.CoreCoupledTurningConclusion
 #print axioms AbstractSegmentedTurning.coreCoupledTurning
+#print axioms AbstractSegmentedTurning.CoupledObstructedRegime.toCoreCoupled
 #print axioms AbstractSegmentedTurning.abstractTurning
 #print axioms AbstractSegmentedTurning.PositiveResidualBoundary.uniqueResidualOccurrence
 #print axioms AbstractSegmentedTurning.CoupledObstructedRegime.exactClassification
