@@ -1,0 +1,266 @@
+name: Temporary representation-boundary refactor
+
+on:
+  push:
+    branches:
+      - research/mediated-transition-coherence
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: research/mediated-transition-coherence
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Apply architectural rename
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import re
+
+          root = Path('.')
+
+          common = {
+              'Cycle2.ReflectiveAlignment.circularStatusAdequacy':
+                  'RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy',
+              'Cycle2.DiagonalizationKernel': 'RepresentationBoundary.DiagonalizationKernel',
+              'Cycle2/DiagonalizationKernel.lean': 'RepresentationBoundary/DiagonalizationKernel.lean',
+              'Cycle2/ReflectiveAlignment.lean': 'RepresentationBoundary/CircularStatusRepresentation.lean',
+              'GlobalReflectiveClosure': 'GlobalRepresentationClosure',
+              'noGlobalReflectiveClosure': 'noGlobalRepresentationClosure',
+              'exactCircularStatusRepresentation_hasDiagonalOutside': 'localExactRepresentation_hasDiagonalExit',
+              'circularDiagonalStatusExit': 'diagonalRepresentationExit',
+              'canonicalUnitCircularStatusView': 'canonicalUnitCircularStatusRepresentation',
+              'ReflectiveCircularStatusView': 'ExactCircularStatusRepresentation',
+          }
+
+          fr = {
+              '[Cycle 2 — alignement réflexif](alignement_reflexif.md)':
+                  '[frontière représentationnelle](frontiere_representationnelle.md)',
+              '[alignement réflexif — français](alignement_reflexif.md)':
+                  '[frontière représentationnelle — français](frontiere_representationnelle.md)',
+              '[reflective alignment — English](../en/reflective_alignment.md)':
+                  '[representation boundary — English](../en/representation_boundary.md)',
+              '## 7. Cycle 2 — Alignement réflexif et non-clôture diagonale':
+                  '## 7. Frontière représentationnelle — exactitude locale et non-clôture diagonale',
+              '## 13. Réflexion propositionnelle dans le Cycle 2':
+                  '## 13. Observation propositionnelle et frontière de représentation',
+              "### 17.2 Ce que le Cycle 2 ajoute — et n'ajoute pas":
+                  "### 17.2 Ce que la branche `RepresentationBoundary` ajoute — et n'ajoute pas",
+              'Cycle 2': 'la branche `RepresentationBoundary`',
+              'Le la branche `RepresentationBoundary`': 'La branche `RepresentationBoundary`',
+              'le la branche `RepresentationBoundary`': 'la branche `RepresentationBoundary`',
+              'du la branche `RepresentationBoundary`': 'de la branche `RepresentationBoundary`',
+              'au la branche `RepresentationBoundary`': 'à la branche `RepresentationBoundary`',
+              'alignement relatif et réflexif': 'alignement relatif et frontière représentationnelle',
+              'non-clôture diagonale réflexive': 'non-clôture diagonale de représentation',
+              'architecture réflexive': 'architecture représentationnelle',
+              'voie réflexive': 'branche représentationnelle',
+              'noyau réflexif autonome': 'noyau diagonal autonome',
+              'clôture réflexive globale': 'clôture représentationnelle globale',
+              'non-clôture réflexive globale': 'non-clôture représentationnelle globale',
+              'niveau réflexif': 'niveau représentationnel',
+              'couche réflexive de représentation': 'couche de représentation',
+              'extension réflexive constructive autonome': 'branche représentationnelle constructive autonome',
+              'statuts alignés': 'statuts déterminés',
+              "raccord depuis l'adéquation du Cycle 1":
+                  "application aux statuts circulaires issue de l'adéquation du Cycle 1",
+              "l'un des deux cycles formels": "l'une des deux branches formelles",
+              "C'est le résultat central de l'alignement réflexif":
+                  "C'est le résultat central de la frontière représentationnelle",
+              'une couche réflexive où': 'une couche de représentation où',
+          }
+
+          en = {
+              '[Cycle 2 — reflective alignment](reflective_alignment.md)':
+                  '[representation boundary](representation_boundary.md)',
+              '[reflective alignment — English](reflective_alignment.md)':
+                  '[representation boundary — English](representation_boundary.md)',
+              '[alignement réflexif — français](../fr/alignement_reflexif.md)':
+                  '[frontière représentationnelle — français](../fr/frontiere_representationnelle.md)',
+              '## 7. Cycle 2 — Reflective alignment and diagonal non-closure':
+                  '## 7. Representation boundary — local exactness and diagonal non-closure',
+              '## 13. Proposition-level reflection in Cycle 2':
+                  '## 13. Proposition-level observation and representation boundary',
+              '### 17.2 What Cycle 2 adds — and does not add':
+                  '### 17.2 What the `RepresentationBoundary` branch adds — and does not add',
+              'Cycle 2': 'the `RepresentationBoundary` branch',
+              'The the `RepresentationBoundary` branch': 'The `RepresentationBoundary` branch',
+              'the the `RepresentationBoundary` branch': 'the `RepresentationBoundary` branch',
+              'of the the `RepresentationBoundary` branch': 'of the `RepresentationBoundary` branch',
+              'relative and reflective alignment': 'relative alignment and the representation boundary',
+              'reflective diagonal non-closure': 'diagonal representation non-closure',
+              'reflective architecture': 'representation architecture',
+              'reflective path': 'representation branch',
+              'autonomous reflective kernel': 'autonomous diagonal kernel',
+              'global reflective closure': 'global representation closure',
+              'global reflective non-closure': 'global representation non-closure',
+              'reflective level': 'representation level',
+              'reflective representation layer': 'representation layer',
+              'autonomous constructive reflective extension': 'autonomous constructive representation branch',
+              'aligned statuses': 'determined statuses',
+              'bridge from Cycle 1 adequacy': 'circular-status application from Cycle 1 adequacy',
+              'one of the two formal cycles': 'one of the two formal branches',
+              'This is the central result of reflective alignment':
+                  'This is the central result of the representation boundary',
+              'into a reflective layer where': 'into a representation layer where',
+              'synthesis of both cycles': 'synthesis of alignment and the representation boundary',
+          }
+
+          fr_files = [
+              root / 'docs/fr/alignement_relatif.md',
+              root / 'docs/fr/fondements_structurels.md',
+              root / 'docs/fr/methode_roles_constitutifs_relationnels.md',
+          ]
+          en_files = [
+              root / 'docs/en/relative_alignment.md',
+              root / 'docs/en/structural_foundations.md',
+              root / 'docs/en/relational_constitutive_roles_method.md',
+          ]
+
+          for path in fr_files:
+              text = path.read_text()
+              for old, new in common.items():
+                  text = text.replace(old, new)
+              for old, new in fr.items():
+                  text = text.replace(old, new)
+              path.write_text(text)
+
+          for path in en_files:
+              text = path.read_text()
+              for old, new in common.items():
+                  text = text.replace(old, new)
+              for old, new in en.items():
+                  text = text.replace(old, new)
+              path.write_text(text)
+
+          # README: replace the old narrative, not just identifiers.
+          path = root / 'README.md'
+          text = path.read_text()
+          text = text.replace(
+              '# Structural foundations — relative and reflective alignment',
+              '# Structural foundations — relative alignment and representation boundary')
+          text = text.replace(
+              'dependently typed foundation for relative and reflective alignment.',
+              'dependently typed foundation for relative alignment, together with an autonomous representation-boundary result.')
+          text = text.replace(
+              'outside every global reflective closure of the evaluator.',
+              'outside global representation closure of the evaluator.')
+          old = re.search(
+              r'## Architecture\n\n```text\n.*?```\n\nThe continuation.*?representational one\.\n',
+              text, re.S)
+          if old is None:
+              raise SystemExit('README architecture block not found')
+          text = text.replace(old.group(0), '''## Architecture\n\n```text\nstructural foundation\n  relational constitution\n  → dependently typed construction\n  → faithful realization\n  ↓\nCycle 1 — relative alignment\n  operational regime and independent norm\n  → exact adequacy\n  → finite persistence / realization transport / naturality\n  → one-occurrence continuation and localized operational exit\n\nRepresentationBoundary.DiagonalizationKernel\n  evaluator → diagonal status → non-representability\n  → failure of global representation closure\n\nCycle 1 adequacy ───────────────────────────┐\n                                           ├─→ RepresentationBoundary.CircularStatusRepresentation\nDiagonalizationKernel ─────────────────────┘\n  exact representation of selected statuses\n  + diagonal representation exit\n```\n\nThe continuation and dynamic alignment are proved without importing\n`RepresentationBoundary`. The diagonal kernel is autonomous and imports only\n`Init`. The circular-status representation module is a separate application: it\nuses the already established Cycle 1 proposition-level adequacy together with\nthe diagonal kernel. No theorem identifies the operational exit with the\nrepresentation exit.\n''')
+          start = text.index('## Cycle 2 — Reflective alignment')
+          end = text.index('\n## What is established', start)
+          text = text[:start] + '''## Representation boundary\n\nThe representation-boundary branch is not a second stage of alignment. It first\nobserves the already established Cycle 1 witness families propositionally:\n\n```text\nCircularRegimeStatus P H\n  := Nonempty (CircularRefinement P H)\n\nCircularSpecificationStatus P H\n  := Nonempty (CircularSpecificationSatisfaction P H)\n```\n\nUsing the two Cycle 1 maps, `circularStatusAdequacy` proves their proposition-level\nequivalence. After a decoder pulls those statuses back to predicates on codes,\n`transportRepresentation` transports exact representation along that equivalence.\n\nIndependently, `RepresentationBoundary.DiagonalizationKernel` defines, for any\nevaluator `eval : Code → Code → Prop`,\n\n```lean\ndiagonalStatus eval code := ¬ eval code code\n```\n\nand proves constructively that this predicate is not internally representable.\nConsequently `noGlobalRepresentationClosure` refutes representation of every\npredicate on the evaluator's own code space.\n\n`localExactRepresentation_hasDiagonalExit` combines the two independent facts:\nthe selected circular regime status and its equivalent normative status are\nrepresented exactly, while the evaluator's diagonal status remains outside\ninternal representability.\n''' + text[end:]
+          text = text.replace('`noGlobalReflectiveClosure`', '`noGlobalRepresentationClosure`')
+          text = text.replace(
+              '- [Cycle 2 — Reflective alignment](docs/en/reflective_alignment.md) — exact\n  representation, diagonalization, and global non-closure.',
+              '- [Representation boundary](docs/en/representation_boundary.md) — local exact\n  representation, diagonalization, and global representation non-closure.')
+          text = text.replace(
+              '- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)\n  implements the abstract constructive diagonal kernel using only `Init`.\n- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observes\n  Cycle 1 statuses by `Nonempty` and transports their adequacy into the\n  representation layer.\n- [`Cycle2.lean`](Cycle2.lean) is the import-only public aggregator for Cycle 2.\n\nNo Cycle 1 module imports Cycle 2.',
+              '- [`RepresentationBoundary/DiagonalizationKernel.lean`](RepresentationBoundary/DiagonalizationKernel.lean)\n  implements the abstract constructive diagonal kernel using only `Init`.\n- [`RepresentationBoundary/CircularStatusRepresentation.lean`](RepresentationBoundary/CircularStatusRepresentation.lean)\n  applies the representation boundary to proposition-level circular statuses.\n- [`RepresentationBoundary.lean`](RepresentationBoundary.lean) is the import-only\n  public aggregator for the representation-boundary branch.\n\nNo `Alignment/*` or `Cycle1/*` module imports `RepresentationBoundary`.')
+          text = text.replace(
+              "Cycle 1 is complete relative to `CircularPresentation`; it is not a universal\ntheory of every norm or alignment problem. Cycle 2 is an abstract semantic\ndiagonal argument, not a formalization of syntax, provability, arithmetization,\nor Gödel's incompleteness theorems. Their source declarations are constructive",
+              "Cycle 1 is complete relative to `CircularPresentation`; it is not a universal\ntheory of every norm or alignment problem. `RepresentationBoundary` is an\nautonomous abstract semantic diagonal argument, not a formalization of syntax,\nprovability, arithmetization, or Gödel's incompleteness theorems. The source\ndeclarations of both branches are constructive")
+          path.write_text(text)
+
+          path = root / 'README_fr.md'
+          text = path.read_text()
+          text = text.replace(
+              '# Fondements structurels — alignement relatif et réflexif',
+              '# Fondements structurels — alignement relatif et frontière représentationnelle')
+          text = text.replace(
+              "dépendamment typé pour l'alignement relatif et réflexif.",
+              "dépendamment typé pour l'alignement relatif, accompagné d'un résultat autonome de frontière représentationnelle.")
+          text = text.replace(
+              "hors de toute\n> clôture réflexive globale de l'évaluateur.",
+              "hors de la\n> clôture représentationnelle globale de l'évaluateur.")
+          old = re.search(
+              r'## Architecture\n\n```text\n.*?```\n\nLa continuation.*?sortie représentationnelle\.\n',
+              text, re.S)
+          if old is None:
+              raise SystemExit('README_fr architecture block not found')
+          text = text.replace(old.group(0), '''## Architecture\n\n```text\nsocle structurel\n  constitution relationnelle\n  → construction dépendamment typée\n  → réalisation fidèle\n  ↓\nCycle 1 — alignement relatif\n  régime opérationnel et norme indépendante\n  → adéquation exacte\n  → persistance finie / transport de réalisation / naturalité\n  → continuation à une occurrence et sortie opérationnelle localisée\n\nRepresentationBoundary.DiagonalizationKernel\n  évaluateur → statut diagonal → non-représentabilité\n  → échec de la clôture représentationnelle globale\n\nadéquation Cycle 1 ──────────────────────────┐\n                                             ├─→ RepresentationBoundary.CircularStatusRepresentation\nDiagonalizationKernel ───────────────────────┘\n  représentation exacte de statuts choisis\n  + sortie diagonale de représentation\n```\n\nLa continuation et l'alignement dynamique sont démontrés sans importer\n`RepresentationBoundary`. Le noyau diagonal est autonome et n'importe que\n`Init`. Le module de représentation des statuts circulaires constitue une\napplication séparée : il utilise l'adéquation propositionnelle déjà établie au\nCycle 1 avec le noyau diagonal. Aucun théorème n'identifie la sortie\nopérationnelle à la sortie représentationnelle.\n''')
+          start = text.index('## Cycle 2 — Alignement réflexif')
+          end = text.index('\n## Ce qui est établi', start)
+          text = text[:start] + '''## Frontière représentationnelle\n\nLa branche de frontière représentationnelle n'est pas une deuxième étape de\nl'alignement. Elle observe d'abord propositionnellement les familles de témoins\ndéjà établies au Cycle 1 :\n\n```text\nCircularRegimeStatus P H\n  := Nonempty (CircularRefinement P H)\n\nCircularSpecificationStatus P H\n  := Nonempty (CircularSpecificationSatisfaction P H)\n```\n\nÀ partir des deux applications du Cycle 1, `circularStatusAdequacy` démontre leur\néquivalence propositionnelle. Après tiré en arrière par un décodeur vers des\nprédicats sur les codes, `transportRepresentation` transporte la représentation\nexacte le long de cette équivalence.\n\nIndépendamment, `RepresentationBoundary.DiagonalizationKernel` définit, pour tout\névaluateur `eval : Code → Code → Prop`,\n\n```lean\ndiagonalStatus eval code := ¬ eval code code\n```\n\net démontre constructivement que ce prédicat n'est pas représentable\nintérieurement. `noGlobalRepresentationClosure` réfute donc la représentation de\ntout prédicat sur le propre espace de codes de l'évaluateur.\n\n`localExactRepresentation_hasDiagonalExit` combine ces deux faits indépendants :\nle statut de régime circulaire choisi et son statut normatif équivalent sont\nreprésentés exactement, tandis que le statut diagonal de l'évaluateur demeure\nhors de la représentabilité interne.\n''' + text[end:]
+          text = text.replace('`noGlobalReflectiveClosure`', '`noGlobalRepresentationClosure`')
+          text = text.replace(
+              '- [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —\n  représentation exacte, diagonalisation et non-clôture globale.',
+              '- [Frontière représentationnelle](docs/fr/frontiere_representationnelle.md) —\n  représentation exacte locale, diagonalisation et non-clôture représentationnelle globale.')
+          text = text.replace(
+              "- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)\n  implémente le noyau diagonal constructif abstrait en n'important que `Init`.\n- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observe\n  les statuts du Cycle 1 par `Nonempty` et transporte leur adéquation dans la\n  couche de représentation.\n- [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du Cycle 2, sans\n  déclaration propre.\n\nAucun module du Cycle 1 n'importe le Cycle 2.",
+              "- [`RepresentationBoundary/DiagonalizationKernel.lean`](RepresentationBoundary/DiagonalizationKernel.lean)\n  implémente le noyau diagonal constructif abstrait en n'important que `Init`.\n- [`RepresentationBoundary/CircularStatusRepresentation.lean`](RepresentationBoundary/CircularStatusRepresentation.lean)\n  applique la frontière représentationnelle aux statuts propositionnels circulaires.\n- [`RepresentationBoundary.lean`](RepresentationBoundary.lean) est l'agrégateur\n  public sans déclaration propre de cette branche.\n\nAucun module `Alignment/*` ou `Cycle1/*` n'importe `RepresentationBoundary`.")
+          text = text.replace(
+              "Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une\nthéorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2\nest un argument diagonal sémantique abstrait, non une formalisation de la\nsyntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes\nd'incomplétude de Gödel. Leurs déclarations sources sont constructives",
+              "Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une\nthéorie universelle de toute norme ou de tout problème d'alignement.\n`RepresentationBoundary` est un argument diagonal sémantique abstrait autonome,\nnon une formalisation de la syntaxe, de la prouvabilité, de l'arithmétisation ou\ndes théorèmes d'incomplétude de Gödel. Les déclarations sources des deux branches\nsont constructives")
+          path.write_text(text)
+
+          # Repository rules: keep the conceptual separation vocabulary current.
+          agents = root / 'AGENTS.md'
+          text = agents.read_text().replace(
+              'OOD structurel        ≠ diagonalisation réflexive',
+              'OOD structurel        ≠ frontière diagonale de représentation')
+          agents.write_text(text)
+
+          # Restore the normal manifest verifier after the diagnostic scan.
+          (root / 'scripts/verify-manifest.sh').write_text('''#!/usr/bin/env bash\n\nset -euo pipefail\n\nrepository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\ncd "$repository_root"\n\nif command -v sha256sum >/dev/null 2>&1; then\n  sha256sum --check --strict MANIFEST.sha256\nelif command -v shasum >/dev/null 2>&1; then\n  shasum --algorithm 256 --check MANIFEST.sha256\nelse\n  echo 'No SHA-256 verification command found (sha256sum or shasum).' >&2\n  exit 1\nfi\n''')
+
+          # Recalculate every existing manifest entry from the resulting tree.
+          manifest = root / 'MANIFEST.sha256'
+          updated = []
+          for line in manifest.read_text().splitlines():
+              if not line.strip():
+                  continue
+              _old_hash, rel = line.split('  ', 1)
+              data = (root / rel).read_bytes()
+              updated.append(f'{hashlib.sha256(data).hexdigest()}  {rel}')
+          manifest.write_text('\n'.join(updated) + '\n')
+
+          # Fail the temporary migration if current public material still carries
+          # the old architectural API/names. The historical audit is regenerated
+          # separately after the final CI, so it is excluded here.
+          stale = re.compile(
+              r'Cycle2|ReflectiveAlignment|reflective_alignment|alignement_reflexif|'
+              r'GlobalReflectiveClosure|noGlobalReflectiveClosure|'
+              r'exactCircularStatusRepresentation|circularDiagonalStatusExit|'
+              r'canonicalUnitCircularStatusView|Cycle 2|reflective alignment|'
+              r'alignement réflexif')
+          scan_paths = [root / 'README.md', root / 'README_fr.md', root / 'AGENTS.md']
+          scan_paths += list((root / 'docs').rglob('*.md'))
+          scan_paths += list((root / 'RepresentationBoundary').rglob('*.lean'))
+          scan_paths += [root / 'RepresentationBoundary.lean']
+          bad = []
+          for path in scan_paths:
+              for no, line in enumerate(path.read_text().splitlines(), 1):
+                  if stale.search(line):
+                      bad.append(f'{path}:{no}:{line}')
+          if bad:
+              raise SystemExit('stale representation-boundary names remain:\n' + '\n'.join(bad))
+          PY
+
+      - name: Commit refactor output
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No refactor changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md README_fr.md AGENTS.md docs MANIFEST.sha256 scripts/verify-manifest.sh
+          git commit -m 'Complete representation boundary documentation refactor'
+          git push origin HEAD:research/mediated-transition-coherence
