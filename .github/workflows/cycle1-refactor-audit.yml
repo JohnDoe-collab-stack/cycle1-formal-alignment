@@ -39,6 +39,35 @@ jobs:
       - name: Update terminology and architectural target
         run: python3 scripts/refactor-cycle1.py documentation
 
+      - name: Close residual narrative labels
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('README.md'): [
+                  ('[Cycle 1]', '[Circular instance]'),
+              ],
+              Path('README_fr.md'): [
+                  ('[Cycle 1]', '[Instance circulaire]'),
+              ],
+              Path('docs/en/structural_foundations.md'): [
+                  ('### 5.1 Cycle 1: exact circular alignment',
+                   '### 5.1 Exact relative alignment of the circular instance'),
+              ],
+              Path('docs/fr/fondements_structurels.md'): [
+                  ('### 5.1 Cycle 1 : alignement circulaire exact',
+                   "### 5.1 Alignement relatif exact de l'instance circulaire"),
+              ],
+          }
+          for path, pairs in replacements.items():
+              text = path.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  text = text.replace(old, new)
+              path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Refresh Lake metadata
         run: lake update
 
