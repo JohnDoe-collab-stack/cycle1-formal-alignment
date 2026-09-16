@@ -57,7 +57,7 @@ norme                 ≠ adéquation du régime
 proposition           ≠ incorporation
 apprentissage         ≠ succession constitutive
 sortie opérationnelle ≠ sortie représentationnelle
-OOD structurel        ≠ diagonalisation réflexive
+OOD structurel        ≠ frontière diagonale de représentation
 diagnostic            ≠ prévention de l’effectuation
 ```
 

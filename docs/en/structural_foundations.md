@@ -1,12 +1,12 @@
 # Structural foundations
 
-*From relational constitution to relative and reflective alignment*
+*From relational constitution to relative alignment and the representation boundary*
 
 **English** | [Français](../fr/fondements_structurels.md)
 
 This document presents the repository's complete architecture: relational
 constitution, dependently typed construction, faithful realization, relative
-alignment, and reflective diagonal non-closure. Its guiding principle is to
+alignment, and diagonal representation non-closure. Its guiding principle is to
 preserve the finest-grained individuation and the relations that constitute it,
 then to project, classify, quotient, represent, or measure only after proving
 what is preserved.
@@ -27,8 +27,8 @@ its status changes relative to the regime.
 Cycle 1 machine-checks this operational architecture on
 `oneStepAfterPerimeter P`: an internally generated strict continuation remains
 exactly realizable in every `ConcreteContinuationAlgebra P`, while its regime
-and normative status are precisely determined. Cycle 2 verifies the reflective
-architecture: exact representation of the aligned statuses is preserved, and a
+and normative status are precisely determined. the `RepresentationBoundary` branch verifies the reflective
+architecture: exact representation of the determined statuses is preserved, and a
 diagonal status locates the boundary of global representability.
 
 The four distinctions below form the first structural decomposition of this
@@ -62,17 +62,17 @@ Cycle 1 — relative alignment
         → exact representation of determined statuses
         → evaluator diagonalization
         → non-representable diagonal status
-        → failure of global reflective closure
+        → failure of global representation closure
 ```
 
 The diagram is a dependency graph, not one theorem. The continuation is built
 by the constitutive generation and concatenation operations after the perimeter;
 its construction does not wait for an adequacy proof. Adequacy is used on the
-separate reflective path to transport the two inhabited statuses into their
+separate representation branch to transport the two inhabited statuses into their
 codes. No edge runs from the operational exit to diagonalization, and no edge
 from diagonalization is needed to construct the continuation.
 
-Cycle 2 diagonalization is therefore carried by its autonomous reflective
+the `RepresentationBoundary` branch diagonalization is therefore carried by its autonomous reflective
 kernel. It depends neither on the operational continuation nor on its regime
 exit; its connection to Cycle 1 is only through the adequate statuses whose
 representation is transported. This separation is constitutive of the graph,
@@ -90,8 +90,8 @@ not merely a presentation convention.
 | adequacy → equivalence of inhabited statuses | verified | `circularStatusAdequacy` |
 | coded equivalence → transported representation | verified | `transportRepresentation` |
 | evaluator → diagonal status outside representation | verified | `diagonalStatus_notRepresentable` |
-| diagonal status → global non-closure | verified | `noGlobalReflectiveClosure` |
-| complete chain → architecture beyond global closure | architectural interpretation | synthesis of both cycles |
+| diagonal status → global non-closure | verified | `noGlobalRepresentationClosure` |
+| complete chain → architecture beyond global closure | architectural interpretation | synthesis of alignment and the representation boundary |
 
 ## 2. The four distinctions
 
@@ -626,13 +626,13 @@ Within this framework, generalizing means preserving the determinations that
 remain while localizing the status changes produced by extension. This is the
 architectural reading of the verified constructions.
 
-## 7. Cycle 2 — Reflective alignment and diagonal non-closure
+## 7. Representation boundary — local exactness and diagonal non-closure
 
-Cycle 2 extends the established Cycle 1 adequacy to proposition-valued statuses,
+the `RepresentationBoundary` branch extends the established Cycle 1 adequacy to proposition-valued statuses,
 then studies their exact representation within an evaluator and constructs its
 diagonal boundary.
 
-The original Cycle 1 families remain proof-relevant types. Cycle 2 observes only
+The original Cycle 1 families remain proof-relevant types. the `RepresentationBoundary` branch observes only
 their inhabitability:
 
 ```text
@@ -648,7 +648,7 @@ The two Cycle 1 maps yield the genuine proposition-level equivalence
 codes, and `transportRepresentation` preserves exact representation across
 their pointwise logical equivalence.
 
-Independently, `Cycle2.DiagonalizationKernel` defines, for every evaluator
+Independently, `RepresentationBoundary.DiagonalizationKernel` defines, for every evaluator
 `eval : Code → Code → Prop`:
 
 ```text
@@ -656,10 +656,10 @@ diagonalStatus eval code := ¬ eval code code
 ```
 
 `diagonalStatus_notRepresentable` proves constructively that no evaluator row
-represents this status exactly; `noGlobalReflectiveClosure` refutes the claim
+represents this status exactly; `noGlobalRepresentationClosure` refutes the claim
 that every predicate on the code space is internally representable.
 
-The bridge theorem `exactCircularStatusRepresentation_hasDiagonalOutside`
+The bridge theorem `localExactRepresentation_hasDiagonalExit`
 packages the exact coexistence:
 
 ```text
@@ -668,7 +668,7 @@ the propositionally equivalent normative status is represented exactly
 the evaluator's diagonal status is not internally representable
 ```
 
-This is the central result of reflective alignment: determined exactness is
+This is the central result of the representation boundary: determined exactness is
 preserved through the adequacy transport, while global representational closure
 is constructively refuted.
 
@@ -692,7 +692,7 @@ that boundary.
 > construction continues beyond them.**
 
 Cycle 1 separates continued construction and faithful realization from normative
-admission. Cycle 2 combines exact representation of the particular aligned
+admission. the `RepresentationBoundary` branch combines exact representation of the particular aligned
 statuses with a constructed boundary of global representability. Together they
 replace an undifferentiated demand for closure with explicit objects, regimes,
 adequacy maps, preserved witnesses, and localized exits.
@@ -710,7 +710,7 @@ The document uses four statement statuses throughout:
 
 `circularNormativeAdequacy` defines exact relative adequacy as a pair of maps
 between witness types, and `circularRefinement_adequateAlong` supplies those maps
-from soundness and completeness. Cycle 2 then observes their inhabitability by
+from soundness and completeness. the `RepresentationBoundary` branch then observes their inhabitability by
 `Nonempty`, producing the proposition-level `↔` used for representation
 transport.
 
@@ -749,13 +749,13 @@ information and localize the boundary at which a specified status changes.
 | representation transport | `transportRepresentation` |
 | diagonal status | `diagonalStatus` |
 | diagonal non-representability | `diagonalStatus_notRepresentable` |
-| global reflective non-closure | `noGlobalReflectiveClosure` |
-| exact aligned statuses with a diagonal exterior | `exactCircularStatusRepresentation_hasDiagonalOutside` |
+| global representation non-closure | `noGlobalRepresentationClosure` |
+| exact determined statuses with a diagonal exterior | `localExactRepresentation_hasDiagonalExit` |
 
 The Cycle 1 library is assembled from the Lean roots listed in
 `lakefile.toml`. The independent diagonal kernel is in
-`Cycle2/DiagonalizationKernel.lean`; the bridge from Cycle 1 adequacy is
-confined to `Cycle2/ReflectiveAlignment.lean`.
+`RepresentationBoundary/DiagonalizationKernel.lean`; the circular-status application from Cycle 1 adequacy is
+confined to `RepresentationBoundary/CircularStatusRepresentation.lean`.
 
 ## 11. General conclusion
 
@@ -788,10 +788,10 @@ status changes.
 > exit: preserve occurrences and constitutive relations across realizations;
 > prove exact adequacy between regime and autonomous norm; retain the positive
 > witnesses carried beyond an operational boundary; then transport the
-> proposition-level adequacy into a reflective layer where exact determined
+> proposition-level adequacy into a representation layer where exact determined
 > representation coexists with a constructed failure of global closure.**
 
-Cycle 1 is mathematically closed relative to `CircularPresentation`. Cycle 2 is
+Cycle 1 is mathematically closed relative to `CircularPresentation`. the `RepresentationBoundary` branch is
 stabilized as a self-contained constructive reflective extension. Their
 articulation is the architecture of the repository.
 
@@ -801,7 +801,7 @@ Companion documents:
 
 - [Cycle 1 — relative alignment](relative_alignment.md);
 - [method of relational constitutive roles](relational_constitutive_roles_method.md);
-- [Cycle 2 — reflective alignment](reflective_alignment.md);
+- [representation boundary](representation_boundary.md);
 - [French structural synthesis](../fr/fondements_structurels.md).
 
 The project owner is the source of the project's essential ideas and research

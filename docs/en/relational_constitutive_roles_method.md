@@ -6,7 +6,7 @@
 
 Navigation: [structural synthesis](structural_foundations.md) ·
 [Cycle 1 — relative alignment](relative_alignment.md) ·
-[Cycle 2 — reflective alignment](reflective_alignment.md)
+[representation boundary](representation_boundary.md)
 
 > **This document presents the method extracted from cycle 1: individuate
 > occurrences before their readings, determine their roles through the
@@ -23,8 +23,8 @@ Complementary documents:
 - [preuve formelle d'alignement relatif — français](../fr/alignement_relatif.md);
 - [structural foundations — English](structural_foundations.md);
 - [fondements structurels — français](../fr/fondements_structurels.md);
-- [reflective alignment — English](reflective_alignment.md);
-- [alignement réflexif — français](../fr/alignement_reflexif.md).
+- [representation boundary — English](representation_boundary.md);
+- [frontière représentationnelle — français](../fr/frontiere_representationnelle.md).
 
 ## Abstract
 
@@ -1404,15 +1404,15 @@ Cycle 1 provides a formal instance in which:
   regime;
 - the break is localized without erasing the construction.
 
-### 17.2 What Cycle 2 adds — and does not add
+### 17.2 What the `RepresentationBoundary` branch adds — and does not add
 
-Cycle 2 observes the Cycle 1 regime and norm through `Nonempty`, transports
+the `RepresentationBoundary` branch observes the Cycle 1 regime and norm through `Nonempty`, transports
 their proposition-level equivalence through exact representation, and combines
 that determined exactness with a diagonal status outside global reflective
 closure. This confirms that the method's discipline of preservation before
-projection remains relevant at the reflective level.
+projection remains relevant at the representation level.
 
-Cycle 2 is not, however, a second non-perimetral instance of the method. It
+the `RepresentationBoundary` branch is not, however, a second non-perimetral instance of the method. It
 reuses the Cycle 1 adequacy and adds a representation layer; it does not supply
 a new domain with independently reconstructed relational constitutive roles.
 
@@ -1566,8 +1566,8 @@ The method can be condensed as follows:
 > diagnose a break by retaining on the same object the positive witnesses of
 > what remains and the negative proof of what ceases to be satisfied.**
 
-Cycle 1 verifies one complete instance of this method. Cycle 2 transports one
-of its established adequacy results into a reflective representation layer but
+Cycle 1 verifies one complete instance of this method. the `RepresentationBoundary` branch transports one
+of its established adequacy results into a representation layer but
 does not constitute a second domain instance. Generalizing the method therefore
 still requires formalizing the methodological interface itself and testing it
 on other domains, without erasing the distinction between Lean result, derived

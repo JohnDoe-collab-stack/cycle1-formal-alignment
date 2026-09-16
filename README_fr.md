@@ -1,9 +1,9 @@
-# Fondements structurels — alignement relatif et réflexif
+# Fondements structurels — alignement relatif et frontière représentationnelle
 
 [English](README.md) | **Français**
 
 > **Ce dépôt construit et vérifie en Lean un fondement constructif et
-> dépendamment typé pour l'alignement relatif et réflexif.** Il démontre d'abord
+> dépendamment typé pour l'alignement relatif, accompagné d'un résultat autonome de frontière représentationnelle.** Il démontre d'abord
 > l'adéquation exacte entre un régime opérationnel et une norme définie
 > indépendamment de ce régime sur les mêmes histoires constituées. À partir de
 > cette adéquation établie, une branche construit une sortie opérationnelle à
@@ -12,8 +12,8 @@
 > propositionnellement les
 > deux familles de témoins, transporte leur équivalence dans une couche de
 > représentation et démontre que la représentation exacte de ces statuts
-> déterminés est compatible avec un statut diagonal construit hors de toute
-> clôture réflexive globale de l'évaluateur.
+> déterminés est compatible avec un statut diagonal construit hors de la
+> clôture représentationnelle globale de l'évaluateur.
 
 ## Unité théorique
 
@@ -83,28 +83,27 @@ socle structurel
   ↓
 Cycle 1 — alignement relatif
   régime opérationnel et norme indépendante
-  → transformation de témoins dans chaque sens
-  ├── voie de construction de la continuation (indépendante de l'adéquation)
-  │     génération et concaténation
-  │     → continuation à une occurrence
-  │     → sortie opérationnelle localisée
-  │     → OOD structurel
-  │
-  └── adéquation exacte
-        observation propositionnelle par `Nonempty`
-        → équivalence des deux statuts habités
-        → tiré en arrière et transport vers les codes
-        → représentation exacte de statuts déterminés
-        → diagonalisation de l'évaluateur
-        → statut diagonal non représentable
-        → échec de la clôture réflexive globale
+  → adéquation exacte
+  → persistance finie / transport de réalisation / naturalité
+  → continuation à une occurrence et sortie opérationnelle localisée
+
+RepresentationBoundary.DiagonalizationKernel
+  évaluateur → statut diagonal → non-représentabilité
+  → échec de la clôture représentationnelle globale
+
+adéquation Cycle 1 ──────────────────────────┐
+                                             ├─→ RepresentationBoundary.CircularStatusRepresentation
+DiagonalizationKernel ───────────────────────┘
+  représentation exacte de statuts choisis
+  + sortie diagonale de représentation
 ```
 
-La continuation est construite par génération et concaténation après le
-périmètre ; elle n'attend pas l'adéquation du Cycle 1. La voie réflexive utilise
-l'adéquation pour transporter les deux statuts habités vers leurs codes. Le
-développement diagonal ne découle pas de `oneStepAfterPerimeter`, et aucun
-théorème n'identifie la sortie opérationnelle à la sortie représentationnelle.
+La continuation et l'alignement dynamique sont démontrés sans importer
+`RepresentationBoundary`. Le noyau diagonal est autonome et n'importe que
+`Init`. Le module de représentation des statuts circulaires constitue une
+application séparée : il utilise l'adéquation propositionnelle déjà établie au
+Cycle 1 avec le noyau diagonal. Aucun théorème n'identifie la sortie
+opérationnelle à la sortie représentationnelle.
 
 ## Cycle 1 — Alignement relatif
 
@@ -165,9 +164,11 @@ polymorphes sur leur type porteur. L'interface normative actuelle est
 paramétrique en norme et en régime, mais spécialisée à
 `RootedGeneratedHistory P`.
 
-## Cycle 2 — Alignement réflexif
+## Frontière représentationnelle
 
-Le Cycle 2 transforme d'abord les familles de témoins du Cycle 1 en propositions :
+La branche de frontière représentationnelle n'est pas une deuxième étape de
+l'alignement. Elle observe d'abord propositionnellement les familles de témoins
+déjà établies au Cycle 1 :
 
 ```text
 CircularRegimeStatus P H
@@ -177,36 +178,26 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-En utilisant les deux applications du Cycle 1, `circularStatusAdequacy` démontre :
+À partir des deux applications du Cycle 1, `circularStatusAdequacy` démontre leur
+équivalence propositionnelle. Après tiré en arrière par un décodeur vers des
+prédicats sur les codes, `transportRepresentation` transporte la représentation
+exacte le long de cette équivalence.
 
-```text
-CircularRegimeStatus P H
-  ↔ CircularSpecificationStatus P H
-```
-
-Ce `↔` est une équivalence d'habitabilité, non une équivalence entre les types
-de témoins originaux. Après qu'un décodeur a tiré ces statuts en arrière vers
-des prédicats sur les codes, la représentation exacte se transporte entre eux.
-
-Indépendamment, pour tout évaluateur
-
-```lean
-eval : Code → Code → Prop
-```
-
-le noyau diagonal définit
+Indépendamment, `RepresentationBoundary.DiagonalizationKernel` définit, pour tout
+évaluateur `eval : Code → Code → Prop`,
 
 ```lean
 diagonalStatus eval code := ¬ eval code code
 ```
 
-et démontre constructivement qu'aucune ligne de `eval` ne représente exactement
-ce prédicat. Un évaluateur de cette forme ne peut donc représenter tous les
-prédicats sur son propre espace de codes.
-`exactCircularStatusRepresentation_hasDiagonalOutside` combine les deux
-résultats : le statut de régime choisi et le statut normatif équivalent sont
-représentés exactement, tandis que le statut diagonal de l'évaluateur reste hors
-de la représentabilité interne.
+et démontre constructivement que ce prédicat n'est pas représentable
+intérieurement. `noGlobalRepresentationClosure` réfute donc la représentation de
+tout prédicat sur le propre espace de codes de l'évaluateur.
+
+`localExactRepresentation_hasDiagonalExit` combine ces deux faits indépendants :
+le statut de régime circulaire choisi et son statut normatif équivalent sont
+représentés exactement, tandis que le statut diagonal de l'évaluateur demeure
+hors de la représentabilité interne.
 
 ## Ce qui est établi
 
@@ -221,7 +212,7 @@ de la représentabilité interne.
 | continuation → sortie opérationnelle | vérifié | `oneStepAfterPerimeter`, `RegimeExit` |
 | statuts codés équivalents → représentation transportée | vérifié | `transportRepresentation` |
 | évaluateur → statut diagonal non représentable | vérifié | `diagonalStatus_notRepresentable` |
-| statut diagonal → échec de la clôture globale | vérifié | `noGlobalReflectiveClosure` |
+| statut diagonal → échec de la clôture globale | vérifié | `noGlobalRepresentationClosure` |
 
 La conséquence architecturale tirée de cette chaîne est distinguée des
 théorèmes Lean : la clôture globale n'est pas seulement traitée comme un objectif
@@ -255,8 +246,8 @@ directe d'échec de la norme indépendante.
   détaillée, signatures, adéquation et sortie opérationnelle.
 - [Méthode des rôles constitutifs relationnels](docs/fr/methode_roles_constitutifs_relationnels.md)
   — protocole réutilisable de construction, séparation, reconstruction et audit.
-- [Cycle 2 — Alignement réflexif](docs/fr/alignement_reflexif.md) —
-  représentation exacte, diagonalisation et non-clôture globale.
+- [Frontière représentationnelle](docs/fr/frontiere_representationnelle.md) —
+  représentation exacte locale, diagonalisation et non-clôture représentationnelle globale.
 - [Compilation et audit axiomatique](audit/AUDIT_BUILD.txt) — relevé factuel
   reproductible.
 - [Déclaration de conception](AI_AUTHORSHIP.md) — origine conceptuelle,
@@ -302,15 +293,14 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   fournit une `ConcreteContinuationAlgebra` constructive, observable et non
   identitaire, sans devenir une dépendance du fondement structurel ni de la
   façade.
-- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
+- [`RepresentationBoundary/DiagonalizationKernel.lean`](RepresentationBoundary/DiagonalizationKernel.lean)
   implémente le noyau diagonal constructif abstrait en n'important que `Init`.
-- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observe
-  les statuts du Cycle 1 par `Nonempty` et transporte leur adéquation dans la
-  couche de représentation.
-- [`Cycle2.lean`](Cycle2.lean) est l'agrégateur public du Cycle 2, sans
-  déclaration propre.
+- [`RepresentationBoundary/CircularStatusRepresentation.lean`](RepresentationBoundary/CircularStatusRepresentation.lean)
+  applique la frontière représentationnelle aux statuts propositionnels circulaires.
+- [`RepresentationBoundary.lean`](RepresentationBoundary.lean) est l'agrégateur
+  public sans déclaration propre de cette branche.
 
-Aucun module du Cycle 1 n'importe le Cycle 2.
+Aucun module `Alignment/*` ou `Cycle1/*` n'importe `RepresentationBoundary`.
 
 ## Reproduction et audit
 
@@ -360,10 +350,11 @@ lake build AuditRegression
 ## Portée, licence et citation
 
 Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
-théorie universelle de toute norme ou de tout problème d'alignement. Le Cycle 2
-est un argument diagonal sémantique abstrait, non une formalisation de la
-syntaxe, de la prouvabilité, de l'arithmétisation ou des théorèmes
-d'incomplétude de Gödel. Leurs déclarations sources sont constructives et
+théorie universelle de toute norme ou de tout problème d'alignement.
+`RepresentationBoundary` est un argument diagonal sémantique abstrait autonome,
+non une formalisation de la syntaxe, de la prouvabilité, de l'arithmétisation ou
+des théorèmes d'incomplétude de Gödel. Les déclarations sources des deux branches
+sont constructives et
 n'emploient ni `sorry`, ni `admit`, ni déclaration `axiom`, ni déclaration
 `noncomputable`, ni `Classical`, ni `propext`, ni `Quot.sound`. Les blocs
 `#print axioms` placés à la fin des fichiers sources n'établissent aucune

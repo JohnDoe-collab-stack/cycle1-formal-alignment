@@ -1,12 +1,12 @@
 # Fondements structurels
 
-*De la constitution relationnelle à l'alignement relatif et réflexif*
+*De la constitution relationnelle à l'alignement relatif et frontière représentationnelle*
 
 [English](../en/structural_foundations.md) | **Français**
 
 Ce document présente l'architecture complète du dépôt : constitution
 relationnelle, construction dépendamment typée, réalisation fidèle, alignement
-relatif et non-clôture diagonale réflexive. Son principe directeur consiste à
+relatif et non-clôture diagonale de représentation. Son principe directeur consiste à
 conserver l'individuation la plus fine et les relations qui la constituent, puis
 à ne projeter, classifier, quotienter, représenter ou mesurer qu'après avoir
 démontré ce qui est préservé.
@@ -29,7 +29,7 @@ Le Cycle 1 vérifie mécaniquement cette architecture opérationnelle sur
 `oneStepAfterPerimeter P` : une continuation stricte engendrée de l'intérieur
 reste exactement réalisable dans toute `ConcreteContinuationAlgebra P`, tandis
 que son statut de régime et son statut normatif sont précisément déterminés. Le
-Cycle 2 vérifie l'architecture réflexive : la représentation exacte des statuts
+la branche `RepresentationBoundary` vérifie l'architecture représentationnelle : la représentation exacte des statuts
 alignés est conservée et un statut diagonal localise la frontière de la
 représentabilité globale.
 
@@ -64,18 +64,18 @@ Cycle 1 — alignement relatif
         → représentation exacte de statuts déterminés
         → diagonalisation de l'évaluateur
         → statut diagonal non représentable
-        → échec de la clôture réflexive globale
+        → échec de la clôture représentationnelle globale
 ```
 
 Ce diagramme est un graphe de dépendances, non un théorème unique. La
 continuation est construite par les opérations constitutives de génération et de
 concaténation après le périmètre; sa construction n'attend pas une preuve
-d'adéquation. L'adéquation intervient sur la voie réflexive séparée pour
+d'adéquation. L'adéquation intervient sur la branche représentationnelle séparée pour
 transporter les deux statuts habités vers leurs codes. Aucune arête ne va de la
 sortie opérationnelle vers la diagonalisation, et aucune arête issue de la
 diagonalisation n'est nécessaire pour construire la continuation.
 
-La diagonalisation du Cycle 2 est donc portée par son noyau réflexif autonome.
+La diagonalisation de la branche `RepresentationBoundary` est donc portée par son noyau diagonal autonome.
 Elle ne dépend ni de la continuation opérationnelle ni de sa sortie du régime ;
 le raccord au Cycle 1 se fait seulement par les statuts adéquats dont la
 représentation est transportée. Cette séparation est constitutive du graphe et
@@ -93,7 +93,7 @@ non une simple convention de présentation.
 | adéquation → équivalence des statuts habités | vérifié | `circularStatusAdequacy` |
 | équivalence codée → représentation transportée | vérifié | `transportRepresentation` |
 | évaluateur → statut diagonal hors représentation | vérifié | `diagonalStatus_notRepresentable` |
-| statut diagonal → non-clôture globale | vérifié | `noGlobalReflectiveClosure` |
+| statut diagonal → non-clôture globale | vérifié | `noGlobalRepresentationClosure` |
 | chaîne complète → architecture au-delà de la clôture globale | interprétation architecturale | synthèse des deux cycles |
 
 ## 2. Les quatre distinctions
@@ -629,14 +629,14 @@ Dans ce cadre, généraliser signifie préserver les déterminations qui subsist
 tout en localisant les changements de statut produits par l'extension. Telle est
 la lecture architecturale des constructions vérifiées.
 
-## 7. Cycle 2 — Alignement réflexif et non-clôture diagonale
+## 7. Frontière représentationnelle — exactitude locale et non-clôture diagonale
 
-Le Cycle 2 prolonge l'adéquation établie au Cycle 1 vers des statuts
+La branche `RepresentationBoundary` prolonge l'adéquation établie au Cycle 1 vers des statuts
 propositionnels, puis étudie leur représentation exacte dans un évaluateur et
 construit sa frontière diagonale.
 
 Les familles originelles du Cycle 1 restent des types porteurs de témoins. Le
-Cycle 2 observe seulement leur habitabilité :
+la branche `RepresentationBoundary` observe seulement leur habitabilité :
 
 ```text
 CircularRegimeStatus P H
@@ -651,7 +651,7 @@ propositionnelle `circularStatusAdequacy`. Un décodeur tire ces statuts en arri
 vers des prédicats sur les codes, et `transportRepresentation` conserve la
 représentation exacte le long de leur équivalence logique point par point.
 
-Indépendamment, `Cycle2.DiagonalizationKernel` définit, pour tout évaluateur
+Indépendamment, `RepresentationBoundary.DiagonalizationKernel` définit, pour tout évaluateur
 `eval : Code → Code → Prop` :
 
 ```text
@@ -659,12 +659,12 @@ diagonalStatus eval code := ¬ eval code code
 ```
 
 `diagonalStatus_notRepresentable` démontre constructivement qu'aucune ligne de
-l'évaluateur ne représente exactement ce statut ; `noGlobalReflectiveClosure`
+l'évaluateur ne représente exactement ce statut ; `noGlobalRepresentationClosure`
 réfute l'affirmation selon laquelle tout prédicat sur l'espace de codes serait
 représentable intérieurement.
 
 Le théorème de raccord
-`exactCircularStatusRepresentation_hasDiagonalOutside` réunit la coexistence
+`localExactRepresentation_hasDiagonalExit` réunit la coexistence
 exacte suivante :
 
 ```text
@@ -673,7 +673,7 @@ le statut normatif propositionnellement équivalent est représenté exactement
 le statut diagonal de l'évaluateur n'est pas représentable intérieurement
 ```
 
-C'est le résultat central de l'alignement réflexif : l'exactitude déterminée est
+C'est le résultat central de la frontière représentationnelle : l'exactitude déterminée est
 préservée par le transport d'adéquation, tandis que la clôture représentationnelle
 globale est constructivement réfutée.
 
@@ -697,7 +697,7 @@ positive établie avant cette frontière.
 > relativement, et la construction se poursuit au-delà d'elles.**
 
 Le Cycle 1 sépare la continuation de la construction et sa réalisation fidèle de
-l'admission normative. Le Cycle 2 combine la représentation exacte des statuts
+l'admission normative. La branche `RepresentationBoundary` combine la représentation exacte des statuts
 alignés particuliers avec une frontière construite de la représentabilité
 globale. Ensemble, ils remplacent une exigence indifférenciée de clôture par des
 objets, des régimes, des applications d'adéquation, des témoins préservés et des
@@ -709,14 +709,14 @@ Le document emploie quatre statuts d'énoncés :
 
 | Statut | Signification |
 |---|---|
-| **Vérifié dans Lean** | définition, construction ou théorème nommé de l'un des deux cycles formels |
+| **Vérifié dans Lean** | définition, construction ou théorème nommé de l'une des deux branches formelles |
 | **Conséquence dérivée** | composition explicite de résultats Lean déjà vérifiés |
 | **Interprétation architecturale** | synthèse théorique fondée sur la chaîne vérifiée |
 | **Concept documentaire** | terminologie définie au niveau documentaire, dont l'OOD structurel |
 
 `circularNormativeAdequacy` définit l'adéquation relative exacte comme une paire
 d'applications entre types de témoins, et `circularRefinement_adequateAlong`
-fournit ces applications à partir de la soundness et de la complétude. Le Cycle 2
+fournit ces applications à partir de la soundness et de la complétude. La branche `RepresentationBoundary`
 observe ensuite leur habitabilité par `Nonempty`, ce qui produit le `↔`
 propositionnel utilisé pour le transport de représentation.
 
@@ -757,13 +757,13 @@ déterminé.
 | transport de représentation | `transportRepresentation` |
 | statut diagonal | `diagonalStatus` |
 | non-représentabilité diagonale | `diagonalStatus_notRepresentable` |
-| non-clôture réflexive globale | `noGlobalReflectiveClosure` |
-| statuts alignés exacts avec extérieur diagonal | `exactCircularStatusRepresentation_hasDiagonalOutside` |
+| non-clôture représentationnelle globale | `noGlobalRepresentationClosure` |
+| statuts déterminés exacts avec extérieur diagonal | `localExactRepresentation_hasDiagonalExit` |
 
 La bibliothèque du Cycle 1 est assemblée depuis les racines Lean listées
 dans `lakefile.toml`. Le noyau diagonal indépendant se trouve dans
-`Cycle2/DiagonalizationKernel.lean` ; le raccord depuis l'adéquation du Cycle 1
-est confiné à `Cycle2/ReflectiveAlignment.lean`.
+`RepresentationBoundary/DiagonalizationKernel.lean` ; le application aux statuts circulaires issue de l'adéquation du Cycle 1
+est confiné à `RepresentationBoundary/CircularStatusRepresentation.lean`.
 
 ## 11. Conclusion générale
 
@@ -796,12 +796,12 @@ d'un candidat change.
 > localisée : préserver les occurrences et les relations constitutives à travers
 > les réalisations ; démontrer l'adéquation exacte entre régime et norme autonome ;
 > maintenir les témoins positifs portés au-delà d'une frontière opérationnelle ;
-> puis transporter l'adéquation propositionnelle vers une couche réflexive où la
+> puis transporter l'adéquation propositionnelle vers une couche de représentation où la
 > représentation exacte déterminée coexiste avec un échec construit de la
 > clôture globale.**
 
 Le Cycle 1 est mathématiquement clos relativement à `CircularPresentation`. Le
-Cycle 2 est stabilisé comme extension réflexive constructive autonome. Leur
+la branche `RepresentationBoundary` est stabilisé comme branche représentationnelle constructive autonome. Leur
 articulation constitue l'architecture du dépôt.
 
 ## 12. Documentation et conception
@@ -810,7 +810,7 @@ Documents complémentaires :
 
 - [Cycle 1 — alignement relatif](alignement_relatif.md) ;
 - [méthode des rôles constitutifs relationnels](methode_roles_constitutifs_relationnels.md) ;
-- [Cycle 2 — alignement réflexif](alignement_reflexif.md) ;
+- [frontière représentationnelle](frontiere_representationnelle.md) ;
 - [synthèse structurelle anglaise](../en/structural_foundations.md).
 
 Le responsable du projet est à l'origine de l'essentiel des idées et de la

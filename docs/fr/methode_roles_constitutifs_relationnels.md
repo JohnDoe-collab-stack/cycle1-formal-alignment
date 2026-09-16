@@ -6,7 +6,7 @@
 
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
 [Cycle 1 — alignement relatif](alignement_relatif.md) ·
-[Cycle 2 — alignement réflexif](alignement_reflexif.md)
+[frontière représentationnelle](frontiere_representationnelle.md)
 
 > **Ce document expose la méthode dégagée par le cycle 1 : individuer les
 > occurrences avant leurs lectures, déterminer leurs rôles par les relations qui
@@ -23,8 +23,8 @@ Documents complémentaires :
 - [formal proof of relative alignment — English](../en/relative_alignment.md) ;
 - [fondements structurels — français](fondements_structurels.md) ;
 - [structural foundations — English](../en/structural_foundations.md) ;
-- [alignement réflexif — français](alignement_reflexif.md) ;
-- [reflective alignment — English](../en/reflective_alignment.md).
+- [frontière représentationnelle — français](frontiere_representationnelle.md) ;
+- [representation boundary — English](../en/representation_boundary.md).
 
 ## Résumé
 
@@ -1434,15 +1434,15 @@ Le cycle 1 fournit une instance formelle dans laquelle :
   norme et au régime ;
 - la rupture est localisée sans suppression de la construction.
 
-### 17.2 Ce que le Cycle 2 ajoute — et n'ajoute pas
+### 17.2 Ce que la branche `RepresentationBoundary` ajoute — et n'ajoute pas
 
-Le Cycle 2 observe le régime et la norme du Cycle 1 par `Nonempty`, transporte
+La branche `RepresentationBoundary` observe le régime et la norme du Cycle 1 par `Nonempty`, transporte
 leur équivalence propositionnelle à travers la représentation exacte et combine
 cette exactitude déterminée avec un statut diagonal hors de la clôture réflexive
 globale. Cela confirme que la discipline méthodologique de conservation avant
-projection reste pertinente au niveau réflexif.
+projection reste pertinente au niveau représentationnel.
 
-Le Cycle 2 n'est toutefois pas une seconde instance non périmétrale de la
+La branche `RepresentationBoundary` n'est toutefois pas une seconde instance non périmétrale de la
 méthode. Il réemploie l'adéquation du Cycle 1 et ajoute une couche de
 représentation ; il ne fournit pas un nouveau domaine muni de rôles constitutifs
 relationnels reconstruits indépendamment.
@@ -1602,8 +1602,8 @@ La formulation condensée de la méthode est donc :
 > témoins positifs de ce qui subsiste et la preuve négative de ce qui cesse
 > d'être satisfait.**
 
-Le Cycle 1 vérifie une instance complète de cette méthode. Le Cycle 2 transporte
-l'un de ses résultats d'adéquation vers une couche réflexive de représentation,
+Le Cycle 1 vérifie une instance complète de cette méthode. La branche `RepresentationBoundary` transporte
+l'un de ses résultats d'adéquation vers une couche de représentation,
 mais ne constitue pas une seconde instance de domaine. La généralisation de la
 méthode demande donc encore de formaliser l'interface méthodologique elle-même et
 de l'éprouver sur d'autres domaines, sans effacer la distinction entre résultat

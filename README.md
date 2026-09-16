@@ -1,9 +1,9 @@
-# Structural foundations — relative and reflective alignment
+# Structural foundations — relative alignment and representation boundary
 
 **English** | [Français](README_fr.md)
 
 > **This repository builds and machine-checks in Lean a constructive,
-> dependently typed foundation for relative and reflective alignment.** It first
+> dependently typed foundation for relative alignment, together with an autonomous representation-boundary result.** It first
 > proves exact adequacy between an operational regime and an independently
 > defined norm on the same constituted histories. From that established
 > adequacy, one branch constructs a one-occurrence operational exit which, like
@@ -12,7 +12,7 @@
 > propositionally, transports
 > their equivalence into a representation layer, and proves that exact
 > representation of those determined statuses is compatible with a constructed
-> diagonal status outside every global reflective closure of the evaluator.
+> diagonal status outside global representation closure of the evaluator.
 
 ## Theoretical unit
 
@@ -76,28 +76,27 @@ structural foundation
   ↓
 Cycle 1 — relative alignment
   operational regime and independent norm
-  → witness transformation in each direction
-  ├── continuation construction path (independent of adequacy)
-  │     generation and concatenation
-  │     → one-occurrence continuation
-  │     → localized operational exit
-  │     → structural OOD
-  │
-  └── exact adequacy
-        proposition-level observation by `Nonempty`
-        → equivalence of the two inhabited statuses
-        → pullback and transport to codes
-        → exact representation of determined statuses
-        → evaluator diagonalization
-        → non-representable diagonal status
-        → failure of global reflective closure
+  → exact adequacy
+  → finite persistence / realization transport / naturality
+  → one-occurrence continuation and localized operational exit
+
+RepresentationBoundary.DiagonalizationKernel
+  evaluator → diagonal status → non-representability
+  → failure of global representation closure
+
+Cycle 1 adequacy ───────────────────────────┐
+                                           ├─→ RepresentationBoundary.CircularStatusRepresentation
+DiagonalizationKernel ─────────────────────┘
+  exact representation of selected statuses
+  + diagonal representation exit
 ```
 
-The continuation is constructed by generation and concatenation after the
-perimeter; it does not wait for Cycle 1 adequacy. The reflective path uses
-adequacy to transport the two inhabited statuses into their codes. The
-diagonal development does not follow from `oneStepAfterPerimeter`, and no
-theorem identifies the operational exit with the representational one.
+The continuation and dynamic alignment are proved without importing
+`RepresentationBoundary`. The diagonal kernel is autonomous and imports only
+`Init`. The circular-status representation module is a separate application: it
+uses the already established Cycle 1 proposition-level adequacy together with
+the diagonal kernel. No theorem identifies the operational exit with the
+representation exit.
 
 ## Cycle 1 — Relative alignment
 
@@ -156,9 +155,10 @@ The generic structures `RegimeExit`, `UniformRegimeExit`, and
 polymorphic over their carrier. The current normative interface is parametric
 in norm and regime but specialized to `RootedGeneratedHistory P`.
 
-## Cycle 2 — Reflective alignment
+## Representation boundary
 
-Cycle 2 first turns the Cycle 1 witness families into propositions:
+The representation-boundary branch is not a second stage of alignment. It first
+observes the already established Cycle 1 witness families propositionally:
 
 ```text
 CircularRegimeStatus P H
@@ -168,35 +168,25 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-Using the two Cycle 1 maps, `circularStatusAdequacy` proves:
+Using the two Cycle 1 maps, `circularStatusAdequacy` proves their proposition-level
+equivalence. After a decoder pulls those statuses back to predicates on codes,
+`transportRepresentation` transports exact representation along that equivalence.
 
-```text
-CircularRegimeStatus P H
-  ↔ CircularSpecificationStatus P H
-```
-
-This `↔` is an equivalence of inhabitability, not an equivalence of the original
-witness types. After a decoder pulls the statuses back to predicates on codes,
-exact representation transports between them.
-
-Independently, for any evaluator
-
-```lean
-eval : Code → Code → Prop
-```
-
-the diagonal kernel defines
+Independently, `RepresentationBoundary.DiagonalizationKernel` defines, for any
+evaluator `eval : Code → Code → Prop`,
 
 ```lean
 diagonalStatus eval code := ¬ eval code code
 ```
 
-and proves constructively that no row of `eval` represents this predicate
-exactly. Hence an evaluator of this shape cannot represent every predicate on
-its own code space. `exactCircularStatusRepresentation_hasDiagonalOutside`
-combines the two results: the selected regime status and its equivalent
-normative status are represented exactly, while the evaluator's diagonal status
-remains outside internal representability.
+and proves constructively that this predicate is not internally representable.
+Consequently `noGlobalRepresentationClosure` refutes representation of every
+predicate on the evaluator's own code space.
+
+`localExactRepresentation_hasDiagonalExit` combines the two independent facts:
+the selected circular regime status and its equivalent normative status are
+represented exactly, while the evaluator's diagonal status remains outside
+internal representability.
 
 ## What is established
 
@@ -211,7 +201,7 @@ remains outside internal representability.
 | continuation → operational exit | verified | `oneStepAfterPerimeter`, `RegimeExit` |
 | equivalent coded statuses → transported representation | verified | `transportRepresentation` |
 | evaluator → non-representable diagonal status | verified | `diagonalStatus_notRepresentable` |
-| diagonal status → failure of global closure | verified | `noGlobalReflectiveClosure` |
+| diagonal status → failure of global closure | verified | `noGlobalRepresentationClosure` |
 
 The architectural conclusion drawn from this chain is stated separately from
 the Lean theorems: global closure is not treated merely as a failed objective,
@@ -245,8 +235,8 @@ failure of the independent norm.
   proof, signatures, adequacy, and operational exit.
 - [Method of relational constitutive roles](docs/en/relational_constitutive_roles_method.md)
   — reusable construction, separation, and reconstruction method.
-- [Cycle 2 — Reflective alignment](docs/en/reflective_alignment.md) — exact
-  representation, diagonalization, and global non-closure.
+- [Representation boundary](docs/en/representation_boundary.md) — local exact
+  representation, diagonalization, and global representation non-closure.
 - [Build and axiom audit](audit/AUDIT_BUILD.txt) — reproducible factual record.
 - [Authorship disclosure](AI_AUTHORSHIP.md) — conceptual authorship,
   AI-generation provenance, and development history.
@@ -291,14 +281,14 @@ French counterparts are linked from the top of every scientific document.
   supplies a constructive, observable, non-identity
   `ConcreteContinuationAlgebra` without becoming a dependency of the
   structural foundation or facade.
-- [`Cycle2/DiagonalizationKernel.lean`](Cycle2/DiagonalizationKernel.lean)
+- [`RepresentationBoundary/DiagonalizationKernel.lean`](RepresentationBoundary/DiagonalizationKernel.lean)
   implements the abstract constructive diagonal kernel using only `Init`.
-- [`Cycle2/ReflectiveAlignment.lean`](Cycle2/ReflectiveAlignment.lean) observes
-  Cycle 1 statuses by `Nonempty` and transports their adequacy into the
-  representation layer.
-- [`Cycle2.lean`](Cycle2.lean) is the import-only public aggregator for Cycle 2.
+- [`RepresentationBoundary/CircularStatusRepresentation.lean`](RepresentationBoundary/CircularStatusRepresentation.lean)
+  applies the representation boundary to proposition-level circular statuses.
+- [`RepresentationBoundary.lean`](RepresentationBoundary.lean) is the import-only
+  public aggregator for the representation-boundary branch.
 
-No Cycle 1 module imports Cycle 2.
+No `Alignment/*` or `Cycle1/*` module imports `RepresentationBoundary`.
 
 ## Reproduction and audit
 
@@ -347,9 +337,10 @@ lake build AuditRegression
 ## Scope, license, and citation
 
 Cycle 1 is complete relative to `CircularPresentation`; it is not a universal
-theory of every norm or alignment problem. Cycle 2 is an abstract semantic
-diagonal argument, not a formalization of syntax, provability, arithmetization,
-or Gödel's incompleteness theorems. Their source declarations are constructive
+theory of every norm or alignment problem. `RepresentationBoundary` is an
+autonomous abstract semantic diagonal argument, not a formalization of syntax,
+provability, arithmetization, or Gödel's incompleteness theorems. The source
+declarations of both branches are constructive
 and use no `sorry`, `admit`, declared `axiom`, `noncomputable` declaration,
 `Classical`, `propext`, or `Quot.sound`. Lean may generate auxiliary declarations
 internally; the declarations named in the source audit blocks have no axiomatic

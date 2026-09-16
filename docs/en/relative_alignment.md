@@ -4,7 +4,7 @@
 
 Navigation: [structural synthesis](structural_foundations.md) ·
 [method](relational_constitutive_roles_method.md) ·
-[Cycle 2 — reflective alignment](reflective_alignment.md)
+[representation boundary](representation_boundary.md)
 
 ## Status
 
@@ -849,7 +849,7 @@ The precise statement is therefore:
 
 ---
 
-## 13. Proposition-level reflection in Cycle 2
+## 13. Proposition-level observation and representation boundary
 
 The Cycle 1 declarations above are maps between proof-relevant witness types:
 
@@ -861,7 +861,7 @@ CircularSpecificationSatisfaction P H
   → CircularRefinement P H
 ```
 
-Cycle 2 observes their inhabitability explicitly:
+the `RepresentationBoundary` branch observes their inhabitability explicitly:
 
 ```text
 CircularRegimeStatus P H
@@ -871,7 +871,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-`Cycle2.ReflectiveAlignment.circularStatusAdequacy` then proves the genuine
+`RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy` then proves the genuine
 proposition-level equivalence:
 
 ```text
@@ -881,7 +881,7 @@ CircularRegimeStatus P H
 
 This bridge is implemented and constructive. It is derived from the two Cycle 1
 maps; it neither changes Cycle 1 nor claims an `Equiv` or equality between the
-original witness structures. It is the formal point from which Cycle 2
+original witness structures. It is the formal point from which the `RepresentationBoundary` branch
 transports established adequacy into the representation layer.
 
 ---
@@ -991,7 +991,7 @@ the absence of an added bridge between norm and regime
 the axiomatic-audit results
 ```
 
-The proposition-level bridge in Section 13 belongs to Cycle 2. It observes the
+The proposition-level bridge in Section 13 belongs to the `RepresentationBoundary` branch. It observes the
 closed Cycle 1 result without altering its witness types or mathematical content.
 
 ### Publication statement

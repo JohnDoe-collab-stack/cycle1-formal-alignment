@@ -4,7 +4,7 @@
 
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
 [méthode](methode_roles_constitutifs_relationnels.md) ·
-[Cycle 2 — alignement réflexif](alignement_reflexif.md)
+[frontière représentationnelle](frontiere_representationnelle.md)
 
 ## Statut
 
@@ -877,7 +877,7 @@ Il ne faut pas non plus dire que le régime est désaligné avec `S` dans ce cas
 
 ---
 
-## 13. Réflexion propositionnelle dans le Cycle 2
+## 13. Observation propositionnelle et frontière de représentation
 
 Les déclarations du Cycle 1 ci-dessus sont des applications entre types de
 témoins porteurs d'information de preuve :
@@ -890,7 +890,7 @@ CircularSpecificationSatisfaction P H
   → CircularRefinement P H
 ```
 
-Le Cycle 2 observe explicitement leur habitabilité :
+La branche `RepresentationBoundary` observe explicitement leur habitabilité :
 
 ```text
 CircularRegimeStatus P H
@@ -900,7 +900,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-`Cycle2.ReflectiveAlignment.circularStatusAdequacy` démontre alors la véritable
+`RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy` démontre alors la véritable
 équivalence propositionnelle :
 
 ```text
@@ -911,7 +911,7 @@ CircularRegimeStatus P H
 Ce raccord est implémenté et constructif. Il est dérivé des deux applications du
 Cycle 1 ; il ne modifie pas le Cycle 1 et ne revendique ni `Equiv` ni égalité
 entre les structures de témoins originelles. C'est le point formel depuis lequel
-le Cycle 2 transporte l'adéquation établie dans la couche de représentation.
+la branche `RepresentationBoundary` transporte l'adéquation établie dans la couche de représentation.
 
 ---
 
@@ -1022,7 +1022,7 @@ l'absence de pont ajouté entre norme et régime
 les résultats d'audit axiomatique
 ```
 
-Le raccord propositionnel de la section 13 appartient au Cycle 2. Il observe le
+Le raccord propositionnel de la section 13 appartient à la branche `RepresentationBoundary`. Il observe le
 résultat clos du Cycle 1 sans modifier ses types de témoins ni son contenu
 mathématique.
 
