@@ -1,0 +1,52 @@
+name: Namespace cleanup migration
+
+on:
+  push:
+    paths:
+      - scripts/namespace-cleanup.py
+      - .github/workflows/namespace-cleanup.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.ref == 'refs/heads/research/mediated-transition-coherence'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: research/mediated-transition-coherence
+          fetch-depth: 0
+
+      - name: Apply namespace cleanup
+        run: python3 scripts/namespace-cleanup.py
+
+      - name: Build Lean project
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
+
+      - name: Build regression library
+        run: lake build AuditRegression
+
+      - name: Verify scientific-file manifest
+        run: bash scripts/verify-manifest.sh
+
+      - name: Verify namespace invariants
+        run: python3 scripts/namespace-cleanup.py --verify
+
+      - name: Check diff hygiene
+        run: |
+          git diff --check
+          git status --short
+          git diff --stat
+
+      - name: Commit verified namespace cleanup
+        run: |
+          git config user.name "John Doe"
+          git config user.email "Dissociation@outlook.fr"
+          git add -A
+          git commit -m "Separate generic namespaces from circular instance"
+          git push origin HEAD:research/mediated-transition-coherence
