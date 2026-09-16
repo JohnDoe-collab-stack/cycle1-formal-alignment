@@ -7,7 +7,7 @@ open Alignment
 /-!
 # Independent regression checks for dynamic alignment
 
-The naturality proof below is deliberately redérived from `indexedSpoke`,
+The naturality proof below is deliberately rederived from `indexedSpoke`,
 `extend`, and the two inverse laws.  It does not call the published
 `extend_transport_natural` theorem.  The final counterexample uses a genuine
 depth-one-to-depth-two extension and a bijective permutation of the two fresh

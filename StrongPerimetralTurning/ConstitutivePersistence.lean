@@ -132,7 +132,8 @@ theorem oldFreeOccurrence_ne_new
 
 /-! ## Exact interpretation transports -/
 
-private def exactTransportOfInterpretation
+/-- Expose an exact history interpretation as the occurrence transport it already contains. -/
+def interpretationTransport
     {P : CircularPresentation}
     {A : ConcreteContinuationAlgebra P}
     {source target : PositiveConstitution P}
@@ -181,9 +182,9 @@ def concreteOccurrenceSplit
     ExactTypeTransport
       (InitialConcreteOccurrence P A ⊕ Unit)
       (ExtendedConcreteOccurrence P A) :=
-  (exactTransportOfInterpretation (initialInterpretation P A)).reverse.sumUnit
+  (interpretationTransport (initialInterpretation P A)).reverse.sumUnit
     |>.compose (freeOccurrenceSplit P)
-    |>.compose (exactTransportOfInterpretation (extendedInterpretation P A))
+    |>.compose (interpretationTransport (extendedInterpretation P A))
 
 /-- The concrete image of an occurrence already present at the perimeter. -/
 def concreteOldEmbedding
@@ -278,8 +279,8 @@ def initialConcreteTransport
     ExactTypeTransport
       (InitialConcreteOccurrence P A)
       (InitialConcreteOccurrence P B) :=
-  (exactTransportOfInterpretation (initialInterpretation P A)).reverse
-    |>.compose (exactTransportOfInterpretation (initialInterpretation P B))
+  (interpretationTransport (initialInterpretation P A)).reverse
+    |>.compose (interpretationTransport (initialInterpretation P B))
 
 /--
 Coordinate the extended concrete occurrences of two realizations through their
@@ -291,8 +292,8 @@ def extendedConcreteTransport
     ExactTypeTransport
       (ExtendedConcreteOccurrence P A)
       (ExtendedConcreteOccurrence P B) :=
-  (exactTransportOfInterpretation (extendedInterpretation P A)).reverse
-    |>.compose (exactTransportOfInterpretation (extendedInterpretation P B))
+  (interpretationTransport (extendedInterpretation P A)).reverse
+    |>.compose (interpretationTransport (extendedInterpretation P B))
 
 /-! ## Naturality of the one-step split -/
 
@@ -475,8 +476,8 @@ def canonicalOneStepAlignmentRealization
     (canonicalOneStepAlignment P).Realization :=
   { InitialConcrete := InitialConcreteOccurrence P A
     ExtendedConcrete := ExtendedConcreteOccurrence P A
-    initialSpoke := exactTransportOfInterpretation (initialInterpretation P A)
-    extendedSpoke := exactTransportOfInterpretation (extendedInterpretation P A) }
+    initialSpoke := interpretationTransport (initialInterpretation P A)
+    extendedSpoke := interpretationTransport (extendedInterpretation P A) }
 
 theorem canonicalAlignment_old_eq
     (P : CircularPresentation)
@@ -531,7 +532,7 @@ def oneStepResidualFreeOccurrence
     (oneStepCoreResidualOccurrence P).occurrence
 
 /--
-In the actual circular instance instance, the fresh constitutive identity is exactly the
+In the actual circular instance, the fresh constitutive identity is exactly the
 full-history image of the core residual occurrence.
 -/
 theorem canonicalAlignment_fresh_eq_residualFreeOccurrence
@@ -707,6 +708,7 @@ end ConstitutivePersistence
 end StrongPerimetralTurning
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms StrongPerimetralTurning.ConstitutivePersistence.interpretationTransport
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.History.appendExactlyOneOccurrenceTransport
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.freeOccurrenceSplit
 #print axioms StrongPerimetralTurning.ConstitutivePersistence.oldFreeOccurrence_injective

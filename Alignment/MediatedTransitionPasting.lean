@@ -17,25 +17,6 @@ namespace Realization
 
 universe uInitial
 
-private theorem pasting_indexedSpoke_backward_injective
-    {Initial : Type uInitial}
-    {depth : Nat}
-    {alignment : FiniteConstitutiveAlignment Initial depth}
-    (realization : alignment.Realization) :
-    Function.Injective realization.indexedSpoke.backward := by
-  intro first second equality
-  calc
-    first =
-        realization.indexedSpoke.forward
-          (realization.indexedSpoke.backward first) :=
-      (realization.indexedSpoke.backwardForward first).symm
-    _ =
-        realization.indexedSpoke.forward
-          (realization.indexedSpoke.backward second) :=
-      congrArg realization.indexedSpoke.forward equality
-    _ = second :=
-      realization.indexedSpoke.backwardForward second
-
 /--
 Two consecutive extension squares paste after observation in the terminal
 `IteratedCarrier`.
@@ -157,7 +138,7 @@ theorem extend_transport_twoStep_natural_via_mediated_pasting
         (sourceB.extend middleB sourceToMiddle
           ((sourceA.transport sourceB).forward identity)) := by
   exact
-    pasting_indexedSpoke_backward_injective targetB
+    indexedSpoke_backward_injective targetB
       (extend_transport_twoStep_observed_pasting
         sourceA sourceB middleA middleB targetA targetB
         sourceToMiddle middleToTarget identity)

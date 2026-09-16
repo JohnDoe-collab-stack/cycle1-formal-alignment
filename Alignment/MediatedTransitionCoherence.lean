@@ -19,25 +19,6 @@ namespace Realization
 
 universe uInitial uCarrier uConcrete
 
-private theorem indexedSpoke_backward_injective
-    {Initial : Type uInitial}
-    {depth : Nat}
-    {alignment : FiniteConstitutiveAlignment Initial depth}
-    (realization : alignment.Realization) :
-    Function.Injective realization.indexedSpoke.backward := by
-  intro first second equality
-  calc
-    first =
-        realization.indexedSpoke.forward
-          (realization.indexedSpoke.backward first) :=
-      (realization.indexedSpoke.backwardForward first).symm
-    _ =
-        realization.indexedSpoke.forward
-          (realization.indexedSpoke.backward second) :=
-      congrArg realization.indexedSpoke.forward equality
-    _ = second :=
-      realization.indexedSpoke.backwardForward second
-
 /--
 The two routes of the finite naturality square already agree after observation
 in the target `IteratedCarrier`.  This is the non-faithful stage of mediated

@@ -159,24 +159,6 @@ theorem iteratedAlignment_one_backward
 
 /-! ## Exact concrete realizations of the iterated histories -/
 
-/-- Expose an exact interpretation as the transport it already contains. -/
-def interpretationTransport
-    {P : CircularPresentation}
-    {A : ConcreteContinuationAlgebra P}
-    {source target : PositiveConstitution P}
-    {freeHistory : GeneratedHistory source target}
-    {concreteHistory :
-      History A.ConcreteStep (A.stateAt source) (A.stateAt target)}
-    (interpretation :
-      ExactHistoryInterpretation A freeHistory concreteHistory) :
-    ExactTypeTransport
-      (History.Occurrence freeHistory)
-      (History.Occurrence concreteHistory) :=
-  { forward := interpretation.forwardOccurrence
-    backward := interpretation.backwardOccurrence
-    forwardBackward := interpretation.forwardBackward
-    backwardForward := interpretation.backwardForward }
-
 /-- Every supplied concrete algebra realizes the actual history at depth `n`. -/
 def iteratedRealization
     (P : CircularPresentation)
@@ -185,7 +167,7 @@ def iteratedRealization
     (iteratedAlignment P n).Realization :=
   { Concrete :=
       History.Occurrence (A.realizeHistory (iteratedHistory P n).history)
-    spoke := interpretationTransport
+    spoke := ConstitutivePersistence.interpretationTransport
       (exactlyInterpretHistory A (iteratedHistory P n).history) }
 
 @[simp] theorem iteratedRealization_atIndex

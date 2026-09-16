@@ -313,6 +313,26 @@ def indexedSpoke
     ExactTypeTransport (IteratedCarrier Initial depth) realization.Concrete :=
   alignment.carrierSpoke.compose realization.spoke
 
+/-- The backward map of every exact indexed spoke is injective. -/
+theorem indexedSpoke_backward_injective
+    {Initial : Type uInitial}
+    {depth : Nat}
+    {alignment : FiniteConstitutiveAlignment Initial depth}
+    (realization : alignment.Realization) :
+    Function.Injective realization.indexedSpoke.backward := by
+  intro first second equality
+  calc
+    first =
+        realization.indexedSpoke.forward
+          (realization.indexedSpoke.backward first) :=
+      (realization.indexedSpoke.backwardForward first).symm
+    _ =
+        realization.indexedSpoke.forward
+          (realization.indexedSpoke.backward second) :=
+      congrArg realization.indexedSpoke.forward equality
+    _ = second :=
+      realization.indexedSpoke.backwardForward second
+
 /-- Change concrete realization at one fixed constitutive depth. -/
 def transport
     {Initial : Type uInitial}
@@ -501,6 +521,7 @@ end Alignment
 #print axioms Alignment.IteratedCarrier.embedInitial_injective
 #print axioms Alignment.IteratedCarrier.embedPrevious_ne_fresh_later
 #print axioms Alignment.FiniteConstitutiveAlignment
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.indexedSpoke_backward_injective
 #print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_witness_independent
 #print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_comp
 #print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_natural
