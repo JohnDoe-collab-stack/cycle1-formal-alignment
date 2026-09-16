@@ -79,6 +79,7 @@ jobs:
           lake build
           lake build AuditRegression
           bash scripts/verify-manifest.sh
+          rmdir Cycle1 2>/dev/null || true
           python3 scripts/refactor-cycle1.py verify
 
       - name: Commit verified refactor
