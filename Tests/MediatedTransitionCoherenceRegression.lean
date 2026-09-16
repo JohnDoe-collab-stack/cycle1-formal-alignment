@@ -3,11 +3,16 @@ import Cycle1.MediatedTransitionCoherence
 /-!
 # Regression tests for mediated transition coherence
 
-The first test checks that terminal faithfulness is genuinely stronger than
-observed commutation: all mediator equations can hold while the literal square
-fails when the terminal observation is non-injective.
+The first separator checks that observed commutation does not imply literal
+commutation when terminal observation loses information.
 
-The second test checks that the finite alignment specialization has exactly the
+The external-shape tests then reconstruct, with independent abstract data, the
+two-stage pattern used by the semantic square studied outside the Lean project:
+source/target state compatibility plus two realizations of the same `adjoin`
+yield semantic commutation, while a local reflection law is needed only to lift
+that equality to literal equality of terminal regimes.
+
+The final test checks that the finite alignment specialization has exactly the
 same statement as the established naturality law.
 -/
 
@@ -15,6 +20,7 @@ namespace StrongPerimetralTurning
 namespace Tests.MediatedTransitionCoherenceRegression
 
 universe uInitial uCarrier uConcrete
+universe uCorpus uRegime uMaterial uFormal uContent uState
 
 def nonFaithfulStep : Unit → Unit := fun _ => ()
 def nonFaithfulA : Unit → Bool := fun _ => false
@@ -51,6 +57,114 @@ theorem nonFaithful_literal_square_fails :
   intro equality
   cases equality
 
+/--
+Abstract form of the external semantic square, without importing any external
+notion.  The four equalities corresponding to source/target state compatibility
+and the two `adjoin` realizations suffice for equality after observation.
+-/
+theorem external_shape_semantic_commutation
+    {Corpus : Type uCorpus}
+    {Regime : Type uRegime}
+    {Material : Type uMaterial}
+    {Formal : Type uFormal}
+    {Content : Type uContent}
+    {State : Type uState}
+    (interpret : Corpus → Regime)
+    (extend : Corpus → Material → Corpus)
+    (incorporate : Regime → Formal → Regime)
+    (corpusState : Corpus → State)
+    (regimeState : Regime → State)
+    (adjoin : State → Content → State)
+    (source : Corpus)
+    (material : Material)
+    (formal : Formal)
+    (content : Content)
+    (sourceStateExact :
+      regimeState (interpret source) = corpusState source)
+    (targetStateExact :
+      regimeState (interpret (extend source material)) =
+        corpusState (extend source material))
+    (materialUpdateExact :
+      corpusState (extend source material) =
+        adjoin (corpusState source) content)
+    (formalUpdateExact :
+      regimeState (incorporate (interpret source) formal) =
+        adjoin (regimeState (interpret source)) content) :
+    regimeState (interpret (extend source material)) =
+      regimeState (incorporate (interpret source) formal) := by
+  exact MediatedTransitionCoherence.observed_commutation
+    (f := fun _ : Unit => ())
+    (g := fun _ : Unit => incorporate (interpret source) formal)
+    (p := fun _ : Unit => ())
+    (q := fun _ : Unit => interpret (extend source material))
+    (step := fun state => adjoin state content)
+    (a0 := fun _ : Unit => corpusState source)
+    (a1 := fun _ : Unit => corpusState (extend source material))
+    (b0 := fun _ : Unit => regimeState (interpret source))
+    (b1 := regimeState)
+    (stepA := fun _ => materialUpdateExact)
+    (stepB := fun _ => formalUpdateExact)
+    (sourceCompatibility := fun _ => sourceStateExact)
+    (targetCompatibility := fun _ => targetStateExact)
+    ()
+
+/--
+The same external shape becomes a literal square when equality of the two
+terminal semantic states is reflected locally to equality of the two terminal
+regimes.  No global injectivity assumption is needed for this pointwise square.
+-/
+theorem external_shape_literal_commutation
+    {Corpus : Type uCorpus}
+    {Regime : Type uRegime}
+    {Material : Type uMaterial}
+    {Formal : Type uFormal}
+    {Content : Type uContent}
+    {State : Type uState}
+    (interpret : Corpus → Regime)
+    (extend : Corpus → Material → Corpus)
+    (incorporate : Regime → Formal → Regime)
+    (corpusState : Corpus → State)
+    (regimeState : Regime → State)
+    (adjoin : State → Content → State)
+    (source : Corpus)
+    (material : Material)
+    (formal : Formal)
+    (content : Content)
+    (sourceStateExact :
+      regimeState (interpret source) = corpusState source)
+    (targetStateExact :
+      regimeState (interpret (extend source material)) =
+        corpusState (extend source material))
+    (materialUpdateExact :
+      corpusState (extend source material) =
+        adjoin (corpusState source) content)
+    (formalUpdateExact :
+      regimeState (incorporate (interpret source) formal) =
+        adjoin (regimeState (interpret source)) content)
+    (localReflection :
+      regimeState (interpret (extend source material)) =
+          regimeState (incorporate (interpret source) formal) →
+        interpret (extend source material) =
+          incorporate (interpret source) formal) :
+    interpret (extend source material) =
+      incorporate (interpret source) formal := by
+  exact MediatedTransitionCoherence.commute_of_local_reflection
+    (f := fun _ : Unit => ())
+    (g := fun _ : Unit => incorporate (interpret source) formal)
+    (p := fun _ : Unit => ())
+    (q := fun _ : Unit => interpret (extend source material))
+    (step := fun state => adjoin state content)
+    (a0 := fun _ : Unit => corpusState source)
+    (a1 := fun _ : Unit => corpusState (extend source material))
+    (b0 := fun _ : Unit => regimeState (interpret source))
+    (b1 := regimeState)
+    (stepA := fun _ => materialUpdateExact)
+    (stepB := fun _ => formalUpdateExact)
+    (sourceCompatibility := fun _ => sourceStateExact)
+    (targetCompatibility := fun _ => targetStateExact)
+    (localReflection := fun _ equality => localReflection equality)
+    ()
+
 theorem finite_specialization_reproves_existing_square
     {Initial : Type uInitial}
     {sourceDepth targetDepth : Nat}
@@ -76,5 +190,7 @@ end StrongPerimetralTurning
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms StrongPerimetralTurning.Tests.MediatedTransitionCoherenceRegression.nonFaithful_observed_square_commutes
 #print axioms StrongPerimetralTurning.Tests.MediatedTransitionCoherenceRegression.nonFaithful_literal_square_fails
+#print axioms StrongPerimetralTurning.Tests.MediatedTransitionCoherenceRegression.external_shape_semantic_commutation
+#print axioms StrongPerimetralTurning.Tests.MediatedTransitionCoherenceRegression.external_shape_literal_commutation
 #print axioms StrongPerimetralTurning.Tests.MediatedTransitionCoherenceRegression.finite_specialization_reproves_existing_square
 /- AXIOM_AUDIT_END -/
