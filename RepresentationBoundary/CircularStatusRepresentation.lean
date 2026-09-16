@@ -1,16 +1,16 @@
 import StrongPerimetralTurning
-import Cycle2.DiagonalizationKernel
+import RepresentationBoundary.DiagonalizationKernel
 
-namespace Cycle2
-namespace ReflectiveAlignment
+namespace RepresentationBoundary
+namespace CircularStatusRepresentation
 
-open Cycle2.DiagonalizationKernel
+open RepresentationBoundary.DiagonalizationKernel
 open StrongPerimetralTurning
 
 universe uCarrier uLeft uRight uCode
 
-/- Reflection observes only whether a type-valued status has a witness.  The
-   proof-relevant status itself remains unchanged. -/
+/- This observation records only whether a type-valued status has a witness.
+   The proof-relevant status itself remains unchanged. -/
 abbrev HasStatus
     {Carrier : Type uCarrier}
     (Status : Carrier → Type uLeft)
@@ -116,9 +116,10 @@ theorem representCircularSpecification_toRegime
   transportRepresentation represented
     (fun code => (codedCircularStatusAdequacy P decode code).symm)
 
-/- A view assumes exact internal representation of one operational status.  It
-   does not assume diagonal closure or representation of every status. -/
-structure ReflectiveCircularStatusView
+/- This structure assumes exact internal representation of one determined
+   circular status. It does not assume diagonal closure or representation of
+   every predicate on the code space. -/
+structure ExactCircularStatusRepresentation
     (P : CircularPresentation)
     (Code : Type uCode) where
   decode : Code → RootedGeneratedHistory P
@@ -127,53 +128,54 @@ structure ReflectiveCircularStatusView
   representsRegime :
     Represents eval program (CodedCircularRegimeStatus P decode)
 
-namespace ReflectiveCircularStatusView
+namespace ExactCircularStatusRepresentation
 
 theorem representsSpecification
     {P : CircularPresentation}
     {Code : Type uCode}
-    (view : ReflectiveCircularStatusView P Code) :
-    Represents view.eval view.program
-      (CodedCircularSpecificationStatus P view.decode) :=
-  representCircularRegime_toSpecification view.representsRegime
+    (representation : ExactCircularStatusRepresentation P Code) :
+    Represents representation.eval representation.program
+      (CodedCircularSpecificationStatus P representation.decode) :=
+  representCircularRegime_toSpecification representation.representsRegime
 
-end ReflectiveCircularStatusView
+end ExactCircularStatusRepresentation
 
-/- Exact representation of the particular circular regime and norm coexists
-   with a constructively produced status outside the same representability
-   regime.  Local exactness therefore does not entail global closure. -/
-theorem exactCircularStatusRepresentation_hasDiagonalOutside
+/- Exact representation of the selected circular regime and norm coexists with
+   a constructively produced predicate outside the same representation regime.
+   Local exactness therefore does not entail global representation closure. -/
+theorem localExactRepresentation_hasDiagonalExit
     {P : CircularPresentation}
     {Code : Type uCode}
-    (view : ReflectiveCircularStatusView P Code) :
-    Represents view.eval view.program
-        (CodedCircularRegimeStatus P view.decode) ∧
-      Represents view.eval view.program
-        (CodedCircularSpecificationStatus P view.decode) ∧
-      ¬ InternallyRepresentable view.eval (diagonalStatus view.eval) :=
-  ⟨view.representsRegime,
-    view.representsSpecification,
-    diagonalStatus_notRepresentable view.eval⟩
+    (representation : ExactCircularStatusRepresentation P Code) :
+    Represents representation.eval representation.program
+        (CodedCircularRegimeStatus P representation.decode) ∧
+      Represents representation.eval representation.program
+        (CodedCircularSpecificationStatus P representation.decode) ∧
+      ¬ InternallyRepresentable representation.eval
+        (diagonalStatus representation.eval) :=
+  ⟨representation.representsRegime,
+    representation.representsSpecification,
+    diagonalStatus_notRepresentable representation.eval⟩
 
-theorem exactCircularStatusRepresentation_notGloballyClosed
+theorem localExactRepresentation_notGloballyClosed
     {P : CircularPresentation}
     {Code : Type uCode}
-    (view : ReflectiveCircularStatusView P Code) :
-    ¬ GlobalReflectiveClosure view.eval :=
-  noGlobalReflectiveClosure view.eval
+    (representation : ExactCircularStatusRepresentation P Code) :
+    ¬ GlobalRepresentationClosure representation.eval :=
+  noGlobalRepresentationClosure representation.eval
 
-def circularDiagonalStatusExit
+def diagonalRepresentationExit
     {P : CircularPresentation}
     {Code : Type uCode}
-    (view : ReflectiveCircularStatusView P Code) :
-    StatusRepresentationExit view.eval :=
-  diagonalStatusExit view.eval
+    (representation : ExactCircularStatusRepresentation P Code) :
+    StatusRepresentationExit representation.eval :=
+  diagonalStatusExit representation.eval
 
 /- Separator model: a particular circular status can be represented exactly
-   without making the evaluator globally closed. -/
-def canonicalUnitCircularStatusView
+   without making the evaluator globally representation-complete. -/
+def canonicalUnitCircularStatusRepresentation
     (P : CircularPresentation) :
-    ReflectiveCircularStatusView P Unit where
+    ExactCircularStatusRepresentation P Unit where
   decode := fun _ => perimeterDeployment P
   eval := fun _ _ => True
   program := ()
@@ -185,34 +187,35 @@ def canonicalUnitCircularStatusView
     · intro _inhabited
       exact True.intro
 
-theorem canonicalUnitCircularStatusView_hasDiagonalOutside
+theorem canonicalUnitCircularStatusRepresentation_hasDiagonalExit
     (P : CircularPresentation) :
     ¬ InternallyRepresentable
-      (canonicalUnitCircularStatusView P).eval
-      (diagonalStatus (canonicalUnitCircularStatusView P).eval) :=
+      (canonicalUnitCircularStatusRepresentation P).eval
+      (diagonalStatus
+        (canonicalUnitCircularStatusRepresentation P).eval) :=
   diagonalStatus_notRepresentable _
 
-end ReflectiveAlignment
-end Cycle2
+end CircularStatusRepresentation
+end RepresentationBoundary
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms Cycle2.ReflectiveAlignment.HasStatus
-#print axioms Cycle2.ReflectiveAlignment.hasStatus_iff_of_maps
-#print axioms Cycle2.ReflectiveAlignment.CircularRegimeStatus
-#print axioms Cycle2.ReflectiveAlignment.CircularSpecificationStatus
-#print axioms Cycle2.ReflectiveAlignment.circularStatusAdequacy
-#print axioms Cycle2.ReflectiveAlignment.PullbackStatus
-#print axioms Cycle2.ReflectiveAlignment.CodedCircularRegimeStatus
-#print axioms Cycle2.ReflectiveAlignment.CodedCircularSpecificationStatus
-#print axioms Cycle2.ReflectiveAlignment.codedCircularStatusAdequacy
-#print axioms Cycle2.ReflectiveAlignment.transportRepresentation
-#print axioms Cycle2.ReflectiveAlignment.representCircularRegime_toSpecification
-#print axioms Cycle2.ReflectiveAlignment.representCircularSpecification_toRegime
-#print axioms Cycle2.ReflectiveAlignment.ReflectiveCircularStatusView
-#print axioms Cycle2.ReflectiveAlignment.ReflectiveCircularStatusView.representsSpecification
-#print axioms Cycle2.ReflectiveAlignment.exactCircularStatusRepresentation_hasDiagonalOutside
-#print axioms Cycle2.ReflectiveAlignment.exactCircularStatusRepresentation_notGloballyClosed
-#print axioms Cycle2.ReflectiveAlignment.circularDiagonalStatusExit
-#print axioms Cycle2.ReflectiveAlignment.canonicalUnitCircularStatusView
-#print axioms Cycle2.ReflectiveAlignment.canonicalUnitCircularStatusView_hasDiagonalOutside
+#print axioms RepresentationBoundary.CircularStatusRepresentation.HasStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.hasStatus_iff_of_maps
+#print axioms RepresentationBoundary.CircularStatusRepresentation.CircularRegimeStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.CircularSpecificationStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy
+#print axioms RepresentationBoundary.CircularStatusRepresentation.PullbackStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.CodedCircularRegimeStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.CodedCircularSpecificationStatus
+#print axioms RepresentationBoundary.CircularStatusRepresentation.codedCircularStatusAdequacy
+#print axioms RepresentationBoundary.CircularStatusRepresentation.transportRepresentation
+#print axioms RepresentationBoundary.CircularStatusRepresentation.representCircularRegime_toSpecification
+#print axioms RepresentationBoundary.CircularStatusRepresentation.representCircularSpecification_toRegime
+#print axioms RepresentationBoundary.CircularStatusRepresentation.ExactCircularStatusRepresentation
+#print axioms RepresentationBoundary.CircularStatusRepresentation.ExactCircularStatusRepresentation.representsSpecification
+#print axioms RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_hasDiagonalExit
+#print axioms RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_notGloballyClosed
+#print axioms RepresentationBoundary.CircularStatusRepresentation.diagonalRepresentationExit
+#print axioms RepresentationBoundary.CircularStatusRepresentation.canonicalUnitCircularStatusRepresentation
+#print axioms RepresentationBoundary.CircularStatusRepresentation.canonicalUnitCircularStatusRepresentation_hasDiagonalExit
 /- AXIOM_AUDIT_END -/

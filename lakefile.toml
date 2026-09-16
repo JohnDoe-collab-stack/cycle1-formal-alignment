@@ -1,6 +1,6 @@
 name = "StructuralFoundations"
 version = "2.0.0"
-defaultTargets = ["Cycle1Alignment", "Cycle2ReflectiveExtension"]
+defaultTargets = ["Cycle1Alignment", "RepresentationBoundary"]
 
 [[lean_lib]]
 name = "Cycle1Alignment"
@@ -24,8 +24,8 @@ roots = [
 ]
 
 [[lean_lib]]
-name = "Cycle2ReflectiveExtension"
-roots = ["Cycle2"]
+name = "RepresentationBoundary"
+roots = ["RepresentationBoundary"]
 
 [[lean_lib]]
 name = "AuditRegression"

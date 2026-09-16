@@ -1,12 +1,12 @@
 import Init
 
-namespace Cycle2
+namespace RepresentationBoundary
 namespace DiagonalizationKernel
 
 universe uCode
 
 /- A program represents a predicate when its evaluation agrees pointwise with
-   that predicate.  No syntax, arithmetic, or normative reading is assumed. -/
+   that predicate. No syntax, arithmetic, or normative reading is assumed. -/
 def Represents {Code : Type uCode}
     (eval : Code → Code → Prop)
     (program : Code)
@@ -23,7 +23,9 @@ def diagonalStatus {Code : Type uCode}
     (eval : Code → Code → Prop) : Code → Prop :=
   fun code => ¬ eval code code
 
-def GlobalReflectiveClosure {Code : Type uCode}
+/- Global representation closure would require the evaluator to represent every
+   proposition-valued predicate on its own code space. -/
+def GlobalRepresentationClosure {Code : Type uCode}
     (eval : Code → Code → Prop) : Prop :=
   ∀ predicate, InternallyRepresentable eval predicate
 
@@ -39,16 +41,16 @@ theorem diagonalStatus_notRepresentable
     exact (self.mp holds) holds
   exact notSelf (self.mpr notSelf)
 
-theorem noGlobalReflectiveClosure
+theorem noGlobalRepresentationClosure
     {Code : Type uCode}
     (eval : Code → Code → Prop) :
-    ¬ GlobalReflectiveClosure eval := by
+    ¬ GlobalRepresentationClosure eval := by
   intro closure
   exact diagonalStatus_notRepresentable eval (closure (diagonalStatus eval))
 
 /- Local representability of the operator-transformed diagonal predicate
-   yields a fixed point for that operator.  The fixed point is derived from
-   the representing program; no global reflective closure is assumed. -/
+   yields a fixed point for that operator. The fixed point is derived from
+   the representing program; no global representation closure is assumed. -/
 theorem diagonalFixedPoint_ofRepresentable
     {Code : Type uCode}
     {eval : Code → Code → Prop}
@@ -87,17 +89,17 @@ def diagonalStatusExit
     outside := diagonalStatus_notRepresentable eval }
 
 end DiagonalizationKernel
-end Cycle2
+end RepresentationBoundary
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms Cycle2.DiagonalizationKernel.Represents
-#print axioms Cycle2.DiagonalizationKernel.InternallyRepresentable
-#print axioms Cycle2.DiagonalizationKernel.diagonalStatus
-#print axioms Cycle2.DiagonalizationKernel.GlobalReflectiveClosure
-#print axioms Cycle2.DiagonalizationKernel.diagonalStatus_notRepresentable
-#print axioms Cycle2.DiagonalizationKernel.noGlobalReflectiveClosure
-#print axioms Cycle2.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable
-#print axioms Cycle2.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable_unit_example
-#print axioms Cycle2.DiagonalizationKernel.StatusRepresentationExit
-#print axioms Cycle2.DiagonalizationKernel.diagonalStatusExit
+#print axioms RepresentationBoundary.DiagonalizationKernel.Represents
+#print axioms RepresentationBoundary.DiagonalizationKernel.InternallyRepresentable
+#print axioms RepresentationBoundary.DiagonalizationKernel.diagonalStatus
+#print axioms RepresentationBoundary.DiagonalizationKernel.GlobalRepresentationClosure
+#print axioms RepresentationBoundary.DiagonalizationKernel.diagonalStatus_notRepresentable
+#print axioms RepresentationBoundary.DiagonalizationKernel.noGlobalRepresentationClosure
+#print axioms RepresentationBoundary.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable
+#print axioms RepresentationBoundary.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable_unit_example
+#print axioms RepresentationBoundary.DiagonalizationKernel.StatusRepresentationExit
+#print axioms RepresentationBoundary.DiagonalizationKernel.diagonalStatusExit
 /- AXIOM_AUDIT_END -/
