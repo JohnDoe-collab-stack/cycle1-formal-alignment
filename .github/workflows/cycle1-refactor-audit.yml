@@ -48,9 +48,17 @@ jobs:
           replacements = {
               Path('README.md'): [
                   ('[Cycle 1]', '[Circular instance]'),
+                  ('No `Alignment/*` or `Cycle1/*` module imports `RepresentationBoundary`.',
+                   'No `Alignment/*` or `StrongPerimetralTurning/*Persistence` module imports `RepresentationBoundary`.'),
               ],
               Path('README_fr.md'): [
                   ('[Cycle 1]', '[Instance circulaire]'),
+                  ("Aucun module `Alignment/*` ou `Cycle1/*` n'importe `RepresentationBoundary`.",
+                   "Aucun module `Alignment/*` ou `StrongPerimetralTurning/*Persistence` n'importe `RepresentationBoundary`."),
+              ],
+              Path('audit/AUDIT_BUILD.txt'): [
+                  ('No `Alignment/*` or `Cycle1/*` source imports `RepresentationBoundary`.',
+                   'No `Alignment/*` or `StrongPerimetralTurning/*Persistence` source imports `RepresentationBoundary`.'),
               ],
               Path('docs/en/structural_foundations.md'): [
                   ('### 5.1 Cycle 1: exact circular alignment',
@@ -59,6 +67,14 @@ jobs:
               Path('docs/fr/fondements_structurels.md'): [
                   ('### 5.1 Cycle 1 : alignement circulaire exact',
                    "### 5.1 Alignement relatif exact de l'instance circulaire"),
+              ],
+              Path('docs/en/verified_architecture_map.md'): [
+                  ('Despite their current path under `Cycle1/`, these two modules are generic over',
+                   'These two modules are generic over'),
+              ],
+              Path('docs/fr/cartographie_architecturale_verifiee.md'): [
+                  ('Malgré leur chemin actuel sous `Cycle1/`, ces deux modules sont génériques sur',
+                   'Ces deux modules sont génériques sur'),
               ],
           }
           for path, pairs in replacements.items():
