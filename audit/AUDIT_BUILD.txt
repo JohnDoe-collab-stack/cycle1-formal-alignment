@@ -3,24 +3,24 @@ Structural foundations artifact — build and architecture audit
 
 Audit date: 2026-09-16
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
-Branch: research/mediated-transition-coherence
+Branch: main
 Release version: 2.0.0
 Scientific tree validated before this audit-only update:
-  e4686428f0df29a65d8487aa0ae0e8f677ea391f
+  777f8f346aa05754fbd0adc31fc6fa9b656453a6
 GitHub Actions validation run:
-  35093688594
+  35105824001
 Scientific-source identity: MANIFEST.sha256
 
 Purpose
 -------
 
 This record describes the verified architecture after removal of the historical
-numbered classification and separation of generic Lean namespaces from the
-circular/perimetral instance namespace. The repository is organized by
-mathematical role: abstract residual determination, abstract turning, the
-circular/perimetral instance, generic exact transport, generic
-alignment/persistence theory, mediated-transition coherence, and an autonomous
-representation-boundary branch.
+numbered classification, separation of generic Lean namespaces from the
+circular/perimetral instance namespace, and the targeted post-audit cleanup of
+three small API/duplication issues. The repository is organized by mathematical
+role: abstract residual determination, abstract turning, the circular/perimetral
+instance, generic exact transport, generic alignment/persistence theory,
+mediated-transition coherence, and an autonomous representation-boundary branch.
 
 Verified architectural trunk
 ----------------------------
@@ -43,16 +43,16 @@ turning.
 Parallel abstract infrastructure
 --------------------------------
 
-`ExactTypeTransport` is a separate abstract root. Its declaration now lives at
-the root namespace, matching its content-independent role. It is consumed
-directly by `StrongPerimetralTurning` and also by the generic alignment branch:
+`ExactTypeTransport` is a separate abstract root. Its declaration lives at the
+root namespace, matching its content-independent role. It is consumed directly
+by `StrongPerimetralTurning` and also by the generic alignment branch:
 
   ExactTypeTransport
     -> Alignment.Constitutive
     -> Alignment.FinitePersistence
     -> Alignment.ReadoutPersistence
 
-The generic declarations defined by `Alignment/*` now live under namespace
+The generic declarations defined by `Alignment/*` live under namespace
 `Alignment`. They are not nested under `StrongPerimetralTurning`.
 
 The explicit integration point between the circular instance and the generic
@@ -60,12 +60,12 @@ one-step alignment theory is:
 
   StrongPerimetralTurning/ConstitutivePersistence.lean
 
-Finite iteration of the actual circular producer is then implemented in:
+Finite iteration of the actual circular producer is implemented in:
 
   StrongPerimetralTurning/IteratedConstitutivePersistence.lean
 
-The generic mediated-transition kernel remains an independent root, now also at
-its own root namespace:
+The generic mediated-transition kernel remains an independent root at its own
+root namespace:
 
   MediatedTransitionCoherence.lean
 
@@ -105,10 +105,10 @@ The architectural migration commit is:
 Generic namespace separation
 ----------------------------
 
-The follow-up namespace cleanup changed ownership names only; it did not move
-files or alter the dependency graph or theorem statements materially.
+The namespace cleanup changed ownership names only; it did not move files or
+alter the dependency graph or theorem statements materially.
 
-The verified namespace ownership is now:
+The verified namespace ownership is:
 
   ExactTypeTransport
     root generic infrastructure
@@ -128,11 +128,43 @@ The namespace migration commit is:
   347c423c5e79843da1cac09b09022386158a8f29
   Separate generic namespaces from circular instance
 
-Temporary namespace-migration tooling was removed before ordinary CI validation.
-The clean scientific tree validated by CI is:
+Post-audit consolidation
+------------------------
 
-  e4686428f0df29a65d8487aa0ae0e8f677ea391f
-  Remove temporary namespace migration tooling
+A subsequent code-first audit identified two genuine helper duplications and one
+small generic API gap. The cleanup was applied without changing the architecture
+or introducing a parallel construction.
+
+The clean commits on `main` are:
+
+  c82a50f3f4b58b454fa926f7126975253952be16
+  Refresh post-audit architecture documentation
+
+  d4d4463c74a1ddac75ae9d59b4e60b6313b05626
+  Deduplicate exact transport and mediated helpers
+
+  777f8f346aa05754fbd0adc31fc6fa9b656453a6
+  Expose cross-depth fresh identity distinction
+
+The concrete changes are:
+
+- `StrongPerimetralTurning.ConstitutivePersistence.interpretationTransport`
+  is the single public adapter from `ExactHistoryInterpretation` to
+  `ExactTypeTransport`; iterated persistence reuses it instead of duplicating
+  the construction.
+- `Alignment.FiniteConstitutiveAlignment.Realization.indexedSpoke_backward_injective`
+  is the shared generic injectivity theorem consumed by both mediated modules;
+  the duplicated private proofs were removed.
+- `Alignment.IteratedCarrier.fresh_ne_fresh_of_depth_ne` states generically that
+  fresh identities introduced at distinct depths remain distinct after embedding
+  into any common later carrier. Its proof uses the existing structural
+  `identityCode` and `identityCode_embedFrom` machinery.
+- README source maps now list the mediated-transition modules and
+  `StructuralEntrypoint`; the canonical architecture maps no longer describe
+  completed renaming work as merely prospective.
+
+Temporary migration tooling used to stage and validate this cleanup is not part
+of the clean three-commit history above.
 
 Representation boundary
 -----------------------
@@ -210,8 +242,8 @@ Observed CI toolchain:
 CI validation of the clean scientific tree
 ------------------------------------------
 
-GitHub Actions run 35093688594 completed successfully on both supported jobs
-for commit `e4686428f0df29a65d8487aa0ae0e8f677ea391f`.
+GitHub Actions run 35105824001 completed successfully on both supported jobs
+for commit `777f8f346aa05754fbd0adc31fc6fa9b656453a6` on `main`.
 
 Linux job:
 
@@ -226,28 +258,39 @@ Windows job:
   PowerShell manifest verification PASS
   Windows PowerShell verification  PASS
 
-The namespace-migration workflow also passed all internal gates before creating
-the migration commit:
+Before the clean commits were reconstructed directly on top of `main`, the
+post-audit staging workflow also passed its internal gates on identical
+scientific file contents:
 
-  namespace transformation         PASS
-  lake build                       PASS
-  lake build AuditRegression       PASS
+  documentation transformation     PASS
+  helper deduplication              PASS
+  cross-depth theorem addition      PASS
+  lake build                        PASS
+  lake build AuditRegression        PASS
   MANIFEST.sha256 verification     PASS
-  namespace-invariant scanner      PASS
-  diff hygiene                     PASS
+  cleanup-invariant scanner         PASS
+  diff hygiene                      PASS
 
 Axiom audit
 -----------
 
-Public declarations in the residual, abstract-turning, circular-instance,
-alignment, mediated-coherence, pasting, and representation-boundary sources are
-covered by explicit `#print axioms` blocks. The successful build output reports
-that the audited declarations do not depend on axioms.
+Representative public declarations across the residual, abstract-turning,
+circular-instance, alignment, mediated-coherence, pasting, and
+representation-boundary sources are covered by explicit `#print axioms` blocks.
+The successful build output for those audited declarations reports no axiom
+dependencies. This record does not claim that every public declaration has an
+individual `#print axioms` entry.
 
-The generic namespace cleanup also updated the audit names themselves. In
-particular, exact transports are now audited as `ExactTypeTransport.*`, generic
-alignment declarations as `Alignment.*`, and the independent mediated kernel as
+The namespace cleanup updated the audit names themselves. Exact transports are
+audited as `ExactTypeTransport.*`, generic alignment declarations as
+`Alignment.*`, and the independent mediated kernel as
 `MediatedTransitionCoherence.*`.
+
+The post-audit cleanup added explicit checks for:
+
+  StrongPerimetralTurning.ConstitutivePersistence.interpretationTransport
+  Alignment.FiniteConstitutiveAlignment.Realization.indexedSpoke_backward_injective
+  Alignment.IteratedCarrier.fresh_ne_fresh_of_depth_ne
 
 The representation-boundary audit includes:
 
@@ -278,9 +321,9 @@ documents that it lists. It contains the semantic post-refactor paths:
   Alignment/MediatedTransitionCoherence.lean
   Alignment/MediatedTransitionPasting.lean
 
-and contains no numbered persistence-module paths. The namespace cleanup
-recomputed hashes for every listed source whose namespace-qualified audit text or
-consumer imports changed.
+and contains no numbered persistence-module paths. The post-audit cleanup
+recomputed hashes for every listed scientific source or canonical document it
+changed.
 
 The authoritative reproducibility checks are:
 
@@ -297,13 +340,15 @@ Scope boundary
 --------------
 
 The finite persistence result proves persistence/transport of occurrence
-identity through the generated finite histories. It does not by itself prove
-persistent non-admission or out-of-distribution status at every later depth.
+identity through the generated finite histories. The new cross-depth fresh
+identity theorem strengthens the generic API for identity separation; it does
+not by itself prove persistent non-admission or out-of-distribution status at
+every later depth.
 
 The representation-boundary result is an abstract semantic diagonal result. It
 is not upgraded here into a formal Gödel incompleteness theorem: no syntax of
 formulas, arithmetization, provability predicate, or formal consistency theory
-is introduced by this refactor.
+is introduced by this cleanup.
 
 Likewise, the representation-boundary result is not required for dynamic
 alignment. It remains autonomous with a separately named application to
