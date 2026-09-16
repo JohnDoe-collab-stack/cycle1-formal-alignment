@@ -327,10 +327,10 @@ frontière diagonale de représentation
 à la preuve de l'alignement
 ```
 
-La théorie de cohérence médiée actuellement expérimentée sur la branche
-`research/mediated-transition-coherence` renforce encore cette séparation :
-l'alignement, sa naturalité et son collage sont démontrés sans importer
-`RepresentationBoundary`.
+La théorie de cohérence médiée des modules
+`Alignment/MediatedTransitionCoherence.lean` et `Alignment/MediatedTransitionPasting.lean`
+renforce encore cette séparation : l'alignement, sa naturalité et son collage
+sont démontrés sans importer `RepresentationBoundary`.
 
 La frontière représentationnelle peut donc être conservée comme résultat
 autonome sans lui attribuer un rôle fondateur dans l'alignement.

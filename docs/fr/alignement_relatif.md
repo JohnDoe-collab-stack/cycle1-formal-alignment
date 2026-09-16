@@ -692,7 +692,7 @@ structure NormativeAdequacy
     Type _
 ```
 
-L'instance circulaire de l'instance circulaire utilise une spécification d'histoire:
+L'instance circulaire utilise une spécification d'histoire:
 
 ```lean
 abbrev HistoryAlignmentSpec

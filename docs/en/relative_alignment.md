@@ -158,7 +158,7 @@ status by itself.
 `CircularRefinement`. The norm has its own positive model and its own canonical
 counterexample. Its content is therefore not a translation of the regime.
 
-For this circular instance instance, the regime and the norm nevertheless have the same
+For this circular instance, the regime and the norm nevertheless have the same
 extension on histories: each is inhabited exactly at
 `perimeterDeployment P`. This carrier-level coextension is a derived result;
 it does not identify their witness types, definitions, or proof routes.

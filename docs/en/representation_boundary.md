@@ -311,8 +311,8 @@ a diagonal representation boundary
 to prove alignment
 ```
 
-The mediated-coherence theory currently developed on
-`research/mediated-transition-coherence` strengthens this separation: alignment,
+The mediated-coherence theory in `Alignment/MediatedTransitionCoherence.lean` and
+`Alignment/MediatedTransitionPasting.lean` strengthens this separation: alignment,
 naturality, and pasting are proved without importing `RepresentationBoundary`.
 
 The representation boundary can therefore remain as an autonomous result
