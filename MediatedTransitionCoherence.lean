@@ -121,7 +121,6 @@ theorem commute
     stepA stepB sourceCompatibility targetCompatibility
   · intro _ equality
     exact faithful equality
-  · exact x
 
 end MediatedTransitionCoherence
 end StrongPerimetralTurning
