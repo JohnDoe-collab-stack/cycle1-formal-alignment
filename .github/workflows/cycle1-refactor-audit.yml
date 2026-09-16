@@ -1,0 +1,28 @@
+name: Cycle1 refactor inventory
+
+on:
+  push:
+    branches:
+      - research/mediated-transition-coherence
+    paths:
+      - .github/workflows/cycle1-refactor-audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Inventory Cycle1 references
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== Paths / text containing Cycle1 ==='
+          grep -RIn --exclude-dir=.git --exclude='cycle1-refactor-audit.yml' 'Cycle1' . || true
+          echo '=== cycle1 identifiers ==='
+          grep -RInE --exclude-dir=.git --exclude='cycle1-refactor-audit.yml' '\bcycle1[A-Za-z0-9_]*\b' . || true
+          echo '=== Cycle1 directory ==='
+          find Cycle1 -maxdepth 2 -type f -print | sort
