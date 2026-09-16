@@ -9,12 +9,14 @@ roots = [
   "SegmentedResidualRoleStrictness",
   "AbstractSegmentedTurning",
   "ExactTypeTransport",
+  "MediatedTransitionCoherence",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
   "Alignment.ReadoutPersistence",
   "Cycle1.ConstitutivePersistence",
   "Cycle1.IteratedConstitutivePersistence",
+  "Cycle1.MediatedTransitionCoherence",
   "StructuralEntrypoint",
   "Examples.ConcreteContinuation.LoggedAlgebra",
   "Examples.Alignment.IteratedReadout"
@@ -28,5 +30,6 @@ roots = ["Cycle2"]
 name = "AuditRegression"
 roots = [
   "Tests.ResidualAuditRegression",
-  "Tests.DynamicAlignmentRegression"
+  "Tests.DynamicAlignmentRegression",
+  "Tests.MediatedTransitionCoherenceRegression"
 ]
