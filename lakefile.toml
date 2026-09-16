@@ -17,6 +17,7 @@ roots = [
   "Cycle1.ConstitutivePersistence",
   "Cycle1.IteratedConstitutivePersistence",
   "Cycle1.MediatedTransitionCoherence",
+  "Cycle1.MediatedTransitionPasting",
   "StructuralEntrypoint",
   "Examples.ConcreteContinuation.LoggedAlgebra",
   "Examples.Alignment.IteratedReadout"
@@ -31,5 +32,6 @@ name = "AuditRegression"
 roots = [
   "Tests.ResidualAuditRegression",
   "Tests.DynamicAlignmentRegression",
-  "Tests.MediatedTransitionCoherenceRegression"
+  "Tests.MediatedTransitionCoherenceRegression",
+  "Tests.MediatedTransitionPastingRegression"
 ]
