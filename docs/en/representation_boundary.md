@@ -16,7 +16,7 @@ RepresentationBoundary/DiagonalizationKernel.lean
 RepresentationBoundary/CircularStatusRepresentation.lean
 ```
 
-This branch is not a “second cycle” of alignment. The
+This branch is not a numbered successor stage of alignment. The
 `DiagonalizationKernel` is independent of alignment theory and imports only
 `Init`. `CircularStatusRepresentation` separately applies that kernel to
 circular statuses already established in `StrongPerimetralTurning`.
@@ -369,8 +369,8 @@ pwsh -NoProfile -File scripts/verify-manifest.ps1
 
 ## Conclusion
 
-`RepresentationBoundary` is neither a “Cycle 2” nor reflective alignment. It
-formalizes a different property: coexistence of local exact representation with
+`RepresentationBoundary` is an autonomous representation-limit module, not an
+alignment stage. It formalizes coexistence of local exact representation with
 the impossibility of global representation closure for an evaluator of type
 `Code → Code → Prop`.
 

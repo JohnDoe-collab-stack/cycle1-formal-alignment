@@ -16,7 +16,7 @@ RepresentationBoundary/DiagonalizationKernel.lean
 RepresentationBoundary/CircularStatusRepresentation.lean
 ```
 
-Cette branche n'est pas un « deuxième cycle » de l'alignement. Le noyau
+Cette branche n'est pas une étape numérotée succédant à l'alignement. Le noyau
 `DiagonalizationKernel` est indépendant de la théorie d'alignement et importe
 seulement `Init`. Le module `CircularStatusRepresentation` fournit séparément
 une application aux statuts circulaires déjà établis dans
@@ -386,10 +386,10 @@ pwsh -NoProfile -File scripts/verify-manifest.ps1
 
 ## Conclusion
 
-`RepresentationBoundary` n'est ni un « Cycle 2 » ni un alignement réflexif.
-Il formalise une autre propriété : la coexistence entre exactitude locale de
-représentation et impossibilité d'une clôture représentationnelle globale pour
-un évaluateur de type `Code → Code → Prop`.
+`RepresentationBoundary` est une branche autonome de limite représentationnelle,
+et non une étape de l'alignement. Elle formalise la coexistence entre exactitude
+locale de représentation et impossibilité d'une clôture représentationnelle
+globale pour un évaluateur de type `Code → Code → Prop`.
 
 Cette reformulation conserve le résultat diagonal tout en supprimant une
 fausse dépendance narrative avec la théorie d'alignement.
