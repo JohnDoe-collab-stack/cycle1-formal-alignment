@@ -6,7 +6,7 @@ Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignme
 Branch: research/mediated-transition-coherence
 Release version: 2.0.0
 Scientific tree validated before this audit-only update:
-  a9114a631ee5f27e6fefa0deade79287d175b65f
+  a4711e09b2631696ad5f4d4d0884e325d1dd3f86
 GitHub Actions validation run:
   pending final clean-tree validation
 Scientific-source identity: MANIFEST.sha256
@@ -156,7 +156,7 @@ Its migration workflow passed:
 
 Temporary migration tooling was removed in the clean-tree commit:
 
-  a9114a631ee5f27e6fefa0deade79287d175b65f
+  a4711e09b2631696ad5f4d4d0884e325d1dd3f86
   Remove temporary refactor tooling
 
 A final ordinary Linux/Windows CI run is required on the clean audited tree.
