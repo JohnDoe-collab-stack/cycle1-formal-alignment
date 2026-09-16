@@ -166,6 +166,23 @@ theorem identityCode_embedFrom
       exact inductionHypothesis
 
 /--
+Fresh identities introduced at distinct depths remain distinct after embedding
+into any common later carrier.
+-/
+theorem fresh_ne_fresh_of_depth_ne
+    {Initial : Type uInitial}
+    {m n target : Nat}
+    (first : DepthExtension (m + 1) target)
+    (second : DepthExtension (n + 1) target)
+    (distinct : m ≠ n) :
+    embedFrom (Initial := Initial) first (freshAtStep m) ≠
+      embedFrom (Initial := Initial) second (freshAtStep n) := by
+  intro equality
+  have codes := congrArg identityCode equality
+  rw [identityCode_embedFrom, identityCode_embedFrom] at codes
+  exact distinct (Sum.inr.inj codes)
+
+/--
 The embedded identity depends only on the two depths, not on the supplied
 proof-relevant path between them.  This compares the observable construction,
 not the `DepthExtension` witnesses themselves.
@@ -516,6 +533,7 @@ end Alignment
 #print axioms Alignment.IteratedCarrier.oneStepTransport
 #print axioms Alignment.IteratedCarrier.identityCode_injective
 #print axioms Alignment.IteratedCarrier.identityCode_embedFrom
+#print axioms Alignment.IteratedCarrier.fresh_ne_fresh_of_depth_ne
 #print axioms Alignment.IteratedCarrier.embedFrom_witness_independent
 #print axioms Alignment.IteratedCarrier.embedFrom_injective
 #print axioms Alignment.IteratedCarrier.embedInitial_injective
