@@ -6,77 +6,71 @@ Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignme
 Branch: research/mediated-transition-coherence
 Release version: 2.0.0
 Scientific tree validated before this audit-only update:
-  a4711e09b2631696ad5f4d4d0884e325d1dd3f86
+  fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04
 GitHub Actions validation run:
-  pending final clean-tree validation
+  35091504108
 Scientific-source identity: MANIFEST.sha256
 
 Purpose
 -------
 
-This record reflects the post-refactor architecture after removal of the
-historical numbered classification. The circular instance, alignment theory,
-and representation-boundary branch are now separated by mathematical role
-rather than by development chronology.
+This record describes the verified architecture after removal of the historical
+numbered classification. The repository is organized by mathematical role:
+abstract residual determination, abstract turning, the circular/perimetral
+instance, generic alignment/persistence theory, mediated-transition coherence,
+and an autonomous representation-boundary branch.
 
-Architecture after the refactor
--------------------------------
+Verified architectural trunk
+----------------------------
 
-Primary Lake targets:
+The scientific trunk of the circularity development is:
 
-  StructuralFoundations
-  RepresentationBoundary
-  AuditRegression
+  SegmentedResidualRole
+    -> AbstractSegmentedTurning
+    -> StrongPerimetralTurning
 
-The circular-instance persistence modules are:
+`SegmentedResidualRole` is the abstract residual-determination kernel.
+`AbstractSegmentedTurning` consumes that kernel while remaining independent of
+circular presentations. `StrongPerimetralTurning` is the concrete
+circular/perimetral instance of the project.
+
+`SegmentedResidualRoleStrictness` is a lateral separator/audit of the residual
+kernel. It is not a productive stage between residual determination and abstract
+turning.
+
+Parallel abstract infrastructure
+--------------------------------
+
+`ExactTypeTransport` is a separate abstract root. It is consumed directly by
+`StrongPerimetralTurning` and also by the generic alignment branch:
+
+  ExactTypeTransport
+    -> Alignment.Constitutive
+    -> Alignment.FinitePersistence
+    -> Alignment.ReadoutPersistence
+
+The explicit integration point between the circular instance and the generic
+one-step alignment theory is:
 
   StrongPerimetralTurning/ConstitutivePersistence.lean
+
+Finite iteration of the actual circular producer is then implemented in:
+
   StrongPerimetralTurning/IteratedConstitutivePersistence.lean
 
-The finite mediated-coherence specializations are:
+The generic mediated-transition kernel remains an independent root:
+
+  MediatedTransitionCoherence.lean
+
+Its finite-alignment specializations are:
 
   Alignment/MediatedTransitionCoherence.lean
   Alignment/MediatedTransitionPasting.lean
 
-The representation-boundary branch remains:
-
-  RepresentationBoundary.lean
-  RepresentationBoundary/DiagonalizationKernel.lean
-  RepresentationBoundary/CircularStatusRepresentation.lean
-
-Dependency boundary
--------------------
-
-`SegmentedResidualRole` remains the abstract residual kernel.
-`AbstractSegmentedTurning` consumes that kernel and remains independent of
-circular presentations. `StrongPerimetralTurning` is the circular/perimetral
-instance of that abstract turning layer.
-
-`Alignment.Constitutive`, `Alignment.FinitePersistence`, and
-`Alignment.ReadoutPersistence` remain generic persistence/alignment theory.
-`StrongPerimetralTurning.ConstitutivePersistence` is the explicit integration
-point between the circular instance and `Alignment.Constitutive`.
-
-`RepresentationBoundary.DiagonalizationKernel` imports only `Init` and is
-independent of alignment theory.
-
-`RepresentationBoundary.CircularStatusRepresentation` imports
-`StrongPerimetralTurning` and the diagonal kernel. It is a separate application
-to already established proposition-level circular statuses.
-
-No `Alignment/*` or `StrongPerimetralTurning/*Persistence` source imports
-`RepresentationBoundary`. Therefore naturality, finite persistence, mediated
-coherence, and mediated pasting do not depend on the diagonal
-representation-boundary result.
-
 Historical numbered architecture removal
 -----------------------------------------
 
-The former directory
-
-  Cycle1/
-
-has been dissolved. Its modules were rehomed by ownership:
+The former numbered directory was dissolved by mathematical ownership:
 
   Cycle1/ConstitutivePersistence.lean
     -> StrongPerimetralTurning/ConstitutivePersistence.lean
@@ -91,13 +85,48 @@ has been dissolved. Its modules were rehomed by ownership:
     -> Alignment/MediatedTransitionPasting.lean
 
 Iteration declarations formerly prefixed `cycle1` now use the semantic
-`iterated` prefix. The main Lean target formerly named `Cycle1Alignment` is now
-`StructuralFoundations`.
+`iterated` prefix. The primary Lean target formerly named `Cycle1Alignment` is
+now `StructuralFoundations`.
 
-Representation-boundary naming
-------------------------------
+The architectural migration commit is:
 
-The diagonal branch uses representation vocabulary matching the proved content:
+  e1f6fd05f4827638d9194f82772e3302ab403783
+  Dissolve historical numbered architecture
+
+Temporary migration tooling was removed before clean-tree validation. The clean
+scientific tree validated by CI is:
+
+  fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04
+  Remove temporary refactor tooling
+
+Representation boundary
+-----------------------
+
+Primary Lake targets are:
+
+  StructuralFoundations
+  RepresentationBoundary
+  AuditRegression
+
+The representation-boundary branch is:
+
+  RepresentationBoundary.lean
+  RepresentationBoundary/DiagonalizationKernel.lean
+  RepresentationBoundary/CircularStatusRepresentation.lean
+
+`RepresentationBoundary.DiagonalizationKernel` imports only `Init` and is
+independent of alignment theory.
+
+`RepresentationBoundary.CircularStatusRepresentation` imports
+`StrongPerimetralTurning` and the diagonal kernel. It is a separate application
+to already established proposition-level circular statuses.
+
+No `Alignment/*` or `StrongPerimetralTurning/*Persistence` source imports
+`RepresentationBoundary`. Therefore naturality, finite persistence, mediated
+coherence, and mediated pasting do not depend on the diagonal
+representation-boundary result.
+
+The representation vocabulary matches the proved content:
 
   GlobalRepresentationClosure
   noGlobalRepresentationClosure
@@ -120,43 +149,128 @@ This is not presented as a second stage of alignment.
 Mediated coherence
 ------------------
 
-The branch contains the isolated generic kernel:
+The mediated-transition modules formalize observed commutation,
+faithful/local-reflection upgrade, identity, sequential composition, and
+pasting. The nonfaithful-middle regression shows that intermediate literal
+commutation/faithfulness is stronger than required for observed pasting;
+terminal reflection suffices to recover literal outer commutation.
 
-  MediatedTransitionCoherence.lean
+These results remain independent of `RepresentationBoundary`.
 
-and its finite-alignment specialization:
+Environment
+-----------
 
+Pinned toolchain:
+
+  leanprover/lean4:v4.33.1
+
+Observed CI toolchain:
+
+  Lean 4.33.1
+  Lean commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6
+  Lake 5.0.0-src+819816b
+
+CI validation of the clean scientific tree
+------------------------------------------
+
+GitHub Actions run 35091504108 completed successfully on both supported jobs
+for commit `fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04`.
+
+Linux job:
+
+  lake build                        PASS
+  lake build AuditRegression        PASS
+  scientific manifest verification PASS
+
+Windows job:
+
+  lake build                        PASS
+  lake build AuditRegression        PASS
+  PowerShell manifest verification PASS
+  Windows PowerShell verification  PASS
+
+The migration workflow also passed its internal staged gates before creating the
+migration commit:
+
+  module relocation build          PASS
+  relocation AuditRegression       PASS
+  API-renaming build               PASS
+  API-renaming AuditRegression     PASS
+  final full build                  PASS
+  final AuditRegression            PASS
+  MANIFEST.sha256 verification     PASS
+  legacy-architecture scanner      PASS
+
+Axiom audit
+-----------
+
+Public declarations in the residual, abstract-turning, circular-instance,
+alignment, mediated-coherence, pasting, and representation-boundary sources are
+covered by explicit `#print axioms` blocks. The successful build output reports
+that the audited declarations do not depend on axioms.
+
+In particular, the representation-boundary audit includes:
+
+  RepresentationBoundary.DiagonalizationKernel.Represents
+  RepresentationBoundary.DiagonalizationKernel.InternallyRepresentable
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatus
+  RepresentationBoundary.DiagonalizationKernel.GlobalRepresentationClosure
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatus_notRepresentable
+  RepresentationBoundary.DiagonalizationKernel.noGlobalRepresentationClosure
+  RepresentationBoundary.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable
+  RepresentationBoundary.DiagonalizationKernel.StatusRepresentationExit
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatusExit
+  RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy
+  RepresentationBoundary.CircularStatusRepresentation.transportRepresentation
+  RepresentationBoundary.CircularStatusRepresentation.ExactCircularStatusRepresentation
+  RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_hasDiagonalExit
+  RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_notGloballyClosed
+  RepresentationBoundary.CircularStatusRepresentation.diagonalRepresentationExit
+
+The mediated-coherence and pasting declarations are likewise covered by their
+source `#print axioms` checks.
+
+Manifest verification
+---------------------
+
+`MANIFEST.sha256` hash-anchors the Lean sources and canonical scientific
+documents that it lists. It now contains the semantic post-refactor paths:
+
+  StrongPerimetralTurning/ConstitutivePersistence.lean
+  StrongPerimetralTurning/IteratedConstitutivePersistence.lean
   Alignment/MediatedTransitionCoherence.lean
   Alignment/MediatedTransitionPasting.lean
-  Tests/MediatedTransitionCoherenceRegression.lean
-  Tests/MediatedTransitionPastingRegression.lean
 
-These modules formalize observed commutation, faithful/local-reflection upgrade,
-identity, sequential composition, and pasting. Intermediate faithfulness is not
-required for observed pasting; terminal reflection suffices for literal outer
-commutation.
+and contains no numbered persistence-module paths.
 
-Validation status
------------------
+The authoritative reproducibility checks are:
 
-The architectural migration commit is:
+  lake build
+  lake build AuditRegression
+  bash scripts/verify-manifest.sh
 
-  e1f6fd05f4827638d9194f82772e3302ab403783
-  Dissolve historical numbered architecture
+On Windows:
 
-Its migration workflow passed:
+  pwsh -NoProfile -File scripts/verify-manifest.ps1
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-  - module relocation build;
-  - AuditRegression after relocation;
-  - API-renaming build and regression;
-  - documentation and Lake metadata refresh;
-  - MANIFEST.sha256 verification;
-  - final full build and AuditRegression;
-  - legacy numbered-architecture scanner.
+Scope boundary
+--------------
 
-Temporary migration tooling was removed in the clean-tree commit:
+The finite persistence result proves persistence/transport of occurrence
+identity through the generated finite histories. It does not by itself prove
+persistent non-admission or out-of-distribution status at every later depth.
 
-  a4711e09b2631696ad5f4d4d0884e325d1dd3f86
-  Remove temporary refactor tooling
+The representation-boundary result is an abstract semantic diagonal result. It
+is not upgraded here into a formal Gödel incompleteness theorem: no syntax of
+formulas, arithmetization, provability predicate, or formal consistency theory
+is introduced by this refactor.
 
-A final ordinary Linux/Windows CI run is required on the clean audited tree.
+Likewise, the representation-boundary result is not required for dynamic
+alignment. It remains autonomous with a separately named application to
+circular statuses.
+
+This file is not itself listed in MANIFEST.sha256. This audit-only commit must
+therefore be followed by the same ordinary CI validation; that final run checks
+that the repository remains buildable and that the scientific manifest remains
+unchanged and valid.
