@@ -1,6 +1,8 @@
 import Alignment.ReadoutPersistence
 import StrongPerimetralTurning.ConstitutivePersistence
 
+open Alignment
+
 /-!
 # Iterated constitutive persistence in the circular instance
 

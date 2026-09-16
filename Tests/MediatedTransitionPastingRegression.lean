@@ -1,5 +1,7 @@
 import Alignment.MediatedTransitionPasting
 
+open Alignment
+
 /-!
 # Regression tests for mediated transition pasting
 

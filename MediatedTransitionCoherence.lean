@@ -20,7 +20,6 @@ This module is independent of any particular constitutive alignment, admission
 regime, specification, or external theorem.
 -/
 
-namespace StrongPerimetralTurning
 namespace MediatedTransitionCoherence
 
 universe uA0 uA1 uA2 uB0 uB1 uB2 uM0 uM1 uM2
@@ -373,16 +372,15 @@ theorem commute_paste
     exact faithful equality
 
 end MediatedTransitionCoherence
-end StrongPerimetralTurning
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.realization_identity
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.realization_comp
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.observed_commutation
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.commute_of_local_reflection
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.commute
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.observed_commutation_comp
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.observed_commutation_paste
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.commute_paste_of_local_reflection
-#print axioms StrongPerimetralTurning.MediatedTransitionCoherence.commute_paste
+#print axioms MediatedTransitionCoherence.realization_identity
+#print axioms MediatedTransitionCoherence.realization_comp
+#print axioms MediatedTransitionCoherence.observed_commutation
+#print axioms MediatedTransitionCoherence.commute_of_local_reflection
+#print axioms MediatedTransitionCoherence.commute
+#print axioms MediatedTransitionCoherence.observed_commutation_comp
+#print axioms MediatedTransitionCoherence.observed_commutation_paste
+#print axioms MediatedTransitionCoherence.commute_paste_of_local_reflection
+#print axioms MediatedTransitionCoherence.commute_paste
 /- AXIOM_AUDIT_END -/

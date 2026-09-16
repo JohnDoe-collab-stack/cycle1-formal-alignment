@@ -180,8 +180,8 @@ Ces deux modules sont génériques sur
 `FiniteConstitutiveAlignment`. Ils ne dépendent pas de `CircularPresentation`
 ni de l'instance circulaire de `StrongPerimetralTurning`.
 
-Leur emplacement actuel est donc un fait historique du système de fichiers,
-pas une dépendance scientifique à un « instance circulaire ».
+Leur emplacement sous `Alignment/` correspond désormais à leur propriété
+mathématique générique et non à une spécialisation circulaire.
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -193,11 +193,12 @@ Ce noyau n'est pas une conséquence de l'alignement.
 
 ### Namespace et spécialisation
 
-Plusieurs structures génériques (`ExactTypeTransport`, `Alignment/*`,
-`MediatedTransitionCoherence`) vivent actuellement sous le namespace Lean
-`StrongPerimetralTurning`. Cette appartenance nominale **ne suffit pas** à les
-classer comme spécialisations circulaires. Leur niveau de spécialisation doit
-être déterminé par leurs imports et leurs signatures.
+Les namespaces suivent désormais le niveau de spécialisation réel :
+`ExactTypeTransport` et `MediatedTransitionCoherence` sont des racines génériques,
+les déclarations des modules `Alignment/*` vivent sous `Alignment`, et
+`StrongPerimetralTurning` est réservé à l'instance circulaire et à ses
+spécialisations. Cette séparation nominale reflète le DAG des imports sans
+introduire de nouvelle dépendance mathématique.
 
 ## 3. Raccord de l'alignement à l'instance circulaire
 

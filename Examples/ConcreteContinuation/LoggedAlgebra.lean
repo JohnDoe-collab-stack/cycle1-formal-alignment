@@ -1,5 +1,7 @@
 import StrongPerimetralTurning.ConstitutivePersistence
 
+open Alignment
+
 /-!
 # A non-identity concrete continuation algebra
 

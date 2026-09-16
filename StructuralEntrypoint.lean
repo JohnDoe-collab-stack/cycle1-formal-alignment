@@ -1,5 +1,7 @@
 import StrongPerimetralTurning.IteratedConstitutivePersistence
 
+open Alignment
+
 /-!
 # Structural entry point
 

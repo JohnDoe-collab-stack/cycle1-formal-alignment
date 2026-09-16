@@ -176,8 +176,8 @@ These two modules are generic over
 `FiniteConstitutiveAlignment`. They do not depend on `CircularPresentation` or
 on the circular instance of `StrongPerimetralTurning`.
 
-Their current location is therefore a historical filesystem fact, not a
-scientific dependency on a “circular instance”.
+Their location under `Alignment/` now matches their generic mathematical
+role rather than a circular specialization.
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -189,11 +189,11 @@ This kernel is not a consequence of alignment.
 
 ### Namespace and specialization
 
-Several generic structures (`ExactTypeTransport`, `Alignment/*`,
-`MediatedTransitionCoherence`) currently live under the Lean namespace
-`StrongPerimetralTurning`. Namespace membership **is not enough** to classify
-them as circular specializations. Their specialization level must be determined
-from their imports and signatures.
+Namespaces now follow the actual specialization level: `ExactTypeTransport`
+and `MediatedTransitionCoherence` are generic roots, declarations from
+`Alignment/*` live under `Alignment`, and `StrongPerimetralTurning` is reserved
+for the circular instance and its specializations. This nominal separation
+mirrors the import DAG without adding any new mathematical dependency.
 
 ## 3. Junction of alignment with the circular instance
 

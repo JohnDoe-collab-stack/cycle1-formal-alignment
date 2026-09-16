@@ -11,7 +11,7 @@ Two adjacent finite naturality squares are pasted through their shared
 exactness is needed only at the terminal spoke to recover literal equality.
 -/
 
-namespace StrongPerimetralTurning
+namespace Alignment
 namespace FiniteConstitutiveAlignment
 namespace Realization
 
@@ -164,9 +164,9 @@ theorem extend_transport_twoStep_natural_via_mediated_pasting
 
 end Realization
 end FiniteConstitutiveAlignment
-end StrongPerimetralTurning
+end Alignment
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_twoStep_observed_pasting
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_twoStep_natural_via_mediated_pasting
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_twoStep_observed_pasting
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_twoStep_natural_via_mediated_pasting
 /- AXIOM_AUDIT_END -/

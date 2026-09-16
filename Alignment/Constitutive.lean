@@ -15,7 +15,7 @@ those identities to its own carriers.
 Admission, norms, specifications, and readout values are intentionally absent.
 -/
 
-namespace StrongPerimetralTurning
+namespace Alignment
 
 universe uInitial uExtended
 
@@ -250,17 +250,17 @@ theorem extendedTransport_unique_at
 
 end Realization
 end ExactOneStepConstitutiveAlignment
-end StrongPerimetralTurning
+end Alignment
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.old_injective
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.old_ne_fresh
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.concreteSplit
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.old_natural
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.fresh_natural
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.initialTransport_forward_comp
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.extendedTransport_forward_comp
-#print axioms StrongPerimetralTurning.ExactOneStepConstitutiveAlignment.Realization.extendedTransport_unique_at
+#print axioms Alignment.ExactOneStepConstitutiveAlignment
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.old_injective
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.old_ne_fresh
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.concreteSplit
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.old_natural
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.fresh_natural
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.initialTransport_forward_comp
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.extendedTransport_forward_comp
+#print axioms Alignment.ExactOneStepConstitutiveAlignment.Realization.extendedTransport_unique_at
 /- AXIOM_AUDIT_END -/

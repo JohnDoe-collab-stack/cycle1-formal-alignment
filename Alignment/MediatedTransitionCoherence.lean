@@ -13,7 +13,7 @@ The common mediator is `IteratedCarrier`.  Concrete extension realizes
 same index.  Exact spokes make the terminal observation injective.
 -/
 
-namespace StrongPerimetralTurning
+namespace Alignment
 namespace FiniteConstitutiveAlignment
 namespace Realization
 
@@ -164,9 +164,9 @@ theorem extend_transport_natural_via_mediated_coherence
 
 end Realization
 end FiniteConstitutiveAlignment
-end StrongPerimetralTurning
+end Alignment
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_observed_commutation
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_natural_via_mediated_coherence
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_observed_commutation
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_natural_via_mediated_coherence
 /- AXIOM_AUDIT_END -/

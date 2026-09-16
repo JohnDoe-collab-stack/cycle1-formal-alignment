@@ -6,7 +6,6 @@ round trips.  It is independent of any particular constitution, realization,
 admission regime, specification, or readout.
 -/
 
-namespace StrongPerimetralTurning
 
 universe uSource uMiddle uTarget
 
@@ -116,14 +115,13 @@ theorem backward_eq_of_forward_eq
     _ = second.backward target := first.forwardBackward _
 
 end ExactTypeTransport
-end StrongPerimetralTurning
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.ExactTypeTransport
-#print axioms StrongPerimetralTurning.ExactTypeTransport.reflexive
-#print axioms StrongPerimetralTurning.ExactTypeTransport.ofEquality
-#print axioms StrongPerimetralTurning.ExactTypeTransport.reverse
-#print axioms StrongPerimetralTurning.ExactTypeTransport.compose
-#print axioms StrongPerimetralTurning.ExactTypeTransport.sumUnit
-#print axioms StrongPerimetralTurning.ExactTypeTransport.backward_eq_of_forward_eq
+#print axioms ExactTypeTransport
+#print axioms ExactTypeTransport.reflexive
+#print axioms ExactTypeTransport.ofEquality
+#print axioms ExactTypeTransport.reverse
+#print axioms ExactTypeTransport.compose
+#print axioms ExactTypeTransport.sumUnit
+#print axioms ExactTypeTransport.backward_eq_of_forward_eq
 /- AXIOM_AUDIT_END -/

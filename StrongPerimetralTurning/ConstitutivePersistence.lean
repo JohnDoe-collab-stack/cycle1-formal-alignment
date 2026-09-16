@@ -1,6 +1,8 @@
 import StrongPerimetralTurning
 import Alignment.Constitutive
 
+open Alignment
+
 /- Concrete interface components intentionally remain in distinct universes. -/
 set_option linter.checkUnivs false
 

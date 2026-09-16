@@ -12,7 +12,7 @@ proved to commute; the commuting law is not stored as additional matching data.
 No admission, specification, norm, or readout value occurs in this layer.
 -/
 
-namespace StrongPerimetralTurning
+namespace Alignment
 
 universe uInitial uCarrier uConcrete
 
@@ -490,18 +490,18 @@ theorem extend_transport_natural
 
 end Realization
 end FiniteConstitutiveAlignment
-end StrongPerimetralTurning
+end Alignment
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.IteratedCarrier.oneStepTransport
-#print axioms StrongPerimetralTurning.IteratedCarrier.identityCode_injective
-#print axioms StrongPerimetralTurning.IteratedCarrier.identityCode_embedFrom
-#print axioms StrongPerimetralTurning.IteratedCarrier.embedFrom_witness_independent
-#print axioms StrongPerimetralTurning.IteratedCarrier.embedFrom_injective
-#print axioms StrongPerimetralTurning.IteratedCarrier.embedInitial_injective
-#print axioms StrongPerimetralTurning.IteratedCarrier.embedPrevious_ne_fresh_later
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_witness_independent
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_comp
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.extend_transport_natural
+#print axioms Alignment.IteratedCarrier.oneStepTransport
+#print axioms Alignment.IteratedCarrier.identityCode_injective
+#print axioms Alignment.IteratedCarrier.identityCode_embedFrom
+#print axioms Alignment.IteratedCarrier.embedFrom_witness_independent
+#print axioms Alignment.IteratedCarrier.embedFrom_injective
+#print axioms Alignment.IteratedCarrier.embedInitial_injective
+#print axioms Alignment.IteratedCarrier.embedPrevious_ne_fresh_later
+#print axioms Alignment.FiniteConstitutiveAlignment
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_witness_independent
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_comp
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.extend_transport_natural
 /- AXIOM_AUDIT_END -/

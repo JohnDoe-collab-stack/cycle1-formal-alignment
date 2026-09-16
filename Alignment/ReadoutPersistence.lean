@@ -10,7 +10,7 @@ not require arbitrary readouts to be injective and do not identify readouts
 that were supplied independently.
 -/
 
-namespace StrongPerimetralTurning
+namespace Alignment
 
 universe uInitial uOld uValue
 
@@ -408,15 +408,15 @@ theorem realizeIteratedReadout_distinction
   exact collapsed
 
 end FiniteConstitutiveAlignment.Realization
-end StrongPerimetralTurning
+end Alignment
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms StrongPerimetralTurning.iteratedReadout_embedFrom
-#print axioms StrongPerimetralTurning.iteratedReadout_take_witness_independent
-#print axioms StrongPerimetralTurning.FiniteFreshValues.eq_of_iteratedReadout_eq
-#print axioms StrongPerimetralTurning.FiniteFreshValues.take_witness_independent
-#print axioms StrongPerimetralTurning.iteratedReadout_distinction
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.transportReadout_comp
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_extend
-#print axioms StrongPerimetralTurning.FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_distinction
+#print axioms Alignment.iteratedReadout_embedFrom
+#print axioms Alignment.iteratedReadout_take_witness_independent
+#print axioms Alignment.FiniteFreshValues.eq_of_iteratedReadout_eq
+#print axioms Alignment.FiniteFreshValues.take_witness_independent
+#print axioms Alignment.iteratedReadout_distinction
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.transportReadout_comp
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_extend
+#print axioms Alignment.FiniteConstitutiveAlignment.Realization.realizeIteratedReadout_distinction
 /- AXIOM_AUDIT_END -/

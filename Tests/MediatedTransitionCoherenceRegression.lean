@@ -1,5 +1,7 @@
 import Alignment.MediatedTransitionCoherence
 
+open Alignment
+
 /-!
 # Regression tests for mediated transition coherence
 

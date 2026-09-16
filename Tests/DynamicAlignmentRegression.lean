@@ -2,6 +2,8 @@ import StrongPerimetralTurning.IteratedConstitutivePersistence
 import Examples.ConcreteContinuation.LoggedAlgebra
 import Examples.Alignment.IteratedReadout
 
+open Alignment
+
 /-!
 # Independent regression checks for dynamic alignment
 

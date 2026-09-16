@@ -1,6 +1,8 @@
 import StrongPerimetralTurning.IteratedConstitutivePersistence
 import Examples.ConcreteContinuation.LoggedAlgebra
 
+open Alignment
+
 /-!
 # A non-constant readout across several circular instance extensions
 
