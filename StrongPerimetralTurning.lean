@@ -4953,7 +4953,7 @@ def oneStepAfterPerimeter_is_extension (P : CircularPresentation) :
   { continuation := .extend .root (generate_after_perimeter P).2
     recompose := rfl }
 
-/-! ## Direct Cycle 1 residual-determination core
+/-! ## Direct circular residual-determination core
 
 This is the core consumed by the canonical one-step construction.  Its label
 is defined directly on the exactly-one continuation occurrence; no rich

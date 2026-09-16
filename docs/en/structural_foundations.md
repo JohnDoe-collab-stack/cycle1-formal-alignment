@@ -24,7 +24,7 @@ this pattern: the candidate remains internally generated and, like every rooted
 generated history in this development, admits an exact concrete realization as
 its status changes relative to the regime.
 
-Cycle 1 machine-checks this operational architecture on
+The circular instance machine-checks this operational architecture on
 `oneStepAfterPerimeter P`: an internally generated strict continuation remains
 exactly realizable in every `ConcreteContinuationAlgebra P`, while its regime
 and normative status are precisely determined. the `RepresentationBoundary` branch verifies the reflective
@@ -46,7 +46,7 @@ structural foundation
   → dependently typed construction
   → faithful realization
   ↓
-Cycle 1 — relative alignment
+Circular instance — relative alignment
   operational regime and independent norm
   → witness transformation in each direction
   ├── continuation construction path (independent of adequacy)
@@ -74,7 +74,7 @@ from diagonalization is needed to construct the continuation.
 
 the `RepresentationBoundary` branch diagonalization is therefore carried by its autonomous reflective
 kernel. It depends neither on the operational continuation nor on its regime
-exit; its connection to Cycle 1 is only through the adequate statuses whose
+exit; its connection to the circular instance is only through the adequate statuses whose
 representation is transported. This separation is constitutive of the graph,
 not merely a presentation convention.
 
@@ -434,13 +434,13 @@ already constituted and preserved structure.
 The old/fresh occurrence split now extends to every positively supplied finite
 depth. Exact realization transport and finite constitutive extension are both
 derived from the same index, and their pointwise commuting square is proved on
-the actual Cycle 1 histories. Consequently, a readout assembled afterward by
+the actual circular histories. Consequently, a readout assembled afterward by
 finite extension retains a distinction from the depth at which its identities
 were constituted.
 The theorem is polymorphic in the finite depth, realizations, and value type;
 the executable three-step example establishes only its demonstrated scope.
 
-## 6. Cycle 1 — Relative alignment and operational exit
+## 6. circular instance — Relative alignment and operational exit
 
 The circular application connects the three modules:
 
@@ -628,11 +628,11 @@ architectural reading of the verified constructions.
 
 ## 7. Representation boundary — local exactness and diagonal non-closure
 
-the `RepresentationBoundary` branch extends the established Cycle 1 adequacy to proposition-valued statuses,
+the `RepresentationBoundary` branch extends the established circular regime/specification adequacy to proposition-valued statuses,
 then studies their exact representation within an evaluator and constructs its
 diagonal boundary.
 
-The original Cycle 1 families remain proof-relevant types. the `RepresentationBoundary` branch observes only
+The original circular regime/specification families remain proof-relevant types. the `RepresentationBoundary` branch observes only
 their inhabitability:
 
 ```text
@@ -643,7 +643,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-The two Cycle 1 maps yield the genuine proposition-level equivalence
+The two circular regime/specification witness maps yield the genuine proposition-level equivalence
 `circularStatusAdequacy`. A decoder pulls these statuses back to predicates on
 codes, and `transportRepresentation` preserves exact representation across
 their pointwise logical equivalence.
@@ -691,7 +691,7 @@ that boundary.
 > constitutive, boundaries are determined locally and relatively, and
 > construction continues beyond them.**
 
-Cycle 1 separates continued construction and faithful realization from normative
+The circular instance separates continued construction and faithful realization from normative
 admission. the `RepresentationBoundary` branch combines exact representation of the particular aligned
 statuses with a constructed boundary of global representability. Together they
 replace an undifferentiated demand for closure with explicit objects, regimes,
@@ -744,7 +744,7 @@ information and localize the boundary at which a specified status changes.
 | normative adequacy | `circularNormativeAdequacy` |
 | relative diagnosis | `oneStepSpecRelativeHistoryExit` |
 | derived length equality | `samePerimeter_length_eq` |
-| proposition-level Cycle 1 adequacy | `circularStatusAdequacy` |
+| proposition-level circular regime/specification adequacy | `circularStatusAdequacy` |
 | pullback of a status to codes | `PullbackStatus` |
 | representation transport | `transportRepresentation` |
 | diagonal status | `diagonalStatus` |
@@ -752,14 +752,14 @@ information and localize the boundary at which a specified status changes.
 | global representation non-closure | `noGlobalRepresentationClosure` |
 | exact determined statuses with a diagonal exterior | `localExactRepresentation_hasDiagonalExit` |
 
-The Cycle 1 library is assembled from the Lean roots listed in
+The circular foundations library is assembled from the Lean roots listed in
 `lakefile.toml`. The independent diagonal kernel is in
-`RepresentationBoundary/DiagonalizationKernel.lean`; the circular-status application from Cycle 1 adequacy is
+`RepresentationBoundary/DiagonalizationKernel.lean`; the circular-status application from circular regime/specification adequacy is
 confined to `RepresentationBoundary/CircularStatusRepresentation.lean`.
 
 ## 11. General conclusion
 
-Cycle 1 realizes a precise chain of dependence:
+circular instance realizes a precise chain of dependence:
 
 ```text
 preserved individuation
@@ -791,7 +791,7 @@ status changes.
 > proposition-level adequacy into a representation layer where exact determined
 > representation coexists with a constructed failure of global closure.**
 
-Cycle 1 is mathematically closed relative to `CircularPresentation`. the `RepresentationBoundary` branch is
+The circular instance is mathematically closed relative to `CircularPresentation`. the `RepresentationBoundary` branch is
 stabilized as a self-contained constructive reflective extension. Their
 articulation is the architecture of the repository.
 
@@ -799,7 +799,7 @@ articulation is the architecture of the repository.
 
 Companion documents:
 
-- [Cycle 1 — relative alignment](relative_alignment.md);
+- [Circular instance — relative alignment](relative_alignment.md);
 - [method of relational constitutive roles](relational_constitutive_roles_method.md);
 - [representation boundary](representation_boundary.md);
 - [French structural synthesis](../fr/fondements_structurels.md).

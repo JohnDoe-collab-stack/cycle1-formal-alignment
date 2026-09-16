@@ -166,18 +166,18 @@ MediatedTransitionCoherence
 Alignment.FinitePersistence
              |
              v
-Cycle1/MediatedTransitionCoherence.lean
+Alignment/MediatedTransitionCoherence.lean
              |
              v
-Cycle1/MediatedTransitionPasting.lean
+Alignment/MediatedTransitionPasting.lean
 ```
 
-Despite their current path under `Cycle1/`, these two modules are generic over
+These two modules are generic over
 `FiniteConstitutiveAlignment`. They do not depend on `CircularPresentation` or
 on the circular instance of `StrongPerimetralTurning`.
 
 Their current location is therefore a historical filesystem fact, not a
-scientific dependency on a “Cycle 1”.
+scientific dependency on a “circular instance”.
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -198,7 +198,7 @@ from their imports and signatures.
 ## 3. Junction of alignment with the circular instance
 
 The canonical one-step junction is currently contained in
-`Cycle1/ConstitutivePersistence.lean`.
+`StrongPerimetralTurning/ConstitutivePersistence.lean`.
 
 Its imports are exactly:
 
@@ -238,8 +238,8 @@ Alignment.Constitutive ----------+
 
 ## 4. Finite persistence of the circular instance
 
-`Cycle1/IteratedConstitutivePersistence.lean` imports
-`Alignment.ReadoutPersistence` and `Cycle1.ConstitutivePersistence`.
+`StrongPerimetralTurning/IteratedConstitutivePersistence.lean` imports
+`Alignment.ReadoutPersistence` and `StrongPerimetralTurning.ConstitutivePersistence`.
 
 It actually constructs the finite histories of the instance:
 
@@ -317,7 +317,7 @@ diagnostics.
 ## 6. Facade, examples, and regressions
 
 `StructuralEntrypoint.lean` currently imports
-`Cycle1.IteratedConstitutivePersistence`. It is a human-scale facade over the
+`StrongPerimetralTurning.IteratedConstitutivePersistence`. It is a human-scale facade over the
 instance-persistence branch and does not import `RepresentationBoundary`.
 
 `Examples/*` supplies downstream concrete realizations and readouts. These are
@@ -425,18 +425,21 @@ Any future path or naming refactor must preserve the following invariants:
 - no dependency may make alignment a prerequisite for the residual turning of
   the circular instance.
 
-## 9. Status of the name `Cycle1`
+## 9. Classification after the architectural refactor
 
-At the reference state, `Cycle1` remains a filesystem path and a Lake target
-name. This map **does not treat it as a canonical mathematical node**, because
-the four files currently under `Cycle1/` do not form one conceptual class:
+The historical numbered classification has been dissolved without changing the
+mathematical content of the theorems. Modules are now placed under their actual
+scientific owner:
 
-- `ConstitutivePersistence.lean` and
-  `IteratedConstitutivePersistence.lean` are developments of the circular
-  instance;
-- `MediatedTransitionCoherence.lean` and
-  `MediatedTransitionPasting.lean` are generic specializations of
-  `FiniteConstitutiveAlignment`.
+- `StrongPerimetralTurning/ConstitutivePersistence.lean` and
+  `StrongPerimetralTurning/IteratedConstitutivePersistence.lean` develop the
+  circular instance;
+- `Alignment/MediatedTransitionCoherence.lean` and
+  `Alignment/MediatedTransitionPasting.lean` specialize the generic mediated
+  coherence kernel to `FiniteConstitutiveAlignment`.
 
-This finding is frozen. Any future choice of new paths or names is a separate
-refactor decision and is not part of this document.
+Iteration declarations now use the `iterated` prefix rather than a phase
+number. The primary Lean target uses the package's architectural name,
+`StructuralFoundations`, while `RepresentationBoundary` remains a separate
+target. This organization makes the verified DAG visible in repository paths
+without introducing a new scientific hierarchy.

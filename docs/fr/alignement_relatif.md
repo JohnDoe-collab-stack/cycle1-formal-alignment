@@ -1,4 +1,4 @@
-# Cycle 1 — Alignement relatif à une spécification indépendante
+# Alignement relatif de l'instance circulaire à une spécification indépendante
 
 [English](../en/relative_alignment.md) | **Français**
 
@@ -8,9 +8,9 @@ Navigation : [synthèse structurelle](fondements_structurels.md) ·
 
 ## Statut
 
-**Cycle 1 mathématiquement clos.**
+**instance circulaire mathématiquement clos.**
 
-La phase courante est une phase de stabilisation. Aucune définition mathématique du cycle 1 ne doit être rouverte.
+La phase courante est une phase de stabilisation. Aucune définition mathématique de l'instance circulaire ne doit être rouverte.
 
 Le résultat de référence distingue, pour une présentation `P`, une histoire `H`
 et une interprétation concrète `A`:
@@ -37,7 +37,7 @@ S(H) → H = perimeterDeployment P
 
 La contribution centrale est la suivante:
 
-> **Le cycle 1 construit et vérifie en Lean un noyau dépendamment typé pour
+> **L'instance circulaire construit et vérifie en Lean un noyau dépendamment typé pour
 > l'alignement relatif. Il sépare construction, réalisation fidèle, régime et
 > norme indépendante; démontre l'adéquation exacte entre la norme et le régime
 > sur leurs carriers; puis produit une continuation à une occurrence qui, comme
@@ -52,9 +52,9 @@ complétude.
 
 ---
 
-## 1. Objet du cycle 1
+## 1. Objet de l'instance circulaire
 
-Le cycle 1 construit un diagnostic relatif dans lequel quatre niveaux restent formellement distincts:
+L'instance circulaire construit un diagnostic relatif dans lequel quatre niveaux restent formellement distincts:
 
 ```text
 constitution / réalisation
@@ -132,7 +132,7 @@ sans modèle.
 
 ## 2. Les quatre séparations à préserver
 
-La documentation du cycle 1 doit conserver explicitement les distinctions suivantes:
+La documentation de l'instance circulaire doit conserver explicitement les distinctions suivantes:
 
 ```text
 réalisation ≠ norme
@@ -157,7 +157,7 @@ La fidélité de réalisation garantit que la structure demandée est correcteme
 La norme possède son propre modèle positif et son propre contre-exemple
 canonique. Son contenu ne provient donc pas d'une simple traduction du régime.
 
-Dans cette instance du Cycle 1, le régime et la norme ont néanmoins la même
+Dans l'instance circulaire, le régime et la norme ont néanmoins la même
 extension sur les histoires : chacun est habité exactement en
 `perimeterDeployment P`. Cette coextension au niveau du porteur est un résultat
 dérivé ; elle n'identifie ni leurs types de témoins, ni leurs définitions, ni
@@ -191,7 +191,7 @@ Le premier diagnostic ne dépend pas du second.
 
 ## 3. La norme indépendante
 
-La norme du cycle 1 possède exactement deux composantes primitives:
+La spécification circulaire possède exactement deux composantes primitives:
 
 ```lean
 structure CircularSpecificationSatisfaction
@@ -285,7 +285,7 @@ Elle ne fournit pas une réalisation opérationnelle de fermeture.
 
 ## 4. Les deux cas canoniques
 
-Le cycle 1 est discriminant parce que la même norme possède un cas positif et un cas négatif canoniques.
+L'instance circulaire est discriminant parce que la même norme possède un cas positif et un cas négatif canoniques.
 
 ### 4.1 Cas positif: `perimeterDeployment P`
 
@@ -393,7 +393,7 @@ La lecture correcte du tableau est:
 
 ## 6. Reconstruction structurelle du périmètre
 
-Une étape déterminante du cycle 1 est la reconstruction d'une `PerimeterExtension` depuis la seule réalisation locale exacte:
+Une étape déterminante de l'instance circulaire est la reconstruction d'une `PerimeterExtension` depuis la seule réalisation locale exacte:
 
 ```lean
 ExactNonClosingRealization.toPerimeterExtension
@@ -476,7 +476,7 @@ séparée, ne contient que les deux porteurs concrets et leurs raccords exacts. 
 s'agit donc d'une réalisation exacte des porteurs, non d'une affirmation portant
 à elle seule sur les étiquettes, l'ordre ou la sémantique des pas. Aucune des
 deux structures ne mentionne une `CircularPresentation`, une admission, une
-spécification ou un readout. La continuation canonique du Cycle 1 instancie
+spécification ou un readout. La continuation canonique de l'instance circulaire instancie
 cette abstraction et démontre en outre que les éléments ancien et nouveau
 induits sont les occurrences concrètes natives `.earlier` et `.last`.
 L'algèbre journalisée non identitaire fournit une réalisation concrète des
@@ -514,7 +514,7 @@ un pas déjà établies. L'identité nouvelle finie réalisée est l'identité `
 à un pas, et le prolongement de profondeur `0 → 1` est l'application `old` à
 un pas.
 
-`Cycle1.IteratedConstitutivePersistence` instancie ces lois avec les histoires
+`StrongPerimetralTurning.IteratedConstitutivePersistence` instancie ces lois avec les histoires
 réelles construites récursivement par `generate` et `appendGenerated`. À chaque
 étape successeur, les occurrences antérieures sont les occurrences natives
 `.earlier` et l'identité nouvelle est l'occurrence native `.last`. Le résultat
@@ -692,7 +692,7 @@ structure NormativeAdequacy
     Type _
 ```
 
-L'instance circulaire du cycle 1 utilise une spécification d'histoire:
+L'instance circulaire de l'instance circulaire utilise une spécification d'histoire:
 
 ```lean
 abbrev HistoryAlignmentSpec
@@ -813,7 +813,7 @@ La formulation synthétique est:
 
 ## 11. Ce que signifie ici "alignement relatif"
 
-Le cycle 1 ne formalise pas une théorie générale de l'alignement.
+L'instance circulaire ne formalise pas une théorie générale de l'alignement.
 
 Il établit, dans le cadre considéré, un diagnostic relatif à une spécification explicite et indépendante.
 
@@ -879,7 +879,7 @@ Il ne faut pas non plus dire que le régime est désaligné avec `S` dans ce cas
 
 ## 13. Observation propositionnelle et frontière de représentation
 
-Les déclarations du Cycle 1 ci-dessus sont des applications entre types de
+Les déclarations de l'instance circulaire ci-dessus sont des applications entre types de
 témoins porteurs d'information de preuve :
 
 ```text
@@ -909,7 +909,7 @@ CircularRegimeStatus P H
 ```
 
 Ce raccord est implémenté et constructif. Il est dérivé des deux applications du
-Cycle 1 ; il ne modifie pas le Cycle 1 et ne revendique ni `Equiv` ni égalité
+instance circulaire ; il ne modifie pas l'instance circulaire et ne revendique ni `Equiv` ni égalité
 entre les structures de témoins originelles. C'est le point formel depuis lequel
 la branche `RepresentationBoundary` transporte l'adéquation établie dans la couche de représentation.
 
@@ -973,7 +973,7 @@ axiomatique.
 
 ## 15. Conclusion stabilisée
 
-Le cycle 1 établit trois résultats de fermeture:
+L'instance circulaire établit trois résultats de fermeture:
 
 ```text
 soundness
@@ -1005,7 +1005,7 @@ interprète toute histoire générée enracinée. Les deux réfutations sont rel
 `rejectInitialContraction`.
 
 La preuve d'alignement est complète relativement à la présentation et à la norme
-du cycle 1. Elle n'identifie pas réalisation, satisfaction et admission; elle
+de l'instance circulaire. Elle n'identifie pas réalisation, satisfaction et admission; elle
 démontre séparément leur relation et localise exactement leur séparation sur le
 candidat libre à un pas.
 
@@ -1023,12 +1023,12 @@ les résultats d'audit axiomatique
 ```
 
 Le raccord propositionnel de la section 13 appartient à la branche `RepresentationBoundary`. Il observe le
-résultat clos du Cycle 1 sans modifier ses types de témoins ni son contenu
+résultat clos de l'instance circulaire sans modifier ses types de témoins ni son contenu
 mathématique.
 
 ### Énoncé de publication
 
-> **Le cycle 1 construit et vérifie en Lean un noyau dépendamment typé pour
+> **L'instance circulaire construit et vérifie en Lean un noyau dépendamment typé pour
 > l'alignement relatif. Il sépare construction, réalisation fidèle, régime et
 > norme indépendante; démontre la soundness et la complétude de leur accord sur
 > les histoires admises; puis construit une continuation à une occurrence qui,

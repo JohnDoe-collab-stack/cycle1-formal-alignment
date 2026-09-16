@@ -1,25 +1,25 @@
 import Alignment.ReadoutPersistence
-import Cycle1.ConstitutivePersistence
+import StrongPerimetralTurning.ConstitutivePersistence
 
 /-!
-# Iterated constitutive persistence in Cycle 1
+# Iterated constitutive persistence in the circular instance
 
 This module instantiates finite constitutive persistence with the actual
-Cycle 1 producer.  Starting from the canonical perimeter, every successor
+circular instance producer.  Starting from the canonical perimeter, every successor
 history is obtained by `generate` followed by `appendGenerated`.  Its free
 occurrences are indexed exactly by the initial perimeter occurrences together
 with one fresh identity per generated step.
 
 The generic alignment laws are therefore not merely inhabited by an abstract
 finite carrier: they act on the histories and concrete interpretations already
-constructed by Cycle 1.  Admission, specification, and readout values remain
+constructed by the circular instance.  Admission, specification, and readout values remain
 outside this realization layer.
 -/
 
 namespace StrongPerimetralTurning
 namespace IteratedConstitutivePersistence
 
-/-! ## The actual finite Cycle 1 histories -/
+/-! ## The actual finite circular histories -/
 
 /-- Iterate the real free producer from the canonical perimeter. -/
 def iteratedHistory
@@ -81,7 +81,7 @@ def successorOccurrenceSplit
 
 /--
 The canonical finite index is identified with the free occurrences of the
-actual Cycle 1 history at every depth.
+actual circular instance history at every depth.
 -/
 def iteratedOccurrenceSpoke
     (P : CircularPresentation) :
@@ -122,8 +122,8 @@ def iteratedOccurrenceSpoke
       History.Occurrence.last :=
   rfl
 
-/-- The real free occurrence carrier at one finite Cycle 1 depth. -/
-def cycle1Alignment
+/-- The real free occurrence carrier at one finite circular depth. -/
+def iteratedAlignment
     (P : CircularPresentation)
     (n : Nat) :
     FiniteConstitutiveAlignment
@@ -132,11 +132,11 @@ def cycle1Alignment
     carrierSpoke := iteratedOccurrenceSpoke P n }
 
 /-- The finite construction at depth one is the established canonical split. -/
-theorem cycle1Alignment_one_forward
+theorem iteratedAlignment_one_forward
     (P : CircularPresentation)
     (identity :
       ConstitutivePersistence.InitialFreeOccurrence P ⊕ Unit) :
-    (cycle1Alignment P 1).carrierSpoke.forward identity =
+    (iteratedAlignment P 1).carrierSpoke.forward identity =
       (ConstitutivePersistence.freeOccurrenceSplit P).forward identity :=
   by
     cases identity with
@@ -144,15 +144,15 @@ theorem cycle1Alignment_one_forward
     | inr witness => cases witness; rfl
 
 /-- The depth-one finite spoke also agrees backwards with the one-step split. -/
-theorem cycle1Alignment_one_backward
+theorem iteratedAlignment_one_backward
     (P : CircularPresentation)
     (occurrence : ConstitutivePersistence.ExtendedFreeOccurrence P) :
-    (cycle1Alignment P 1).carrierSpoke.backward occurrence =
+    (iteratedAlignment P 1).carrierSpoke.backward occurrence =
       (ConstitutivePersistence.freeOccurrenceSplit P).backward occurrence :=
   ExactTypeTransport.backward_eq_of_forward_eq
-    (cycle1Alignment P 1).carrierSpoke
+    (iteratedAlignment P 1).carrierSpoke
     (ConstitutivePersistence.freeOccurrenceSplit P)
-    (cycle1Alignment_one_forward P)
+    (iteratedAlignment_one_forward P)
     occurrence
 
 /-! ## Exact concrete realizations of the iterated histories -/
@@ -176,95 +176,95 @@ def interpretationTransport
     backwardForward := interpretation.backwardForward }
 
 /-- Every supplied concrete algebra realizes the actual history at depth `n`. -/
-def cycle1Realization
+def iteratedRealization
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     (n : Nat) :
-    (cycle1Alignment P n).Realization :=
+    (iteratedAlignment P n).Realization :=
   { Concrete :=
       History.Occurrence (A.realizeHistory (iteratedHistory P n).history)
     spoke := interpretationTransport
       (exactlyInterpretHistory A (iteratedHistory P n).history) }
 
-@[simp] theorem cycle1Realization_atIndex
+@[simp] theorem iteratedRealization_atIndex
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     (n : Nat)
     (identity :
       IteratedCarrier
         (ConstitutivePersistence.InitialFreeOccurrence P) n) :
-    (cycle1Realization P A n).indexedSpoke.forward identity =
+    (iteratedRealization P A n).indexedSpoke.forward identity =
       (exactlyInterpretHistory A (iteratedHistory P n).history).forwardOccurrence
         ((iteratedOccurrenceSpoke P n).forward identity) :=
   rfl
 
-@[simp] theorem cycle1Realization_previous_isEarlier
+@[simp] theorem iteratedRealization_previous_isEarlier
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     (n : Nat)
     (identity :
       IteratedCarrier
         (ConstitutivePersistence.InitialFreeOccurrence P) n) :
-    (cycle1Realization P A (n + 1)).indexedSpoke.forward
+    (iteratedRealization P A (n + 1)).indexedSpoke.forward
         (IteratedCarrier.embedPrevious identity) =
       History.Occurrence.earlier
-        ((cycle1Realization P A n).indexedSpoke.forward identity) :=
+        ((iteratedRealization P A n).indexedSpoke.forward identity) :=
   rfl
 
-@[simp] theorem cycle1Realization_fresh_isLast
+@[simp] theorem iteratedRealization_fresh_isLast
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     (n : Nat) :
-    (cycle1Realization P A (n + 1)).indexedSpoke.forward
+    (iteratedRealization P A (n + 1)).indexedSpoke.forward
         (IteratedCarrier.freshAtStep n) =
       History.Occurrence.last :=
   rfl
 
-/-! ## Two-axis coherence on the actual Cycle 1 producer -/
+/-! ## Two-axis coherence on the actual circular producer -/
 
 /--
 Changing concrete realization commutes with finite constitutive extension for
-the histories generated by Cycle 1.  The identity may originate at any earlier
+the histories generated by the circular instance.  The identity may originate at any earlier
 depth, not only at the perimeter.
 -/
-theorem cycle1_extend_transport_natural
+theorem iterated_extend_transport_natural
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P)
     {sourceDepth targetDepth : Nat}
     (depth : DepthExtension sourceDepth targetDepth)
-    (occurrence : (cycle1Realization P A sourceDepth).Concrete) :
-    (((cycle1Realization P A targetDepth).transport
-        (cycle1Realization P B targetDepth)).forward
-      ((cycle1Realization P A sourceDepth).extend
-        (cycle1Realization P A targetDepth) depth occurrence)) =
-      (cycle1Realization P B sourceDepth).extend
-        (cycle1Realization P B targetDepth) depth
-        (((cycle1Realization P A sourceDepth).transport
-          (cycle1Realization P B sourceDepth)).forward occurrence) :=
+    (occurrence : (iteratedRealization P A sourceDepth).Concrete) :
+    (((iteratedRealization P A targetDepth).transport
+        (iteratedRealization P B targetDepth)).forward
+      ((iteratedRealization P A sourceDepth).extend
+        (iteratedRealization P A targetDepth) depth occurrence)) =
+      (iteratedRealization P B sourceDepth).extend
+        (iteratedRealization P B targetDepth) depth
+        (((iteratedRealization P A sourceDepth).transport
+          (iteratedRealization P B sourceDepth)).forward occurrence) :=
   FiniteConstitutiveAlignment.Realization.extend_transport_natural
-    (cycle1Realization P A sourceDepth)
-    (cycle1Realization P B sourceDepth)
-    (cycle1Realization P A targetDepth)
-    (cycle1Realization P B targetDepth)
+    (iteratedRealization P A sourceDepth)
+    (iteratedRealization P B sourceDepth)
+    (iteratedRealization P A targetDepth)
+    (iteratedRealization P B targetDepth)
     depth occurrence
 
 /--
 Finite extension between two supplied concrete realizations depends only on
 its source and target depths, not on the `DepthExtension` witness.
 -/
-theorem cycle1Extension_witness_independent
+theorem iteratedExtension_witness_independent
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P)
     {sourceDepth targetDepth : Nat}
     (first second : DepthExtension sourceDepth targetDepth)
-    (occurrence : (cycle1Realization P A sourceDepth).Concrete) :
-    (cycle1Realization P A sourceDepth).extend
-        (cycle1Realization P B targetDepth) first occurrence =
-      (cycle1Realization P A sourceDepth).extend
-        (cycle1Realization P B targetDepth) second occurrence :=
+    (occurrence : (iteratedRealization P A sourceDepth).Concrete) :
+    (iteratedRealization P A sourceDepth).extend
+        (iteratedRealization P B targetDepth) first occurrence =
+      (iteratedRealization P A sourceDepth).extend
+        (iteratedRealization P B targetDepth) second occurrence :=
   FiniteConstitutiveAlignment.Realization.extend_witness_independent
-    (cycle1Realization P A sourceDepth)
-    (cycle1Realization P B targetDepth)
+    (iteratedRealization P A sourceDepth)
+    (iteratedRealization P B targetDepth)
     first second occurrence
 
 /--
@@ -272,17 +272,17 @@ At depth one, finite horizontal transport is pointwise the established
 one-step transport.  Thus the iterated construction conservatively extends the
 earlier interface in both directions, not only at the level of carrier types.
 -/
-theorem cycle1Transport_one_eq_oneStep
+theorem iteratedTransport_one_eq_oneStep
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P)
-    (occurrence : (cycle1Realization P A 1).Concrete) :
-    ((cycle1Realization P A 1).transport
-        (cycle1Realization P B 1)).forward occurrence =
+    (occurrence : (iteratedRealization P A 1).Concrete) :
+    ((iteratedRealization P A 1).transport
+        (iteratedRealization P B 1)).forward occurrence =
       ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
         (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B)).forward
           occurrence := by
   have roundTrip :=
-    (cycle1Alignment P 1).carrierSpoke.backwardForward
+    (iteratedAlignment P 1).carrierSpoke.backwardForward
       ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedSpoke.backward
         occurrence)
   exact congrArg
@@ -293,27 +293,27 @@ theorem cycle1Transport_one_eq_oneStep
 At depth one, the backward finite horizontal transport is pointwise the
 backward map of the established one-step transport.
 -/
-theorem cycle1Transport_one_backward_eq_oneStep
+theorem iteratedTransport_one_backward_eq_oneStep
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P)
-    (occurrence : (cycle1Realization P B 1).Concrete) :
-    ((cycle1Realization P A 1).transport
-        (cycle1Realization P B 1)).backward occurrence =
+    (occurrence : (iteratedRealization P B 1).Concrete) :
+    ((iteratedRealization P A 1).transport
+        (iteratedRealization P B 1)).backward occurrence =
       ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
         (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B)).backward
           occurrence :=
   ExactTypeTransport.backward_eq_of_forward_eq
-    ((cycle1Realization P A 1).transport (cycle1Realization P B 1))
+    ((iteratedRealization P A 1).transport (iteratedRealization P B 1))
     ((ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).extendedTransport
       (ConstitutivePersistence.canonicalOneStepAlignmentRealization P B))
-    (cycle1Transport_one_eq_oneStep P A B)
+    (iteratedTransport_one_eq_oneStep P A B)
     occurrence
 
 /-- The finite fresh identity at depth one is the established one-step fresh identity. -/
-theorem cycle1Realization_one_fresh_eq_oneStep
+theorem iteratedRealization_one_fresh_eq_oneStep
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P) :
-    (cycle1Realization P A 1).indexedSpoke.forward
+    (iteratedRealization P A 1).indexedSpoke.forward
         (IteratedCarrier.freshAtStep 0) =
       (ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).fresh :=
   rfl
@@ -321,74 +321,74 @@ theorem cycle1Realization_one_fresh_eq_oneStep
 /-! ## Persistence of the operational residual identity -/
 
 /--
-At depth one, the fresh identity of the finite Cycle 1 realization is exactly
+At depth one, the fresh identity of the finite circular realization is exactly
 the concrete operational residual occurrence.
 -/
-theorem cycle1Realization_one_fresh_eq_residual
+theorem iteratedRealization_one_fresh_eq_residual
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P) :
-    (cycle1Realization P A 1).indexedSpoke.forward
+    (iteratedRealization P A 1).indexedSpoke.forward
         (IteratedCarrier.freshAtStep 0) =
       ConstitutivePersistence.oneStepResidualConcreteOccurrence P A :=
-  (cycle1Realization_one_fresh_eq_oneStep P A).trans
+  (iteratedRealization_one_fresh_eq_oneStep P A).trans
     (ConstitutivePersistence.canonicalAlignmentRealization_fresh_eq_residualConcreteOccurrence P A)
 
 /--
 The concrete operational residual identity is preserved by change of exact
 realization at depth one.
 -/
-theorem cycle1ResidualOccurrence_transport_natural
+theorem iteratedResidualOccurrence_transport_natural
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P) :
-    ((cycle1Realization P A 1).transport
-        (cycle1Realization P B 1)).forward
+    ((iteratedRealization P A 1).transport
+        (iteratedRealization P B 1)).forward
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
       ConstitutivePersistence.oneStepResidualConcreteOccurrence P B := by
-  rw [← cycle1Realization_one_fresh_eq_residual P A]
+  rw [← iteratedRealization_one_fresh_eq_residual P A]
   exact
     (FiniteConstitutiveAlignment.Realization.transport_atIndex
-      (cycle1Realization P A 1)
-      (cycle1Realization P B 1)
+      (iteratedRealization P A 1)
+      (iteratedRealization P B 1)
       (IteratedCarrier.freshAtStep 0)).trans
-      (cycle1Realization_one_fresh_eq_residual P B)
+      (iteratedRealization_one_fresh_eq_residual P B)
 
 /--
 Once the first operational residual occurrence has been constituted, that
-identity persists through every later finite Cycle 1 depth.
+identity persists through every later finite circular depth.
 -/
-theorem cycle1ResidualOccurrence_persists
+theorem iteratedResidualOccurrence_persists
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     {targetDepth : Nat}
     (depth : DepthExtension 1 targetDepth) :
-    (cycle1Realization P A 1).extend
-        (cycle1Realization P A targetDepth)
+    (iteratedRealization P A 1).extend
+        (iteratedRealization P A targetDepth)
         depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
-      (cycle1Realization P A targetDepth).indexedSpoke.forward
+      (iteratedRealization P A targetDepth).indexedSpoke.forward
         (IteratedCarrier.embedFrom depth
           (IteratedCarrier.freshAtStep 0)) := by
   calc
-    (cycle1Realization P A 1).extend
-        (cycle1Realization P A targetDepth)
+    (iteratedRealization P A 1).extend
+        (iteratedRealization P A targetDepth)
         depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A) =
-      (cycle1Realization P A 1).extend
-        (cycle1Realization P A targetDepth)
+      (iteratedRealization P A 1).extend
+        (iteratedRealization P A targetDepth)
         depth
-        ((cycle1Realization P A 1).indexedSpoke.forward
+        ((iteratedRealization P A 1).indexedSpoke.forward
           (IteratedCarrier.freshAtStep 0)) :=
       congrArg
-        ((cycle1Realization P A 1).extend
-          (cycle1Realization P A targetDepth) depth)
-        (cycle1Realization_one_fresh_eq_residual P A).symm
+        ((iteratedRealization P A 1).extend
+          (iteratedRealization P A targetDepth) depth)
+        (iteratedRealization_one_fresh_eq_residual P A).symm
     _ =
-      (cycle1Realization P A targetDepth).indexedSpoke.forward
+      (iteratedRealization P A targetDepth).indexedSpoke.forward
         (IteratedCarrier.embedFrom depth
           (IteratedCarrier.freshAtStep 0)) :=
       FiniteConstitutiveAlignment.Realization.extend_atIndex
-        (cycle1Realization P A 1)
-        (cycle1Realization P A targetDepth)
+        (iteratedRealization P A 1)
+        (iteratedRealization P A targetDepth)
         depth
         (IteratedCarrier.freshAtStep 0)
 
@@ -396,54 +396,54 @@ theorem cycle1ResidualOccurrence_persists
 Persistence of the operational residual identity commutes with change of exact
 concrete realization.
 -/
-theorem cycle1ResidualOccurrence_extension_transport_natural
+theorem iteratedResidualOccurrence_extension_transport_natural
     (P : CircularPresentation)
     (A B : ConcreteContinuationAlgebra P)
     {targetDepth : Nat}
     (depth : DepthExtension 1 targetDepth) :
-    ((cycle1Realization P A targetDepth).transport
-        (cycle1Realization P B targetDepth)).forward
-        ((cycle1Realization P A 1).extend
-          (cycle1Realization P A targetDepth)
+    ((iteratedRealization P A targetDepth).transport
+        (iteratedRealization P B targetDepth)).forward
+        ((iteratedRealization P A 1).extend
+          (iteratedRealization P A targetDepth)
           depth
           (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) =
-      (cycle1Realization P B 1).extend
-        (cycle1Realization P B targetDepth)
+      (iteratedRealization P B 1).extend
+        (iteratedRealization P B targetDepth)
         depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) := by
   calc
-    ((cycle1Realization P A targetDepth).transport
-        (cycle1Realization P B targetDepth)).forward
-        ((cycle1Realization P A 1).extend
-          (cycle1Realization P A targetDepth)
+    ((iteratedRealization P A targetDepth).transport
+        (iteratedRealization P B targetDepth)).forward
+        ((iteratedRealization P A 1).extend
+          (iteratedRealization P A targetDepth)
           depth
           (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) =
-      (cycle1Realization P B 1).extend
-        (cycle1Realization P B targetDepth)
+      (iteratedRealization P B 1).extend
+        (iteratedRealization P B targetDepth)
         depth
-        (((cycle1Realization P A 1).transport
-          (cycle1Realization P B 1)).forward
+        (((iteratedRealization P A 1).transport
+          (iteratedRealization P B 1)).forward
           (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)) :=
-      cycle1_extend_transport_natural
+      iterated_extend_transport_natural
         P A B depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P A)
     _ =
-      (cycle1Realization P B 1).extend
-        (cycle1Realization P B targetDepth)
+      (iteratedRealization P B 1).extend
+        (iteratedRealization P B targetDepth)
         depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) :=
       congrArg
-        ((cycle1Realization P B 1).extend
-          (cycle1Realization P B targetDepth) depth)
-        (cycle1ResidualOccurrence_transport_natural P A B)
+        ((iteratedRealization P B 1).extend
+          (iteratedRealization P B targetDepth) depth)
+        (iteratedResidualOccurrence_transport_natural P A B)
 
 /-- Depth `0 → 1` extension is pointwise the established one-step old map. -/
-theorem cycle1Extension_zero_one_eq_oneStep
+theorem iteratedExtension_zero_one_eq_oneStep
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
-    (occurrence : (cycle1Realization P A 0).Concrete) :
-    (cycle1Realization P A 0).extend
-        (cycle1Realization P A 1) (.step (.refl 0)) occurrence =
+    (occurrence : (iteratedRealization P A 0).Concrete) :
+    (iteratedRealization P A 0).extend
+        (iteratedRealization P A 1) (.step (.refl 0)) occurrence =
       (ConstitutivePersistence.canonicalOneStepAlignmentRealization P A).old
         occurrence :=
   rfl
@@ -455,17 +455,17 @@ end StrongPerimetralTurning
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedHistory
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.successorOccurrenceSplit
 #print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedOccurrenceSpoke
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Alignment_one_forward
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Alignment_one_backward
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1_extend_transport_natural
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_witness_independent
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Transport_one_backward_eq_oneStep
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_residual
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_transport_natural
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_persists
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1ResidualOccurrence_extension_transport_natural
-#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedAlignment_one_forward
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedAlignment_one_backward
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedRealization
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iterated_extend_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedExtension_witness_independent
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedTransport_one_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedTransport_one_backward_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedRealization_one_fresh_eq_oneStep
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedRealization_one_fresh_eq_residual
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedResidualOccurrence_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedResidualOccurrence_persists
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedResidualOccurrence_extension_transport_natural
+#print axioms StrongPerimetralTurning.IteratedConstitutivePersistence.iteratedExtension_zero_one_eq_oneStep
 /- AXIOM_AUDIT_END -/

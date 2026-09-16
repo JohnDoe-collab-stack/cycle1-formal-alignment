@@ -1,4 +1,4 @@
-import Cycle1.MediatedTransitionCoherence
+import Alignment.MediatedTransitionCoherence
 
 /-!
 # Regression tests for mediated transition coherence

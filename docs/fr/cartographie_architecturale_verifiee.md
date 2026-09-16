@@ -170,18 +170,18 @@ MediatedTransitionCoherence
 Alignment.FinitePersistence
              |
              v
-Cycle1/MediatedTransitionCoherence.lean
+Alignment/MediatedTransitionCoherence.lean
              |
              v
-Cycle1/MediatedTransitionPasting.lean
+Alignment/MediatedTransitionPasting.lean
 ```
 
-Malgré leur chemin actuel sous `Cycle1/`, ces deux modules sont génériques sur
+Ces deux modules sont génériques sur
 `FiniteConstitutiveAlignment`. Ils ne dépendent pas de `CircularPresentation`
 ni de l'instance circulaire de `StrongPerimetralTurning`.
 
 Leur emplacement actuel est donc un fait historique du système de fichiers,
-pas une dépendance scientifique à un « Cycle 1 ».
+pas une dépendance scientifique à un « instance circulaire ».
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -202,7 +202,7 @@ classer comme spécialisations circulaires. Leur niveau de spécialisation doit
 ## 3. Raccord de l'alignement à l'instance circulaire
 
 Le raccord canonique à un pas est actuellement contenu dans
-`Cycle1/ConstitutivePersistence.lean`.
+`StrongPerimetralTurning/ConstitutivePersistence.lean`.
 
 Ses imports sont exactement :
 
@@ -242,8 +242,8 @@ Alignment.Constitutive ----------+
 
 ## 4. Persistance finie de l'instance circulaire
 
-`Cycle1/IteratedConstitutivePersistence.lean` importe
-`Alignment.ReadoutPersistence` et `Cycle1.ConstitutivePersistence`.
+`StrongPerimetralTurning/IteratedConstitutivePersistence.lean` importe
+`Alignment.ReadoutPersistence` et `StrongPerimetralTurning.ConstitutivePersistence`.
 
 Il construit réellement les histoires finies de l'instance :
 
@@ -321,7 +321,7 @@ diagnostics distincts.
 ## 6. Façade, exemples et régressions
 
 `StructuralEntrypoint.lean` importe actuellement
-`Cycle1.IteratedConstitutivePersistence`. Il constitue une façade humaine sur
+`StrongPerimetralTurning.IteratedConstitutivePersistence`. Il constitue une façade humaine sur
 la branche de persistance de l'instance ; il n'importe pas
 `RepresentationBoundary`.
 
@@ -431,19 +431,21 @@ suivants :
 - aucune dépendance ne doit faire de l'alignement une condition préalable au
   turning résiduel de l'instance circulaire.
 
-## 9. Statut du nom `Cycle1`
+## 9. Classement après le refactor architectural
 
-À l'état de référence, `Cycle1` est encore un chemin de fichiers et un nom de
-cible Lake. Cette cartographie **ne le traite pas comme un nœud mathématique
-canonique**, car les quatre fichiers actuellement placés sous `Cycle1/` ne
-forment pas une seule classe conceptuelle :
+Le classement numérique historique a été dissous sans modifier le contenu
+mathématique des théorèmes. Les modules sont désormais rangés selon leur
+propriétaire scientifique :
 
-- `ConstitutivePersistence.lean` et
-  `IteratedConstitutivePersistence.lean` sont des développements de l'instance
-  circulaire ;
-- `MediatedTransitionCoherence.lean` et
-  `MediatedTransitionPasting.lean` sont des spécialisations génériques de
-  `FiniteConstitutiveAlignment`.
+- `StrongPerimetralTurning/ConstitutivePersistence.lean` et
+  `StrongPerimetralTurning/IteratedConstitutivePersistence.lean` développent
+  l'instance circulaire ;
+- `Alignment/MediatedTransitionCoherence.lean` et
+  `Alignment/MediatedTransitionPasting.lean` spécialisent le noyau générique de
+  cohérence médiée à `FiniteConstitutiveAlignment`.
 
-Ce constat est figé. Le choix éventuel de nouveaux chemins ou noms est une
-décision de refactor séparée et ne fait pas partie du présent document.
+Les identifiants d'itération utilisent désormais le préfixe `iterated` plutôt
+qu'un numéro de phase. Le target Lean principal porte le même nom architectural
+que le package, `StructuralFoundations`, tandis que `RepresentationBoundary`
+reste un target séparé. Cette organisation matérialise le DAG vérifié dans les
+chemins du dépôt sans introduire de nouvelle hiérarchie scientifique.

@@ -1,4 +1,4 @@
-# Cycle 1 — Relative alignment to an independent specification
+# Relative alignment of the circular instance to an independent specification
 
 **English** | [Français](../fr/alignement_relatif.md)
 
@@ -8,9 +8,9 @@ Navigation: [structural synthesis](structural_foundations.md) ·
 
 ## Status
 
-**Cycle 1 is mathematically closed.**
+**The circular instance is mathematically closed.**
 
-The current phase is stabilization. No mathematical definition of Cycle 1 is to
+The current phase is stabilization. No mathematical definition of the circular instance is to
 be reopened.
 
 For a presentation `P`, a history `H`, and a concrete interpretation `A`, the
@@ -38,7 +38,7 @@ S(H) → H = perimeterDeployment P
 
 The central contribution is:
 
-> **Cycle 1 builds and machine-checks in Lean a dependently typed kernel for
+> **circular instance builds and machine-checks in Lean a dependently typed kernel for
 > relative alignment. It separates construction, faithful realization, regime,
 > and independent norm; proves exact adequacy between the norm and the regime on
 > their carriers; and produces a one-occurrence continuation which, like every
@@ -52,9 +52,9 @@ additional principle connecting the norm to the regime after the fact—called a
 
 ---
 
-## 1. Purpose of Cycle 1
+## 1. Purpose of the circular instance
 
-Cycle 1 constructs a relative diagnostic in which four levels remain formally
+The circular instance constructs a relative diagnostic in which four levels remain formally
 distinct:
 
 ```text
@@ -133,7 +133,7 @@ development; the interface is not left without a model.
 
 ## 2. Four separations that must be preserved
 
-Cycle 1 documentation must explicitly preserve the following distinctions:
+circular instance documentation must explicitly preserve the following distinctions:
 
 ```text
 realization ≠ norm
@@ -158,7 +158,7 @@ status by itself.
 `CircularRefinement`. The norm has its own positive model and its own canonical
 counterexample. Its content is therefore not a translation of the regime.
 
-For this Cycle 1 instance, the regime and the norm nevertheless have the same
+For this circular instance instance, the regime and the norm nevertheless have the same
 extension on histories: each is inhabited exactly at
 `perimeterDeployment P`. This carrier-level coextension is a derived result;
 it does not identify their witness types, definitions, or proof routes.
@@ -189,7 +189,7 @@ diagnostic.
 
 ## 3. The independent norm
 
-The Cycle 1 norm has exactly two primitive components:
+The circular specification has exactly two primitive components:
 
 ```lean
 structure CircularSpecificationSatisfaction
@@ -274,7 +274,7 @@ an operational realization of closure.
 
 ## 4. The two canonical cases
 
-Cycle 1 is discriminating because the same norm has a canonical positive case
+The circular instance is discriminating because the same norm has a canonical positive case
 and a canonical negative case.
 
 ### 4.1 Positive case: `perimeterDeployment P`
@@ -385,7 +385,7 @@ The correct reading of the table is:
 
 ## 6. Structural reconstruction of the perimeter
 
-A decisive step in Cycle 1 is reconstructing a `PerimeterExtension` from exact
+A decisive step in the circular instance is reconstructing a `PerimeterExtension` from exact
 local realization alone:
 
 ```lean
@@ -468,7 +468,7 @@ its old/fresh split.  Its separate `Realization` structure contains only the two
 concrete carriers and their exact spokes.  It is therefore an exact carrier
 realization, not by itself a claim about labels, order, or step semantics.
 Neither structure mentions a `CircularPresentation`, admission, a
-specification, or a readout.  The canonical Cycle 1 continuation instantiates
+specification, or a readout.  The canonical circular continuation instantiates
 this abstraction and additionally proves that the induced old and fresh
 elements are the native concrete occurrences `.earlier` and `.last`.  The
 logged non-identity algebra supplies a concrete carrier realization of the same
@@ -506,7 +506,7 @@ transport agree pointwise with the established one-step interfaces.  The
 realized finite fresh identity is the one-step `fresh` identity, and the depth
 `0 → 1` extension is the one-step `old` map.
 
-`Cycle1.IteratedConstitutivePersistence` instantiates these laws with the
+`StrongPerimetralTurning.IteratedConstitutivePersistence` instantiates these laws with the
 actual histories built recursively by `generate` and `appendGenerated`. At
 each successor stage, prior occurrences are the native `.earlier` occurrences
 and the new identity is the native `.last` occurrence. The result covers an
@@ -784,7 +784,7 @@ faithful realization
 
 ## 11. Meaning of “relative alignment” here
 
-Cycle 1 does not formalize a general theory of alignment. Within the present
+The circular instance does not formalize a general theory of alignment. Within the present
 framework, it establishes a diagnostic relative to an explicit and independent
 specification.
 
@@ -851,7 +851,7 @@ The precise statement is therefore:
 
 ## 13. Proposition-level observation and representation boundary
 
-The Cycle 1 declarations above are maps between proof-relevant witness types:
+The circular-instance declarations above are maps between proof-relevant witness types:
 
 ```text
 CircularRefinement P H
@@ -879,8 +879,8 @@ CircularRegimeStatus P H
   ↔ CircularSpecificationStatus P H
 ```
 
-This bridge is implemented and constructive. It is derived from the two Cycle 1
-maps; it neither changes Cycle 1 nor claims an `Equiv` or equality between the
+This bridge is implemented and constructive. It is derived from the two circular instance
+maps; it neither changes circular instance nor claims an `Equiv` or equality between the
 original witness structures. It is the formal point from which the `RepresentationBoundary` branch
 transports established adequacy into the representation layer.
 
@@ -942,7 +942,7 @@ the axiom audit.
 
 ## 15. Stabilized conclusion
 
-Cycle 1 establishes three closure results:
+The circular instance establishes three closure results:
 
 ```text
 soundness
@@ -992,11 +992,11 @@ the axiomatic-audit results
 ```
 
 The proposition-level bridge in Section 13 belongs to the `RepresentationBoundary` branch. It observes the
-closed Cycle 1 result without altering its witness types or mathematical content.
+closed circular-instance result without altering its witness types or mathematical content.
 
 ### Publication statement
 
-> **Cycle 1 builds and machine-checks in Lean a dependently typed kernel for
+> **circular instance builds and machine-checks in Lean a dependently typed kernel for
 > relative alignment. It separates construction, faithful realization, regime,
 > and independent norm; proves soundness and completeness of their agreement on
 > admitted histories; and constructs a one-occurrence continuation which, like

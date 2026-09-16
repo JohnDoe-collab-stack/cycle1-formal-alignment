@@ -5,10 +5,10 @@
 [English](../en/relational_constitutive_roles_method.md) | **Français**
 
 Navigation : [synthèse structurelle](fondements_structurels.md) ·
-[Cycle 1 — alignement relatif](alignement_relatif.md) ·
+[Instance circulaire — alignement relatif](alignement_relatif.md) ·
 [frontière représentationnelle](frontiere_representationnelle.md)
 
-> **Ce document expose la méthode dégagée par le cycle 1 : individuer les
+> **Ce document expose la méthode dégagée par l'instance circulaire : individuer les
 > occurrences avant leurs lectures, déterminer leurs rôles par les relations qui
 > les constituent, éprouver l'indépendance des propriétés sur des carriers
 > affaiblis, puis reconstruire et transporter uniquement les déterminations dont
@@ -103,7 +103,7 @@ normatif. Ces niveaux peuvent coïncider sur un exemple sans être identiques. U
 méthode rigoureuse doit conserver leur distinction assez longtemps pour rendre
 leurs rapports démontrables.
 
-Le cycle 1 fournit une instance complète de cette démarche. Il contient :
+L'instance circulaire fournit une instance complète de cette démarche. Il contient :
 
 - un langage de constructions libres ;
 - des occurrences individuées dans des histoires ;
@@ -119,7 +119,7 @@ Le cycle 1 fournit une instance complète de cette démarche. Il contient :
 
 La méthode n'est pas limitée au vocabulaire de la circularité. En revanche, son
 application complète n'est actuellement vérifiée en Lean que pour les
-structures du cycle 1. Le passage d'une instance formelle à une méthode
+structures de l'instance circulaire. Le passage d'une instance formelle à une méthode
 réutilisable exige donc de distinguer soigneusement preuve, extraction
 méthodologique et généralisation proposée.
 
@@ -129,7 +129,7 @@ Quatre statuts sont employés dans ce document.
 
 | Statut | Signification | Exemple |
 |---|---|---|
-| **Vérifié dans Lean** | définition, construction ou théorème présent dans les modules du cycle 1 | `ExactNonClosingRealization.preservesNext` |
+| **Vérifié dans Lean** | définition, construction ou théorème présent dans les modules de l'instance circulaire | `ExactNonClosingRealization.preservesNext` |
 | **Conséquence dérivée** | composition explicite de résultats Lean vérifiés | deux réalisations exactes d'une même histoire conservent la même structure d'occurrences via l'histoire libre commune |
 | **Extraction méthodologique** | règle de conception justifiée par l'organisation des définitions, preuves et modèles séparateurs | affaiblir le carrier pour tester si une propriété est primitive |
 | **Généralisation proposée** | principe destiné à d'autres domaines, mais non encore démontré comme métathéorème universel | employer la méthode pour toute architecture d'alignement |
@@ -167,7 +167,7 @@ La méthode repose sur un vocabulaire dont les niveaux doivent rester distincts.
 ### 3.1 Présentation
 
 Une présentation fixe les types et les règles à partir desquels des
-constructions peuvent être formées. Dans l'application du cycle 1,
+constructions peuvent être formées. Dans l'application de l'instance circulaire,
 `CircularPresentation` fournit notamment les types explicites et implicites, les
 compatibilités, les différences, les provenances, le périmètre et l'obstruction
 à la boucle totale.
@@ -238,7 +238,7 @@ accord(o, r)
 ```
 
 Cette notation est une présentation méthodologique, non une nouvelle
-déclaration Lean. Dans le cycle 1, son contenu est réalisé par plusieurs types
+déclaration Lean. Dans l'instance circulaire, son contenu est réalisé par plusieurs types
 et relations plutôt que par une structure unique nommée `Role`.
 
 ### 3.5 Carrier (type porteur)
@@ -345,7 +345,7 @@ présentation
 ```
 
 Cet ordre n'affirme pas que toute théorie doive employer exactement les types du
-cycle 1. Il énonce une discipline : ne pas utiliser une couche ultérieure pour
+instance circulaire. Il énonce une discipline : ne pas utiliser une couche ultérieure pour
 définir silencieusement une couche antérieure.
 
 ### 5.1 Individuation avant lecture
@@ -356,7 +356,7 @@ occurrences que l'analyse aurait peut-être dû distinguer.
 
 ### 5.2 Composition avant temps global
 
-Dans le cycle 1, l'antériorité vient de la structure de préfixe et la globalité
+Dans l'instance circulaire, l'antériorité vient de la structure de préfixe et la globalité
 de la composition des histoires. Aucune horloge extérieure n'est nécessaire
 pour créer après coup l'ordre des pas.
 
@@ -537,7 +537,7 @@ une preuve de primitivité.
 
 ## 8. Deux modèles séparateurs
 
-Les traces permutée et intercalée du cycle 1 ne sont pas de simples exemples
+Les traces permutée et intercalée de l'instance circulaire ne sont pas de simples exemples
 pédagogiques. Elles jouent des rôles logiques distincts dans l'analyse des
 dépendances.
 
@@ -762,7 +762,7 @@ peut perdre, fusionner ou inventer des distinctions. Même si sa valeur finale
 semble correcte, elle ne garantit pas que les occurrences de la construction
 libre puissent être auditées dans la réalisation concrète.
 
-La fidélité requise par le cycle 1 porte sur les histoires et leurs occurrences,
+La fidélité requise par l'instance circulaire porte sur les histoires et leurs occurrences,
 pas seulement sur leurs états terminaux.
 
 ### 11.2 Structure d'une interprétation exacte
@@ -1137,7 +1137,7 @@ h⁺ := oneStepAfterPerimeter P
 ```
 
 condense la méthode sur un même objet. Les constructions et signatures
-détaillées appartiennent à la [preuve du Cycle 1](alignement_relatif.md) ; le
+détaillées appartiennent à la [preuve de l'instance circulaire](alignement_relatif.md) ; le
 document de méthode conserve seulement le schéma de dépendances nécessaire au
 réemploi :
 
@@ -1416,9 +1416,9 @@ son statut et, lorsqu'elle est formelle, à une déclaration précise.
 
 ## 17. Portée après les Cycles 1 et 2
 
-### 17.1 Ce que le cycle 1 établit effectivement
+### 17.1 Ce que l'instance circulaire établit effectivement
 
-Le cycle 1 fournit une instance formelle dans laquelle :
+L'instance circulaire fournit une instance formelle dans laquelle :
 
 - les occurrences sont dépendamment typées et restent individuées ;
 - les exigences non fermantes possèdent une réalisation exacte et injective ;
@@ -1436,14 +1436,14 @@ Le cycle 1 fournit une instance formelle dans laquelle :
 
 ### 17.2 Ce que la branche `RepresentationBoundary` ajoute — et n'ajoute pas
 
-La branche `RepresentationBoundary` observe le régime et la norme du Cycle 1 par `Nonempty`, transporte
+La branche `RepresentationBoundary` observe le régime et la norme de l'instance circulaire par `Nonempty`, transporte
 leur équivalence propositionnelle à travers la représentation exacte et combine
 cette exactitude déterminée avec un statut diagonal hors de la clôture réflexive
 globale. Cela confirme que la discipline méthodologique de conservation avant
 projection reste pertinente au niveau représentationnel.
 
 La branche `RepresentationBoundary` n'est toutefois pas une seconde instance non périmétrale de la
-méthode. Il réemploie l'adéquation du Cycle 1 et ajoute une couche de
+méthode. Il réemploie l'adéquation régime/spécification de l'instance circulaire et ajoute une couche de
 représentation ; il ne fournit pas un nouveau domaine muni de rôles constitutifs
 relationnels reconstruits indépendamment.
 
@@ -1602,7 +1602,7 @@ La formulation condensée de la méthode est donc :
 > témoins positifs de ce qui subsiste et la preuve négative de ce qui cesse
 > d'être satisfait.**
 
-Le Cycle 1 vérifie une instance complète de cette méthode. La branche `RepresentationBoundary` transporte
+L'instance circulaire vérifie une instance complète de cette méthode. La branche `RepresentationBoundary` transporte
 l'un de ses résultats d'adéquation vers une couche de représentation,
 mais ne constitue pas une seconde instance de domaine. La généralisation de la
 méthode demande donc encore de formaliser l'interface méthodologique elle-même et

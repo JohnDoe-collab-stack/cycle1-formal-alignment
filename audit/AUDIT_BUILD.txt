@@ -23,11 +23,11 @@ Architecture after the refactor
 
 Primary Lake targets:
 
-  Cycle1Alignment
+  StructuralFoundations
   RepresentationBoundary
   AuditRegression
 
-Dynamic alignment remains in the existing alignment/Cycle 1 development. The
+Dynamic alignment remains in the existing alignment/circular instance development. The
 new representation-boundary branch is:
 
   RepresentationBoundary.lean
@@ -60,7 +60,7 @@ independent of alignment theory.
 `StrongPerimetralTurning` and the diagonal kernel. It is a separate application
 to already established proposition-level circular statuses.
 
-No `Alignment/*` or `Cycle1/*` source imports `RepresentationBoundary`.
+No `Alignment/*` or `StrongPerimetralTurning/*Persistence` source imports `RepresentationBoundary`.
 Therefore naturality, finite persistence, mediated coherence, and mediated
 pasting do not depend on the diagonal representation-boundary result.
 
@@ -106,13 +106,13 @@ Mediated-coherence experimental branch
 The same research branch also contains the isolated mediated-transition work:
 
   MediatedTransitionCoherence.lean
-  Cycle1/MediatedTransitionCoherence.lean
-  Cycle1/MediatedTransitionPasting.lean
+  Alignment/MediatedTransitionCoherence.lean
+  Alignment/MediatedTransitionPasting.lean
   Tests/MediatedTransitionCoherenceRegression.lean
   Tests/MediatedTransitionPastingRegression.lean
 
 These modules formalize observed commutation, faithful/local-reflection upgrade,
-identity, sequential composition, and pasting. Their Cycle 1 specialization is
+identity, sequential composition, and pasting. Their circular instance specialization is
 independent of `RepresentationBoundary`.
 
 Diff isolation

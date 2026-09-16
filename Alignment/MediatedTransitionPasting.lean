@@ -1,4 +1,4 @@
-import Cycle1.MediatedTransitionCoherence
+import Alignment.MediatedTransitionCoherence
 
 /-!
 # Two-step finite alignment by mediated pasting

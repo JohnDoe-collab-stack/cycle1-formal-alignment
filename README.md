@@ -26,7 +26,7 @@ interpretation of local results.
 ## Machine-checked entry point
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) is the shortest route
-to the central Cycle 1 result. Its generic local-to-global entry theorem shows
+to the central circular-instance result. Its generic local-to-global entry theorem shows
 that exact local realization reconstructs the canonical perimeter as an initial
 factor of any rooted generated history; injectivity is derived from exact
 agreement rather than assumed. A second entry point combines the canonical
@@ -51,7 +51,7 @@ exact co-indexation and lossless readout reindexing, but does not assert semanti
 compatibility between independently supplied values. Both transports are
 pointwise independent of any intermediate realization.
 
-The one-step result is also iterated over the actual Cycle 1 producer at every
+The one-step result is also iterated over the actual circular producer at every
 finite depth. Each generated stage adds exactly one fresh occurrence while
 retaining all earlier occurrences. Extension through later stages commutes
 pointwise with change of exact concrete realization, and both vertical and
@@ -74,7 +74,7 @@ structural foundation
   → dependently typed construction
   → faithful realization
   ↓
-Cycle 1 — relative alignment
+Circular instance — relative alignment
   operational regime and independent norm
   → exact adequacy
   → finite persistence / realization transport / naturality
@@ -84,7 +84,7 @@ RepresentationBoundary.DiagonalizationKernel
   evaluator → diagonal status → non-representability
   → failure of global representation closure
 
-Cycle 1 adequacy ───────────────────────────┐
+circular regime/specification adequacy ───────────────────────────┐
                                            ├─→ RepresentationBoundary.CircularStatusRepresentation
 DiagonalizationKernel ─────────────────────┘
   exact representation of selected statuses
@@ -94,13 +94,13 @@ DiagonalizationKernel ───────────────────�
 The continuation and dynamic alignment are proved without importing
 `RepresentationBoundary`. The diagonal kernel is autonomous and imports only
 `Init`. The circular-status representation module is a separate application: it
-uses the already established Cycle 1 proposition-level adequacy together with
+uses the already established circular regime/specification proposition-level adequacy together with
 the diagonal kernel. No theorem identifies the operational exit with the
 representation exit.
 
-## Cycle 1 — Relative alignment
+## Circular instance — relative alignment
 
-For a circular presentation `P` and a rooted generated history `H`, Cycle 1
+For a circular presentation `P` and a rooted generated history `H`, circular instance
 keeps three witness families distinct:
 
 ```text
@@ -113,7 +113,7 @@ S(H)   := CircularSpecificationSatisfaction P H
 admission by the operational regime. `S(H)` is satisfaction of a norm defined
 independently of that regime.
 
-In this Cycle 1 instance, `R(H)` and `S(H)` each hold exactly when
+In the circular instance, `R(H)` and `S(H)` each hold exactly when
 `H = perimeterDeployment P`. They are therefore coextensive on histories, even
 though their witness types, definitions, and proof routes remain distinct.
 
@@ -158,7 +158,7 @@ in norm and regime but specialized to `RootedGeneratedHistory P`.
 ## Representation boundary
 
 The representation-boundary branch is not a second stage of alignment. It first
-observes the already established Cycle 1 witness families propositionally:
+observes the already established circular regime/specification witness families propositionally:
 
 ```text
 CircularRegimeStatus P H
@@ -168,7 +168,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-Using the two Cycle 1 maps, `circularStatusAdequacy` proves their proposition-level
+Using the two circular regime/specification witness maps, `circularStatusAdequacy` proves their proposition-level
 equivalence. After a decoder pulls those statuses back to predicates on codes,
 `transportRepresentation` transports exact representation along that equivalence.
 
@@ -231,7 +231,7 @@ failure of the independent norm.
 
 - [Structural foundations](docs/en/structural_foundations.md) — canonical
   synthesis of the complete architecture.
-- [Cycle 1 — Relative alignment](docs/en/relative_alignment.md) — detailed
+- [circular instance — Relative alignment](docs/en/relative_alignment.md) — detailed
   proof, signatures, adequacy, and operational exit.
 - [Method of relational constitutive roles](docs/en/relational_constitutive_roles_method.md)
   — reusable construction, separation, and reconstruction method.
@@ -255,7 +255,7 @@ French counterparts are linked from the top of every scientific document.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) defines exact
   regime classification and typed exits.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isolates constructive
-  two-sided exact transports independently of Cycle 1 content.
+  two-sided exact transports independently of circular-instance content.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implements the
   circular construction, independent norm, relative adequacy, and canonical
   operational exit.
@@ -268,10 +268,10 @@ French counterparts are linked from the top of every scientific document.
 - [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
   attaches finite readouts afterward and proves persistence of every
   distinction they already make.
-- [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
+- [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean)
   constructs the canonical one-step persistence and instantiates the abstract
   alignment while keeping admission and specification status separate.
-- [`Cycle1/IteratedConstitutivePersistence.lean`](Cycle1/IteratedConstitutivePersistence.lean)
+- [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean)
   instantiates finite persistence with the real `generate`/`appendGenerated`
   histories and their native free and concrete occurrences.
 - [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
@@ -288,7 +288,7 @@ French counterparts are linked from the top of every scientific document.
 - [`RepresentationBoundary.lean`](RepresentationBoundary.lean) is the import-only
   public aggregator for the representation-boundary branch.
 
-No `Alignment/*` or `Cycle1/*` module imports `RepresentationBoundary`.
+No `Alignment/*` or `StrongPerimetralTurning/*Persistence` module imports `RepresentationBoundary`.
 
 ## Reproduction and audit
 
@@ -336,7 +336,7 @@ lake build AuditRegression
 
 ## Scope, license, and citation
 
-Cycle 1 is complete relative to `CircularPresentation`; it is not a universal
+The circular instance is complete relative to `CircularPresentation`; it is not a universal
 theory of every norm or alignment problem. `RepresentationBoundary` is an
 autonomous abstract semantic diagonal argument, not a formalization of syntax,
 provability, arithmetization, or Gödel's incompleteness theorems. The source

@@ -519,7 +519,7 @@ theorem canonicalAlignment_extendedTransport_at
 /-! ## Operational meaning of the fresh alignment identity -/
 
 /--
-The residual occurrence determined directly by the Cycle 1 core, embedded into
+The residual occurrence determined directly by the circular core, embedded into
 the full free occurrence carrier used by the one-step constitutive alignment.
 -/
 def oneStepResidualFreeOccurrence
@@ -529,7 +529,7 @@ def oneStepResidualFreeOccurrence
     (oneStepCoreResidualOccurrence P).occurrence
 
 /--
-In the actual Cycle 1 instance, the fresh constitutive identity is exactly the
+In the actual circular instance instance, the fresh constitutive identity is exactly the
 full-history image of the core residual occurrence.
 -/
 theorem canonicalAlignment_fresh_eq_residualFreeOccurrence
@@ -553,7 +553,7 @@ theorem residualFreeOccurrence_agrees_with_consumedTurning
     (oneStepCoreResidualOccurrence_agrees_with_consumedTurning P)
 
 /--
-The fresh identity of the actual one-step Cycle 1 alignment carries the final
+The fresh identity of the actual one-step circular alignment carries the final
 residual role.
 -/
 theorem canonicalAlignment_fresh_label_is_final

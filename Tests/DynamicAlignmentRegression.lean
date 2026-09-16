@@ -1,4 +1,4 @@
-import Cycle1.IteratedConstitutivePersistence
+import StrongPerimetralTurning.IteratedConstitutivePersistence
 import Examples.ConcreteContinuation.LoggedAlgebra
 import Examples.Alignment.IteratedReadout
 
@@ -49,23 +49,23 @@ theorem independently_rederived_extend_transport_natural
 
 theorem actual_free_logged_depth_one_to_three
     (occurrence :
-      (cycle1Realization examplePresentation exampleConcreteAlgebra 1).Concrete) :
-    (((cycle1Realization examplePresentation exampleConcreteAlgebra 3).transport
-        (cycle1Realization examplePresentation loggedConcreteAlgebra 3)).forward
-      ((cycle1Realization examplePresentation exampleConcreteAlgebra 1).extend
-        (cycle1Realization examplePresentation exampleConcreteAlgebra 3)
+      (iteratedRealization examplePresentation exampleConcreteAlgebra 1).Concrete) :
+    (((iteratedRealization examplePresentation exampleConcreteAlgebra 3).transport
+        (iteratedRealization examplePresentation loggedConcreteAlgebra 3)).forward
+      ((iteratedRealization examplePresentation exampleConcreteAlgebra 1).extend
+        (iteratedRealization examplePresentation exampleConcreteAlgebra 3)
         (DepthExtension.step (.step (.refl 1))) occurrence)) =
-      (cycle1Realization examplePresentation loggedConcreteAlgebra 1).extend
-        (cycle1Realization examplePresentation loggedConcreteAlgebra 3)
+      (iteratedRealization examplePresentation loggedConcreteAlgebra 1).extend
+        (iteratedRealization examplePresentation loggedConcreteAlgebra 3)
         (DepthExtension.step (.step (.refl 1)))
-        (((cycle1Realization examplePresentation exampleConcreteAlgebra 1).transport
-          (cycle1Realization examplePresentation loggedConcreteAlgebra 1)).forward
+        (((iteratedRealization examplePresentation exampleConcreteAlgebra 1).transport
+          (iteratedRealization examplePresentation loggedConcreteAlgebra 1)).forward
           occurrence) := by
   exact independently_rederived_extend_transport_natural
-    (cycle1Realization examplePresentation exampleConcreteAlgebra 1)
-    (cycle1Realization examplePresentation loggedConcreteAlgebra 1)
-    (cycle1Realization examplePresentation exampleConcreteAlgebra 3)
-    (cycle1Realization examplePresentation loggedConcreteAlgebra 3)
+    (iteratedRealization examplePresentation exampleConcreteAlgebra 1)
+    (iteratedRealization examplePresentation loggedConcreteAlgebra 1)
+    (iteratedRealization examplePresentation exampleConcreteAlgebra 3)
+    (iteratedRealization examplePresentation loggedConcreteAlgebra 3)
     (DepthExtension.step (.step (.refl 1))) occurrence
 
 def swapFresh

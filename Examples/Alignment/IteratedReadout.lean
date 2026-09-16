@@ -1,8 +1,8 @@
-import Cycle1.IteratedConstitutivePersistence
+import StrongPerimetralTurning.IteratedConstitutivePersistence
 import Examples.ConcreteContinuation.LoggedAlgebra
 
 /-!
-# A non-constant readout across several Cycle 1 extensions
+# A non-constant readout across several circular instance extensions
 
 This closed example instantiates the finite persistence laws at three generated
 steps beyond the perimeter.  The first, second, and third fresh identities
@@ -128,10 +128,10 @@ theorem first_second_distinction_persists :
 /-! ## The same values in two genuinely different concrete realizations -/
 
 abbrev FreeRealization (n : Nat) :=
-  cycle1Realization examplePresentation exampleConcreteAlgebra n
+  iteratedRealization examplePresentation exampleConcreteAlgebra n
 
 abbrev LoggedRealization (n : Nat) :=
-  cycle1Realization examplePresentation loggedConcreteAlgebra n
+  iteratedRealization examplePresentation loggedConcreteAlgebra n
 
 def freeReadoutAtThree : (FreeRealization 3).Concrete → Nat :=
   (FreeRealization 3).realizeReadout
@@ -183,7 +183,7 @@ theorem logged_fresh_values_distinguished :
 
 /--
 The concrete commuting square is inhabited by the free and logged algebras on
-the real Cycle 1 histories from depth one to depth three.
+the real circular histories from depth one to depth three.
 -/
 theorem free_logged_extension_natural
     (occurrence : (FreeRealization 1).Concrete) :
@@ -194,7 +194,7 @@ theorem free_logged_extension_natural
         oneToThree
         (((FreeRealization 1).transport
           (LoggedRealization 1)).forward occurrence) :=
-  cycle1_extend_transport_natural
+  iterated_extend_transport_natural
     examplePresentation exampleConcreteAlgebra loggedConcreteAlgebra
     oneToThree occurrence
 

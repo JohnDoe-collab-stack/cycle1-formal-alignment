@@ -5,10 +5,10 @@
 **English** | [Français](../fr/methode_roles_constitutifs_relationnels.md)
 
 Navigation: [structural synthesis](structural_foundations.md) ·
-[Cycle 1 — relative alignment](relative_alignment.md) ·
+[Circular instance — relative alignment](relative_alignment.md) ·
 [representation boundary](representation_boundary.md)
 
-> **This document presents the method extracted from cycle 1: individuate
+> **This document presents the method extracted from the circular instance: individuate
 > occurrences before their readings, determine their roles through the
 > relations that constitute them, test the independence of properties on
 > weakened carriers, and then reconstruct and transport only those
@@ -102,7 +102,7 @@ status. These levels may coincide in one example without being identical. A
 rigorous method must keep them distinct long enough to make their relationships
 provable.
 
-Cycle 1 provides a complete instance of this approach. It contains:
+The circular instance provides a complete instance of this approach. It contains:
 
 - a language of free constructions;
 - individuated occurrences in histories;
@@ -116,7 +116,7 @@ Cycle 1 provides a complete instance of this approach. It contains:
 
 The method is not limited to the vocabulary of circularity. Its complete
 application, however, is currently verified in Lean only for the structures of
-cycle 1. Moving from a formal instance to a reusable method therefore requires a
+circular instance. Moving from a formal instance to a reusable method therefore requires a
 careful distinction between proof, methodological extraction, and proposed
 generalization.
 
@@ -126,7 +126,7 @@ Four statuses are used in this document.
 
 | Status | Meaning | Example |
 |---|---|---|
-| **Verified in Lean** | definition, construction, or theorem present in the cycle 1 modules | `ExactNonClosingRealization.preservesNext` |
+| **Verified in Lean** | definition, construction, or theorem present in the circular-instance modules | `ExactNonClosingRealization.preservesNext` |
 | **Derived consequence** | explicit composition of verified Lean results | two exact realizations of the same history preserve the same occurrence structure through their common free history |
 | **Methodological extraction** | design rule justified by the organization of definitions, proofs, and separating models | weaken the carrier to test whether a property is primitive |
 | **Proposed generalization** | principle intended for other domains but not yet proved as a universal metatheorem | use the method for every alignment architecture |
@@ -164,7 +164,7 @@ The method rests on a vocabulary whose levels must remain distinct.
 ### 3.1 Presentation
 
 A presentation fixes the types and rules from which constructions may be
-formed. In the cycle 1 application, `CircularPresentation` provides, among other
+formed. In the circular application, `CircularPresentation` provides, among other
 things, the explicit and implicit types, compatibilities, differences,
 provenances, perimeter, and obstruction to a total loop.
 
@@ -233,7 +233,7 @@ agreement(o, r)
 ```
 
 This notation is a methodological presentation, not a new Lean declaration. In
-cycle 1, its content is realized by several types and relations rather than by a
+circular instance, its content is realized by several types and relations rather than by a
 single structure named `Role`.
 
 ### 3.5 Carrier
@@ -347,7 +347,7 @@ occurrences that the analysis might have needed to distinguish.
 
 ### 5.2 Composition before global time
 
-In cycle 1, precedence comes from prefix structure and globality from the
+In circular instance, precedence comes from prefix structure and globality from the
 composition of histories. No external clock is required to create the order of
 steps after the fact.
 
@@ -523,7 +523,7 @@ construction is not evidence of primitiveness.
 
 ## 8. Two separating models
 
-The permuted and interleaved traces of cycle 1 are not merely pedagogical
+The permuted and interleaved traces of the circular instance are not merely pedagogical
 examples. They play distinct logical roles in the dependency analysis.
 
 ### 8.1 Permuted trace: exactness without order
@@ -745,7 +745,7 @@ may lose, merge, or invent distinctions. Even if its final value appears
 correct, it does not guarantee that occurrences of the free construction can be
 audited in the concrete realization.
 
-The faithfulness required by cycle 1 concerns histories and their occurrences,
+The faithfulness required by circular instance concerns histories and their occurrences,
 not only their terminal states.
 
 ### 11.2 Structure of an exact interpretation
@@ -1113,7 +1113,7 @@ h⁺ := oneStepAfterPerimeter P
 ```
 
 condenses the method on one object. The detailed constructions and signatures
-belong to the [Cycle 1 proof](relative_alignment.md); the method retains only
+belong to the [circular-instance proof](relative_alignment.md); the method retains only
 the dependency pattern needed for reuse:
 
 ```text
@@ -1387,9 +1387,9 @@ to a precise declaration.
 
 ## 17. Scope after Cycles 1 and 2
 
-### 17.1 What cycle 1 actually establishes
+### 17.1 What circular instance actually establishes
 
-Cycle 1 provides a formal instance in which:
+The circular instance provides a formal instance in which:
 
 - occurrences are dependently typed and remain individuated;
 - non-closing requirements have an exact and injective realization;
@@ -1406,14 +1406,14 @@ Cycle 1 provides a formal instance in which:
 
 ### 17.2 What the `RepresentationBoundary` branch adds — and does not add
 
-the `RepresentationBoundary` branch observes the Cycle 1 regime and norm through `Nonempty`, transports
+the `RepresentationBoundary` branch observes the circular instance regime and norm through `Nonempty`, transports
 their proposition-level equivalence through exact representation, and combines
 that determined exactness with a diagonal status outside global reflective
 closure. This confirms that the method's discipline of preservation before
 projection remains relevant at the representation level.
 
 the `RepresentationBoundary` branch is not, however, a second non-perimetral instance of the method. It
-reuses the Cycle 1 adequacy and adds a representation layer; it does not supply
+reuses the circular regime/specification adequacy and adds a representation layer; it does not supply
 a new domain with independently reconstructed relational constitutive roles.
 
 ### 17.3 What the current development does not yet establish
@@ -1566,7 +1566,7 @@ The method can be condensed as follows:
 > diagnose a break by retaining on the same object the positive witnesses of
 > what remains and the negative proof of what ceases to be satisfied.**
 
-Cycle 1 verifies one complete instance of this method. the `RepresentationBoundary` branch transports one
+The circular instance verifies one complete instance of this method. the `RepresentationBoundary` branch transports one
 of its established adequacy results into a representation layer but
 does not constitute a second domain instance. Generalizing the method therefore
 still requires formalizing the methodological interface itself and testing it

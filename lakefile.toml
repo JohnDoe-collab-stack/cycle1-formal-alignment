@@ -1,9 +1,9 @@
 name = "StructuralFoundations"
 version = "2.0.0"
-defaultTargets = ["Cycle1Alignment", "RepresentationBoundary"]
+defaultTargets = ["StructuralFoundations", "RepresentationBoundary"]
 
 [[lean_lib]]
-name = "Cycle1Alignment"
+name = "StructuralFoundations"
 roots = [
   "SegmentedResidualRole",
   "SegmentedResidualRoleStrictness",
@@ -14,10 +14,10 @@ roots = [
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
   "Alignment.ReadoutPersistence",
-  "Cycle1.ConstitutivePersistence",
-  "Cycle1.IteratedConstitutivePersistence",
-  "Cycle1.MediatedTransitionCoherence",
-  "Cycle1.MediatedTransitionPasting",
+  "StrongPerimetralTurning.ConstitutivePersistence",
+  "StrongPerimetralTurning.IteratedConstitutivePersistence",
+  "Alignment.MediatedTransitionCoherence",
+  "Alignment.MediatedTransitionPasting",
   "StructuralEntrypoint",
   "Examples.ConcreteContinuation.LoggedAlgebra",
   "Examples.Alignment.IteratedReadout"

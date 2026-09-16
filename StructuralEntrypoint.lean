@@ -1,4 +1,4 @@
-import Cycle1.IteratedConstitutivePersistence
+import StrongPerimetralTurning.IteratedConstitutivePersistence
 
 /-!
 # Structural entry point
@@ -51,7 +51,7 @@ exposes the following articulated results and introduces no new assumption:
 * that one-step continuation has an exact old/fresh occurrence split whose
   realizations commute with change of concrete representation and whose
   induced transports are pointwise independent of intermediate realizations;
-* the same constitution extends to every finite number of real Cycle 1 steps:
+* the same constitution extends to every finite number of real circular generation steps:
   earlier identities persist, each step contributes one fresh identity, and
   finite extension is independent of its proof-relevant depth witness and
   commutes with change of exact concrete realization; this independence also
@@ -76,7 +76,7 @@ namespace StructuralEntrypoint
 open StrongPerimetralTurning
 
 /--
-The central local-to-global reconstruction theorem of Cycle 1, exposed at the
+The central local-to-global reconstruction theorem of the circular instance, exposed at the
 human-scale entry point.
 
 The input is an arbitrary exact local realization inside a genuine
@@ -107,7 +107,7 @@ exactly one occurrence, and the resulting history, like every rooted generated
 history, admits an `ExactConcreteRealization` in every supplied concrete
 continuation algebra.  This realization field records a positive preservation
 witness; once the algebra is supplied, it is not a condition selecting
-histories.  In this Cycle 1 instance, the regime and the independently defined
+histories.  In the circular instance, the regime and the independently defined
 norm each hold exactly of the canonical perimeter, although their witness types
 and proof routes remain distinct.  The continued history exits both.  Both
 refutations are relative to the supplied `CircularPresentation`, in particular
@@ -193,7 +193,7 @@ def canonicalConstitutiveAlignmentRealization
 
 /-!
 The one-step alignment above extends constructively to every finite number of
-actual Cycle 1 generations.  Each stage is produced by `generate` and
+actual circular generations.  Each stage is produced by `generate` and
 `appendGenerated`; it is not an abstract chain postulated by the facade.
 
 Every determination, once constituted, persists through every later stage of
@@ -204,24 +204,24 @@ This does not yet instantiate a transformer and does not identify independently
 supplied readouts.
 -/
 
-/-- The exact free occurrence carrier after `n` actual Cycle 1 generations. -/
+/-- The exact free occurrence carrier after `n` actual circular generations. -/
 def finiteConstitutivePersistence
     (P : CircularPresentation)
     (n : Nat) :
     FiniteConstitutiveAlignment
       (ConstitutivePersistence.InitialFreeOccurrence P) n :=
-  IteratedConstitutivePersistence.cycle1Alignment P n
+  IteratedConstitutivePersistence.iteratedAlignment P n
 
-/-- One supplied algebra realizes the actual Cycle 1 carrier at depth `n`. -/
+/-- One supplied algebra realizes the actual circular carrier at depth `n`. -/
 def finiteConstitutivePersistenceRealization
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)
     (n : Nat) :
     (finiteConstitutivePersistence P n).Realization :=
-  IteratedConstitutivePersistence.cycle1Realization P A n
+  IteratedConstitutivePersistence.iteratedRealization P A n
 
 /--
-Finite extension and change of realization commute on the actual Cycle 1
+Finite extension and change of realization commute on the actual circular instance
 occurrences, including identities first constituted after the perimeter.
 -/
 theorem finiteExtensionRealizationNaturality
@@ -242,11 +242,11 @@ theorem finiteExtensionRealizationNaturality
         (((finiteConstitutivePersistenceRealization P A sourceDepth).transport
           (finiteConstitutivePersistenceRealization P B sourceDepth)).forward
           occurrence) :=
-  IteratedConstitutivePersistence.cycle1_extend_transport_natural
+  IteratedConstitutivePersistence.iterated_extend_transport_natural
     P A B depth occurrence
 
 /--
-Finite extension on actual Cycle 1 realizations depends only on its source and
+Finite extension on actual circular realizations depends only on its source and
 target depths, not on the proof-relevant `DepthExtension` witness supplied.
 -/
 theorem finiteExtensionWitnessIndependent
@@ -284,7 +284,7 @@ theorem finiteExtensionWitnessIndependentAcrossRealizations
       (finiteConstitutivePersistenceRealization P A sourceDepth).extend
         (finiteConstitutivePersistenceRealization P B targetDepth)
         second occurrence :=
-  IteratedConstitutivePersistence.cycle1Extension_witness_independent
+  IteratedConstitutivePersistence.iteratedExtension_witness_independent
     P A B first second occurrence
 
 /--
@@ -301,7 +301,7 @@ theorem finiteDepthOneTransportMatchesOneStep
         (finiteConstitutivePersistenceRealization P B 1)).forward occurrence) =
       (((canonicalConstitutiveAlignmentRealization P A).extendedTransport
         (canonicalConstitutiveAlignmentRealization P B)).forward occurrence) :=
-  IteratedConstitutivePersistence.cycle1Transport_one_eq_oneStep
+  IteratedConstitutivePersistence.iteratedTransport_one_eq_oneStep
     P A B occurrence
 
 /--
@@ -317,7 +317,7 @@ theorem finiteDepthOneBackwardTransportMatchesOneStep
         (finiteConstitutivePersistenceRealization P B 1)).backward occurrence) =
       (((canonicalConstitutiveAlignmentRealization P A).extendedTransport
         (canonicalConstitutiveAlignmentRealization P B)).backward occurrence) :=
-  IteratedConstitutivePersistence.cycle1Transport_one_backward_eq_oneStep
+  IteratedConstitutivePersistence.iteratedTransport_one_backward_eq_oneStep
     P A B occurrence
 
 /-- The finite fresh identity at depth one is the one-step fresh identity. -/
@@ -327,7 +327,7 @@ theorem finiteDepthOneFreshMatchesOneStep
     (finiteConstitutivePersistenceRealization P A 1).indexedSpoke.forward
         (IteratedCarrier.freshAtStep 0) =
       (canonicalConstitutiveAlignmentRealization P A).fresh :=
-  IteratedConstitutivePersistence.cycle1Realization_one_fresh_eq_oneStep P A
+  IteratedConstitutivePersistence.iteratedRealization_one_fresh_eq_oneStep P A
 
 /-! ## Operational meaning of aligned persistence -/
 
@@ -350,7 +350,7 @@ theorem oneStepAlignmentFreshIsConsumedResidual
 
 /--
 The operational residual occurrence constituted at the first exit persists as
-the same constitutive identity through every later finite Cycle 1 depth.
+the same constitutive identity through every later finite circular depth.
 -/
 theorem finiteOperationalResidualPersists
     (P : CircularPresentation)
@@ -365,7 +365,7 @@ theorem finiteOperationalResidualPersists
           (IteratedCarrier.embedFrom depth
             (IteratedCarrier.freshAtStep 0)) := by
   simpa [finiteConstitutivePersistenceRealization, finiteConstitutivePersistence] using
-    (IteratedConstitutivePersistence.cycle1ResidualOccurrence_persists P A depth)
+    (IteratedConstitutivePersistence.iteratedResidualOccurrence_persists P A depth)
 
 /--
 Persistence of the operational residual occurrence is natural across supplied
@@ -387,7 +387,7 @@ theorem finiteOperationalResidualNaturality
         depth
         (ConstitutivePersistence.oneStepResidualConcreteOccurrence P B) := by
   simpa [finiteConstitutivePersistenceRealization, finiteConstitutivePersistence] using
-    (IteratedConstitutivePersistence.cycle1ResidualOccurrence_extension_transport_natural
+    (IteratedConstitutivePersistence.iteratedResidualOccurrence_extension_transport_natural
       P A B depth)
 
 /-- The finite depth `0 → 1` extension is pointwise the one-step old map. -/
@@ -400,7 +400,7 @@ theorem finiteDepthZeroOneExtensionMatchesOneStep
         (finiteConstitutivePersistenceRealization P A 1)
         (.step (.refl 0)) occurrence =
       (canonicalConstitutiveAlignmentRealization P A).old occurrence :=
-  IteratedConstitutivePersistence.cycle1Extension_zero_one_eq_oneStep
+  IteratedConstitutivePersistence.iteratedExtension_zero_one_eq_oneStep
     P A occurrence
 
 /-- Change of realization is pointwise independent of an intermediate algebra. -/
@@ -426,7 +426,7 @@ theorem finiteTransportPathCoherence
 
 /--
 Any distinction made by a finitely assembled readout persists on the exact
-concrete occurrences through every later Cycle 1 stage.
+concrete occurrences through every later circular stage.
 -/
 theorem finiteReadoutDistinctionPersists
     {Value : Type}

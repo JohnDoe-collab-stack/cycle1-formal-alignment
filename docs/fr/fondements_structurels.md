@@ -25,7 +25,7 @@ opérationnelle de ce motif : le candidat reste engendré de l'intérieur et,
 comme toute histoire générée enracinée de ce développement, admet une réalisation
 concrète exacte tandis que son statut change relativement au régime.
 
-Le Cycle 1 vérifie mécaniquement cette architecture opérationnelle sur
+L'instance circulaire vérifie mécaniquement cette architecture opérationnelle sur
 `oneStepAfterPerimeter P` : une continuation stricte engendrée de l'intérieur
 reste exactement réalisable dans toute `ConcreteContinuationAlgebra P`, tandis
 que son statut de régime et son statut normatif sont précisément déterminés. Le
@@ -48,7 +48,7 @@ socle structurel
   → construction dépendamment typée
   → réalisation fidèle
   ↓
-Cycle 1 — alignement relatif
+Instance circulaire — alignement relatif
   régime opérationnel et norme indépendante
   → transformation de témoins dans chaque sens
   ├── voie de construction de la continuation (indépendante de l'adéquation)
@@ -77,7 +77,7 @@ diagonalisation n'est nécessaire pour construire la continuation.
 
 La diagonalisation de la branche `RepresentationBoundary` est donc portée par son noyau diagonal autonome.
 Elle ne dépend ni de la continuation opérationnelle ni de sa sortie du régime ;
-le raccord au Cycle 1 se fait seulement par les statuts adéquats dont la
+le raccord à l'instance circulaire se fait seulement par les statuts adéquats dont la
 représentation est transportée. Cette séparation est constitutive du graphe et
 non une simple convention de présentation.
 
@@ -437,13 +437,13 @@ La décomposition des occurrences entre ancien et nouveau s'étend désormais à
 toute profondeur finie positivement fournie. Le transport exact entre
 réalisations et le prolongement constitutif fini sont tous deux dérivés du même
 indice, et leur carré commutatif ponctuel est démontré sur les histoires réelles
-du Cycle 1. Une lecture assemblée ensuite par prolongement fini conserve donc
+de l'instance circulaire. Une lecture assemblée ensuite par prolongement fini conserve donc
 une distinction depuis la profondeur où ses identités ont été constituées. Le
 théorème est
 polymorphe en profondeur finie, en réalisations et en type de valeurs ;
 l'exemple exécutable à trois étapes n'en établit que la portée démontrée.
 
-## 6. Cycle 1 — Alignement relatif et sortie opérationnelle
+## 6. instance circulaire — Alignement relatif et sortie opérationnelle
 
 L'application circulaire relie les trois modules:
 
@@ -631,11 +631,11 @@ la lecture architecturale des constructions vérifiées.
 
 ## 7. Frontière représentationnelle — exactitude locale et non-clôture diagonale
 
-La branche `RepresentationBoundary` prolonge l'adéquation établie au Cycle 1 vers des statuts
+La branche `RepresentationBoundary` prolonge l'adéquation établie à l'instance circulaire vers des statuts
 propositionnels, puis étudie leur représentation exacte dans un évaluateur et
 construit sa frontière diagonale.
 
-Les familles originelles du Cycle 1 restent des types porteurs de témoins. Le
+Les familles originelles de l'instance circulaire restent des types porteurs de témoins. Le
 la branche `RepresentationBoundary` observe seulement leur habitabilité :
 
 ```text
@@ -646,7 +646,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-Les deux applications du Cycle 1 donnent la véritable équivalence
+Les deux applications de témoins de l'instance circulaire donnent la véritable équivalence
 propositionnelle `circularStatusAdequacy`. Un décodeur tire ces statuts en arrière
 vers des prédicats sur les codes, et `transportRepresentation` conserve la
 représentation exacte le long de leur équivalence logique point par point.
@@ -696,7 +696,7 @@ positive établie avant cette frontière.
 > non-clôture est constitutive, les frontières sont déterminées localement et
 > relativement, et la construction se poursuit au-delà d'elles.**
 
-Le Cycle 1 sépare la continuation de la construction et sa réalisation fidèle de
+L'instance circulaire sépare la continuation de la construction et sa réalisation fidèle de
 l'admission normative. La branche `RepresentationBoundary` combine la représentation exacte des statuts
 alignés particuliers avec une frontière construite de la représentabilité
 globale. Ensemble, ils remplacent une exigence indifférenciée de clôture par des
@@ -752,7 +752,7 @@ déterminé.
 | adéquation normative | `circularNormativeAdequacy` |
 | diagnostic relatif | `oneStepSpecRelativeHistoryExit` |
 | égalité de longueur dérivée | `samePerimeter_length_eq` |
-| adéquation propositionnelle du Cycle 1 | `circularStatusAdequacy` |
+| adéquation propositionnelle régime/spécification de l'instance circulaire | `circularStatusAdequacy` |
 | tiré en arrière d'un statut vers les codes | `PullbackStatus` |
 | transport de représentation | `transportRepresentation` |
 | statut diagonal | `diagonalStatus` |
@@ -760,14 +760,14 @@ déterminé.
 | non-clôture représentationnelle globale | `noGlobalRepresentationClosure` |
 | statuts déterminés exacts avec extérieur diagonal | `localExactRepresentation_hasDiagonalExit` |
 
-La bibliothèque du Cycle 1 est assemblée depuis les racines Lean listées
+La bibliothèque de l'instance circulaire est assemblée depuis les racines Lean listées
 dans `lakefile.toml`. Le noyau diagonal indépendant se trouve dans
-`RepresentationBoundary/DiagonalizationKernel.lean` ; le application aux statuts circulaires issue de l'adéquation du Cycle 1
+`RepresentationBoundary/DiagonalizationKernel.lean` ; le application aux statuts circulaires issue de l'adéquation régime/spécification de l'instance circulaire
 est confiné à `RepresentationBoundary/CircularStatusRepresentation.lean`.
 
 ## 11. Conclusion générale
 
-Le cycle 1 réalise une chaîne de dépendance précise:
+L'instance circulaire réalise une chaîne de dépendance précise:
 
 ```text
 individuation conservée
@@ -800,7 +800,7 @@ d'un candidat change.
 > représentation exacte déterminée coexiste avec un échec construit de la
 > clôture globale.**
 
-Le Cycle 1 est mathématiquement clos relativement à `CircularPresentation`. Le
+L'instance circulaire est mathématiquement clos relativement à `CircularPresentation`. Le
 la branche `RepresentationBoundary` est stabilisé comme branche représentationnelle constructive autonome. Leur
 articulation constitue l'architecture du dépôt.
 
@@ -808,7 +808,7 @@ articulation constitue l'architecture du dépôt.
 
 Documents complémentaires :
 
-- [Cycle 1 — alignement relatif](alignement_relatif.md) ;
+- [Instance circulaire — alignement relatif](alignement_relatif.md) ;
 - [méthode des rôles constitutifs relationnels](methode_roles_constitutifs_relationnels.md) ;
 - [frontière représentationnelle](frontiere_representationnelle.md) ;
 - [synthèse structurelle anglaise](../en/structural_foundations.md).

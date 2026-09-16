@@ -364,7 +364,7 @@ lake build
 Les bibliothèques peuvent être construites séparément :
 
 ```bash
-lake build Cycle1Alignment
+lake build StructuralFoundations
 lake build RepresentationBoundary
 lake build AuditRegression
 ```

@@ -347,7 +347,7 @@ lake build
 The libraries can be built separately:
 
 ```bash
-lake build Cycle1Alignment
+lake build StructuralFoundations
 lake build RepresentationBoundary
 lake build AuditRegression
 ```

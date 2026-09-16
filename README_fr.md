@@ -27,7 +27,7 @@ globale des résultats locaux.
 ## Point d'entrée vérifié par la machine
 
 [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est le chemin le plus
-court vers le résultat central du Cycle 1. Son théorème générique local vers
+court vers le résultat central de l'instance circulaire. Son théorème générique local vers
 global montre qu'une réalisation locale exacte reconstruit le périmètre
 canonique comme facteur initial de toute histoire générée enracinée ;
 l'injectivité est dérivée de l'accord exact plutôt que supposée. Un deuxième
@@ -56,7 +56,7 @@ aucune compatibilité sémantique automatique entre des valeurs fournies
 indépendamment. Les deux transports sont ponctuellement indépendants de toute
 réalisation intermédiaire.
 
-Le résultat à un pas est aussi itéré sur le producteur réel du Cycle 1 à toute
+Le résultat à un pas est aussi itéré sur le producteur circulaire réel à toute
 profondeur finie. Chaque étape générée ajoute exactement une occurrence
 nouvelle tout en conservant les occurrences antérieures. Le prolongement à
 travers les étapes suivantes commute ponctuellement avec le changement de
@@ -81,7 +81,7 @@ socle structurel
   → construction dépendamment typée
   → réalisation fidèle
   ↓
-Cycle 1 — alignement relatif
+Instance circulaire — alignement relatif
   régime opérationnel et norme indépendante
   → adéquation exacte
   → persistance finie / transport de réalisation / naturalité
@@ -91,7 +91,7 @@ RepresentationBoundary.DiagonalizationKernel
   évaluateur → statut diagonal → non-représentabilité
   → échec de la clôture représentationnelle globale
 
-adéquation Cycle 1 ──────────────────────────┐
+adéquation régime/spécification de l'instance circulaire ──────────────────────────┐
                                              ├─→ RepresentationBoundary.CircularStatusRepresentation
 DiagonalizationKernel ───────────────────────┘
   représentation exacte de statuts choisis
@@ -102,13 +102,13 @@ La continuation et l'alignement dynamique sont démontrés sans importer
 `RepresentationBoundary`. Le noyau diagonal est autonome et n'importe que
 `Init`. Le module de représentation des statuts circulaires constitue une
 application séparée : il utilise l'adéquation propositionnelle déjà établie au
-Cycle 1 avec le noyau diagonal. Aucun théorème n'identifie la sortie
+instance circulaire avec le noyau diagonal. Aucun théorème n'identifie la sortie
 opérationnelle à la sortie représentationnelle.
 
-## Cycle 1 — Alignement relatif
+## Instance circulaire — alignement relatif
 
 Pour une présentation circulaire `P` et une histoire générée enracinée `H`, le
-Cycle 1 maintient trois familles de témoins distinctes :
+instance circulaire maintient trois familles de témoins distinctes :
 
 ```text
 F_A(H) := ExactConcreteRealization A H
@@ -120,7 +120,7 @@ S(H)   := CircularSpecificationSatisfaction P H
 `R(H)` est l'admission par le régime opérationnel. `S(H)` est la satisfaction
 d'une norme définie indépendamment de ce régime.
 
-Dans cette instance du Cycle 1, `R(H)` et `S(H)` sont chacune habitées
+Dans l'instance circulaire, `R(H)` et `S(H)` sont chacune habitées
 exactement lorsque `H = perimeterDeployment P`. Elles sont donc coextensives
 sur les histoires, bien que leurs types de témoins, leurs définitions et leurs
 chemins de preuve restent distincts.
@@ -168,7 +168,7 @@ paramétrique en norme et en régime, mais spécialisée à
 
 La branche de frontière représentationnelle n'est pas une deuxième étape de
 l'alignement. Elle observe d'abord propositionnellement les familles de témoins
-déjà établies au Cycle 1 :
+déjà établies à l'instance circulaire :
 
 ```text
 CircularRegimeStatus P H
@@ -178,7 +178,7 @@ CircularSpecificationStatus P H
   := Nonempty (CircularSpecificationSatisfaction P H)
 ```
 
-À partir des deux applications du Cycle 1, `circularStatusAdequacy` démontre leur
+À partir des deux applications de témoins de l'instance circulaire, `circularStatusAdequacy` démontre leur
 équivalence propositionnelle. Après tiré en arrière par un décodeur vers des
 prédicats sur les codes, `transportRepresentation` transporte la représentation
 exacte le long de cette équivalence.
@@ -242,7 +242,7 @@ directe d'échec de la norme indépendante.
 
 - [Fondements structurels](docs/fr/fondements_structurels.md) — synthèse
   canonique de l'architecture complète.
-- [Cycle 1 — Alignement relatif](docs/fr/alignement_relatif.md) — preuve
+- [instance circulaire — Alignement relatif](docs/fr/alignement_relatif.md) — preuve
   détaillée, signatures, adéquation et sortie opérationnelle.
 - [Méthode des rôles constitutifs relationnels](docs/fr/methode_roles_constitutifs_relationnels.md)
   — protocole réutilisable de construction, séparation, reconstruction et audit.
@@ -267,7 +267,7 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) définit la
   classification exacte d'un régime et les sorties typées.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isole les transports
-  exacts constructifs à deux inverses, indépendamment du contenu du Cycle 1.
+  exacts constructifs à deux inverses, indépendamment du contenu de l'instance circulaire.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
@@ -280,10 +280,10 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
   attache ensuite les lectures finies et prouve la persistance de toute
   distinction qu'elles établissent déjà.
-- [`Cycle1/ConstitutivePersistence.lean`](Cycle1/ConstitutivePersistence.lean)
+- [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean)
   construit la persistance canonique à un pas et instancie l'alignement abstrait
   en maintenant séparés l'admission et le statut relatif à la spécification.
-- [`Cycle1/IteratedConstitutivePersistence.lean`](Cycle1/IteratedConstitutivePersistence.lean)
+- [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean)
   instancie la persistance finie avec les histoires réellement produites par
   `generate`/`appendGenerated` et leurs occurrences libres et concrètes natives.
 - [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
@@ -300,7 +300,7 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`RepresentationBoundary.lean`](RepresentationBoundary.lean) est l'agrégateur
   public sans déclaration propre de cette branche.
 
-Aucun module `Alignment/*` ou `Cycle1/*` n'importe `RepresentationBoundary`.
+Aucun module `Alignment/*` ou `StrongPerimetralTurning/*Persistence` n'importe `RepresentationBoundary`.
 
 ## Reproduction et audit
 
@@ -349,7 +349,7 @@ lake build AuditRegression
 
 ## Portée, licence et citation
 
-Le Cycle 1 est complet relativement à `CircularPresentation` ; ce n'est pas une
+L'instance circulaire est complet relativement à `CircularPresentation` ; ce n'est pas une
 théorie universelle de toute norme ou de tout problème d'alignement.
 `RepresentationBoundary` est un argument diagonal sémantique abstrait autonome,
 non une formalisation de la syntaxe, de la prouvabilité, de l'arithmétisation ou

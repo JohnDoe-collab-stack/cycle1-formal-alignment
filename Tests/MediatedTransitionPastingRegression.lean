@@ -1,4 +1,4 @@
-import Cycle1.MediatedTransitionPasting
+import Alignment.MediatedTransitionPasting
 
 /-!
 # Regression tests for mediated transition pasting
