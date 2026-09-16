@@ -6,19 +6,21 @@ Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignme
 Branch: research/mediated-transition-coherence
 Release version: 2.0.0
 Scientific tree validated before this audit-only update:
-  fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04
+  e4686428f0df29a65d8487aa0ae0e8f677ea391f
 GitHub Actions validation run:
-  35091504108
+  35093688594
 Scientific-source identity: MANIFEST.sha256
 
 Purpose
 -------
 
 This record describes the verified architecture after removal of the historical
-numbered classification. The repository is organized by mathematical role:
-abstract residual determination, abstract turning, the circular/perimetral
-instance, generic alignment/persistence theory, mediated-transition coherence,
-and an autonomous representation-boundary branch.
+numbered classification and separation of generic Lean namespaces from the
+circular/perimetral instance namespace. The repository is organized by
+mathematical role: abstract residual determination, abstract turning, the
+circular/perimetral instance, generic exact transport, generic
+alignment/persistence theory, mediated-transition coherence, and an autonomous
+representation-boundary branch.
 
 Verified architectural trunk
 ----------------------------
@@ -41,13 +43,17 @@ turning.
 Parallel abstract infrastructure
 --------------------------------
 
-`ExactTypeTransport` is a separate abstract root. It is consumed directly by
-`StrongPerimetralTurning` and also by the generic alignment branch:
+`ExactTypeTransport` is a separate abstract root. Its declaration now lives at
+the root namespace, matching its content-independent role. It is consumed
+directly by `StrongPerimetralTurning` and also by the generic alignment branch:
 
   ExactTypeTransport
     -> Alignment.Constitutive
     -> Alignment.FinitePersistence
     -> Alignment.ReadoutPersistence
+
+The generic declarations defined by `Alignment/*` now live under namespace
+`Alignment`. They are not nested under `StrongPerimetralTurning`.
 
 The explicit integration point between the circular instance and the generic
 one-step alignment theory is:
@@ -58,7 +64,8 @@ Finite iteration of the actual circular producer is then implemented in:
 
   StrongPerimetralTurning/IteratedConstitutivePersistence.lean
 
-The generic mediated-transition kernel remains an independent root:
+The generic mediated-transition kernel remains an independent root, now also at
+its own root namespace:
 
   MediatedTransitionCoherence.lean
 
@@ -66,6 +73,8 @@ Its finite-alignment specializations are:
 
   Alignment/MediatedTransitionCoherence.lean
   Alignment/MediatedTransitionPasting.lean
+
+and their declarations live under `Alignment.FiniteConstitutiveAlignment`.
 
 Historical numbered architecture removal
 -----------------------------------------
@@ -93,11 +102,37 @@ The architectural migration commit is:
   e1f6fd05f4827638d9194f82772e3302ab403783
   Dissolve historical numbered architecture
 
-Temporary migration tooling was removed before clean-tree validation. The clean
-scientific tree validated by CI is:
+Generic namespace separation
+----------------------------
 
-  fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04
-  Remove temporary refactor tooling
+The follow-up namespace cleanup changed ownership names only; it did not move
+files or alter the dependency graph or theorem statements materially.
+
+The verified namespace ownership is now:
+
+  ExactTypeTransport
+    root generic infrastructure
+
+  MediatedTransitionCoherence
+    root generic mediated-coherence theory
+
+  Alignment.*
+    generic constitutive alignment, finite persistence, readout persistence,
+    and finite mediated-coherence specializations
+
+  StrongPerimetralTurning.*
+    circular/perimetral instance and its actual persistence specializations
+
+The namespace migration commit is:
+
+  347c423c5e79843da1cac09b09022386158a8f29
+  Separate generic namespaces from circular instance
+
+Temporary namespace-migration tooling was removed before ordinary CI validation.
+The clean scientific tree validated by CI is:
+
+  e4686428f0df29a65d8487aa0ae0e8f677ea391f
+  Remove temporary namespace migration tooling
 
 Representation boundary
 -----------------------
@@ -155,7 +190,9 @@ pasting. The nonfaithful-middle regression shows that intermediate literal
 commutation/faithfulness is stronger than required for observed pasting;
 terminal reflection suffices to recover literal outer commutation.
 
-These results remain independent of `RepresentationBoundary`.
+The independent kernel is `MediatedTransitionCoherence`; the finite-alignment
+specializations are under `Alignment`. These results remain independent of
+`RepresentationBoundary`.
 
 Environment
 -----------
@@ -173,8 +210,8 @@ Observed CI toolchain:
 CI validation of the clean scientific tree
 ------------------------------------------
 
-GitHub Actions run 35091504108 completed successfully on both supported jobs
-for commit `fab7e055f11c048ee3cbef37b4b7ddd86a3c2a04`.
+GitHub Actions run 35093688594 completed successfully on both supported jobs
+for commit `e4686428f0df29a65d8487aa0ae0e8f677ea391f`.
 
 Linux job:
 
@@ -189,17 +226,15 @@ Windows job:
   PowerShell manifest verification PASS
   Windows PowerShell verification  PASS
 
-The migration workflow also passed its internal staged gates before creating the
-migration commit:
+The namespace-migration workflow also passed all internal gates before creating
+the migration commit:
 
-  module relocation build          PASS
-  relocation AuditRegression       PASS
-  API-renaming build               PASS
-  API-renaming AuditRegression     PASS
-  final full build                  PASS
-  final AuditRegression            PASS
+  namespace transformation         PASS
+  lake build                       PASS
+  lake build AuditRegression       PASS
   MANIFEST.sha256 verification     PASS
-  legacy-architecture scanner      PASS
+  namespace-invariant scanner      PASS
+  diff hygiene                     PASS
 
 Axiom audit
 -----------
@@ -209,7 +244,12 @@ alignment, mediated-coherence, pasting, and representation-boundary sources are
 covered by explicit `#print axioms` blocks. The successful build output reports
 that the audited declarations do not depend on axioms.
 
-In particular, the representation-boundary audit includes:
+The generic namespace cleanup also updated the audit names themselves. In
+particular, exact transports are now audited as `ExactTypeTransport.*`, generic
+alignment declarations as `Alignment.*`, and the independent mediated kernel as
+`MediatedTransitionCoherence.*`.
+
+The representation-boundary audit includes:
 
   RepresentationBoundary.DiagonalizationKernel.Represents
   RepresentationBoundary.DiagonalizationKernel.InternallyRepresentable
@@ -227,21 +267,20 @@ In particular, the representation-boundary audit includes:
   RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_notGloballyClosed
   RepresentationBoundary.CircularStatusRepresentation.diagonalRepresentationExit
 
-The mediated-coherence and pasting declarations are likewise covered by their
-source `#print axioms` checks.
-
 Manifest verification
 ---------------------
 
 `MANIFEST.sha256` hash-anchors the Lean sources and canonical scientific
-documents that it lists. It now contains the semantic post-refactor paths:
+documents that it lists. It contains the semantic post-refactor paths:
 
   StrongPerimetralTurning/ConstitutivePersistence.lean
   StrongPerimetralTurning/IteratedConstitutivePersistence.lean
   Alignment/MediatedTransitionCoherence.lean
   Alignment/MediatedTransitionPasting.lean
 
-and contains no numbered persistence-module paths.
+and contains no numbered persistence-module paths. The namespace cleanup
+recomputed hashes for every listed source whose namespace-qualified audit text or
+consumer imports changed.
 
 The authoritative reproducibility checks are:
 
