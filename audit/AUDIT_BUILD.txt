@@ -1,131 +1,224 @@
-Structural foundations artifact — reproducible build and axiom audit
+Structural foundations artifact — build and architecture audit
 =====================================================================
 
-Audit date: 2026-09-15
+Audit date: 2026-09-16
 Public repository: https://github.com/JohnDoe-collab-stack/cycle1-formal-alignment
+Branch: research/mediated-transition-coherence
 Release version: 2.0.0
-Record scope: platform-specific reproduction on the environment stated below
-Audit scope: Cycle 1 and the isolated self-contained Cycle 2 reflective
-  extension
+Scientific tree validated before this audit-only update:
+  34e732dcab6fc7ee1d0489c32b76b3bb190246b5
+GitHub Actions validation run:
+  35080616039
 Scientific-source identity: MANIFEST.sha256
 
-This repository contains every source and configuration file required for the
-checks below. No earlier repository, private workspace, or external source
-history is required.
+Purpose
+-------
 
-MANIFEST.sha256 hash-anchors only the Lean sources and canonical scientific
-documents that it lists. It does not hash-anchor lean-toolchain, lakefile.toml,
-lake-manifest.json, the verification scripts, the CI workflow,
-audit/AUDIT_BUILD.txt, the MANIFEST.sha256 file itself, or either README. The
-audited Git commit, rather than MANIFEST.sha256, fixes the identity of those
-excluded operational and access files.
+This record replaces the pre-refactor audit that described the diagonal branch
+as `Cycle2` / reflective alignment. The current architecture separates dynamic
+alignment from the autonomous representation-boundary result.
+
+Architecture after the refactor
+-------------------------------
+
+Primary Lake targets:
+
+  Cycle1Alignment
+  RepresentationBoundary
+  AuditRegression
+
+Dynamic alignment remains in the existing alignment/Cycle 1 development. The
+new representation-boundary branch is:
+
+  RepresentationBoundary.lean
+  RepresentationBoundary/DiagonalizationKernel.lean
+  RepresentationBoundary/CircularStatusRepresentation.lean
+
+The former public paths are removed:
+
+  Cycle2.lean
+  Cycle2/DiagonalizationKernel.lean
+  Cycle2/ReflectiveAlignment.lean
+
+The former dedicated documentation paths are also removed:
+
+  docs/fr/alignement_reflexif.md
+  docs/en/reflective_alignment.md
+
+They are replaced by:
+
+  docs/fr/frontiere_representationnelle.md
+  docs/en/representation_boundary.md
+
+Dependency boundary
+-------------------
+
+`RepresentationBoundary.DiagonalizationKernel` imports only `Init` and is
+independent of alignment theory.
+
+`RepresentationBoundary.CircularStatusRepresentation` imports
+`StrongPerimetralTurning` and the diagonal kernel. It is a separate application
+to already established proposition-level circular statuses.
+
+No `Alignment/*` or `Cycle1/*` source imports `RepresentationBoundary`.
+Therefore naturality, finite persistence, mediated coherence, and mediated
+pasting do not depend on the diagonal representation-boundary result.
+
+Public API rename
+-----------------
+
+The representation vocabulary now matches the proved content:
+
+  GlobalReflectiveClosure
+    -> GlobalRepresentationClosure
+
+  noGlobalReflectiveClosure
+    -> noGlobalRepresentationClosure
+
+  ReflectiveCircularStatusView
+    -> ExactCircularStatusRepresentation
+
+  exactCircularStatusRepresentation_hasDiagonalOutside
+    -> localExactRepresentation_hasDiagonalExit
+
+  exactCircularStatusRepresentation_notGloballyClosed
+    -> localExactRepresentation_notGloballyClosed
+
+  circularDiagonalStatusExit
+    -> diagonalRepresentationExit
+
+  canonicalUnitCircularStatusView
+    -> canonicalUnitCircularStatusRepresentation
+
+The central interpretation is now explicit:
+
+  local exact representation of selected statuses
+  +
+  a constructively produced diagonal status outside internal representation
+  ->
+  failure of global representation closure
+
+This is not presented as a second stage of alignment.
+
+Mediated-coherence experimental branch
+--------------------------------------
+
+The same research branch also contains the isolated mediated-transition work:
+
+  MediatedTransitionCoherence.lean
+  Cycle1/MediatedTransitionCoherence.lean
+  Cycle1/MediatedTransitionPasting.lean
+  Tests/MediatedTransitionCoherenceRegression.lean
+  Tests/MediatedTransitionPastingRegression.lean
+
+These modules formalize observed commutation, faithful/local-reflection upgrade,
+identity, sequential composition, and pasting. Their Cycle 1 specialization is
+independent of `RepresentationBoundary`.
+
+Diff isolation
+--------------
+
+Compared with the main reference commit
+`0a67ea635bc9ba2abb4d0c1de7d84ed8c693d3f1`, the validated scientific tree has
+no modifications under `Alignment/*`.
+
+The diagonal files are renamed/repositioned rather than inserted into the
+alignment core. README and canonical scientific documentation were updated to
+remove the obsolete numbered-successor narrative.
+
+The temporary migration workflow used to apply the large documentation rename
+was removed before validation. `scripts/verify-manifest.sh` was restored exactly
+to its normal manifest-verification implementation.
 
 Environment
 -----------
 
-Operating system: Windows, x86_64
-Lean: 4.33.1, x86_64-w64-windows-gnu
-Lean commit: 819816b2e0a3bf405af45ae5c7af2491d8f5bee6
-Lake: 5.0.0-src+819816b
-Toolchain declaration: leanprover/lean4:v4.33.1
+Pinned toolchain:
 
-Clean build
+  leanprover/lean4:v4.33.1
+
+Observed CI toolchain:
+
+  Lean 4.33.1
+  Lean commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6
+  Lake 5.0.0-src+819816b
+
+CI validation of the scientific tree
+------------------------------------
+
+GitHub Actions run 35080616039 completed successfully on both supported jobs.
+
+Linux job:
+
+  lake build                       PASS
+  lake build AuditRegression       PASS
+  scientific manifest verification PASS
+
+Windows job:
+
+  lake build                       PASS
+  lake build AuditRegression       PASS
+  PowerShell manifest verification PASS
+  Windows PowerShell verification  PASS
+
+Axiom audit
 -----------
 
-Commands:
+The public declarations in the representation-boundary sources are covered by
+explicit `#print axioms` blocks. The build output reports that the named
+representation-boundary declarations do not depend on axioms, including:
 
-  lake clean
-  lake build
+  RepresentationBoundary.DiagonalizationKernel.Represents
+  RepresentationBoundary.DiagonalizationKernel.InternallyRepresentable
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatus
+  RepresentationBoundary.DiagonalizationKernel.GlobalRepresentationClosure
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatus_notRepresentable
+  RepresentationBoundary.DiagonalizationKernel.noGlobalRepresentationClosure
+  RepresentationBoundary.DiagonalizationKernel.diagonalFixedPoint_ofRepresentable
+  RepresentationBoundary.DiagonalizationKernel.StatusRepresentationExit
+  RepresentationBoundary.DiagonalizationKernel.diagonalStatusExit
+  RepresentationBoundary.CircularStatusRepresentation.circularStatusAdequacy
+  RepresentationBoundary.CircularStatusRepresentation.transportRepresentation
+  RepresentationBoundary.CircularStatusRepresentation.ExactCircularStatusRepresentation
+  RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_hasDiagonalExit
+  RepresentationBoundary.CircularStatusRepresentation.localExactRepresentation_notGloballyClosed
+  RepresentationBoundary.CircularStatusRepresentation.diagonalRepresentationExit
 
-Results:
-
-  Exit code: 0
-  Build completed successfully: yes
-  Build jobs: 19
-  Warnings: 0
-  Axiom audit commands: 500
-  Distinct declarations audited: 495
-  Unexpected axiom lines: 0
-
-The fifteen declaration-bearing Lean modules and the import-only `Cycle2.lean`
-aggregator each contain one final axiom-audit block. The blocks run 500
-`#print axioms` commands over 495 distinct declarations. Five declarations are
-deliberately re-audited by public aggregators or facade modules. Every report
-states that the named declaration does not depend on any axioms.
-
-Source-policy scan
-------------------
-
-The audited Lean sources contain none of the following forbidden constructs:
-
-  sorry
-  admit
-  axiom
-  noncomputable
-  opaque
-  unsafe
-  Classical
-  funext
-  propext
-  Quot.sound
-
-Scientific source SHA-256
-------------------------
-
-b2a23dfcf49473b33d51fd185d1db4cedb0d841718ae0272340195fa9df3b431  SegmentedResidualRole.lean
-f18ce4532efefe7c803502c830cd0ce16441d0eea83aa77495905623b1f20293  SegmentedResidualRoleStrictness.lean
-c61bb9a4a09d38a2b23c50ca8e1ce1862495147cc131bbf63258d80c25816bdc  AbstractSegmentedTurning.lean
-bea020cf097275860dbcd592c2d4731e5b236f92c48318efb292acc1b53bf029  ExactTypeTransport.lean
-1c9d7a5ec85e87beef1f57d1d3bbd13a9d2e1d1f7543c26c0ad7016ddd259a7a  StrongPerimetralTurning.lean
-fb3fe6cdd40dd75be238c32f1466c1f6391d8385909139312b2e69d62322a1d8  Alignment/Constitutive.lean
-af70348b3b6338484b8df560b0b408613f1c24293f2c596a73e0ccf476dd8a01  Alignment/FinitePersistence.lean
-1cf15ac165ea0b5e0a39578a2a2e7f363fbc8f4bda5d1d5d10e1da2555c69915  Alignment/ReadoutPersistence.lean
-172fa9a8726dd00f605d1bc461c567811421d11a2d7f639981d14c482e12d9bc  Cycle1/ConstitutivePersistence.lean
-45d4f4b2cc891009469d490a4c54ed11bb64e0a818f60ff43b61160f2a508548  Cycle1/IteratedConstitutivePersistence.lean
-05cc8fd8c01db8848107378d8ae3e86dc1f3b397ad7107300c9c8fdd6a8baba8  StructuralEntrypoint.lean
-1d817aeb02be040c762f8c6b0352d6c53d182aa3042357c35d72db44d41c9048  Examples/ConcreteContinuation/LoggedAlgebra.lean
-e3a10200c948517c316641893e2f77ddd1a9ce5191ab2475c5e66ed6f4fd8faf  Examples/Alignment/IteratedReadout.lean
-887049ab83afc999fb59a22f4ddff6ef20c7e8ebc5c39f2f9c6b5a0995986ae3  Cycle2.lean
-78d03a75c889362bef4faeb6e9557b7aac69442fc41b256a64539dc8547d922e  Cycle2/DiagonalizationKernel.lean
-08919d8436583919c241583b5df9df09d4f8e081d25cfad74c1fbe12d18bbd38  Cycle2/ReflectiveAlignment.lean
-d5e3da3481903bce3d5573622d2cb267dbe5bc438b505373580b194cd842db03  docs/fr/alignement_relatif.md
-9d87315eef468c282f08893fc99f91ff6167e40f8b67b4c619f15add895dd542  docs/en/relative_alignment.md
-0f52543df7a3b2296b46478446543233e5955108de942b80d2370c10fc35590c  docs/fr/fondements_structurels.md
-8ca4cc714e04c20ce626555aea13c3030ffc1a08d0d1380d19988b7bdcb191a9  docs/en/structural_foundations.md
-c38d89187187d9f0c7efac832dc45944b47f3586f92bb4d713fe5acdfa83e203  docs/fr/methode_roles_constitutifs_relationnels.md
-33ecdfb37eee48560ba9d37a48b0d839b6ba2771f7fa1394905f4f2cf86f5229  docs/en/relational_constitutive_roles_method.md
-e7c110db71230aa81907e5627290debeb871029af9121676a80bdd815204bde8  docs/fr/alignement_reflexif.md
-e643d8457142ee1f30ce0b2604d0f1b49453c04e4a64c2de897d7c139ce45a95  docs/en/reflective_alignment.md
+The mediated-coherence and pasting declarations included in the same branch are
+likewise covered by their source `#print axioms` checks.
 
 Manifest verification
 ---------------------
 
-The manifest was verified successfully with all three supported commands:
+`MANIFEST.sha256` hash-anchors the Lean sources and canonical scientific
+documents that it lists. The manifest now uses the `RepresentationBoundary`
+source paths and the new French/English representation-boundary documentation
+paths.
 
-  bash scripts/verify-manifest.sh
-  pwsh -NoProfile -File scripts/verify-manifest.ps1
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
-
-Reproduction
-------------
-
-From the repository root:
+The authoritative reproducibility checks are:
 
   lake build
-
-Then verify scientific-source integrity on Linux or macOS:
-
+  lake build AuditRegression
   bash scripts/verify-manifest.sh
 
-On Windows, use PowerShell 7:
+On Windows:
 
   pwsh -NoProfile -File scripts/verify-manifest.ps1
-
-or Windows PowerShell:
-
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify-manifest.ps1
 
-This file is a platform-specific convenience record of one successful clean
-reproduction. The authoritative check consists in rerunning these commands
-with the pinned toolchain on the repository contents matched by
-MANIFEST.sha256.
+Scope boundary
+--------------
+
+This audit verifies the implemented abstract semantic diagonal result. It does
+not upgrade it into a formal Gödel incompleteness theorem: no syntax of formulas,
+arithmetization, provability predicate, or formal consistency theory is added by
+this refactor.
+
+Likewise, the representation-boundary result is not required for dynamic
+alignment. It is preserved as an autonomous result with a separately named
+application to circular statuses.
+
+This file is not itself listed in MANIFEST.sha256. The audit-only commit that
+updates this report must therefore be followed by the same CI validation; that
+final run checks that the repository remains buildable and that the scientific
+manifest remains unchanged and valid.
