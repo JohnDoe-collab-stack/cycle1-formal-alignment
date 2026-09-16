@@ -67,9 +67,8 @@ theorem finite_specialization_reproves_existing_square
       sourceB.extend targetB depth
         ((sourceA.transport sourceB).forward identity) := by
   exact
-    FiniteConstitutiveAlignment.Realization
-      .extend_transport_natural_via_mediated_coherence
-        sourceA sourceB targetA targetB depth identity
+    FiniteConstitutiveAlignment.Realization.extend_transport_natural_via_mediated_coherence
+      sourceA sourceB targetA targetB depth identity
 
 end Tests.MediatedTransitionCoherenceRegression
 end StrongPerimetralTurning
