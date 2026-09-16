@@ -5,6 +5,13 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repository_root"
 
+echo '=== stale representation-boundary names ==='
+grep -RIn \
+  --exclude-dir=.git \
+  --exclude-dir=.lake \
+  -E 'Cycle2|ReflectiveAlignment|reflective_alignment|alignement_reflexif|GlobalReflectiveClosure|noGlobalReflectiveClosure|exactCircularStatusRepresentation|circularDiagonalStatusExit|canonicalUnitCircularStatusView' \
+  . || true
+
 if command -v sha256sum >/dev/null 2>&1; then
   sha256sum --check --strict MANIFEST.sha256
 elif command -v shasum >/dev/null 2>&1; then
