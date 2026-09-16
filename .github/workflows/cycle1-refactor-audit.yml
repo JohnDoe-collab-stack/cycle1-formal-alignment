@@ -20,8 +20,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo '=== Paths / text containing Cycle1 ==='
-          grep -RIn --exclude-dir=.git --exclude='cycle1-refactor-audit.yml' 'Cycle1' . || true
+          echo '=== Historical Cycle labels and paths ==='
+          grep -RInE --exclude-dir=.git --exclude='cycle1-refactor-audit.yml' 'Cycle1|Cycle 1|cycle 1' . || true
           echo '=== cycle1 identifiers ==='
           grep -RInE --exclude-dir=.git --exclude='cycle1-refactor-audit.yml' '\bcycle1[A-Za-z0-9_]*\b' . || true
           echo '=== Cycle1 directory ==='
