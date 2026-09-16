@@ -3,8 +3,8 @@
 ## Statut
 
 Ce document fixe la cartographie architecturale de référence du dépôt à partir
-de l'état validé de la branche `research/mediated-transition-coherence`, commit
-`384f336aa0255776b982cc34c5c9fd6cde83d9fa`.
+de la base validée de `main` après le nettoyage des namespaces, commit
+`3958b6aede35888f79618fd44f6b083b24fff24b`.
 
 Il distingue explicitement :
 
@@ -17,9 +17,9 @@ Il distingue explicitement :
    constituent pas de nouvelles étapes de la théorie.
 
 En cas de divergence entre un ancien diagramme narratif et ce document, cette
-cartographie prévaut pour interpréter l'architecture du code. Elle ne prescrit
-pas encore un renommage de fichiers : elle fixe d'abord les relations
-scientifiques et techniques que tout refactor doit préserver.
+cartographie prévaut pour interpréter l'architecture du code. Les refactors de
+chemins et de namespaces achevés ci-dessous font partie de cette référence ; tout
+refactor futur doit préserver les relations scientifiques et techniques vérifiées.
 
 ## 1. Lignée scientifique de la circularité
 

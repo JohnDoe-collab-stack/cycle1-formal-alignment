@@ -256,6 +256,9 @@ French counterparts are linked from the top of every scientific document.
   regime classification and typed exits.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isolates constructive
   two-sided exact transports independently of circular-instance content.
+- [`MediatedTransitionCoherence.lean`](MediatedTransitionCoherence.lean)
+  provides the independent constructive kernel for observed commutation,
+  local-reflection upgrades, sequential composition, and square pasting.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implements the
   circular construction, independent norm, relative adequacy, and canonical
   operational exit.
@@ -268,12 +271,21 @@ French counterparts are linked from the top of every scientific document.
 - [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
   attaches finite readouts afterward and proves persistence of every
   distinction they already make.
+- [`Alignment/MediatedTransitionCoherence.lean`](Alignment/MediatedTransitionCoherence.lean)
+  realizes finite-alignment naturality as an instance of the independent
+  mediated-transition kernel.
+- [`Alignment/MediatedTransitionPasting.lean`](Alignment/MediatedTransitionPasting.lean)
+  pastes adjacent finite naturality squares without requiring intermediate
+  faithfulness.
 - [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean)
   constructs the canonical one-step persistence and instantiates the abstract
   alignment while keeping admission and specification status separate.
 - [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean)
   instantiates finite persistence with the real `generate`/`appendGenerated`
   histories and their native free and concrete occurrences.
+- [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) is the human-scale
+  facade that presents the verified structural junctions without becoming a
+  dependency of their proofs.
 - [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
   computes and proves a non-constant readout across three generated stages and
   two distinct concrete realizations.

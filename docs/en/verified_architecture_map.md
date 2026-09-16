@@ -3,8 +3,8 @@
 ## Status
 
 This document fixes the reference architecture map of the repository from the
-validated state of branch `research/mediated-transition-coherence`, commit
-`384f336aa0255776b982cc34c5c9fd6cde83d9fa`.
+validated `main` baseline after the namespace cleanup, commit
+`3958b6aede35888f79618fd44f6b083b24fff24b`.
 
 It explicitly distinguishes:
 
@@ -16,9 +16,9 @@ It explicitly distinguishes:
    stages of the theory.
 
 If an older narrative diagram diverges from this document, this map controls
-the architectural interpretation of the code. It does not yet prescribe file
-renaming: it first fixes the scientific and technical relations that any
-refactor must preserve.
+the architectural interpretation of the code. The completed path and namespace
+refactors described below are part of this reference; any future refactor must
+preserve the verified scientific and technical relations.
 
 ## 1. Scientific lineage of circularity
 

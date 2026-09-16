@@ -268,6 +268,9 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
   classification exacte d'un régime et les sorties typées.
 - [`ExactTypeTransport.lean`](ExactTypeTransport.lean) isole les transports
   exacts constructifs à deux inverses, indépendamment du contenu de l'instance circulaire.
+- [`MediatedTransitionCoherence.lean`](MediatedTransitionCoherence.lean)
+  fournit le noyau constructif indépendant pour la commutation observée,
+  le relèvement par réflexion locale, la composition séquentielle et le collage.
 - [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) implémente la
   construction circulaire, la norme indépendante, l'adéquation relative et la
   sortie opérationnelle canonique.
@@ -280,12 +283,21 @@ Les équivalents anglais sont liés en tête de chaque document scientifique.
 - [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)
   attache ensuite les lectures finies et prouve la persistance de toute
   distinction qu'elles établissent déjà.
+- [`Alignment/MediatedTransitionCoherence.lean`](Alignment/MediatedTransitionCoherence.lean)
+  réalise la naturalité de l'alignement fini comme instance du noyau
+  indépendant de transition médiée.
+- [`Alignment/MediatedTransitionPasting.lean`](Alignment/MediatedTransitionPasting.lean)
+  colle des carrés de naturalité finis adjacents sans exiger de fidélité
+  intermédiaire.
 - [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean)
   construit la persistance canonique à un pas et instancie l'alignement abstrait
   en maintenant séparés l'admission et le statut relatif à la spécification.
 - [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean)
   instancie la persistance finie avec les histoires réellement produites par
   `generate`/`appendGenerated` et leurs occurrences libres et concrètes natives.
+- [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) est la façade à
+  échelle humaine qui présente les raccords structurels vérifiés sans devenir
+  une dépendance de leurs preuves.
 - [`Examples/Alignment/IteratedReadout.lean`](Examples/Alignment/IteratedReadout.lean)
   calcule et démontre une lecture non constante à travers trois étapes générées
   et deux réalisations concrètes distinctes.
