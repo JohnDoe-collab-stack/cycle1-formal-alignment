@@ -14,10 +14,15 @@ listed representative with the same forward map. Since exact backward maps are
 pointwise determined by their forward maps, this is the relevant extensional
 notion of completeness for the search.
 
-The search checks the complete source relation matrix. A successful Boolean
-check constructs `IntrinsicCompatibleExactAlignment`. If the candidate listing
-is complete, failure constructively refutes every compatible exact relational
-alignment.
+The search checks the complete source relation matrix. The executable finder
+returns only raw transport data. A separate soundness theorem then reconstructs
+the proof that a found transport preserves the complete relation. This
+separation keeps computation independent from its certificate and avoids a
+dependent search result whose recursive reduction would obscure constructivity.
+
+A successful search constructs `IntrinsicCompatibleExactAlignment`. If the
+candidate listing is complete, failure constructively refutes every compatible
+exact relational alignment.
 
 This still does not generate the complete transport listing from arbitrary
 finite carriers. It isolates that remaining combinatorial problem without
@@ -318,7 +323,11 @@ theorem preservesRelationOn_true_of_forwardAgreement
     _ = context.sourceRelation first second :=
       alignment.preservesRelation first second
 
-/-- Search the candidate family for the first transport passing the full matrix check. -/
+/--
+Search the candidate family for the first transport passing the full matrix
+check. The executable result contains only the transport. Its preservation proof
+is reconstructed separately by `findCompatibleTransport_sound`.
+-/
 def findCompatibleTransport
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -327,15 +336,14 @@ def findCompatibleTransport
     (context : IntrinsicRelationalContext Source Target Value)
     (sources : List Source) :
     List (ExactTypeTransport Source Target) →
-      Option { transport : ExactTypeTransport Source Target //
-        preservesRelationOn context sources transport = true }
+      Option (ExactTypeTransport Source Target)
   | [] => none
   | candidate :: rest =>
-      match checked : preservesRelationOn context sources candidate with
-      | true => some ⟨candidate, checked⟩
+      match preservesRelationOn context sources candidate with
+      | true => some candidate
       | false => findCompatibleTransport context sources rest
 
-/-- A listed passing candidate prevents the finite search from returning `none`. -/
+/-- A listed passing candidate prevents the raw finite search from returning `none`. -/
 theorem findCompatibleTransport_ne_none_of_mem_of_true
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -354,38 +362,82 @@ theorem findCompatibleTransport_ne_none_of_mem_of_true
   | cons candidate rest ih =>
       cases member with
       | head =>
+          change
+            (match preservesRelationOn context sources transport with
+            | true => some transport
+            | false => findCompatibleTransport context sources rest) ≠ none
+          rw [checked]
           intro impossible
-          unfold findCompatibleTransport at impossible
-          rw [checked] at impossible
           cases impossible
       | tail _ tailMember =>
           cases candidateCheck : preservesRelationOn context sources candidate with
           | true =>
+              change
+                (match preservesRelationOn context sources candidate with
+                | true => some candidate
+                | false => findCompatibleTransport context sources rest) ≠ none
+              rw [candidateCheck]
               intro impossible
-              unfold findCompatibleTransport at impossible
-              rw [candidateCheck] at impossible
               cases impossible
           | false =>
-              intro impossible
-              unfold findCompatibleTransport at impossible
-              rw [candidateCheck] at impossible
-              exact (ih tailMember) impossible
+              change
+                (match preservesRelationOn context sources candidate with
+                | true => some candidate
+                | false => findCompatibleTransport context sources rest) ≠ none
+              rw [candidateCheck]
+              exact ih tailMember
 
-/-- Convert a successful checked transport into the intrinsic compatible alignment. -/
-def alignmentOfCheckedTransport
+/-- Every transport returned by the raw finder passes the matrix check. -/
+theorem findCompatibleTransport_sound
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (sources : List Source)
+    (candidates : List (ExactTypeTransport Source Target))
+    (transport : ExactTypeTransport Source Target)
+    (found :
+      findCompatibleTransport context sources candidates = some transport) :
+    preservesRelationOn context sources transport = true := by
+  induction candidates with
+  | nil =>
+      change none = some transport at found
+      cases found
+  | cons candidate rest ih =>
+      cases candidateCheck : preservesRelationOn context sources candidate with
+      | true =>
+          change
+            (match preservesRelationOn context sources candidate with
+            | true => some candidate
+            | false => findCompatibleTransport context sources rest) =
+              some transport at found
+          rw [candidateCheck] at found
+          cases found
+          exact candidateCheck
+      | false =>
+          change
+            (match preservesRelationOn context sources candidate with
+            | true => some candidate
+            | false => findCompatibleTransport context sources rest) =
+              some transport at found
+          rw [candidateCheck] at found
+          exact ih found
+
+/-- Convert a raw found transport and its reconstructed check into an alignment. -/
+def alignmentOfFoundTransport
     {Source : Type uSource}
     {Target : Type uTarget}
     {Value : Type uValue}
     [DecidableEq Value]
     (context : IntrinsicRelationalContext Source Target Value)
     (sources : FiniteListing Source)
-    (checked :
-      { transport : ExactTypeTransport Source Target //
-        preservesRelationOn context sources.values transport = true }) :
+    (transport : ExactTypeTransport Source Target)
+    (checked : preservesRelationOn context sources.values transport = true) :
     IntrinsicCompatibleExactAlignment context :=
-  { transport := checked.1
+  { transport := transport
     preservesRelation :=
-      preservesRelation_of_true context sources checked.1 checked.2 }
+      preservesRelation_of_true context sources transport checked }
 
 /-- End-to-end finite search without a common anchor family. -/
 def searchAlignment?
@@ -397,9 +449,14 @@ def searchAlignment?
     (sources : FiniteListing Source)
     (candidates : FiniteTransportListing Source Target) :
     Option (IntrinsicCompatibleExactAlignment context) :=
-  match findCompatibleTransport context sources.values candidates.values with
+  match found : findCompatibleTransport context sources.values candidates.values with
   | none => none
-  | some checked => some (alignmentOfCheckedTransport context sources checked)
+  | some transport =>
+      some
+        (alignmentOfFoundTransport
+          context sources transport
+          (findCompatibleTransport_sound
+            context sources.values candidates.values transport found))
 
 /-- Completeness of the candidate family makes intrinsic search complete for existence. -/
 theorem searchAlignment_ne_none_of_alignment
@@ -425,7 +482,7 @@ theorem searchAlignment_ne_none_of_alignment
   cases found : findCompatibleTransport context sources.values candidates.values with
   | none =>
       exact (foundNe found).elim
-  | some result =>
+  | some transport =>
       intro impossible
       change some _ = none at impossible
       cases impossible
@@ -459,7 +516,8 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.preservesRelationOn_true_of_forwardAgreement
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.findCompatibleTransport
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.findCompatibleTransport_ne_none_of_mem_of_true
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.alignmentOfCheckedTransport
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.findCompatibleTransport_sound
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.alignmentOfFoundTransport
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.searchAlignment?
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.searchAlignment_ne_none_of_alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.noAlignment_of_search_none
