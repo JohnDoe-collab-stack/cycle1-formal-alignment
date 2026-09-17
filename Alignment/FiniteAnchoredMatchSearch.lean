@@ -15,9 +15,10 @@ procedure over a complete anchor listing.
 
 Forward and backward searches inspect complete carrier listings. Global Boolean
 checks certify that every listed source and every listed target has a match.
-From successful checks the corresponding subtype witnesses are constructed, so
-`TotalAnchoredMatching`, exact transport, and finite genesis transport no longer
-need an independently supplied resolver in this finite setting.
+A one-sided successful check constructs the corresponding structural matching
+and therefore its injective map. Successful checks in both directions construct
+`TotalAnchoredMatching`, exact transport, and finite genesis transport without
+an independently supplied resolver.
 -/
 
 namespace Alignment
@@ -412,6 +413,72 @@ def backwardWitnessOfCheck
           (findSource_sound
             context anchors.values target sources.values source found)⟩
 
+/-- A successful forward check constructs the one-sided structural matching itself. -/
+def forwardMatchingOfCheck
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : AnchoredRelationContext Source Target Anchor Value)
+    (anchors : FiniteListing Anchor)
+    (sources : FiniteListing Source)
+    (targets : FiniteListing Target)
+    (checked : forwardTotalCheck context anchors sources targets = true) :
+    ForwardAnchoredMatching context :=
+  { forwardWitness :=
+      forwardWitnessOfCheck context anchors sources targets checked }
+
+/-- A successful backward check independently constructs the reverse matching. -/
+def backwardMatchingOfCheck
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : AnchoredRelationContext Source Target Anchor Value)
+    (anchors : FiniteListing Anchor)
+    (sources : FiniteListing Source)
+    (targets : FiniteListing Target)
+    (checked : backwardTotalCheck context anchors sources targets = true) :
+    BackwardAnchoredMatching context :=
+  { backwardWitness :=
+      backwardWitnessOfCheck context anchors sources targets checked }
+
+/-- Execute only the forward structural totality test and construct its matching when it succeeds. -/
+def searchForwardMatching?
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : AnchoredRelationContext Source Target Anchor Value)
+    (anchors : FiniteListing Anchor)
+    (sources : FiniteListing Source)
+    (targets : FiniteListing Target) :
+    Option (ForwardAnchoredMatching context) :=
+  if checked : forwardTotalCheck context anchors sources targets = true then
+    some (forwardMatchingOfCheck context anchors sources targets checked)
+  else
+    none
+
+/-- Execute only the backward structural totality test and construct its matching when it succeeds. -/
+def searchBackwardMatching?
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : AnchoredRelationContext Source Target Anchor Value)
+    (anchors : FiniteListing Anchor)
+    (sources : FiniteListing Source)
+    (targets : FiniteListing Target) :
+    Option (BackwardAnchoredMatching context) :=
+  if checked : backwardTotalCheck context anchors sources targets = true then
+    some (backwardMatchingOfCheck context anchors sources targets checked)
+  else
+    none
+
 /--
 Successful finite searches in both directions construct total anchored matching.
 No forward or backward resolver is supplied independently.
@@ -515,6 +582,10 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.backwardSearch_ne_none
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.forwardWitnessOfCheck
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.backwardWitnessOfCheck
+#print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.forwardMatchingOfCheck
+#print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.backwardMatchingOfCheck
+#print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.searchForwardMatching?
+#print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.searchBackwardMatching?
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.totalMatchingOfChecks
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.searchTotalMatching?
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchSearch.searchExactTransport?
