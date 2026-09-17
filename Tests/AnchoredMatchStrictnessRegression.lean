@@ -84,9 +84,8 @@ theorem extra_has_no_source_match :
   cases impossible
 
 /-- Forward totality does not imply reverse totality. -/
-theorem no_backwardMatching :
-    ¬ BackwardAnchoredMatching strictContext := by
-  intro backwardMatching
+theorem no_backwardMatching
+    (backwardMatching : BackwardAnchoredMatching strictContext) : False := by
   have matchProof :=
     BackwardAnchoredMatching.backward_matches
       backwardMatching TargetPoint.extra
@@ -95,20 +94,16 @@ theorem no_backwardMatching :
   cases impossible
 
 /-- Hence one-sided totality is strictly weaker than bidirectional totality. -/
-theorem no_totalMatching :
-    ¬ TotalAnchoredMatching strictContext := by
-  intro totalMatching
-  exact
-    no_backwardMatching
-      (TotalAnchoredMatching.toBackwardMatching totalMatching)
+theorem no_totalMatching
+    (totalMatching : TotalAnchoredMatching strictContext) : False :=
+  no_backwardMatching
+    (TotalAnchoredMatching.toBackwardMatching totalMatching)
 
 /-- Therefore no exact alignment compatible with this structural context exists. -/
-theorem no_compatibleExactAlignment :
-    ¬ CompatibleExactAlignment strictContext := by
-  intro alignment
-  exact
-    no_totalMatching
-      (CompatibleExactAlignment.toTotalMatching alignment)
+theorem no_compatibleExactAlignment
+    (alignment : CompatibleExactAlignment strictContext) : False :=
+  no_totalMatching
+    (CompatibleExactAlignment.toTotalMatching alignment)
 
 end Alignment.Tests.AnchoredMatchStrictnessRegression
 
