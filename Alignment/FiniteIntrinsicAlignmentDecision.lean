@@ -521,23 +521,42 @@ def generatedPairOfExactTransport
     (enumerateFunctions sources targets).complete transport.forward
   let backwardWitness :=
     (enumerateFunctions targets sources).complete transport.backward
-  refine
-    ⟨{ forward := forwardWitness.1
-       backward := backwardWitness.1 }, ?_,
-      forwardWitness.2.2, backwardWitness.2.2⟩
-  unfold generatedPairs
-  exact
-    mem_flatMap_of_mem_of_mem
-      (fun forward =>
-        (enumerateFunctions targets sources).values.map fun backward =>
-          { forward := forward
-            backward := backward })
-      forwardWitness.2.1
-      (mem_map_of_mem
-        (fun backward =>
-          { forward := forwardWitness.1
-            backward := backward })
-        backwardWitness.2.1)
+  let candidate : FunctionPair Source Target :=
+    { forward := forwardWitness.1
+      backward := backwardWitness.1 }
+  have backwardMember :
+      candidate ∈
+        (enumerateFunctions targets sources).values.map
+          (fun backward : Target → Source =>
+            ({ forward := forwardWitness.1
+               backward := backward } : FunctionPair Source Target)) := by
+    change
+      ({ forward := forwardWitness.1
+         backward := backwardWitness.1 } : FunctionPair Source Target) ∈
+        (enumerateFunctions targets sources).values.map
+          (fun backward : Target → Source =>
+            ({ forward := forwardWitness.1
+               backward := backward } : FunctionPair Source Target))
+    exact
+      mem_map_of_mem
+        (fun backward : Target → Source =>
+          ({ forward := forwardWitness.1
+             backward := backward } : FunctionPair Source Target))
+        backwardWitness.2.1
+  have candidateMember : candidate ∈ generatedPairs sources targets := by
+    unfold generatedPairs
+    exact
+      mem_flatMap_of_mem_of_mem
+        (fun forward : Source → Target =>
+          (enumerateFunctions targets sources).values.map
+            (fun backward : Target → Source =>
+              ({ forward := forward
+                 backward := backward } : FunctionPair Source Target)))
+        forwardWitness.2.1
+        backwardMember
+  refine ⟨candidate, candidateMember, ?_, ?_⟩
+  · exact forwardWitness.2.2
+  · exact backwardWitness.2.2
 
 /-- Search raw generated candidates for the first one passing all intrinsic checks. -/
 def findPassingCandidate
