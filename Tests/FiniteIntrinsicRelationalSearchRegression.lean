@@ -47,7 +47,8 @@ def boolTransportListing : FiniteTransportListing Bool Bool :=
           intro source
           cases source with
           | false =>
-              simpa [ExactTypeTransport.reflexive] using falseImage.symm
+              change false = transport.forward false
+              exact falseImage.symm
           | true =>
               cases trueImage : transport.forward true with
               | false =>
@@ -58,7 +59,8 @@ def boolTransportListing : FiniteTransportListing Bool Bool :=
                     exactForward_injective transport collision
                   cases impossible
               | true =>
-                  simpa [ExactTypeTransport.reflexive] using trueImage.symm
+                  change true = transport.forward true
+                  exact trueImage.symm
       | true =>
           refine
             ⟨swapTransport,
@@ -67,11 +69,13 @@ def boolTransportListing : FiniteTransportListing Bool Bool :=
           intro source
           cases source with
           | false =>
-              simpa [swapTransport, swapBool] using falseImage.symm
+              change true = transport.forward false
+              exact falseImage.symm
           | true =>
               cases trueImage : transport.forward true with
               | false =>
-                  simpa [swapTransport, swapBool] using trueImage.symm
+                  change false = transport.forward true
+                  exact trueImage.symm
               | true =>
                   have collision :
                       transport.forward false = transport.forward true := by
