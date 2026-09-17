@@ -143,7 +143,7 @@ def FiniteGenesisEmbedding.ofInjective
     preservesGenesis := liftMap_preservesGenesis initial depth }
 
 /-- A forward anchored matching persists as an injective genesis embedding. -/
-def ForwardAnchoredMatching.finiteGenesisEmbedding
+def finiteForwardEmbeddingOfMatching
     {Source : Type uSource}
     {Target : Type uTarget}
     {Anchor : Type uAnchor}
@@ -156,7 +156,7 @@ def ForwardAnchoredMatching.finiteGenesisEmbedding
     matching.forward matching.forward_injective depth
 
 /-- A backward anchored matching persists symmetrically from target to source. -/
-def BackwardAnchoredMatching.finiteGenesisEmbedding
+def finiteBackwardEmbeddingOfMatching
     {Source : Type uSource}
     {Target : Type uTarget}
     {Anchor : Type uAnchor}
@@ -183,9 +183,9 @@ def finiteForwardEmbedding?
     Option (FiniteGenesisEmbedding Source Target depth) :=
   match classification with
   | .exact matching =>
-      some (matching.toForwardMatching.finiteGenesisEmbedding depth)
+      some (finiteForwardEmbeddingOfMatching matching.toForwardMatching depth)
   | .forwardOnly certificate =>
-      some (certificate.matching.finiteGenesisEmbedding depth)
+      some (finiteForwardEmbeddingOfMatching certificate.matching depth)
   | .backwardOnly _ => none
   | .noDirectionalMatching _ => none
 
@@ -204,10 +204,10 @@ def finiteBackwardEmbedding?
     Option (FiniteGenesisEmbedding Target Source depth) :=
   match classification with
   | .exact matching =>
-      some (matching.toBackwardMatching.finiteGenesisEmbedding depth)
+      some (finiteBackwardEmbeddingOfMatching matching.toBackwardMatching depth)
   | .forwardOnly _ => none
   | .backwardOnly certificate =>
-      some (certificate.matching.finiteGenesisEmbedding depth)
+      some (finiteBackwardEmbeddingOfMatching certificate.matching depth)
   | .noDirectionalMatching _ => none
 
 /--
@@ -223,7 +223,7 @@ theorem totalMatching_directional_forward_agrees
     (matching : TotalAnchoredMatching context)
     (depth : Nat)
     (identity : IteratedCarrier Source depth) :
-    (matching.toForwardMatching.finiteGenesisEmbedding depth).map identity =
+    (finiteForwardEmbeddingOfMatching matching.toForwardMatching depth).map identity =
       (matching.finiteTransport depth).forward identity := by
   induction depth with
   | zero =>
@@ -246,7 +246,7 @@ theorem totalMatching_directional_backward_agrees
     (matching : TotalAnchoredMatching context)
     (depth : Nat)
     (identity : IteratedCarrier Target depth) :
-    (matching.toBackwardMatching.finiteGenesisEmbedding depth).map identity =
+    (finiteBackwardEmbeddingOfMatching matching.toBackwardMatching depth).map identity =
       (matching.finiteTransport depth).backward identity := by
   induction depth with
   | zero =>
@@ -271,8 +271,8 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap_preservesGenesis
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.FiniteGenesisEmbedding
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.FiniteGenesisEmbedding.ofInjective
-#print axioms Alignment.GenesisReconstruction.ForwardAnchoredMatching.finiteGenesisEmbedding
-#print axioms Alignment.GenesisReconstruction.BackwardAnchoredMatching.finiteGenesisEmbedding
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteForwardEmbeddingOfMatching
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteBackwardEmbeddingOfMatching
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteForwardEmbedding?
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteBackwardEmbedding?
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.totalMatching_directional_forward_agrees
