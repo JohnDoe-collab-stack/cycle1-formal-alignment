@@ -330,6 +330,8 @@ reconstructed canonical perimeter
 
 The perimeter therefore plays a hinge role: **it transforms a collection of local agreements into a structural boundary from which the new, the residual, regime maximality, and identity persistence can be defined.**
 
+**The reconstructed perimeter thus constitutes a constitutive whole: a structural unity whose constitutive relations suffice to determine canonically its own domain of interiority. Its completeness consists in this positive determination of the internal domain.**
+
 Circularity thus supplies a relational closure sufficient for the internal domain to be delimited by a canonical perimeter. This closure is not, however, a totalization of everything that can be constructed. The perimeter is complete relative to the already constituted internal roles even though generation can continue beyond it. It is this gap between constitutive completeness and possible continuation that makes the residual possible and, subsequently, makes a regime boundary determinable.
 
 ### 4.4 The perimeter does not stop generation
