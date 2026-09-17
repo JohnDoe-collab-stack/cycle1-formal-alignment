@@ -1,9 +1,10 @@
-import Alignment.FiniteAnchoredMatchSearch
+import Alignment.FiniteAnchoredMatchDecision
 
 namespace Alignment.Tests.FiniteAnchoredMatchSearchRegression
 
 open GenesisReconstruction
 open GenesisReconstruction.FiniteAnchoredMatchSearch
+open GenesisReconstruction.FiniteAnchoredMatchDecision
 
 inductive SourceNode
   | root
@@ -147,6 +148,13 @@ theorem computed_depth_three_preservesGenesis :
     PreservesGenesis (computedMatching.finiteTransport 3) :=
   computedMatching.finiteTransport_preservesGenesis 3
 
+/-- The two successful checks characterize inhabited total structural matching. -/
+theorem total_checks_characterize_matching :
+    Nonempty (TotalAnchoredMatching context) :=
+  (totalChecks_true_iff_nonempty
+    context anchorListing sourceListing targetListing).mp
+      ⟨forward_check_succeeds, backward_check_succeeds⟩
+
 /-- The optional end-to-end search succeeds on the total finite context. -/
 theorem optional_search_succeeds :
     searchTotalMatching? context anchorListing sourceListing targetListing ≠ none := by
@@ -257,6 +265,36 @@ theorem partial_backward_check_fails :
       partialContext unitListing unitListing partialTargetListing = false := by
   rfl
 
+/-- The failed reverse check certifies that no reverse structural matching can exist. -/
+theorem partial_no_backward_matching
+    (matching : BackwardAnchoredMatching partialContext) : False :=
+  noBackwardMatching_of_backwardTotalCheck_false
+    partialContext unitListing unitListing partialTargetListing
+    partial_backward_check_fails matching
+
+/-- The failed reverse check also certifies that exact compatible alignment is impossible. -/
+theorem partial_no_compatible_exact_alignment
+    (alignment : CompatibleExactAlignment partialContext) : False :=
+  noCompatibleExactAlignment_of_backwardTotalCheck_false
+    partialContext unitListing unitListing partialTargetListing
+    partial_backward_check_fails alignment
+
+/-- The positive and negative directional checks package into a forward-only certificate. -/
+def partialForwardOnlyCertificate : ForwardOnlyCertificate partialContext :=
+  forwardOnlyCertificateOfChecks
+    partialContext unitListing unitListing partialTargetListing
+    partial_forward_check_succeeds partial_backward_check_fails
+
+/-- The certificate retains the positive injective forward matching. -/
+theorem partial_certificate_forward_injective :
+    Function.Injective partialForwardOnlyCertificate.matching.forward :=
+  partialForwardOnlyCertificate.matching.forward_injective
+
+/-- The certificate carries the exact-alignment refutation as part of the same value. -/
+theorem partial_certificate_refutes_exact
+    (alignment : CompatibleExactAlignment partialContext) : False :=
+  partialForwardOnlyCertificate.refutesExact alignment
+
 /-- The executable reverse search rejects the missing reverse totality. -/
 theorem partial_backward_search_rejects :
     searchBackwardMatching?
@@ -285,6 +323,7 @@ end Alignment.Tests.FiniteAnchoredMatchSearchRegression
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_backward_successor
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_source_roundTrip
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_depth_three_preservesGenesis
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.total_checks_characterize_matching
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.optional_search_succeeds
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialContext
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_check_succeeds
@@ -292,6 +331,11 @@ end Alignment.Tests.FiniteAnchoredMatchSearchRegression
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_injective
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_search_succeeds
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_backward_check_fails
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_no_backward_matching
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_no_compatible_exact_alignment
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialForwardOnlyCertificate
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_certificate_forward_injective
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_certificate_refutes_exact
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_backward_search_rejects
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_optional_search_rejects
 /- AXIOM_AUDIT_END -/
