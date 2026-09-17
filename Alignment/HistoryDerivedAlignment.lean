@@ -164,75 +164,114 @@ theorem historyRelation_separates
       at booleanEquality
     cases booleanEquality
 
+/-- Structural age: distance in constructors from the latest occurrence. -/
+def occurrenceAge
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target} :
+    History.Occurrence history → Nat
+  | .last => 0
+  | .earlier previous => occurrenceAge previous + 1
+
+/-- Earlier occurrences have strictly greater structural age. -/
+theorem occurrenceAge_gt_of_precedes
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target}
+    {first second : History.Occurrence history}
+    (precedes : History.OccurrencePrecedes first second) :
+    occurrenceAge second < occurrenceAge first := by
+  induction precedes with
+  | earlier_last occurrence =>
+      change 0 < occurrenceAge occurrence + 1
+      exact Nat.zero_lt_succ _
+  | earlier_earlier _ inductionHypothesis =>
+      change
+        occurrenceAge _ + 1 < occurrenceAge _ + 1
+      exact Nat.succ_lt_succ inductionHypothesis
+
+/-- Structural age is a complete identity code inside one finite history. -/
+theorem occurrenceAge_injective
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target} :
+    Function.Injective
+      (@occurrenceAge State Step source target history) := by
+  intro first second ageEquality
+  rcases History.OccurrencePrecedes.trichotomy first second with
+    equality | firstBeforeSecond | secondBeforeFirst
+  · exact equality
+  · have strict := occurrenceAge_gt_of_precedes firstBeforeSecond
+    rw [ageEquality] at strict
+    exact False.elim (Nat.lt_irrefl _ strict)
+  · have strict := occurrenceAge_gt_of_precedes secondBeforeFirst
+    rw [ageEquality] at strict
+    exact False.elim (Nat.lt_irrefl _ strict)
+
 /--
-Constructive decidable equality of occurrences, computed directly from the
-finite history constructors. No elimination from proposition-valued
-trichotomy is used.
+Constructive decidable equality of occurrences through the internally derived
+structural age. Only decidable equality of natural numbers is executed.
 -/
 def occurrenceDecidableEq
     {State : Type uState}
-    {Step : State → State → Type uStep} :
-    {source target : State} →
-      (history : History Step source target) →
-      DecidableEq (History.Occurrence history)
-  | _, _, .root =>
-      fun first => nomatch first
-  | _, _, .extend previous step =>
-      let previousDecidable := occurrenceDecidableEq previous
-      fun first second =>
-        match first, second with
-        | .last, .last =>
-            isTrue rfl
-        | .last, .earlier _ =>
-            isFalse (fun equality => nomatch equality)
-        | .earlier _, .last =>
-            isFalse (fun equality => nomatch equality)
-        | .earlier firstPrevious, .earlier secondPrevious =>
-            match previousDecidable firstPrevious secondPrevious with
-            | isTrue equality =>
-                isTrue (congrArg History.Occurrence.earlier equality)
-            | isFalse distinct =>
-                isFalse
-                  (fun equality =>
-                    distinct (History.Occurrence.earlier.inj equality))
+    {Step : State → State → Type uStep}
+    {source target : State}
+    (history : History Step source target) :
+    DecidableEq (History.Occurrence history) :=
+  fun first second =>
+    match Nat.decEq (occurrenceAge first) (occurrenceAge second) with
+    | isTrue equality =>
+        isTrue (occurrenceAge_injective equality)
+    | isFalse distinct =>
+        isFalse
+          (fun equality =>
+            distinct (congrArg occurrenceAge equality))
 
-/--
-Complete finite listing of the occurrence carrier, derived recursively from the
-finite proof-relevant history.
--/
-def occurrenceListing
+/-- Raw finite occurrence enumeration derived only from history constructors. -/
+def occurrenceValues
     {State : Type uState}
     {Step : State → State → Type uStep} :
     {source target : State} →
       (history : History Step source target) →
-      FiniteListing (History.Occurrence history)
+      List (History.Occurrence history)
   | _, _, .root =>
-      { values := []
-        complete := by
-          intro occurrence
-          exact nomatch occurrence }
+      []
   | _, _, .extend previous step =>
-      let previousListing := occurrenceListing previous
-      { values :=
-          History.Occurrence.last ::
-            previousListing.values.map
-              (fun occurrence => History.Occurrence.earlier occurrence)
-        complete := by
-          intro occurrence
-          cases occurrence with
-          | last =>
-              exact
-                List.Mem.head
-                  (previousListing.values.map
-                    (fun occurrence =>
-                      History.Occurrence.earlier occurrence))
-          | earlier previousOccurrence =>
-              exact
-                List.Mem.tail History.Occurrence.last
-                  (mem_map_of_mem
-                    (fun occurrence =>
-                      History.Occurrence.earlier occurrence)
-                    (previousListing.complete previousOccurrence)) }
+      History.Occurrence.last ::
+        (occurrenceValues previous).map
+          (fun occurrence => History.Occurrence.earlier occurrence)
+
+/-- Every occurrence appears in the constructor-derived finite enumeration. -/
+theorem occurrence_mem_values
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target}
+    (occurrence : History.Occurrence history) :
+    occurrence ∈ occurrenceValues history := by
+  induction occurrence with
+  | last =>
+      exact List.Mem.head _
+  | earlier occurrence inductionHypothesis =>
+      exact
+        List.Mem.tail History.Occurrence.last
+          (mem_map_of_mem
+            (fun previous =>
+              History.Occurrence.earlier previous)
+            inductionHypothesis)
+
+/-- Complete finite listing derived from the history, with no supplied carrier list. -/
+def occurrenceListing
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    (history : History Step source target) :
+    FiniteListing (History.Occurrence history) :=
+  { values := occurrenceValues history
+    complete := occurrence_mem_values }
 
 /--
 The complete independent relational context derived from two histories.
@@ -284,9 +323,9 @@ def decide
     FiniteIndependentAlignmentDecision.AlignmentDecision
       (context sourceHistory targetHistory) := by
   letI : DecidableEq (History.Occurrence sourceHistory) :=
-    occurrenceDecidableEq
+    occurrenceDecidableEq sourceHistory
   letI : DecidableEq (History.Occurrence targetHistory) :=
-    occurrenceDecidableEq
+    occurrenceDecidableEq targetHistory
   exact
     FiniteIndependentAlignmentDecision.decideAlignmentFromListings
       (context sourceHistory targetHistory)
@@ -306,7 +345,12 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.historyRelation
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.historyRelation_precedes_iff
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.historyRelation_separates
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_gt_of_precedes
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_injective
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceDecidableEq
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValues
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrence_mem_values
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceListing
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.context
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.ConstitutiveAlignment
