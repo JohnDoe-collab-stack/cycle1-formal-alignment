@@ -56,6 +56,21 @@ theorem viable_iff
   · exact preservation.forward.preservesViable
   · exact preservation.backward.preservesViable
 
+/-- Exact head expansion preserves frontier viability in both directions. -/
+def expandHead
+    {system : SearchSystem}
+    {parent left right : system.State}
+    {rest : List system.State}
+    (splitter : AcceptingExactBinarySplit system parent left right) :
+    AcceptedFrontierPreservation
+      system
+      (parent :: rest)
+      (left :: right :: rest) :=
+  { forward :=
+      AcceptingFrontierTransport.expandHead splitter
+    backward :=
+      AcceptingFrontierTransport.contractExpandedHead splitter }
+
 /-- Safe first-into-second absorption preserves frontier viability. -/
 def absorbFirstIntoSecond
     {system : SearchSystem}
@@ -94,6 +109,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.AcceptedFrontierPreservation.identity
 #print axioms ConstitutiveSearch.AcceptedFrontierPreservation.trans
 #print axioms ConstitutiveSearch.AcceptedFrontierPreservation.viable_iff
+#print axioms ConstitutiveSearch.AcceptedFrontierPreservation.expandHead
 #print axioms ConstitutiveSearch.AcceptedFrontierPreservation.absorbFirstIntoSecond
 #print axioms ConstitutiveSearch.AcceptedFrontierPreservation.absorbSecondIntoFirst
 /- AXIOM_AUDIT_END -/
