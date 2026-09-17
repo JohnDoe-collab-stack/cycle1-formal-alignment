@@ -159,6 +159,106 @@ theorem incompatibleContext_has_no_alignment_from_local_listings
     incompatible_generatedFinder_returns_none
     alignment
 
+/-! ## Empty-carrier edge cases -/
+
+/-- Complete local listing of the empty carrier. -/
+def emptyListing : FiniteListing Empty :=
+  { values := []
+    complete := by
+      intro identity
+      exact nomatch identity }
+
+/-- Complete local listing of the singleton carrier. -/
+def unitListing : FiniteListing Unit :=
+  { values := [()]
+    complete := by
+      intro identity
+      cases identity
+      exact List.Mem.head [] }
+
+/-- Vacuous intrinsic context on two empty carriers. -/
+def emptyEmptyContext : IntrinsicRelationalContext Empty Empty Bool :=
+  { sourceRelation := fun first _ => nomatch first
+    targetRelation := fun first _ => nomatch first
+    sourceSeparates := by
+      intro first _ _
+      exact nomatch first
+    targetSeparates := by
+      intro first _ _
+      exact nomatch first }
+
+/-- The two empty carriers admit the unique exact transport. -/
+def emptyEmptyAlignment : IntrinsicCompatibleExactAlignment emptyEmptyContext :=
+  { transport :=
+      { forward := fun identity => nomatch identity
+        backward := fun identity => nomatch identity
+        forwardBackward := by
+          intro identity
+          exact nomatch identity
+        backwardForward := by
+          intro identity
+          exact nomatch identity }
+    preservesRelation := by
+      intro first _
+      exact nomatch first }
+
+/-- Exhaustive intrinsic decision correctly accepts the empty/empty case. -/
+theorem emptyEmpty_certifiedDecision_is_aligned :
+    (decideAlignmentFromListings
+      emptyEmptyContext emptyListing emptyListing).isAligned = true :=
+  decideAlignmentFromListings_isAligned_of_alignment
+    emptyEmptyContext emptyListing emptyListing emptyEmptyAlignment
+
+/-- Intrinsic context from one source identity to an empty target carrier. -/
+def unitEmptyContext : IntrinsicRelationalContext Unit Empty Bool :=
+  { sourceRelation := fun _ _ => true
+    targetRelation := fun first _ => nomatch first
+    sourceSeparates := by
+      intro first second _
+      cases first
+      cases second
+      rfl
+    targetSeparates := by
+      intro first _ _
+      exact nomatch first }
+
+/-- No exact transport can map a nonempty carrier into an empty one. -/
+theorem unitEmpty_no_alignment
+    (alignment : IntrinsicCompatibleExactAlignment unitEmptyContext) : False :=
+  nomatch alignment.transport.forward ()
+
+/-- The certified decision detects the nonempty/empty cardinality obstruction. -/
+theorem unitEmpty_certifiedDecision_is_impossible :
+    (decideAlignmentFromListings
+      unitEmptyContext unitListing emptyListing).isAligned = false :=
+  decideAlignmentFromListings_isAligned_false_of_refutation
+    unitEmptyContext unitListing emptyListing unitEmpty_no_alignment
+
+/-- Intrinsic context from an empty source carrier to one target identity. -/
+def emptyUnitContext : IntrinsicRelationalContext Empty Unit Bool :=
+  { sourceRelation := fun first _ => nomatch first
+    targetRelation := fun _ _ => true
+    sourceSeparates := by
+      intro first _ _
+      exact nomatch first
+    targetSeparates := by
+      intro first second _
+      cases first
+      cases second
+      rfl }
+
+/-- No exact transport can supply a backward map from a singleton into emptiness. -/
+theorem emptyUnit_no_alignment
+    (alignment : IntrinsicCompatibleExactAlignment emptyUnitContext) : False :=
+  nomatch alignment.transport.backward ()
+
+/-- The certified decision detects the empty/nonempty cardinality obstruction. -/
+theorem emptyUnit_certifiedDecision_is_impossible :
+    (decideAlignmentFromListings
+      emptyUnitContext emptyListing unitListing).isAligned = false :=
+  decideAlignmentFromListings_isAligned_false_of_refutation
+    emptyUnitContext emptyListing unitListing emptyUnit_no_alignment
+
 end Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -171,4 +271,15 @@ end Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_certifiedDecision_is_impossible
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_certifiedSearch_returns_none
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_has_no_alignment_from_local_listings
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyListing
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.unitListing
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyEmptyContext
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyEmptyAlignment
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyEmpty_certifiedDecision_is_aligned
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.unitEmptyContext
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.unitEmpty_no_alignment
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.unitEmpty_certifiedDecision_is_impossible
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyUnitContext
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyUnit_no_alignment
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.emptyUnit_certifiedDecision_is_impossible
 /- AXIOM_AUDIT_END -/
