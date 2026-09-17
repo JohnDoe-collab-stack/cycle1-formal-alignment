@@ -31,6 +31,31 @@ def DecisionsAvoid (var : Var) : List BranchDecision → Prop
   | decision :: rest =>
       decision.var ≠ var ∧ DecisionsAvoid var rest
 
+/-- Executable freshness check for a selected variable against branch history. -/
+def decisionsAvoidCheck (var : Var) : List BranchDecision → Bool
+  | [] => true
+  | decision :: rest =>
+      if decision.var = var then false else decisionsAvoidCheck var rest
+
+/-- A successful executable freshness check reconstructs the propositional witness. -/
+theorem decisionsAvoid_of_check_true
+    (var : Var)
+    (decisions : List BranchDecision)
+    (check : decisionsAvoidCheck var decisions = true) :
+    DecisionsAvoid var decisions := by
+  induction decisions with
+  | nil =>
+      exact True.intro
+  | cons decision rest inductionHypothesis =>
+      by_cases same : decision.var = var
+      · rw [decisionsAvoidCheck, if_pos same] at check
+        cases check
+      · constructor
+        · exact same
+        · apply inductionHypothesis
+          rw [decisionsAvoidCheck, if_neg same] at check
+          exact check
+
 namespace DecisionsHold
 
 /-- Flipping a variable absent from the decision history preserves that history. -/
@@ -289,12 +314,14 @@ def contextFlipSearch
       match (residualFlipSearch parent.formula var).find source target with
       | none => none
       | some residual =>
-          if fresh : DecisionsAvoid var parent.decisions then
-            some
-              { residual := residual
-                fresh := fresh }
-          else
-            none }
+          match freshCheck : decisionsAvoidCheck var parent.decisions with
+          | false => none
+          | true =>
+              some
+                { residual := residual
+                  fresh :=
+                    decisionsAvoid_of_check_true
+                      var parent.decisions freshCheck } }
 
 /-- Reduce the two actual child contexts using reconstructed structural transport. -/
 def reduceContextBranches
@@ -324,6 +351,8 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.DecisionsAvoid
+#print axioms ConstitutiveSearch.SAT.decisionsAvoidCheck
+#print axioms ConstitutiveSearch.SAT.decisionsAvoid_of_check_true
 #print axioms ConstitutiveSearch.SAT.DecisionsHold.flipAt_of_avoids
 #print axioms ConstitutiveSearch.SAT.BranchContextReconstruction
 #print axioms ConstitutiveSearch.SAT.rootContextReconstruction
