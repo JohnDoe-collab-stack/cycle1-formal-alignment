@@ -112,24 +112,34 @@ theorem initialForwardRigid_of_genesisForwardRigid
       (liftToDepth_preservesGenesis first depth)
       (liftToDepth_preservesGenesis second depth)
       (IteratedCarrier.embedInitial depth identity)
+  have firstBase :
+      (liftToDepth first 0).forward identity = first.forward identity := by
+    rfl
+  have secondBase :
+      (liftToDepth second 0).forward identity = second.forward identity := by
+    rfl
+  have firstNaturalityRaw :=
+    liftToDepth_embedFrom
+      first
+      (DepthExtension.zeroTo depth)
+      identity
+  have secondNaturalityRaw :=
+    liftToDepth_embedFrom
+      second
+      (DepthExtension.zeroTo depth)
+      identity
+  rw [firstBase] at firstNaturalityRaw
+  rw [secondBase] at secondNaturalityRaw
   have firstNaturality :
       (liftToDepth first depth).forward
           (IteratedCarrier.embedInitial depth identity) =
         IteratedCarrier.embedInitial depth (first.forward identity) := by
-    simpa [IteratedCarrier.embedInitial] using
-      (liftToDepth_embedFrom
-        first
-        (DepthExtension.zeroTo depth)
-        identity)
+    exact firstNaturalityRaw
   have secondNaturality :
       (liftToDepth second depth).forward
           (IteratedCarrier.embedInitial depth identity) =
         IteratedCarrier.embedInitial depth (second.forward identity) := by
-    simpa [IteratedCarrier.embedInitial] using
-      (liftToDepth_embedFrom
-        second
-        (DepthExtension.zeroTo depth)
-        identity)
+    exact secondNaturalityRaw
   have embeddedAgreement :
       IteratedCarrier.embedInitial depth (first.forward identity) =
         IteratedCarrier.embedInitial depth (second.forward identity) := by
