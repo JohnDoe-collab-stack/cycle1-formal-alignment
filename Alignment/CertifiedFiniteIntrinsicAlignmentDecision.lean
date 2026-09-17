@@ -110,16 +110,11 @@ theorem decideAlignmentFromListings_isAligned_of_alignment
     (targets : FiniteListing Target)
     (alignment : IntrinsicCompatibleExactAlignment context) :
     (decideAlignmentFromListings context sources targets).isAligned = true := by
-  unfold decideAlignmentFromListings AlignmentDecision.isAligned
-  cases found :
-      findPassingCandidate
-        context sources targets (generatedPairs sources targets) with
-  | none =>
-      exact
-        (generatedFinder_ne_none_of_alignment
-          context sources targets alignment found).elim
-  | some candidate =>
+  cases decision : decideAlignmentFromListings context sources targets with
+  | aligned foundAlignment =>
       rfl
+  | impossible refute =>
+      exact (refute alignment).elim
 
 /--
 Conversely, an independently proved impossibility forces the certified decision
@@ -137,22 +132,11 @@ theorem decideAlignmentFromListings_isAligned_false_of_refutation
     (targets : FiniteListing Target)
     (refute : IntrinsicCompatibleExactAlignment context → False) :
     (decideAlignmentFromListings context sources targets).isAligned = false := by
-  unfold decideAlignmentFromListings AlignmentDecision.isAligned
-  cases found :
-      findPassingCandidate
-        context sources targets (generatedPairs sources targets) with
-  | none =>
-      rfl
-  | some candidate =>
-      have checked :
-          candidatePasses context sources targets candidate = true :=
-        findPassingCandidate_sound
-          context sources targets (generatedPairs sources targets)
-          candidate found
-      have alignment : IntrinsicCompatibleExactAlignment context :=
-        alignmentOfPassingCandidate
-          context sources targets candidate checked
+  cases decision : decideAlignmentFromListings context sources targets with
+  | aligned alignment =>
       exact (refute alignment).elim
+  | impossible noAlignment =>
+      rfl
 
 /-- The old optional shape is retained only as a derived convenience view. -/
 def certifiedSearchAlignmentFromListings?
