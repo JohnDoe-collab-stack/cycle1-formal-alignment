@@ -27,6 +27,7 @@ roots = [
   "Alignment.FiniteIntrinsicRelationalSearch",
   "Alignment.FiniteIntrinsicFunctionEnumeration",
   "Alignment.FiniteIntrinsicAlignmentDecision",
+  "Alignment.CertifiedFiniteIntrinsicAlignmentDecision",
   "Alignment.AnchoredMatchStrictness",
   "Alignment.FiniteAnchoredMatchSearch",
   "Alignment.FiniteAnchoredMatchDecision",
