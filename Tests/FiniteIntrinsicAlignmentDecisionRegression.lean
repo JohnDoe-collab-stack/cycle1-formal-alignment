@@ -14,7 +14,8 @@ This regression exercises the end-to-end finite intrinsic decision layer without
 supplying `Anchor`, a mediator, a source/target pairing, an exact transport, or a
 `FiniteTransportListing`.
 
-The only finite search data are the complete local carrier listings themselves.
+The only finite search data passed to the new decision procedure are the
+complete local carrier listings themselves.
 -/
 
 /--
@@ -47,9 +48,28 @@ theorem symmetric_searchFromListings_succeeds :
       intro impossible
       cases impossible
 
+/-! ## Direct intrinsic incompatibility, with no transport enumeration -/
+
 /--
-For the intrinsically incompatible relation pair, exhaustive generation of all
-local forward/backward functions and all intrinsic checks computes `none`.
+The incompatible context has no exact intrinsic alignment for a local reason:
+the source diagonal observation at `false` is `true`, whereas every target
+diagonal observation is `false`.  No case split over candidate transports is
+needed.
+-/
+theorem incompatibleContext_no_alignment_direct
+    (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False := by
+  have diagonal := alignment.preservesRelation false false
+  cases image : alignment.transport.forward false with
+  | false =>
+      change false = true at diagonal
+      cases diagonal
+  | true =>
+      change false = true at diagonal
+      cases diagonal
+
+/--
+Consequently the exhaustive raw-function finder must return `none`: a returned
+candidate would reconstruct the exact alignment just refuted above.
 -/
 theorem incompatible_generatedFinder_returns_none :
     findPassingCandidate
@@ -57,7 +77,30 @@ theorem incompatible_generatedFinder_returns_none :
         boolListing
         boolListing
         (generatedPairs boolListing boolListing) = none := by
-  rfl
+  cases found :
+      findPassingCandidate
+        incompatibleContext
+        boolListing
+        boolListing
+        (generatedPairs boolListing boolListing) with
+  | none => exact found
+  | some candidate =>
+      have checked :=
+        findPassingCandidate_sound
+          incompatibleContext
+          boolListing
+          boolListing
+          (generatedPairs boolListing boolListing)
+          candidate
+          found
+      have alignment :=
+        alignmentOfPassingCandidate
+          incompatibleContext
+          boolListing
+          boolListing
+          candidate
+          checked
+      exact (incompatibleContext_no_alignment_direct alignment).elim
 
 /-- The public wrapper exposes the same negative decision. -/
 theorem incompatible_searchFromListings_returns_none :
@@ -67,9 +110,8 @@ theorem incompatible_searchFromListings_returns_none :
   rw [incompatible_generatedFinder_returns_none]
 
 /--
-The computed `none` is a constructive certificate that no intrinsic compatible
-exact alignment exists. No candidate transport family is supplied anywhere in
-this proof.
+The generated `none` is a constructive certificate that no intrinsic compatible
+exact alignment exists. No candidate transport family occurs in this proof.
 -/
 theorem incompatibleContext_has_no_alignment_from_local_listings
     (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False :=
@@ -85,6 +127,7 @@ end Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_generatedFinder_succeeds
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_searchFromListings_succeeds
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_no_alignment_direct
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_generatedFinder_returns_none
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_searchFromListings_returns_none
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_has_no_alignment_from_local_listings
