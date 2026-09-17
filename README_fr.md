@@ -1057,7 +1057,6 @@ Présentation théorique principale :
 
 Pour les arguments complets et les détails méthodologiques :
 
-- [Fondements structurels](docs/fr/fondements_structurels.md)
 - [Instance circulaire — alignement relatif](docs/fr/alignement_relatif.md)
 - [Méthode des rôles constitutifs relationnels](docs/fr/methode_roles_constitutifs_relationnels.md)
 - [Frontière représentationnelle](docs/fr/frontiere_representationnelle.md)
