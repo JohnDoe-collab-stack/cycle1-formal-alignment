@@ -137,6 +137,17 @@ theorem childContext_parentDecisionsExact
       parent.decisions :=
   parent.decisionsExact completion.underlying
 
+/-- A Boolean distinct from `false` is exactly `true`. -/
+theorem bool_true_of_ne_false
+    (value : Bool)
+    (notFalse : value ≠ false) :
+    value = true := by
+  cases value with
+  | false =>
+      exact False.elim (notFalse rfl)
+  | true =>
+      rfl
+
 /--
 Split one parent completion exactly into the false or true child according to
 its actual assignment value at the selected variable.
@@ -147,15 +158,17 @@ def splitContextCompletion
     (completion : parent.Carrier) :
     (childContext parent var false).Carrier ⊕
       (childContext parent var true).Carrier :=
-  match valueEq : parent.assignment completion var with
-  | false =>
-      .inl
-        { underlying := completion
-          valueExact := valueEq }
-  | true =>
-      .inr
-        { underlying := completion
-          valueExact := valueEq }
+  if valueFalse : parent.assignment completion var = false then
+    .inl
+      { underlying := completion
+        valueExact := valueFalse }
+  else
+    .inr
+      { underlying := completion
+        valueExact :=
+          bool_true_of_ne_false
+            (parent.assignment completion var)
+            valueFalse }
 
 /-- Exact computation rule for a parent completion known to realize `false`. -/
 theorem splitContextCompletion_false
@@ -181,7 +194,12 @@ theorem splitContextCompletion_true
         ({ underlying := completion
            valueExact := valueExact } :
           IndexedContextCompletion parent var true) := by
-  simp [splitContextCompletion, valueExact]
+  have notFalse : parent.assignment completion var ≠ false := by
+    intro falseExact
+    have impossible : true = false :=
+      valueExact.symm.trans falseExact
+    cases impossible
+  simp [splitContextCompletion, notFalse]
 
 /-- Forget one freshly constituted child decision and recover the parent completion. -/
 def mergeContextCompletion
@@ -270,6 +288,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.childContext
 #print axioms ConstitutiveSearch.SAT.childContext_newDecisionExact
 #print axioms ConstitutiveSearch.SAT.childContext_parentDecisionsExact
+#print axioms ConstitutiveSearch.SAT.bool_true_of_ne_false
 #print axioms ConstitutiveSearch.SAT.splitContextCompletion
 #print axioms ConstitutiveSearch.SAT.splitContextCompletion_false
 #print axioms ConstitutiveSearch.SAT.splitContextCompletion_true
