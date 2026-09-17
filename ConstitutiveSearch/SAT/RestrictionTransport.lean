@@ -37,7 +37,14 @@ theorem eval_forValue_true
     (value : Bool)
     (valueExact : assignment var = value) :
     (forValue var value).eval assignment = true := by
-  cases value <;> simp [forValue, Literal.eval, valueExact]
+  cases value with
+  | false =>
+      dsimp [forValue, Literal.eval]
+      rw [valueExact]
+      rfl
+  | true =>
+      dsimp [forValue, Literal.eval]
+      exact valueExact
 
 end Literal
 
@@ -65,13 +72,18 @@ theorem eval_true_of_containsLiteral
   | literal :: rest, contains => by
       by_cases literalExact : literal = target
       · subst literal
-        simp [eval, targetTrue]
+        dsimp [eval]
+        rw [targetTrue]
+        rfl
       · have tailContains : containsLiteral target rest = true := by
-          simpa [containsLiteral, literalExact] using contains
+          rw [containsLiteral, if_neg literalExact] at contains
+          exact contains
         have restTrue :=
           eval_true_of_containsLiteral
             assignment target targetTrue rest tailContains
-        simp [eval, restTrue]
+        dsimp [eval]
+        rw [restTrue]
+        cases literal.eval assignment <;> rfl
 
 end Clause
 
@@ -95,16 +107,17 @@ structure BranchReductionResult
 Compute the branch residual, weakening witness, and reconstruction in one
 structural recursion over the CNF.
 -/
-def branchReduction
-    (var : Var)
-    (value : Bool) :
-    (formula : Cnf) → BranchReductionResult formula var value
-  | [] =>
+def branchReduction :
+    (formula : Cnf) →
+      (var : Var) →
+        (value : Bool) →
+          BranchReductionResult formula var value
+  | [], _var, _value =>
       { residual := []
         weakening := .done
         restore := fun _assignment _valueExact _residualSatisfaction => .nil }
-  | clause :: rest =>
-      let tail := branchReduction var value rest
+  | clause :: rest, var, value =>
+      let tail := branchReduction rest var value
       match hitEq :
           Clause.containsLiteral (Literal.forValue var value) clause with
       | true =>
@@ -137,7 +150,7 @@ def branchResidual
     (formula : Cnf)
     (var : Var)
     (value : Bool) : Cnf :=
-  (branchReduction var value formula).residual
+  (branchReduction formula var value).residual
 
 /-- The residual is constructively a weakening of the original CNF. -/
 def branchWeakening
@@ -145,7 +158,7 @@ def branchWeakening
     (var : Var)
     (value : Bool) :
     CnfWeakening formula (branchResidual formula var value) :=
-  (branchReduction var value formula).weakening
+  (branchReduction formula var value).weakening
 
 /--
 Residual satisfaction plus the retained branch value reconstructs satisfaction
@@ -159,7 +172,7 @@ theorem restoreSatisfaction
     (valueExact : assignment var = value) :
     Satisfies assignment (branchResidual formula var value) →
       Satisfies assignment formula :=
-  (branchReduction var value formula).restore assignment valueExact
+  (branchReduction formula var value).restore assignment valueExact
 
 /-- A branch-indexed completion exposes the indexed variable value exactly. -/
 theorem indexedCompletion_valueExact
