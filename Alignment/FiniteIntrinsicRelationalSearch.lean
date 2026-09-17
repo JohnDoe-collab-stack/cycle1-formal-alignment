@@ -20,9 +20,9 @@ the proof that a found transport preserves the complete relation. This
 separation keeps computation independent from its certificate and avoids a
 dependent search result whose recursive reduction would obscure constructivity.
 
-A successful search constructs `IntrinsicCompatibleExactAlignment`. If the
-candidate listing is complete, failure constructively refutes every compatible
-exact relational alignment.
+A successful search constructs `IntrinsicCompatibleExactAlignment`. With a
+complete candidate listing, `none` from the raw finder constructively refutes
+every compatible exact relational alignment.
 
 This still does not generate the complete transport listing from arbitrary
 finite carriers. It isolates that remaining combinatorial problem without
@@ -439,7 +439,7 @@ def alignmentOfFoundTransport
     preservesRelation :=
       preservesRelation_of_true context sources transport checked }
 
-/-- End-to-end finite search without a common anchor family. -/
+/-- End-to-end positive search without a common anchor family. -/
 def searchAlignment?
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -458,8 +458,11 @@ def searchAlignment?
           (findCompatibleTransport_sound
             context sources.values candidates.values transport found))
 
-/-- Completeness of the candidate family makes intrinsic search complete for existence. -/
-theorem searchAlignment_ne_none_of_alignment
+/--
+Completeness of the candidate family ensures that any compatible alignment makes
+the raw executable finder succeed.
+-/
+theorem findCompatibleTransport_ne_none_of_alignment
     {Source : Type uSource}
     {Target : Type uTarget}
     {Value : Type uValue}
@@ -468,27 +471,21 @@ theorem searchAlignment_ne_none_of_alignment
     (sources : FiniteListing Source)
     (candidates : FiniteTransportListing Source Target)
     (alignment : IntrinsicCompatibleExactAlignment context) :
-    searchAlignment? context sources candidates ≠ none := by
+    findCompatibleTransport context sources.values candidates.values ≠ none := by
   let listed := candidates.complete alignment.transport
   have checked :
       preservesRelationOn context sources.values listed.1 = true :=
     preservesRelationOn_true_of_forwardAgreement
       context sources.values alignment listed.1 listed.2.2
-  have foundNe :
-      findCompatibleTransport context sources.values candidates.values ≠ none :=
+  exact
     findCompatibleTransport_ne_none_of_mem_of_true
       context sources.values candidates.values listed.1 listed.2.1 checked
-  unfold searchAlignment?
-  cases found : findCompatibleTransport context sources.values candidates.values with
-  | none =>
-      exact (foundNe found).elim
-  | some transport =>
-      intro impossible
-      change some _ = none at impossible
-      cases impossible
 
-/-- A `none` result is a constructive non-existence certificate relative to a complete transport listing. -/
-theorem noAlignment_of_search_none
+/--
+A raw `none` result is a constructive non-existence certificate relative to a
+complete transport listing.
+-/
+theorem noAlignment_of_findCompatibleTransport_none
     {Source : Type uSource}
     {Target : Type uTarget}
     {Value : Type uValue}
@@ -496,9 +493,10 @@ theorem noAlignment_of_search_none
     (context : IntrinsicRelationalContext Source Target Value)
     (sources : FiniteListing Source)
     (candidates : FiniteTransportListing Source Target)
-    (failed : searchAlignment? context sources candidates = none)
+    (failed :
+      findCompatibleTransport context sources.values candidates.values = none)
     (alignment : IntrinsicCompatibleExactAlignment context) : False :=
-  searchAlignment_ne_none_of_alignment
+  findCompatibleTransport_ne_none_of_alignment
     context sources candidates alignment failed
 
 end FiniteIntrinsicRelationalSearch
@@ -519,6 +517,6 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.findCompatibleTransport_sound
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.alignmentOfFoundTransport
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.searchAlignment?
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.searchAlignment_ne_none_of_alignment
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.noAlignment_of_search_none
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.findCompatibleTransport_ne_none_of_alignment
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicRelationalSearch.noAlignment_of_findCompatibleTransport_none
 /- AXIOM_AUDIT_END -/
