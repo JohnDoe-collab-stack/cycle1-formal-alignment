@@ -13,6 +13,8 @@ roots = [
   "ConstitutiveSearch.ContinuationTransport",
   "ConstitutiveSearch.FrontierReduction",
   "ConstitutiveSearch.RelationalTransport",
+  "ConstitutiveSearch.IrreducibleFrontier",
+  "ConstitutiveSearch.SAT.ConstraintTransport",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
@@ -61,5 +63,7 @@ roots = [
   "Tests.MediatedTransitionPastingRegression",
   "Tests.ConstitutiveSearchRegression",
   "Tests.ConstitutiveFrontierRegression",
-  "Tests.ConstitutiveRelationalRegression"
+  "Tests.ConstitutiveRelationalRegression",
+  "Tests.ConstitutiveIrreducibleFrontierRegression",
+  "Tests.SATConstraintTransportRegression"
 ]
