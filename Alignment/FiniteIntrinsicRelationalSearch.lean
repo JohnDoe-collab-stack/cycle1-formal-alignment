@@ -152,31 +152,31 @@ theorem relationEquality_of_mem_of_mem_of_rows_true
   induction rows with
   | nil =>
       cases firstMember
-  | cons head tail ih =>
-      cases rowCheck : rowPreservesOn context transport head allSources with
+  | cons current rest ih =>
+      cases rowCheck : rowPreservesOn context transport current allSources with
       | false =>
           change
-            (match rowPreservesOn context transport head allSources with
-            | true => rowsPreserveOn context transport allSources tail
+            (match rowPreservesOn context transport current allSources with
+            | true => rowsPreserveOn context transport allSources rest
             | false => false) = true at checked
           rw [rowCheck] at checked
           cases checked
       | true =>
           have tailChecked :
-              rowsPreserveOn context transport allSources tail = true := by
+              rowsPreserveOn context transport allSources rest = true := by
             change
-              (match rowPreservesOn context transport head allSources with
-              | true => rowsPreserveOn context transport allSources tail
+              (match rowPreservesOn context transport current allSources with
+              | true => rowsPreserveOn context transport allSources rest
               | false => false) = true at checked
             rw [rowCheck] at checked
             exact checked
           cases firstMember with
           | head =>
               exact rowEquality_of_mem_of_true
-                context transport head second allSources
+                context transport current second allSources
                 secondMember rowCheck
           | tail _ tailMember =>
-              exact ih tailMember secondMember tailChecked
+              exact ih tailMember tailChecked
 
 /-- Boolean preservation test for the complete listed relation matrix. -/
 def preservesRelationOn
@@ -354,18 +354,15 @@ theorem findCompatibleTransport_ne_none_of_mem_of_true
   | cons candidate rest ih =>
       cases candidateCheck : preservesRelationOn context sources candidate with
       | true =>
-          intro impossible
-          change some _ = none at impossible
-          cases impossible
+          simp [findCompatibleTransport, candidateCheck]
       | false =>
           cases member with
           | head =>
               rw [checked] at candidateCheck
               cases candidateCheck
           | tail _ tailMember =>
-              change
-                findCompatibleTransport context sources rest ≠ none
-              exact ih tailMember checked
+              simpa [findCompatibleTransport, candidateCheck] using
+                (ih tailMember checked)
 
 /-- Convert a successful checked transport into the intrinsic compatible alignment. -/
 def alignmentOfCheckedTransport
