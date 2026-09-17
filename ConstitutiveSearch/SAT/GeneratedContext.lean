@@ -140,7 +140,8 @@ def GeneratedBranchCompletion
 
 /--
 A fresh decision gives an exact split directly in the uniform generated-state
-type.
+type.  The underlying branch-context split is re-exposed field by field so that
+no equality between the two different state index types is required.
 -/
 def generatedSplit
     {rootFormula : Cnf}
@@ -152,7 +153,11 @@ def generatedSplit
       parent
       (GeneratedBranchContext.child parent var false fresh)
       (GeneratedBranchContext.child parent var true fresh) :=
-  contextSplit parent.context var
+  let splitter := contextSplit parent.context var
+  { split := splitter.split
+    merge := splitter.merge
+    splitMerge := splitter.splitMerge
+    mergeSplit := splitter.mergeSplit }
 
 /--
 The exact generated split preserves frontier completion existence in both
