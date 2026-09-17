@@ -16,9 +16,9 @@ A branch context carries only data already constituted by the search history:
 * exact realization of those decisions by every completion
 
 A child context is formed by one exact Boolean decision. Its CNF is the existing
-`branchResidual`. Its completion carrier is indexed by the actual value of the
-selected variable in a parent completion. The new decision is prepended to the
-parent provenance.
+`branchResidual`. Its completion carrier stores a parent completion together
+with exact realization of the selected Boolean value. The new decision is
+prepended to the parent provenance.
 
 No satisfiability query, branch preference, complexity class, or context
 absorption is introduced here.
@@ -71,37 +71,28 @@ def rootContext (formula : Cnf) : BranchContext :=
     decisionsExact := fun _completion => True.intro }
 
 /--
-A parent completion indexed by the actual Boolean value assigned to one selected
-variable. The index is generated from the completion itself.
+A parent completion together with exact realization of one selected branch
+value. The proof field makes the value provenance explicit and avoids any later
+cast between unrelated child carriers.
 -/
-inductive IndexedContextCompletion
+structure IndexedContextCompletion
     (parent : BranchContext)
-    (var : Var) : Bool → Type
-  | ofParent
-      (completion : parent.Carrier) :
-      IndexedContextCompletion parent var
-        (parent.assignment completion var)
+    (var : Var)
+    (value : Bool) : Type where
+  underlying : parent.Carrier
+  valueExact : parent.assignment underlying var = value
 
 namespace IndexedContextCompletion
 
-/-- Forget the branch-value index and recover the parent completion. -/
-def underlying
+/-- Canonically index a parent completion by the Boolean value it actually has. -/
+def ofParent
     {parent : BranchContext}
     {var : Var}
-    {value : Bool} :
-    IndexedContextCompletion parent var value → parent.Carrier
-  | .ofParent completion => completion
-
-/-- The indexed variable value is realized exactly by the underlying assignment. -/
-theorem valueExact
-    {parent : BranchContext}
-    {var : Var}
-    {value : Bool}
-    (completion : IndexedContextCompletion parent var value) :
-    parent.assignment completion.underlying var = value := by
-  cases completion with
-  | ofParent _completion =>
-      rfl
+    (completion : parent.Carrier) :
+    IndexedContextCompletion
+      parent var (parent.assignment completion var) :=
+  { underlying := completion
+    valueExact := rfl }
 
 end IndexedContextCompletion
 
@@ -159,18 +150,12 @@ def splitContextCompletion
   match valueEq : parent.assignment completion var with
   | false =>
       .inl
-        (Eq.mp
-          (congrArg
-            (IndexedContextCompletion parent var)
-            valueEq)
-          (.ofParent completion))
+        { underlying := completion
+          valueExact := valueEq }
   | true =>
       .inr
-        (Eq.mp
-          (congrArg
-            (IndexedContextCompletion parent var)
-            valueEq)
-          (.ofParent completion))
+        { underlying := completion
+          valueExact := valueEq }
 
 /-- Forget one freshly constituted child decision and recover the parent completion. -/
 def mergeContextCompletion
@@ -197,15 +182,17 @@ def contextSplit
       intro branch
       cases branch with
       | inl completion =>
-          cases completion with
-          | ofParent raw =>
-              unfold splitContextCompletion mergeContextCompletion
-              cases valueEq : parent.assignment raw var <;> rfl
+          unfold splitContextCompletion mergeContextCompletion
+          rw [completion.valueExact]
+          apply congrArg Sum.inl
+          apply IndexedContextCompletion.ext
+          rfl
       | inr completion =>
-          cases completion with
-          | ofParent raw =>
-              unfold splitContextCompletion mergeContextCompletion
-              cases valueEq : parent.assignment raw var <;> rfl
+          unfold splitContextCompletion mergeContextCompletion
+          rw [completion.valueExact]
+          apply congrArg Sum.inr
+          apply IndexedContextCompletion.ext
+          rfl
     mergeSplit := by
       intro completion
       unfold splitContextCompletion mergeContextCompletion
@@ -240,7 +227,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.BranchContextCompletion
 #print axioms ConstitutiveSearch.SAT.rootContext
 #print axioms ConstitutiveSearch.SAT.IndexedContextCompletion
-#print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.underlying
+#print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.ofParent
 #print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.valueExact
 #print axioms ConstitutiveSearch.SAT.childContext
 #print axioms ConstitutiveSearch.SAT.childContext_newDecisionExact
