@@ -165,6 +165,10 @@ Alignment then becomes a derived notion:
 
 Bijective exactness alone is not sufficient. The relevant transport must respect the indexing induced by constitution.
 
+The reconstruction branch now deepens this point. Between two distinct initial carriers, preservation of the whole genesis stratification exactly characterizes terminal transports that arise by lifting an initial transport. The remaining ambiguity is thereby localized at the base. Separating constitutive profiles, then profiles derived from relations to corresponding anchors, make the initial matching unique when it exists. In the enumerable case the repository effectively searches for these correspondences, decides their totality in each direction, and classifies the context into four regimes: `exact`, `forwardOnly`, `backwardOnly`, or `noDirectionalMatching`.
+
+This layer is a relative reconstruction of alignability. It does not yet automatically reconstruct the anchor family itself from two systems supplied without a shared relational mediator.
+
 The complete chain is therefore:
 
 ```text
@@ -200,6 +204,10 @@ The principal formal connections are exposed in:
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) for abstraction of the boundary mechanism
 - [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean) for the identification of the residual with the fresh identity
 - [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) for persistence uniform over every `n : Nat` and transport naturality
+- [`Alignment/GenesisReconstruction.lean`](Alignment/GenesisReconstruction.lean) and [`Alignment/GenesisCharacterization.lean`](Alignment/GenesisCharacterization.lean) for reconstruction from genesis
+- [`Alignment/AnchoredMatchReconstruction.lean`](Alignment/AnchoredMatchReconstruction.lean) for reconstruction of initial matching from anchored relational observations
+- [`Alignment/FiniteAlignmentClassification.lean`](Alignment/FiniteAlignmentClassification.lean) for executable four-regime classification of alignability
+- [`Alignment/DirectionalGenesisPersistence.lean`](Alignment/DirectionalGenesisPersistence.lean) for canonical directional persistence at every `n : Nat`
 - [`Tests/DynamicAlignmentRegression.lean`](Tests/DynamicAlignmentRegression.lean) for counterexamples showing that exactness alone is insufficient for coherence
 
 ## 6. Comparative positioning

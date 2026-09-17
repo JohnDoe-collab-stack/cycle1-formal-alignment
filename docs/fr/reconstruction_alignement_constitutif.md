@@ -383,7 +383,7 @@ Cas symetrique.
 
 Aucune totalite directionnelle n'existe relativement au contexte considere. Le certificat refute les deux matchings directionnels et l'alignement exact compatible.
 
-Ce dernier statut ne signifie pas que les deux systems sont sans aucune relation imaginable. Il signifie precisement qu'aucun matching total ancre n'existe dans l'interface consideree.
+Ce dernier statut ne signifie pas que les deux systemes sont sans aucune relation imaginable. Il signifie precisement qu'aucun matching total ancre n'existe dans l'interface consideree.
 
 ---
 

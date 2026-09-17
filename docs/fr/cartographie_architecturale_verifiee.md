@@ -183,6 +183,44 @@ ni de l'instance circulaire de `StrongPerimetralTurning`.
 Leur emplacement sous `Alignment/` correspond désormais à leur propriété
 mathématique générique et non à une spécialisation circulaire.
 
+### Reconstruction de l'alignabilité constitutive
+
+Une nouvelle chaîne générique part de `Alignment.FinitePersistence` et ne dépend pas de l'instance circulaire :
+
+```text
+Alignment.FinitePersistence
+        ↓
+Alignment.GenesisReconstruction
+        ↓
+Alignment.GenesisCharacterization
+        ↓
+Alignment.GenesisRigidity
+        ↓
+Alignment.ConstitutiveProfileRigidity
+        ↓
+Alignment.ConstitutiveProfileReconstruction
+        ↓
+Alignment.AnchoredRelationReconstruction
+        ↓
+Alignment.AnchoredMatchReconstruction
+        ↓
+Alignment.AnchoredMatchStrictness
+        ↓
+Alignment.FiniteAnchoredMatchSearch
+        ↓
+Alignment.FiniteAnchoredMatchDecision
+        ↓
+Alignment.FiniteAlignmentClassification
+        ↓
+Alignment.DirectionalGenesisPersistence
+```
+
+Cette branche reconstruit d'abord le transport initial depuis la préservation de la genèse, localise l'ambiguïté restante à la base, puis la contraint par des profils relationnels ancrés. Dans le cas enumerable, elle recherche et décide les matchings directionnels, distingue quatre régimes et propage canoniquement les injections justifiées à tout `n : Nat`.
+
+Elle ne suppose pas de carrier initial commun d'identités. Elle suppose encore une famille d'ancres correspondantes et des relations locales permettant de séparer les identités.
+
+Voir [Reconstruction de l'alignement constitutif](reconstruction_alignement_constitutif.md).
+
 ### `RepresentationBoundary.DiagonalizationKernel`
 
 `RepresentationBoundary/DiagonalizationKernel.lean` importe seulement `Init`.

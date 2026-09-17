@@ -179,6 +179,44 @@ on the circular instance of `StrongPerimetralTurning`.
 Their location under `Alignment/` now matches their generic mathematical
 role rather than a circular specialization.
 
+### Reconstruction of constitutive alignability
+
+A new generic chain starts from `Alignment.FinitePersistence` and does not depend on the circular instance:
+
+```text
+Alignment.FinitePersistence
+        ↓
+Alignment.GenesisReconstruction
+        ↓
+Alignment.GenesisCharacterization
+        ↓
+Alignment.GenesisRigidity
+        ↓
+Alignment.ConstitutiveProfileRigidity
+        ↓
+Alignment.ConstitutiveProfileReconstruction
+        ↓
+Alignment.AnchoredRelationReconstruction
+        ↓
+Alignment.AnchoredMatchReconstruction
+        ↓
+Alignment.AnchoredMatchStrictness
+        ↓
+Alignment.FiniteAnchoredMatchSearch
+        ↓
+Alignment.FiniteAnchoredMatchDecision
+        ↓
+Alignment.FiniteAlignmentClassification
+        ↓
+Alignment.DirectionalGenesisPersistence
+```
+
+This branch first reconstructs initial transport from genesis preservation, localizes remaining ambiguity at the base, then constrains it through anchored relational profiles. In the enumerable case it searches for and decides directional matchings, distinguishes four regimes, and canonically propagates justified injections to every `n : Nat`.
+
+It assumes no common initial identity carrier. It still assumes corresponding anchors and local relations sufficient to separate identities.
+
+See [Reconstruction of constitutive alignment](constitutive_alignment_reconstruction.md).
+
 ### `RepresentationBoundary.DiagonalizationKernel`
 
 `RepresentationBoundary/DiagonalizationKernel.lean` imports only `Init`. It

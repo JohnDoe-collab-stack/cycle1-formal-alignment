@@ -137,6 +137,11 @@ These sentences organize the verified results; they are not names of additional 
 | circular construction, local-to-global reconstruction, regime and specification | [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) |
 | generic one-step constitutive alignment | [`Alignment/Constitutive.lean`](Alignment/Constitutive.lean) |
 | natural-depth indexing, extension, transport, composition and naturality | [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) |
+| reconstruction from genesis | [`Alignment/GenesisReconstruction.lean`](Alignment/GenesisReconstruction.lean), [`Alignment/GenesisCharacterization.lean`](Alignment/GenesisCharacterization.lean) |
+| rigidity and separating constitutive profiles | [`Alignment/GenesisRigidity.lean`](Alignment/GenesisRigidity.lean), [`Alignment/ConstitutiveProfileRigidity.lean`](Alignment/ConstitutiveProfileRigidity.lean) |
+| reconstruction from anchored relations and matching | [`Alignment/AnchoredRelationReconstruction.lean`](Alignment/AnchoredRelationReconstruction.lean), [`Alignment/AnchoredMatchReconstruction.lean`](Alignment/AnchoredMatchReconstruction.lean) |
+| executable search, decision, and four-regime classification | [`Alignment/FiniteAnchoredMatchSearch.lean`](Alignment/FiniteAnchoredMatchSearch.lean), [`Alignment/FiniteAnchoredMatchDecision.lean`](Alignment/FiniteAnchoredMatchDecision.lean), [`Alignment/FiniteAlignmentClassification.lean`](Alignment/FiniteAlignmentClassification.lean) |
+| directional genesis persistence | [`Alignment/DirectionalGenesisPersistence.lean`](Alignment/DirectionalGenesisPersistence.lean) |
 | readouts after constitution | [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean) |
 | circular one-step persistence instance | [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean) |
 | circular persistence instance at arbitrary natural-number depth | [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean) |
@@ -180,6 +185,8 @@ admissible continuation in the same regime
 ## Scope and non-claims
 
 The verified scientific instance in this repository is circular/perimetral. The methodology extracted from it is not claimed as a universal metatheorem for every possible domain.
+
+The alignment-reconstruction branch no longer assumes a common initial identity carrier. It remains relative to a supplied anchored relational context. Its executable decision layer additionally assumes complete finite enumerations of the carriers and anchors. Automatic reconstruction of the anchor family itself remains open.
 
 The persistence results are uniform for every `n : Nat` and impose no fixed maximum depth. The repository does not construct an infinite history object or an `ω`-stage concrete carrier.
 
@@ -233,7 +240,9 @@ Method:
 Alignment and architecture:
 
 - [Relative alignment](docs/en/relative_alignment.md)
+- [Constitutive alignment reconstruction](docs/en/constitutive_alignment_reconstruction.md)
 - [Alignement relatif](docs/fr/alignement_relatif.md)
+- [Reconstruction de l'alignement constitutif](docs/fr/reconstruction_alignement_constitutif.md)
 - [Verified architecture map](docs/en/verified_architecture_map.md)
 - [Cartographie architecturale vérifiée](docs/fr/cartographie_architecturale_verifiee.md)
 

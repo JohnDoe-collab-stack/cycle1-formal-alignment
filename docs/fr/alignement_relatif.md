@@ -529,6 +529,16 @@ les valeurs nouvelles successives `10`, `20` et `30`, dans les réalisations
 libre et journalisée. Cela établit une portée exécutable, non l'instanciation
 d'un transformer ni un accord sémantique entre des lectures fournies
 indépendamment.
+### 6.3 Reconstruction de l'alignement constitutif entre carriers distincts
+
+La persistance ci-dessus part d'un index constitutif commun. Une branche formelle distincte étudie désormais le problème inverse entre deux carriers initiaux différents.
+
+Elle reconstruit un transport initial depuis un transport terminal qui préserve toute la genèse, puis contraint la correspondance initiale par des profils relationnels ancrés. Dans le cas enumerable, elle recherche les correspondants, décide les totalités directionnelles et classe le contexte en quatre régimes : `exact`, `forwardOnly`, `backwardOnly` ou `noDirectionalMatching`.
+
+Cette reconstruction reste distincte de l'adéquation norme/régime étudiée dans le présent document.
+
+Voir [Reconstruction de l'alignement constitutif](reconstruction_alignement_constitutif.md) pour le développement complet et les limites exactes.
+
 
 ---
 

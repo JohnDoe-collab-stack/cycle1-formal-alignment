@@ -521,6 +521,16 @@ the perimeter values `7` and `11` and the successive fresh values `10`, `20`,
 and `30` in both the free and logged realizations. This establishes executable
 scope, not a transformer instantiation or semantic agreement between
 independently supplied readouts.
+### 6.3 Reconstruction of constitutive alignment between distinct carriers
+
+The persistence layer above starts from a shared constitutive index. A separate formal branch now studies the reverse problem between two different initial carriers.
+
+It reconstructs an initial transport from a terminal transport preserving the whole genesis stratification, then constrains the initial correspondence through anchored relational profiles. In the enumerable case it searches for counterparts, decides directional totality, and classifies the context into four regimes: `exact`, `forwardOnly`, `backwardOnly`, or `noDirectionalMatching`.
+
+This reconstruction remains distinct from the norm/regime adequacy studied in the present document.
+
+See [Reconstruction of constitutive alignment](constitutive_alignment_reconstruction.md) for the complete development and its exact limits.
+
 
 ---
 
