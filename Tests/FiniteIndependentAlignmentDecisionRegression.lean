@@ -9,21 +9,28 @@ open GenesisReconstruction.FiniteIndependentAlignmentDecision
 open IntrinsicRelationalMediatorRegression
 open IndependentRelationalAlignmentRegression
 
+deriving instance DecidableEq for SourceNode
+deriving instance DecidableEq for TargetNode
+
 def sourceNodeListing : FiniteListing SourceNode :=
   { values := [.root, .next]
     complete := by
       intro identity
       cases identity
-      · exact List.Mem.head [.next]
-      · exact List.Mem.tail .root (List.Mem.head []) }
+      · exact List.Mem.head [SourceNode.next]
+      · exact
+          List.Mem.tail SourceNode.root
+            (List.Mem.head []) }
 
 def targetNodeListing : FiniteListing TargetNode :=
   { values := [.origin, .successor]
     complete := by
       intro identity
       cases identity
-      · exact List.Mem.head [.successor]
-      · exact List.Mem.tail .origin (List.Mem.head []) }
+      · exact List.Mem.head [TargetNode.successor]
+      · exact
+          List.Mem.tail TargetNode.origin
+            (List.Mem.head []) }
 
 /--
 The executable decision succeeds even though source and target relation values
