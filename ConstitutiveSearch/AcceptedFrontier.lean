@@ -104,13 +104,19 @@ def expandHead
             splitter.splitPreservesAccept continuation accepted
           cases splitExact : splitter.split continuation with
           | inl leftContinuation =>
-              rw [splitExact]
-              rw [splitExact] at branchAccepted
-              exact branchAccepted
+              simpa only [
+                SearchSystem.frontierSystem,
+                FrontierAccept,
+                BinaryAccept,
+                splitExact
+              ] using branchAccepted
           | inr rightContinuation =>
-              rw [splitExact]
-              rw [splitExact] at branchAccepted
-              exact branchAccepted
+              simpa only [
+                SearchSystem.frontierSystem,
+                FrontierAccept,
+                BinaryAccept,
+                splitExact
+              ] using branchAccepted
       | tail restContinuation =>
           exact accepted }
 
