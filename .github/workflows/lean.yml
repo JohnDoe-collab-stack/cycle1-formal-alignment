@@ -25,9 +25,9 @@ jobs:
           text = path.read_text(encoding='utf-8')
           old = 'for counterexamples showing that exactness alone does not imply coherence'
           new = 'for counterexamples showing that exactness alone is insufficient for coherence'
-          if text.count(old) != 1:
-              raise SystemExit('expected English positioning anchor not found exactly once')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          if text.count(old) != 2:
+              raise SystemExit(f'expected two English positioning phrases, found {text.count(old)}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
           PY
           python3 scripts/update-alignment-docs.py
           rm scripts/update-alignment-docs.py
