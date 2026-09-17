@@ -74,13 +74,27 @@ theorem anchoredEquality_of_mem_of_matchesOn_true
           context.targetRelation (context.targetAnchor head) target =
             context.sourceRelation (context.sourceAnchor head) source
       · have tailChecked : matchesOn context tail source target = true := by
-          simpa [matchesOn, headEq] using checked
+          change
+            (if context.targetRelation (context.targetAnchor head) target =
+                context.sourceRelation (context.sourceAnchor head) source then
+              matchesOn context tail source target
+            else
+              false) = true at checked
+          rw [if_pos headEq] at checked
+          exact checked
         cases member with
         | head =>
             exact headEq
         | tail _ tailMember =>
             exact ih tailMember tailChecked
-      · simp [matchesOn, headEq] at checked
+      · change
+          (if context.targetRelation (context.targetAnchor head) target =
+              context.sourceRelation (context.sourceAnchor head) source then
+            matchesOn context tail source target
+          else
+            false) = true at checked
+        rw [if_neg headEq] at checked
+        cases checked
 
 /-- Complete anchor coverage upgrades the Boolean check to the original match relation. -/
 theorem matches_of_matchesOn_true
@@ -119,7 +133,14 @@ theorem matchesOn_true_of_matches
       rfl
   | cons head tail ih =>
       have headEq := matching head
-      simp [matchesOn, headEq, ih]
+      change
+        (if context.targetRelation (context.targetAnchor head) target =
+            context.sourceRelation (context.sourceAnchor head) source then
+          matchesOn context tail source target
+        else
+          false) = true
+      rw [if_pos headEq]
+      exact ih
 
 /-- Search a target list for the first target whose anchored profile matches a source. -/
 def findTarget
@@ -171,16 +192,24 @@ theorem findTarget_sound
     matchesOn context anchors source target = true := by
   induction candidates with
   | nil =>
-      simp [findTarget] at found
+      change none = some target at found
+      cases found
   | cons candidate rest ih =>
       cases check : matchesOn context anchors source candidate with
       | false =>
-          apply ih
-          simpa [findTarget, check] using found
+          change
+            (match matchesOn context anchors source candidate with
+            | true => some candidate
+            | false => findTarget context anchors source rest) = some target at found
+          rw [check] at found
+          exact ih found
       | true =>
-          have same : candidate = target := by
-            simpa [findTarget, check] using found
-          subst target
+          change
+            (match matchesOn context anchors source candidate with
+            | true => some candidate
+            | false => findTarget context anchors source rest) = some target at found
+          rw [check] at found
+          cases found
           exact check
 
 /-- Any source returned by the executable reverse search passed the anchored check. -/
@@ -199,16 +228,24 @@ theorem findSource_sound
     matchesOn context anchors source target = true := by
   induction candidates with
   | nil =>
-      simp [findSource] at found
+      change none = some source at found
+      cases found
   | cons candidate rest ih =>
       cases check : matchesOn context anchors candidate target with
       | false =>
-          apply ih
-          simpa [findSource, check] using found
+          change
+            (match matchesOn context anchors candidate target with
+            | true => some candidate
+            | false => findSource context anchors target rest) = some source at found
+          rw [check] at found
+          exact ih found
       | true =>
-          have same : candidate = source := by
-            simpa [findSource, check] using found
-          subst source
+          change
+            (match matchesOn context anchors candidate target with
+            | true => some candidate
+            | false => findSource context anchors target rest) = some source at found
+          rw [check] at found
+          cases found
           exact check
 
 /-- Boolean assertion that a search succeeds for every value in an explicit list. -/
@@ -239,17 +276,27 @@ theorem find_ne_none_of_mem_of_allFound_true
   | cons head tail ih =>
       cases headFound : find head with
       | none =>
-          simp [allFound, headFound] at checked
+          change
+            (match find head with
+            | none => false
+            | some _ => allFound find tail) = true at checked
+          rw [headFound] at checked
+          cases checked
       | some result =>
+          have tailChecked : allFound find tail = true := by
+            change
+              (match find head with
+              | none => false
+              | some _ => allFound find tail) = true at checked
+            rw [headFound] at checked
+            exact checked
           cases member with
           | head =>
               intro impossible
               rw [impossible] at headFound
               cases headFound
           | tail _ tailMember =>
-              exact
-                ih value tailMember
-                  (by simpa [allFound, headFound] using checked)
+              exact ih tailMember tailChecked
 
 /-- Executable forward-totality check on complete finite source and target listings. -/
 def forwardTotalCheck
