@@ -120,7 +120,7 @@ If the result remains derivable, those data were not necessary at that level.
 
 If the result ceases to be derivable, one seeks a **separating model** that preserves the properties already established while making the candidate property fail.
 
-The method then consists in identifying exactly what is missing.
+The method then consists in identifying the dependencies whose necessity can be established by separation within the class of structures under consideration.
 
 ```text
 rich structure
@@ -134,8 +134,11 @@ result still derivable?
 dependency       explicit
 unnecessary      separator
 at this level        ↓
-                 actual dependency
+                 dependency established
+                 by separation
 ```
+
+Separators thus establish precise non-implications and localize the dependencies actually used by the formalized constructions. They do not claim to establish absolute minimality among all possible formalizations or all possible proofs.
 
 Finally, when additional conditions are reintroduced, one seeks to show that the richer structure can be **reconstructed** from them.
 
@@ -359,42 +362,42 @@ This difference is what makes it possible to define a genuine constitutive bound
 
 The distinction between old and new is therefore not added from the outside: it results from the structural factorization of the history into perimeter and continuation.
 
-A new occurrence cannot reuse an internal constitutive role already assigned to the perimeter.
+When this old / new separation is equipped with faithful role labelling, a new occurrence cannot reuse an internal constitutive role already assigned to the perimeter.
 
 ```text
 old
 ≠
 new
-```
 
-and:
-
-```text
-new occurrence
++
+faithful labelling
         ↓
-impossibility of reusing
-an internal role
+impossibility for the new occurrence
+to reuse an internal role
         ↓
 residual role
 ```
 
-When the residual-role type is contractible, all new occurrences receive the same determined residual role.
+Once reuse of internal roles has been excluded for new occurrences, contractibility of the residual-role type forces every residual role obtained to coincide with the same distinguished role.
 
 The residual role is therefore not an arbitrary label added after the continuation. It is obtained by excluding the internal roles and determining the only residual role available.
 
 ### 4.6 Uniqueness of the residual occurrence
 
-If occurrence labelling is faithful, two occurrences carrying the same role cannot be distinct.
+The residual-determination core first establishes that every new occurrence carries the same distinguished residual role.
 
-Since every new occurrence carries the same residual role, the new occurrences coincide.
+When the labelling of new occurrences is injective, two new occurrences carrying that same role cannot remain distinct.
 
 ```text
-every new occurrence
-→ same residual role
-
+exclusion of internal roles
++
+contractibility of the residual role
+        ↓
+the same residual role
+for every new occurrence
+        ↓
 faithfulness of the labelling
         ↓
-
 one residual occurrence
 ```
 
@@ -546,6 +549,8 @@ constituted perimeter
 ```
 
 ---
+
+In what follows, the terms **identity**, **constitutive determination**, and **alignment** provide a theoretical reading of explicit formal structures and equations. The Lean development directly verifies the occurrences, indexings, exact transports, extensions, compositions, and naturality laws that constrain this reading. These terms are not introduced as additional primitive predicates independent of those constructions.
 
 ## 6. Identity and constitutive indexing
 
