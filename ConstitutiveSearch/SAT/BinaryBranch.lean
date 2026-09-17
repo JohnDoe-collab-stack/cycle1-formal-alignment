@@ -1,4 +1,5 @@
 import ConstitutiveSearch.SAT.ConstraintTransport
+import ExactTypeTransport
 
 /-!
 # Exact SAT branching by one Boolean variable
@@ -6,17 +7,37 @@ import ConstitutiveSearch.SAT.ConstraintTransport
 This module isolates the OR step of SAT self-reduction from every later CNF
 simplification.
 
-For a fixed CNF and variable, a parent completion is exactly partitioned by the
-Boolean value assigned to that variable.  The two child completion spaces keep
-the same satisfying assignment together with the additional branch fact
-`assignment var = false` or `assignment var = true`.
+A raw satisfying assignment is first reindexed by the Boolean value it gives to
+the selected variable. That indexing is exact and reversible. The indexed
+parent completion space then decomposes definitionally into a false branch and
+a true branch.
 
-No satisfiability query is performed.  The split is defined directly on an
-already supplied completion and is reversible by forgetting the branch fact.
+No satisfiability query is performed. The only inspected datum is the value of
+the selected variable inside an already supplied satisfying assignment.
 -/
 
 namespace ConstitutiveSearch
 namespace SAT
+
+/-- A completion indexed by the actual Boolean value assigned to one variable. -/
+inductive ValueIndexedCompletion
+    (formula : Cnf)
+    (var : Var) : Bool → Type
+  | ofCompletion
+      (completion : Completion formula) :
+      ValueIndexedCompletion formula var (completion.1 var)
+
+namespace ValueIndexedCompletion
+
+/-- Forget the value index and recover the underlying SAT completion. -/
+def underlying
+    {formula : Cnf}
+    {var : Var}
+    {value : Bool} :
+    ValueIndexedCompletion formula var value → Completion formula
+  | .ofCompletion completion => completion
+
+end ValueIndexedCompletion
 
 /-- Three structural views of one CNF at one branching variable. -/
 inductive VariableBranchState where
@@ -24,15 +45,42 @@ inductive VariableBranchState where
   | fixedFalse : Cnf → Var → VariableBranchState
   | fixedTrue : Cnf → Var → VariableBranchState
 
-/-- Completion spaces for the parent and its two exact Boolean branches. -/
+/--
+The parent view stores the Boolean value together with a completion indexed by
+that value. The child views select one of the two Boolean indices.
+-/
 def VariableBranchCompletion : VariableBranchState → Type
-  | .parent formula _var => Completion formula
+  | .parent formula var =>
+      Sigma (ValueIndexedCompletion formula var)
   | .fixedFalse formula var =>
-      { completion : Completion formula // completion.1 var = false }
+      ValueIndexedCompletion formula var false
   | .fixedTrue formula var =>
-      { completion : Completion formula // completion.1 var = true }
+      ValueIndexedCompletion formula var true
 
-/-- Exact constructive split of satisfying assignments by one variable value. -/
+/-- Exact reversible indexing of raw SAT completions by one selected bit. -/
+def parentIndexing
+    (formula : Cnf)
+    (var : Var) :
+    ExactTypeTransport
+      (Completion formula)
+      (VariableBranchCompletion (.parent formula var)) :=
+  { forward := fun completion =>
+      ⟨completion.1 var, .ofCompletion completion⟩
+    backward := fun indexed =>
+      match indexed with
+      | ⟨_, .ofCompletion completion⟩ => completion
+    forwardBackward := by
+      intro completion
+      rfl
+    backwardForward := by
+      intro indexed
+      cases indexed with
+      | mk value indexedCompletion =>
+          cases indexedCompletion with
+          | ofCompletion completion =>
+              rfl }
+
+/-- Exact constructive split of the indexed parent by one variable value. -/
 def variableBranchSplit
     (formula : Cnf)
     (var : Var) :
@@ -41,36 +89,71 @@ def variableBranchSplit
       (.parent formula var)
       (.fixedFalse formula var)
       (.fixedTrue formula var) :=
-  { split := fun completion =>
-      match valueEq : completion.1 var with
-      | false => .inl ⟨completion, valueEq⟩
-      | true => .inr ⟨completion, valueEq⟩
+  { split := fun indexed =>
+      match indexed with
+      | ⟨false, completion⟩ => .inl completion
+      | ⟨true, completion⟩ => .inr completion
     merge := fun branch =>
       match branch with
-      | .inl completion => completion.1
-      | .inr completion => completion.1
+      | .inl completion => ⟨false, completion⟩
+      | .inr completion => ⟨true, completion⟩
     splitMerge := by
       intro branch
-      cases branch with
-      | inl left =>
-          rcases left with ⟨completion, branchEq⟩
-          cases valueEq : completion.1 var with
-          | false => rfl
-          | true => cases branchEq
-      | inr right =>
-          rcases right with ⟨completion, branchEq⟩
-          cases valueEq : completion.1 var with
-          | false => cases branchEq
-          | true => rfl
+      cases branch <;> rfl
     mergeSplit := by
-      intro completion
-      cases valueEq : completion.1 var <;> rfl }
+      intro indexed
+      cases indexed with
+      | mk value completion =>
+          cases value <;> rfl }
+
+/-- Direct split of one raw SAT completion through the exact parent indexing. -/
+def splitCompletion
+    (formula : Cnf)
+    (var : Var)
+    (completion : Completion formula) :
+    VariableBranchCompletion (.fixedFalse formula var) ⊕
+      VariableBranchCompletion (.fixedTrue formula var) :=
+  (variableBranchSplit formula var).split
+    ((parentIndexing formula var).forward completion)
+
+/-- Forget a branch tag and recover the corresponding raw SAT completion. -/
+def mergeCompletion
+    (formula : Cnf)
+    (var : Var)
+    (branch :
+      VariableBranchCompletion (.fixedFalse formula var) ⊕
+        VariableBranchCompletion (.fixedTrue formula var)) :
+    Completion formula :=
+  (parentIndexing formula var).backward
+    ((variableBranchSplit formula var).merge branch)
+
+/-- Splitting and then forgetting the branch reconstructs the original completion. -/
+theorem merge_split_completion
+    (formula : Cnf)
+    (var : Var)
+    (completion : Completion formula) :
+    mergeCompletion formula var
+        (splitCompletion formula var completion) =
+      completion := by
+  change
+    (parentIndexing formula var).backward
+        ((variableBranchSplit formula var).merge
+          ((variableBranchSplit formula var).split
+            ((parentIndexing formula var).forward completion))) =
+      completion
+  rw [(variableBranchSplit formula var).mergeSplit]
+  exact (parentIndexing formula var).forwardBackward completion
 
 end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.SAT.ValueIndexedCompletion
+#print axioms ConstitutiveSearch.SAT.ValueIndexedCompletion.underlying
 #print axioms ConstitutiveSearch.SAT.VariableBranchState
 #print axioms ConstitutiveSearch.SAT.VariableBranchCompletion
+#print axioms ConstitutiveSearch.SAT.parentIndexing
 #print axioms ConstitutiveSearch.SAT.variableBranchSplit
+#print axioms ConstitutiveSearch.SAT.splitCompletion
+#print axioms ConstitutiveSearch.SAT.merge_split_completion
 /- AXIOM_AUDIT_END -/
