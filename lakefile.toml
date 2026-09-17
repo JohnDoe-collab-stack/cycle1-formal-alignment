@@ -17,6 +17,7 @@ roots = [
   "ConstitutiveSearch.ConstitutiveWidth",
   "ConstitutiveSearch.SAT.ConstraintTransport",
   "ConstitutiveSearch.SAT.BinaryBranch",
+  "ConstitutiveSearch.SAT.RestrictionTransport",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
@@ -69,5 +70,6 @@ roots = [
   "Tests.ConstitutiveIrreducibleFrontierRegression",
   "Tests.ConstitutiveWidthRegression",
   "Tests.SATConstraintTransportRegression",
-  "Tests.SATBinaryBranchRegression"
+  "Tests.SATBinaryBranchRegression",
+  "Tests.SATRestrictionTransportRegression"
 ]
