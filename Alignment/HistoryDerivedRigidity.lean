@@ -451,53 +451,79 @@ theorem restrictPrevious_preservesBoolPattern
         occurrencePrecedesBool
           ((restrictPrevious automorphism latestFixed).forward third)
           ((restrictPrevious automorphism latestFixed).forward fourth)) := by
+  let lift :
+      History.Occurrence previous →
+        History.Occurrence (.extend previous step) :=
+    fun occurrence =>
+      History.Occurrence.earlier (step := step) occurrence
   constructor
   · intro sourceEquality
     have extendedSource :
-        occurrencePrecedesBool
-            (History.Occurrence.earlier first)
-            (History.Occurrence.earlier second) =
-          occurrencePrecedesBool
-            (History.Occurrence.earlier third)
-            (History.Occurrence.earlier fourth) := by
-      simpa only [occurrencePrecedesBool] using sourceEquality
+        occurrencePrecedesBool (lift first) (lift second) =
+          occurrencePrecedesBool (lift third) (lift fourth) := by
+      exact sourceEquality
     have extendedTarget :=
       (preserves
-        (History.Occurrence.earlier first)
-        (History.Occurrence.earlier second)
-        (History.Occurrence.earlier third)
-        (History.Occurrence.earlier fourth)).mp extendedSource
-    rw [← restrictPrevious_forward_spec automorphism latestFixed first,
-      ← restrictPrevious_forward_spec automorphism latestFixed second,
-      ← restrictPrevious_forward_spec automorphism latestFixed third,
-      ← restrictPrevious_forward_spec automorphism latestFixed fourth]
+        (lift first) (lift second) (lift third) (lift fourth)).mp
+        extendedSource
+    have firstSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed first
+    have secondSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed second
+    have thirdSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed third
+    have fourthSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed fourth
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward first) =
+        automorphism.forward (lift first) at firstSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward second) =
+        automorphism.forward (lift second) at secondSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward third) =
+        automorphism.forward (lift third) at thirdSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward fourth) =
+        automorphism.forward (lift fourth) at fourthSpec
+    rw [← firstSpec, ← secondSpec, ← thirdSpec, ← fourthSpec]
       at extendedTarget
-    simpa only [occurrencePrecedesBool] using extendedTarget
+    exact extendedTarget
   · intro targetEquality
     have extendedTarget :
         occurrencePrecedesBool
-            (History.Occurrence.earlier
-              ((restrictPrevious automorphism latestFixed).forward first))
-            (History.Occurrence.earlier
-              ((restrictPrevious automorphism latestFixed).forward second)) =
+            (lift ((restrictPrevious automorphism latestFixed).forward first))
+            (lift ((restrictPrevious automorphism latestFixed).forward second)) =
           occurrencePrecedesBool
-            (History.Occurrence.earlier
-              ((restrictPrevious automorphism latestFixed).forward third))
-            (History.Occurrence.earlier
-              ((restrictPrevious automorphism latestFixed).forward fourth)) := by
-      simpa only [occurrencePrecedesBool] using targetEquality
-    rw [restrictPrevious_forward_spec automorphism latestFixed first,
-      restrictPrevious_forward_spec automorphism latestFixed second,
-      restrictPrevious_forward_spec automorphism latestFixed third,
-      restrictPrevious_forward_spec automorphism latestFixed fourth]
-      at extendedTarget
+            (lift ((restrictPrevious automorphism latestFixed).forward third))
+            (lift ((restrictPrevious automorphism latestFixed).forward fourth)) := by
+      exact targetEquality
+    have firstSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed first
+    have secondSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed second
+    have thirdSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed third
+    have fourthSpec :=
+      restrictPrevious_forward_spec automorphism latestFixed fourth
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward first) =
+        automorphism.forward (lift first) at firstSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward second) =
+        automorphism.forward (lift second) at secondSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward third) =
+        automorphism.forward (lift third) at thirdSpec
+    change
+      lift ((restrictPrevious automorphism latestFixed).forward fourth) =
+        automorphism.forward (lift fourth) at fourthSpec
+    rw [firstSpec, secondSpec, thirdSpec, fourthSpec] at extendedTarget
     have extendedSource :=
       (preserves
-        (History.Occurrence.earlier first)
-        (History.Occurrence.earlier second)
-        (History.Occurrence.earlier third)
-        (History.Occurrence.earlier fourth)).mpr extendedTarget
-    simpa only [occurrencePrecedesBool] using extendedSource
+        (lift first) (lift second) (lift third) (lift fourth)).mpr
+        extendedTarget
+    exact extendedSource
 
 /-- Every Boolean-pattern-preserving history automorphism is pointwise fixed. -/
 theorem forward_fixed_of_boolPattern
