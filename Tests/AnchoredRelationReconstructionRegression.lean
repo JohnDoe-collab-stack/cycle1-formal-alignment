@@ -130,6 +130,12 @@ theorem emptyAnchors_not_separating :
 end Alignment.Tests.AnchoredRelationReconstructionRegression
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.sourceRelation
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.targetRelation
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.sourceAnchor
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.targetAnchor
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.forward
+#print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.backward
 #print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.sourceAnchoredProfile_separates
 #print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.targetAnchoredProfile_separates
 #print axioms Alignment.Tests.AnchoredRelationReconstructionRegression.forward_preservesAnchors
