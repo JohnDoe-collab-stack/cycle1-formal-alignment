@@ -78,24 +78,24 @@ def anchorListing : FiniteListing Unit :=
       exact List.Mem.head [] }
 
 def sourceListing : FiniteListing SourceNode :=
-  { values := [.root, .next]
+  { values := [SourceNode.root, SourceNode.next]
     complete := by
       intro value
       cases value with
       | root =>
-          exact List.Mem.head [.next]
+          exact List.Mem.head [SourceNode.next]
       | next =>
-          exact List.Mem.tail .root (List.Mem.head []) }
+          exact List.Mem.tail SourceNode.root (List.Mem.head []) }
 
 def targetListing : FiniteListing TargetNode :=
-  { values := [.origin, .successor]
+  { values := [TargetNode.origin, TargetNode.successor]
     complete := by
       intro value
       cases value with
       | origin =>
-          exact List.Mem.head [.successor]
+          exact List.Mem.head [TargetNode.successor]
       | successor =>
-          exact List.Mem.tail .origin (List.Mem.head []) }
+          exact List.Mem.tail TargetNode.origin (List.Mem.head []) }
 
 /-- The finite search discovers the first structural pair directly. -/
 theorem find_root :
@@ -217,14 +217,14 @@ def unitListing : FiniteListing Unit :=
       exact List.Mem.head [] }
 
 def partialTargetListing : FiniteListing PartialTarget :=
-  { values := [.matched, .extra]
+  { values := [PartialTarget.matched, PartialTarget.extra]
     complete := by
       intro value
       cases value with
       | matched =>
-          exact List.Mem.head [.extra]
+          exact List.Mem.head [PartialTarget.extra]
       | extra =>
-          exact List.Mem.tail .matched (List.Mem.head []) }
+          exact List.Mem.tail PartialTarget.matched (List.Mem.head []) }
 
 /-- One-sided totality is detected positively by the executable checker. -/
 theorem partial_forward_check_succeeds :
