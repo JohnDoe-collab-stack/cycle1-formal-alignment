@@ -1,7 +1,5 @@
 # Présentation longue
 
-**Français** | [English](LONG_PRESENTATION.md)
-
 ## Théorie constitutive de la détermination relationnelle
 
 Cette théorie part d’un principe : **avant de représenter, mesurer, évaluer ou aligner un objet, il faut établir ce qui le constitue et ce qui permet de l’identifier à travers ses transformations.**
