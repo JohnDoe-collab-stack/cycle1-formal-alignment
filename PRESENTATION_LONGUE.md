@@ -1092,7 +1092,7 @@ Cette architecture donne à l’alignement un caractère relationnel de second o
 
 Dans l’état actuel de la théorie, cet index commun est fourni ou extrait d’une construction commune. La théorie ne prétend pas encore reconstruire automatiquement un tel médiateur entre deux systèmes initialement présentés comme indépendants.
 
-### 8.4 Décomposition ancien / frais et unicité relative du transport
+### 8.4 Décomposition ancien / nouveau et unicité relative du transport
 
 À un pas, toute identité du carrier étendu est constructivement classée comme :
 
@@ -1121,7 +1121,7 @@ transport déterminé sur tout le carrier étendu
 
 Ce résultat ne dit pas que toute bijection exacte possible entre deux carriers est unique.
 
-Il dit que **le transport constitutivement compatible est déterminé dès que son action est fixée sur la décomposition constitutive complète ancien / frais.**
+Il dit que **le transport constitutivement compatible est déterminé dès que son action est fixée sur la décomposition constitutive complète ancien / nouveau.**
 
 Cette distinction est essentielle pour éviter de confondre unicité relative de l’alignement et unicité absolue de toute correspondance exacte.
 
@@ -1154,7 +1154,7 @@ profondeur n
 
 Le passage par une profondeur intermédiaire ne change pas le prolongement final de l’identité.
 
-À cela s’ajoute l’indépendance vis-à-vis du témoin de profondeur étudiée précédemment.
+À cela s’ajoute l’indépendance vis-à-vis du témoin d’extension étudiée précédemment.
 
 La cohérence n’est donc pas seulement locale à un carré. Elle possède déjà une structure de composition le long de chacun des deux axes.
 
@@ -1196,7 +1196,7 @@ Elle ne dit pas que les réalisations sont identiques. Elle dit que les chemins 
 
 ### 8.7 L’exactitude seule ne suffit pas : séparateur dynamique
 
-La nécessité d’une condition de cohérence supplémentaire n’est pas seulement déclarative.
+L’insuffisance de l’exactitude seule n’est pas seulement déclarative.
 
 Le développement contient un séparateur constructif.
 
@@ -1281,7 +1281,7 @@ Cette factorisation est conceptuellement importante : **la cohérence provient d
 
 Les carrés médiés adjacents peuvent en outre être composés au niveau observé sans exiger de fidélité à leur frontière intermédiaire. Une réflexion au terminal extérieur suffit pour relever le rectangle composé en une commutation littérale.
 
-L’alignement possède ainsi une propriété de collage qui ne demande pas de rendre chaque intermédiaire globalement fidèle.
+La couche d’alignement dispose ainsi d’une propriété de collage qui ne demande pas de rendre chaque intermédiaire globalement fidèle.
 
 ### 8.9 Alignement de la nouveauté constituée
 
@@ -1330,7 +1330,7 @@ index commun
 +
 raccords exacts
 +
-décomposition ancien / frais
+décomposition ancien / nouveau
 +
 prolongements injectifs
 +
