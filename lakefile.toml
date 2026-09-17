@@ -48,6 +48,7 @@ roots = [
   "Tests.AnchoredRelationReconstructionRegression",
   "Tests.AnchoredMatchReconstructionRegression",
   "Tests.AnchoredMatchStrictnessRegression",
+  "Tests.FiniteAnchoredMatchSearchRegression",
   "Tests.MediatedTransitionCoherenceRegression",
   "Tests.MediatedTransitionPastingRegression"
 ]
