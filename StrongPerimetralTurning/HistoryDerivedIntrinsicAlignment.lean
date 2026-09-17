@@ -381,20 +381,21 @@ theorem iteratedConcreteAlignment_canonical
     candidate.initial.transport.forward occurrence =
       ((iteratedRealization P A depth).transport
         (iteratedRealization P B depth)).forward occurrence := by
-  calc
-    candidate.initial.transport.forward occurrence =
-        (iteratedConcreteConstitutiveAlignment P A B depth).initial.transport.forward
-          occurrence :=
-      HistoryDerivedAlignment.constitutiveAlignment_forward_unique
-        (A.realizeHistory (iteratedHistory P depth).history)
-        (B.realizeHistory (iteratedHistory P depth).history)
-        candidate
-        (iteratedConcreteConstitutiveAlignment P A B depth)
-        occurrence
-    _ = ((iteratedRealization P A depth).transport
-          (iteratedRealization P B depth)).forward occurrence :=
+  have firstAgreement :
+      candidate.initial.transport.forward occurrence =
+        (concreteToConcreteTransport
+          A B (iteratedHistory P depth).history).forward occurrence :=
+    concreteToConcrete_is_canonical
+      A B (iteratedHistory P depth).history candidate occurrence
+  have secondAgreement :
+      (concreteToConcreteTransport
+        A B (iteratedHistory P depth).history).forward occurrence =
+        ((iteratedRealization P A depth).transport
+          (iteratedRealization P B depth)).forward occurrence := by
+    exact
       iteratedConcreteAlignment_forward_eq_realizationTransport
         P A B depth occurrence
+  exact firstAgreement.trans secondAgreement
 
 end HistoryDerivedIntrinsicAlignment
 end StrongPerimetralTurning
