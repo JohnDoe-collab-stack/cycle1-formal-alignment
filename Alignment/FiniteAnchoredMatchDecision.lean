@@ -49,11 +49,11 @@ theorem findTarget_ne_none_of_mem_of_matches
   | cons candidate rest ih =>
       cases member with
       | head =>
-          have check : matchesOn context anchors source candidate = true :=
-            matchesOn_true_of_matches context anchors source candidate matching
+          have check : matchesOn context anchors source target = true :=
+            matchesOn_true_of_matches context anchors source target matching
           change
-            (match matchesOn context anchors source candidate with
-            | true => some candidate
+            (match matchesOn context anchors source target with
+            | true => some target
             | false => findTarget context anchors source rest) ≠ none
           rw [check]
           intro impossible
@@ -66,7 +66,7 @@ theorem findTarget_ne_none_of_mem_of_matches
                 | true => some candidate
                 | false => findTarget context anchors source rest) ≠ none
               rw [check]
-              exact ih tailMember matching
+              exact ih tailMember
           | true =>
               change
                 (match matchesOn context anchors source candidate with
@@ -97,11 +97,11 @@ theorem findSource_ne_none_of_mem_of_matches
   | cons candidate rest ih =>
       cases member with
       | head =>
-          have check : matchesOn context anchors candidate target = true :=
-            matchesOn_true_of_matches context anchors candidate target matching
+          have check : matchesOn context anchors source target = true :=
+            matchesOn_true_of_matches context anchors source target matching
           change
-            (match matchesOn context anchors candidate target with
-            | true => some candidate
+            (match matchesOn context anchors source target with
+            | true => some source
             | false => findSource context anchors target rest) ≠ none
           rw [check]
           intro impossible
@@ -114,7 +114,7 @@ theorem findSource_ne_none_of_mem_of_matches
                 | true => some candidate
                 | false => findSource context anchors target rest) ≠ none
               rw [check]
-              exact ih tailMember matching
+              exact ih tailMember
           | true =>
               change
                 (match matchesOn context anchors candidate target with
@@ -349,6 +349,16 @@ theorem noCompatibleExactAlignment_of_backwardTotalCheck_false
     context anchors sources targets checked
     alignment.toTotalMatching.toBackwardMatching
 
+/-- Positive certificate for a finite context that embeds forward but admits no exact alignment. -/
+structure ForwardOnlyCertificate
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    (context : AnchoredRelationContext Source Target Anchor Value) where
+  matching : ForwardAnchoredMatching context
+  refutesExact : CompatibleExactAlignment context → False
+
 /--
 A successful forward check together with a failed reverse check yields a
 positive injection and a constructive certificate that exact compatible
@@ -366,12 +376,13 @@ def forwardOnlyCertificateOfChecks
     (targets : FiniteListing Target)
     (forwardChecked : forwardTotalCheck context anchors sources targets = true)
     (backwardChecked : backwardTotalCheck context anchors sources targets = false) :
-    ForwardAnchoredMatching context ×
-      (CompatibleExactAlignment context → False) :=
-  ⟨forwardMatchingOfCheck
-      context anchors sources targets forwardChecked,
-    noCompatibleExactAlignment_of_backwardTotalCheck_false
-      context anchors sources targets backwardChecked⟩
+    ForwardOnlyCertificate context :=
+  { matching :=
+      forwardMatchingOfCheck
+        context anchors sources targets forwardChecked
+    refutesExact :=
+      noCompatibleExactAlignment_of_backwardTotalCheck_false
+        context anchors sources targets backwardChecked }
 
 end FiniteAnchoredMatchDecision
 end GenesisReconstruction
@@ -390,5 +401,6 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchDecision.totalChecks_true_iff_nonempty
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchDecision.noCompatibleExactAlignment_of_forwardTotalCheck_false
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchDecision.noCompatibleExactAlignment_of_backwardTotalCheck_false
+#print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchDecision.ForwardOnlyCertificate
 #print axioms Alignment.GenesisReconstruction.FiniteAnchoredMatchDecision.forwardOnlyCertificateOfChecks
 /- AXIOM_AUDIT_END -/
