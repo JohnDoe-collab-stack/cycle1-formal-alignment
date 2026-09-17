@@ -1,3 +1,4 @@
+import ConstitutiveSearch.FrontierPreservation
 import ConstitutiveSearch.SAT.GeneratedContext
 
 /-!
