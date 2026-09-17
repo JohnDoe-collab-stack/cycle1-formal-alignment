@@ -220,22 +220,84 @@ def generatedStructuralSplit
     mergeSplit := splitter.mergeSplit
     splitPreservesAccept := by
       intro continuation accepted
-      simpa only [
-        generatedStructuralBranchSystem,
-        GeneratedStructuralBranchContinuation,
-        GeneratedStructuralBranchAccept,
-        GeneratedStructuralBranchContext.child
-      ] using
-        splitter.splitPreservesAccept continuation accepted
+      by_cases valueFalse : continuation.1 var = false
+      · have residualAccepted :
+            Satisfies continuation.1
+              (branchResidual parent.context.formula var false) :=
+          (branchWeakening
+              parent.context.formula
+              var
+              false).preservesSatisfaction
+            accepted
+        simpa only [
+          generatedStructuralBranchSystem,
+          GeneratedStructuralBranchContinuation,
+          GeneratedStructuralBranchAccept,
+          GeneratedStructuralBranchContext.child,
+          splitStructuralContextContinuation,
+          dif_pos valueFalse,
+          BinaryAccept,
+          StructuralBranchAccept,
+          structuralChildContext
+        ] using residualAccepted
+      · have residualAccepted :
+            Satisfies continuation.1
+              (branchResidual parent.context.formula var true) :=
+          (branchWeakening
+              parent.context.formula
+              var
+              true).preservesSatisfaction
+            accepted
+        simpa only [
+          generatedStructuralBranchSystem,
+          GeneratedStructuralBranchContinuation,
+          GeneratedStructuralBranchAccept,
+          GeneratedStructuralBranchContext.child,
+          splitStructuralContextContinuation,
+          dif_neg valueFalse,
+          BinaryAccept,
+          StructuralBranchAccept,
+          structuralChildContext
+        ] using residualAccepted
     mergePreservesAccept := by
       intro branch accepted
-      simpa only [
-        generatedStructuralBranchSystem,
-        GeneratedStructuralBranchContinuation,
-        GeneratedStructuralBranchAccept,
-        GeneratedStructuralBranchContext.child
-      ] using
-        splitter.mergePreservesAccept branch accepted }
+      cases branch with
+      | inl leftContinuation =>
+          change
+            Satisfies leftContinuation.1
+              (branchResidual
+                parent.context.formula
+                var
+                false) at accepted
+          change
+            Satisfies leftContinuation.1
+              parent.context.formula
+          exact
+            restoreSatisfaction
+              parent.context.formula
+              leftContinuation.1
+              var
+              false
+              leftContinuation.2.1
+              accepted
+      | inr rightContinuation =>
+          change
+            Satisfies rightContinuation.1
+              (branchResidual
+                parent.context.formula
+                var
+                true) at accepted
+          change
+            Satisfies rightContinuation.1
+              parent.context.formula
+          exact
+            restoreSatisfaction
+              parent.context.formula
+              rightContinuation.1
+              var
+              true
+              rightContinuation.2.1
+              accepted }
 
 /-- Fresh generated expansion preserves frontier viability exactly. -/
 def generatedStructuralExpansion
