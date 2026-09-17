@@ -22,6 +22,10 @@ constitution
 
 La circularité joue dans ce cadre un rôle central, non comme fondement général de la théorie, mais comme **instance dans laquelle l’ensemble de cette architecture peut être déployé et éprouvé**.
 
+### Positionnement
+
+Cette théorie se situe à proximité de travaux sur la clôture organisationnelle, les touts relationnels, l’individuation, les frontières structurelles et l’identité. Sa contribution propre ne réside pas dans l’une de ces notions prise isolément, mais dans l’ordre constructif qui les relie : reconstruction d’un domaine constitutif, détermination du nouveau relativement à ce domaine, formation d’une frontière de régime, genèse d’une identité fraîche puis persistance cohérente de cette identité. Le positionnement comparatif détaillé est présenté dans [POSITIONNEMENT_SCIENTIFIQUE.md](POSITIONNEMENT_SCIENTIFIQUE.md).
+
 ---
 
 ## 1. Constitution
