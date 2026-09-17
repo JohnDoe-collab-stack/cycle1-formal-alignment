@@ -1,10 +1,11 @@
-import Alignment.FiniteAnchoredMatchDecision
+import Alignment.FiniteAlignmentClassification
 
 namespace Alignment.Tests.FiniteAnchoredMatchSearchRegression
 
 open GenesisReconstruction
 open GenesisReconstruction.FiniteAnchoredMatchSearch
 open GenesisReconstruction.FiniteAnchoredMatchDecision
+open GenesisReconstruction.FiniteAlignmentClassification
 
 inductive SourceNode
   | root
@@ -155,6 +156,22 @@ theorem total_checks_characterize_matching :
     context anchorListing sourceListing targetListing).mp
       ⟨forward_check_succeeds, backward_check_succeeds⟩
 
+/-- The witness-carrying classifier computes the exact regime on the total context. -/
+def computedClassification : Classification context :=
+  classify context anchorListing sourceListing targetListing
+
+/-- The exact regime tag is obtained by computation. -/
+theorem computed_classification_kind :
+    computedClassification.kind = Kind.exact := by
+  rfl
+
+/-- Exact classification exposes the finite genesis transport directly. -/
+theorem computed_classification_depth_three_transport :
+    computedClassification.finiteTransport? 3 ≠ none := by
+  intro impossible
+  change some _ = none at impossible
+  cases impossible
+
 /-- The optional end-to-end search succeeds on the total finite context. -/
 theorem optional_search_succeeds :
     searchTotalMatching? context anchorListing sourceListing targetListing ≠ none := by
@@ -295,6 +312,39 @@ theorem partial_certificate_refutes_exact
     (alignment : CompatibleExactAlignment partialContext) : False :=
   partialForwardOnlyCertificate.refutesExact alignment
 
+/-- The classifier computes the forward-only regime on the asymmetric context. -/
+def partialClassification : Classification partialContext :=
+  classify partialContext unitListing unitListing partialTargetListing
+
+/-- The forward-only tag is obtained by computation from the two directional checks. -/
+theorem partial_classification_kind :
+    partialClassification.kind = Kind.forwardOnly := by
+  rfl
+
+/-- The forward-only classification retains the positive structural injection. -/
+theorem partial_classification_forward_matching :
+    partialClassification.forwardMatching? ≠ none := by
+  intro impossible
+  change some _ = none at impossible
+  cases impossible
+
+/-- The forward-only classification exposes no exact transport. -/
+theorem partial_classification_no_exact_transport :
+    partialClassification.exactTransport? = none := by
+  rfl
+
+/-- The computed forward-only regime is definitionally non-exact. -/
+theorem partial_classification_nonexact :
+    partialClassification.kind ≠ Kind.exact := by
+  intro impossible
+  cases impossible
+
+/-- The classification itself carries enough negative information to refute exact alignment. -/
+theorem partial_classification_refutes_exact
+    (alignment : CompatibleExactAlignment partialContext) : False :=
+  partialClassification.refutesExact_of_nonexact
+    partial_classification_nonexact alignment
+
 /-- The executable reverse search rejects the missing reverse totality. -/
 theorem partial_backward_search_rejects :
     searchBackwardMatching?
@@ -324,6 +374,9 @@ end Alignment.Tests.FiniteAnchoredMatchSearchRegression
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_source_roundTrip
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_depth_three_preservesGenesis
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.total_checks_characterize_matching
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computedClassification
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_classification_kind
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.computed_classification_depth_three_transport
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.optional_search_succeeds
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialContext
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_check_succeeds
@@ -336,6 +389,12 @@ end Alignment.Tests.FiniteAnchoredMatchSearchRegression
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialForwardOnlyCertificate
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_certificate_forward_injective
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_certificate_refutes_exact
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialClassification
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_classification_kind
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_classification_forward_matching
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_classification_no_exact_transport
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_classification_nonexact
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_classification_refutes_exact
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_backward_search_rejects
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_optional_search_rejects
 /- AXIOM_AUDIT_END -/
