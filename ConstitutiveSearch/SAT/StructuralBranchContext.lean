@@ -1,4 +1,5 @@
 import ConstitutiveSearch.AcceptedFrontierPreservation
+import ConstitutiveSearch.SAT.AcceptedBinaryBranch
 import ConstitutiveSearch.SAT.RestrictionTransport
 
 /-!
