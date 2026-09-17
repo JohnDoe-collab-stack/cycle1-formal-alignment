@@ -64,20 +64,18 @@ needed.
 -/
 theorem incompatibleContext_no_alignment_direct
     (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False := by
-  have diagonal := alignment.preservesRelation false false
-  change
-    directedRelation
-        (alignment.transport.forward false)
-        (alignment.transport.forward false) =
-      symmetricRelation false false at diagonal
-  have targetDiagonal :
+  have diagonalTrue :
+      directedRelation
+          (alignment.transport.forward false)
+          (alignment.transport.forward false) = true := by
+    simpa [incompatibleContext, symmetricRelation] using
+      (alignment.preservesRelation false false)
+  have diagonalFalse :
       directedRelation
           (alignment.transport.forward false)
           (alignment.transport.forward false) = false :=
     directedRelation_diagonal_false (alignment.transport.forward false)
-  have sourceDiagonal : symmetricRelation false false = true := rfl
-  have impossible : false = true :=
-    targetDiagonal.symm.trans (diagonal.trans sourceDiagonal)
+  have impossible : false = true := diagonalFalse.symm.trans diagonalTrue
   cases impossible
 
 /--
