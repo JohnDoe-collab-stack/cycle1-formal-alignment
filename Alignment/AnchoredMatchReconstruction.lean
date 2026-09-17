@@ -264,7 +264,9 @@ def toAnchoredResolver
     sourceSeparates := context.sourceSeparates
     targetSeparates := context.targetSeparates
     forwardPreservesAnchors := matching.forward_matches
-    backwardPreservesAnchors := matching.backward_matches }
+    backwardPreservesAnchors := by
+      intro identity anchor
+      exact (matching.backward_matches identity anchor).symm }
 
 /-- Canonical finite alignment reconstructed from total anchored matching. -/
 def finiteTransport
