@@ -65,7 +65,7 @@ theorem mem_append_right
   induction left with
   | nil => exact member
   | cons head tail ih =>
-      exact List.Mem.tail head (ih member)
+      exact List.Mem.tail head ih
 
 /-- Constructive map of list membership, avoiding extensional membership rewrites. -/
 theorem mem_map_of_mem
@@ -238,25 +238,29 @@ def ofFallback
         (functionOfTable fallback sources.values)
     complete := by
       intro function
-      let table := sources.values.map function
       have tableContained :
-          (value : Target) → value ∈ table → value ∈ targets.values := by
+          (value : Target) →
+            value ∈ sources.values.map function →
+              value ∈ targets.values := by
         intro value member
         exact
           codomain_mem_of_mem_map
             targets function sources.values value member
       have tableMember :
-          table ∈ allTables targets.values sources.values.length := by
-        have generated :=
-          mem_allTables_of_forall_mem table targets.values tableContained
-        change
           sources.values.map function ∈
-            allTables targets.values sources.values.length
+            allTables targets.values sources.values.length := by
+        have generated :=
+          mem_allTables_of_forall_mem
+            (sources.values.map function)
+            targets.values
+            tableContained
+        rw [List.length_map] at generated
         exact generated
-      let listed := functionOfTable fallback sources.values table
+      let listed :=
+        functionOfTable fallback sources.values (sources.values.map function)
       refine ⟨listed, ?_, ?_⟩
       · change
-          functionOfTable fallback sources.values table ∈
+          functionOfTable fallback sources.values (sources.values.map function) ∈
             (allTables targets.values sources.values.length).map
               (functionOfTable fallback sources.values)
         exact
@@ -272,13 +276,13 @@ def ofFallback
           functionOfTable_map_eq
             fallback sources.values function source (sources.complete source) }
 
-/-- An empty complete source listing has no inhabitants. -/
-theorem false_of_empty_complete_source
-    {Source : Type uSource}
-    (sources : FiniteListing Source)
-    (empty : sources.values = [])
-    (source : Source) : False := by
-  have member := sources.complete source
+/-- An empty complete listing has no inhabitants. -/
+theorem false_of_empty_complete_listing
+    {Carrier : Type uAux}
+    (listing : FiniteListing Carrier)
+    (empty : listing.values = [])
+    (identity : Carrier) : False := by
+  have member := listing.complete identity
   rw [empty] at member
   cases member
 
@@ -303,7 +307,7 @@ def enumerateFunctions
       cases sourceValues : sources.values with
       | nil =>
           let emptyFunction : Source → Target := fun source =>
-            (false_of_empty_complete_source sources sourceValues source).elim
+            (false_of_empty_complete_listing sources sourceValues source).elim
           exact
             { values := [emptyFunction]
               complete := by
@@ -311,17 +315,16 @@ def enumerateFunctions
                 refine ⟨emptyFunction, List.Mem.head [], ?_⟩
                 intro source
                 exact
-                  (false_of_empty_complete_source
+                  (false_of_empty_complete_listing
                     sources sourceValues source).elim }
       | cons source rest =>
           exact
             { values := []
               complete := by
                 intro function
-                have targetMember := targets.complete (function source)
-                have impossible : function source ∈ ([] : List Target) :=
-                  targetValues ▸ targetMember
-                cases impossible }
+                exact
+                  (false_of_empty_complete_listing
+                    targets targetValues (function source)).elim }
   | cons target rest =>
       exact ofFallback sources targets target
 
@@ -341,6 +344,6 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.functionOfTable_map_eq
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.codomain_mem_of_mem_map
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.ofFallback
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.false_of_empty_complete_source
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.false_of_empty_complete_listing
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.enumerateFunctions
 /- AXIOM_AUDIT_END -/
