@@ -100,6 +100,9 @@ def targetCompletion : GeneratedBranchCompletion target :=
 /-- Variable zero is flipped by the global transport. -/
 theorem target_x0_true :
     target.context.assignment targetCompletion 0 = true := by
+  change
+    target.context.assignment
+      (sourceToTarget.mapCompletion sourceCompletion) 0 = true
   rw [GeneratedFlipAtRelation.mapCompletion_assignment]
   rw [Assignment.flipAt_selected]
   rfl
@@ -107,6 +110,9 @@ theorem target_x0_true :
 /-- The unrelated second decision remains unchanged. -/
 theorem target_x1_true :
     target.context.assignment targetCompletion 1 = true := by
+  change
+    target.context.assignment
+      (sourceToTarget.mapCompletion sourceCompletion) 1 = true
   rw [GeneratedFlipAtRelation.mapCompletion_assignment]
   rw [Assignment.flipAt_other 0 1]
   · rfl
