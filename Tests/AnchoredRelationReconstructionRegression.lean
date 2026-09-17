@@ -13,14 +13,22 @@ inductive TargetNode
   | successor
 
 /-- A one-edge local relation on the source carrier. -/
-def sourceRelation : SourceNode → SourceNode → Bool
-  | .root, .next => true
-  | _, _ => false
+def sourceRelation (source target : SourceNode) : Bool :=
+  match source with
+  | .root =>
+      match target with
+      | .root => false
+      | .next => true
+  | .next => false
 
 /-- The same relational shape on a different target carrier. -/
-def targetRelation : TargetNode → TargetNode → Bool
-  | .origin, .successor => true
-  | _, _ => false
+def targetRelation (source target : TargetNode) : Bool :=
+  match source with
+  | .origin =>
+      match target with
+      | .origin => false
+      | .successor => true
+  | .successor => false
 
 /-- One aligned structural anchor is enough to distinguish both nodes here. -/
 def sourceAnchor : Unit → SourceNode :=
