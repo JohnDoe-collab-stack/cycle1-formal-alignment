@@ -328,6 +328,8 @@ périmètre canonique reconstruit
 
 Le périmètre joue donc une fonction charnière : **il transforme une collection d’accords locaux en une frontière structurelle à partir de laquelle peuvent être définis le nouveau, le résiduel, la maximalité du régime et la persistance des identités.**
 
+**Le périmètre reconstruit constitue ainsi un tout constitutif : une unité structurelle dont les relations constitutives suffisent à déterminer canoniquement leur propre domaine d’intériorité. Sa complétude consiste dans cette détermination positive de l’interne.**
+
 La circularité fournit ainsi une fermeture relationnelle suffisante pour que l’interne soit délimité par un périmètre canonique. Cette fermeture ne constitue pourtant pas une totalisation de tout ce qui peut être construit. Le périmètre est complet relativement aux rôles internes déjà constitués, alors même que la génération peut se poursuivre au-delà de lui. C’est cet écart entre complétude constitutive et continuation possible qui rend possible l’apparition d’un résiduel et, ensuite, la détermination d’une frontière de régime.
 
 ### 4.4 Le périmètre n’arrête pas la génération
