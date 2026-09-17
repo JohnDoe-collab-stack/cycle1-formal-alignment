@@ -59,8 +59,7 @@ def boolTransportListing : FiniteTransportListing Bool Bool :=
                     exactForward_injective transport collision
                   cases impossible
               | true =>
-                  change true = transport.forward true
-                  exact trueImage.symm
+                  rfl
       | true =>
           refine
             ⟨swapTransport,
@@ -74,8 +73,7 @@ def boolTransportListing : FiniteTransportListing Bool Bool :=
           | true =>
               cases trueImage : transport.forward true with
               | false =>
-                  change false = transport.forward true
-                  exact trueImage.symm
+                  rfl
               | true =>
                   have collision :
                       transport.forward false = transport.forward true := by
