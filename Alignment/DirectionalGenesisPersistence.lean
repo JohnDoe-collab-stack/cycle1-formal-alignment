@@ -13,6 +13,11 @@ This module keeps that weaker directional result distinct from exact transport.
 A forward-only finite alignment therefore persists as an injective
 fresh-preserving embedding at every finite depth, without manufacturing a
 reverse map. The backward-only case is symmetric.
+
+Profile separation also makes the one-sided structural map pointwise unique.
+That initial uniqueness propagates through every finite lift. Hence directional
+persistence adds no new ambiguity once the anchored structural context fixes
+the initial matching.
 -/
 
 namespace Alignment
@@ -68,6 +73,22 @@ theorem liftMap_injective
           | inr secondFresh =>
               cases secondFresh
               rfl
+
+/-- Pointwise agreement of initial maps propagates through every finite lift. -/
+theorem liftMap_congr
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    (first second : Source → Target)
+    (agreement : ∀ identity : Source, first identity = second identity) :
+    (depth : Nat) →
+      ∀ identity : IteratedCarrier Source depth,
+        liftMap first depth identity = liftMap second depth identity
+  | 0, identity => agreement identity
+  | depth + 1, .inl old =>
+      congrArg Sum.inl (liftMap_congr first second agreement depth old)
+  | _ + 1, .inr witness => by
+      cases witness
+      rfl
 
 /-- Directional preservation of every finite fresh-generation stratum. -/
 def PreservesDirectionalGenesis
@@ -168,6 +189,82 @@ def finiteBackwardEmbeddingOfMatching
   FiniteGenesisEmbedding.ofInjective
     matching.backward matching.backward_injective depth
 
+/-- Profile separation makes any two forward structural matchings pointwise equal. -/
+theorem forwardMatching_pointwise_unique
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    {context : AnchoredRelationContext Source Target Anchor Value}
+    (first second : ForwardAnchoredMatching context)
+    (source : Source) :
+    first.forward source = second.forward source :=
+  context.target_unique
+    source
+    (first.forward source)
+    (second.forward source)
+    (first.forward_matches source)
+    (second.forward_matches source)
+
+/-- Profile separation makes any two backward structural matchings pointwise equal. -/
+theorem backwardMatching_pointwise_unique
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    {context : AnchoredRelationContext Source Target Anchor Value}
+    (first second : BackwardAnchoredMatching context)
+    (target : Target) :
+    first.backward target = second.backward target :=
+  context.source_unique
+    target
+    (first.backward target)
+    (second.backward target)
+    (first.backward_matches target)
+    (second.backward_matches target)
+
+/-- The finite forward genesis embedding is canonical for a fixed anchored context. -/
+theorem finiteForwardEmbedding_pointwise_unique
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    {context : AnchoredRelationContext Source Target Anchor Value}
+    (first second : ForwardAnchoredMatching context)
+    (depth : Nat)
+    (identity : IteratedCarrier Source depth) :
+    (finiteForwardEmbeddingOfMatching first depth).map identity =
+      (finiteForwardEmbeddingOfMatching second depth).map identity := by
+  change
+    liftMap first.forward depth identity =
+      liftMap second.forward depth identity
+  exact
+    liftMap_congr
+      first.forward second.forward
+      (forwardMatching_pointwise_unique first second)
+      depth identity
+
+/-- The finite backward genesis embedding is canonical for a fixed anchored context. -/
+theorem finiteBackwardEmbedding_pointwise_unique
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Anchor : Type uAnchor}
+    {Value : Type uValue}
+    {context : AnchoredRelationContext Source Target Anchor Value}
+    (first second : BackwardAnchoredMatching context)
+    (depth : Nat)
+    (identity : IteratedCarrier Target depth) :
+    (finiteBackwardEmbeddingOfMatching first depth).map identity =
+      (finiteBackwardEmbeddingOfMatching second depth).map identity := by
+  change
+    liftMap first.backward depth identity =
+      liftMap second.backward depth identity
+  exact
+    liftMap_congr
+      first.backward second.backward
+      (backwardMatching_pointwise_unique first second)
+      depth identity
+
 /--
 Extract the finite forward genesis embedding exactly from classifications that
 contain forward structural totality.
@@ -266,6 +363,7 @@ end Alignment
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap_injective
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap_congr
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.PreservesDirectionalGenesis
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap_embedFrom
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.liftMap_preservesGenesis
@@ -273,6 +371,10 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.FiniteGenesisEmbedding.ofInjective
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteForwardEmbeddingOfMatching
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteBackwardEmbeddingOfMatching
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.forwardMatching_pointwise_unique
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.backwardMatching_pointwise_unique
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteForwardEmbedding_pointwise_unique
+#print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteBackwardEmbedding_pointwise_unique
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteForwardEmbedding?
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.finiteBackwardEmbedding?
 #print axioms Alignment.GenesisReconstruction.DirectionalGenesisPersistence.totalMatching_directional_forward_agrees
