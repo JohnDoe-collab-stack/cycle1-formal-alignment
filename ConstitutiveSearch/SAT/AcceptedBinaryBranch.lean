@@ -59,16 +59,12 @@ theorem merge_split_assignment
     mergeAssignment (splitAssignment var assignment) =
       assignment := by
   by_cases valueFalse : assignment var = false
-  · simp only [
-      splitAssignment,
-      dif_pos valueFalse,
-      mergeAssignment
-    ]
-  · simp only [
-      splitAssignment,
-      dif_neg valueFalse,
-      mergeAssignment
-    ]
+  · unfold splitAssignment
+    rw [dif_pos valueFalse]
+    rfl
+  · unfold splitAssignment
+    rw [dif_neg valueFalse]
+    rfl
 
 /-- Splitting after forgetting reconstructs the indexed branch. -/
 theorem split_merge_assignment
@@ -82,11 +78,14 @@ theorem split_merge_assignment
   | inl leftAssignment =>
       cases leftAssignment with
       | mk assignment valueExact =>
-          simp only [
-            mergeAssignment,
-            splitAssignment,
-            dif_pos valueExact
-          ]
+          change
+            splitAssignment var assignment =
+              .inl ⟨assignment, valueExact⟩
+          unfold splitAssignment
+          rw [dif_pos valueExact]
+          apply congrArg Sum.inl
+          apply Subtype.ext
+          rfl
   | inr rightAssignment =>
       cases rightAssignment with
       | mk assignment valueExact =>
@@ -94,11 +93,14 @@ theorem split_merge_assignment
             intro falseExact
             rw [valueExact] at falseExact
             cases falseExact
-          simp only [
-            mergeAssignment,
-            splitAssignment,
-            dif_neg notFalse
-          ]
+          change
+            splitAssignment var assignment =
+              .inr ⟨assignment, valueExact⟩
+          unfold splitAssignment
+          rw [dif_neg notFalse]
+          apply congrArg Sum.inr
+          apply Subtype.ext
+          rfl
 
 /-- Parent and two structurally indexed child views of one SAT formula. -/
 inductive StructuralVariableBranchState where
