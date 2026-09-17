@@ -101,7 +101,7 @@ theorem reconstructInitial_forward
         (liftToDepth reconstructed depth).forward
           (IteratedCarrier.embedInitial depth identity) := by
       symm
-      simpa [IteratedCarrier.embedInitial] using
+      simpa [IteratedCarrier.embedInitial, liftToDepth] using
         (liftToDepth_embedFrom
           reconstructed
           (DepthExtension.zeroTo depth)
@@ -118,7 +118,7 @@ theorem reconstructInitial_forward
     _ = IteratedCarrier.embedInitial depth
           (alignment.initial.transport.forward identity) := by
       simpa [IntrinsicConstitutiveAlignment.transportAtDepth,
-        IteratedCarrier.embedInitial] using
+        IteratedCarrier.embedInitial, liftToDepth] using
         (liftToDepth_embedFrom
           alignment.initial.transport
           (DepthExtension.zeroTo depth)
