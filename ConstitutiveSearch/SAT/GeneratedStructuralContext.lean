@@ -220,58 +220,22 @@ def generatedStructuralSplit
     mergeSplit := splitter.mergeSplit
     splitPreservesAccept := by
       intro continuation accepted
-      have structuralAccepted :=
+      simpa only [
+        generatedStructuralBranchSystem,
+        GeneratedStructuralBranchContinuation,
+        GeneratedStructuralBranchAccept,
+        GeneratedStructuralBranchContext.child
+      ] using
         splitter.splitPreservesAccept continuation accepted
-      cases splitExact : splitter.split continuation with
-      | inl leftContinuation =>
-          rw [splitExact] at structuralAccepted
-          rw [splitExact]
-          change
-            StructuralBranchAccept
-              (structuralChildContext
-                parent.context var false)
-              leftContinuation
-          exact structuralAccepted
-      | inr rightContinuation =>
-          rw [splitExact] at structuralAccepted
-          rw [splitExact]
-          change
-            StructuralBranchAccept
-              (structuralChildContext
-                parent.context var true)
-              rightContinuation
-          exact structuralAccepted
     mergePreservesAccept := by
       intro branch accepted
-      cases branch with
-      | inl leftContinuation =>
-          change
-            StructuralBranchAccept
-              (structuralChildContext
-                parent.context var false)
-              leftContinuation at accepted
-          change
-            StructuralBranchAccept
-              parent.context
-              (splitter.merge (.inl leftContinuation))
-          exact
-            splitter.mergePreservesAccept
-              (.inl leftContinuation)
-              accepted
-      | inr rightContinuation =>
-          change
-            StructuralBranchAccept
-              (structuralChildContext
-                parent.context var true)
-              rightContinuation at accepted
-          change
-            StructuralBranchAccept
-              parent.context
-              (splitter.merge (.inr rightContinuation))
-          exact
-            splitter.mergePreservesAccept
-              (.inr rightContinuation)
-              accepted }
+      simpa only [
+        generatedStructuralBranchSystem,
+        GeneratedStructuralBranchContinuation,
+        GeneratedStructuralBranchAccept,
+        GeneratedStructuralBranchContext.child
+      ] using
+        splitter.mergePreservesAccept branch accepted }
 
 /-- Fresh generated expansion preserves frontier viability exactly. -/
 def generatedStructuralExpansion
