@@ -4,19 +4,31 @@ namespace Alignment.Tests.AnchoredMatchStrictnessRegression
 
 open GenesisReconstruction
 
-/-- The one-point source profile is necessarily rigid. -/
+inductive TargetPoint
+  | matched
+  | extra
+
+/-- The one-point source has one constant anchored observation. -/
 def sourceRelation (_source _target : Unit) : Bool :=
   false
 
-/-- The target anchored profile exposes the Boolean target identity itself. -/
-def targetRelation (_source target : Bool) : Bool :=
-  target
+/-- The target relation distinguishes the matched point from the extra point. -/
+def targetRelation (source target : TargetPoint) : Bool :=
+  match source with
+  | .matched =>
+      match target with
+      | .matched => false
+      | .extra => true
+  | .extra =>
+      match target with
+      | .matched => false
+      | .extra => true
 
 def sourceAnchor : Unit → Unit :=
   fun _ => ()
 
-def targetAnchor : Unit → Bool :=
-  fun _ => false
+def targetAnchor : Unit → TargetPoint :=
+  fun _ => .matched
 
 theorem sourceProfile_separates :
     ProfileSeparates
@@ -30,10 +42,16 @@ theorem targetProfile_separates :
     ProfileSeparates
       (fun identity anchor => targetRelation (targetAnchor anchor) identity) := by
   intro first second agreement
-  exact agreement ()
+  cases first <;> cases second
+  · rfl
+  · have impossible := agreement ()
+    cases impossible
+  · have impossible := agreement ()
+    cases impossible
+  · rfl
 
 def strictContext :
-    AnchoredRelationContext Unit Bool Unit Bool :=
+    AnchoredRelationContext Unit TargetPoint Unit Bool :=
   { sourceRelation := sourceRelation
     targetRelation := targetRelation
     sourceAnchor := sourceAnchor
@@ -44,8 +62,8 @@ def strictContext :
 /-- Every source identity has a structural target match. -/
 def forwardWitness :
     (source : Unit) →
-      { target : Bool // strictContext.Matches source target }
-  | () => ⟨false, by intro anchor; cases anchor; rfl⟩
+      { target : TargetPoint // strictContext.Matches source target }
+  | () => ⟨.matched, by intro anchor; cases anchor; rfl⟩
 
 def forwardOnly : ForwardAnchoredMatching strictContext :=
   { forwardWitness := forwardWitness }
@@ -53,11 +71,11 @@ def forwardOnly : ForwardAnchoredMatching strictContext :=
 /-- One-sided structural totality already yields an injective forward map. -/
 theorem forwardOnly_injective :
     Function.Injective forwardOnly.forward :=
-  forwardOnly.forward_injective
+  ForwardAnchoredMatching.forward_injective forwardOnly
 
-/-- The unmatched target `true` blocks totality in the reverse direction. -/
-theorem true_has_no_source_match :
-    ¬ ∃ source : Unit, strictContext.Matches source true := by
+/-- The extra target has no structural source match. -/
+theorem extra_has_no_source_match :
+    ¬ ∃ source : Unit, strictContext.Matches source TargetPoint.extra := by
   intro witness
   rcases witness with ⟨source, matchProof⟩
   cases source
@@ -69,7 +87,9 @@ theorem true_has_no_source_match :
 theorem no_backwardMatching :
     ¬ BackwardAnchoredMatching strictContext := by
   intro backwardMatching
-  have matchProof := backwardMatching.backward_matches true
+  have matchProof :=
+    BackwardAnchoredMatching.backward_matches
+      backwardMatching TargetPoint.extra
   have impossible := matchProof ()
   change true = false at impossible
   cases impossible
@@ -78,21 +98,27 @@ theorem no_backwardMatching :
 theorem no_totalMatching :
     ¬ TotalAnchoredMatching strictContext := by
   intro totalMatching
-  exact no_backwardMatching totalMatching.toBackwardMatching
+  exact
+    no_backwardMatching
+      (TotalAnchoredMatching.toBackwardMatching totalMatching)
 
 /-- Therefore no exact alignment compatible with this structural context exists. -/
 theorem no_compatibleExactAlignment :
     ¬ CompatibleExactAlignment strictContext := by
   intro alignment
-  exact no_totalMatching alignment.toTotalMatching
+  exact
+    no_totalMatching
+      (CompatibleExactAlignment.toTotalMatching alignment)
 
 end Alignment.Tests.AnchoredMatchStrictnessRegression
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.sourceRelation
+#print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.targetRelation
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.strictContext
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.forwardOnly
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.forwardOnly_injective
-#print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.true_has_no_source_match
+#print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.extra_has_no_source_match
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.no_backwardMatching
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.no_totalMatching
 #print axioms Alignment.Tests.AnchoredMatchStrictnessRegression.no_compatibleExactAlignment
