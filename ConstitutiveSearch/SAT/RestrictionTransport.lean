@@ -10,10 +10,10 @@ For one fixed variable value, clauses already satisfied by the corresponding
 literal are deleted. Other clauses are kept unchanged. The residual therefore
 remains an order-preserving sub-CNF of the source.
 
-The executable residual syntax and its constructive weakening witness are built
-by direct structural recursion. The reverse satisfaction theorem is then proved
-against exactly that residual. No later proof layer may silently strengthen the
-residual construction.
+The executable residual syntax and its constructive weakening witness are
+constituted together by one direct structural recursion. The reverse
+satisfaction theorem is then proved against exactly that residual. No later
+proof layer may silently strengthen the residual construction.
 
 A branch completion transports to the residual by keeping the same assignment
 and restricting its satisfaction proof. Conversely, a residual completion that
@@ -88,38 +88,28 @@ theorem eval_true_of_containsLiteral
 
 end Clause
 
-/-- Executable branch residual by direct structural recursion on the CNF. -/
-private def branchResidualCore
+/--
+Executable residual syntax together with the exact clause-deletion witness that
+produced it. The dependent pair prevents syntax and witness from drifting apart.
+-/
+private def branchSyntax
     (var : Var)
-    (value : Bool) : Cnf → Cnf
-  | [] => []
+    (value : Bool) :
+    (formula : Cnf) →
+      Sigma fun residual : Cnf => CnfWeakening formula residual
+  | [] => ⟨[], .done⟩
   | clause :: rest =>
+      let tail := branchSyntax var value rest
       match Clause.containsLiteral (Literal.forValue var value) clause with
-      | true => branchResidualCore var value rest
-      | false => clause :: branchResidualCore var value rest
+      | true => ⟨tail.1, .drop clause tail.2⟩
+      | false => ⟨clause :: tail.1, .keep clause tail.2⟩
 
 /-- Residual CNF obtained after deleting clauses satisfied by the fixed bit. -/
 def branchResidual
     (formula : Cnf)
     (var : Var)
     (value : Bool) : Cnf :=
-  branchResidualCore var value formula
-
-/--
-Constructive clause-deletion witness for the exact executable residual. This is
-also direct structural recursion and therefore produces executable data in
-`Type` without a noncomputable recursor.
--/
-private def branchWeakeningCore
-    (var : Var)
-    (value : Bool) :
-    (formula : Cnf) →
-      CnfWeakening formula (branchResidualCore var value formula)
-  | [] => .done
-  | clause :: rest =>
-      match Clause.containsLiteral (Literal.forValue var value) clause with
-      | true => .drop clause (branchWeakeningCore var value rest)
-      | false => .keep clause (branchWeakeningCore var value rest)
+  (branchSyntax var value formula).1
 
 /-- The residual is constructively a weakening of the original CNF. -/
 def branchWeakening
@@ -127,47 +117,33 @@ def branchWeakening
     (var : Var)
     (value : Bool) :
     CnfWeakening formula (branchResidual formula var value) :=
-  branchWeakeningCore var value formula
+  (branchSyntax var value formula).2
 
-/--
-Reverse satisfaction proof for the exact residual. The recursion is proof-only:
-all executable data have already been constructed by the two structural
-functions above.
--/
-private theorem restoreSatisfactionCore
+/-- Residual equation when the branch literal satisfies the head clause. -/
+theorem branchResidual_cons_hit
+    (clause : Clause)
+    (rest : Cnf)
     (var : Var)
     (value : Bool)
-    (assignment : Assignment)
-    (valueExact : assignment var = value) :
-    (formula : Cnf) →
-      Satisfies assignment (branchResidualCore var value formula) →
-        Satisfies assignment formula
-  | [] => fun _ => .nil
-  | clause :: rest => fun residualSatisfaction => by
-      cases hitEq :
-          Clause.containsLiteral (Literal.forValue var value) clause with
-      | false =>
-          rw [branchResidualCore, hitEq] at residualSatisfaction
-          cases residualSatisfaction with
-          | cons headSatisfaction tailSatisfaction =>
-              exact .cons headSatisfaction
-                (restoreSatisfactionCore
-                  var value assignment valueExact rest tailSatisfaction)
-      | true =>
-          rw [branchResidualCore, hitEq] at residualSatisfaction
-          have branchLiteralTrue :
-              (Literal.forValue var value).eval assignment = true :=
-            Literal.eval_forValue_true assignment var value valueExact
-          have headSatisfaction : Clause.eval assignment clause = true :=
-            Clause.eval_true_of_containsLiteral
-              assignment
-              (Literal.forValue var value)
-              branchLiteralTrue
-              clause
-              hitEq
-          exact .cons headSatisfaction
-            (restoreSatisfactionCore
-              var value assignment valueExact rest residualSatisfaction)
+    (hit :
+      Clause.containsLiteral (Literal.forValue var value) clause = true) :
+    branchResidual (clause :: rest) var value =
+      branchResidual rest var value := by
+  unfold branchResidual
+  rw [branchSyntax, hit]
+
+/-- Residual equation when the branch literal does not satisfy the head clause. -/
+theorem branchResidual_cons_miss
+    (clause : Clause)
+    (rest : Cnf)
+    (var : Var)
+    (value : Bool)
+    (miss :
+      Clause.containsLiteral (Literal.forValue var value) clause = false) :
+    branchResidual (clause :: rest) var value =
+      clause :: branchResidual rest var value := by
+  unfold branchResidual
+  rw [branchSyntax, miss]
 
 /--
 Residual satisfaction plus the retained branch value reconstructs satisfaction
@@ -180,8 +156,36 @@ theorem restoreSatisfaction
     (value : Bool)
     (valueExact : assignment var = value) :
     Satisfies assignment (branchResidual formula var value) →
-      Satisfies assignment formula :=
-  restoreSatisfactionCore var value assignment valueExact formula
+      Satisfies assignment formula := by
+  induction formula with
+  | nil =>
+      intro _
+      exact .nil
+  | cons clause rest inductionHypothesis =>
+      cases hitEq :
+          Clause.containsLiteral (Literal.forValue var value) clause with
+      | false =>
+          rw [branchResidual_cons_miss clause rest var value hitEq]
+          intro residualSatisfaction
+          cases residualSatisfaction with
+          | cons headSatisfaction tailSatisfaction =>
+              exact .cons headSatisfaction
+                (inductionHypothesis tailSatisfaction)
+      | true =>
+          rw [branchResidual_cons_hit clause rest var value hitEq]
+          intro residualSatisfaction
+          have branchLiteralTrue :
+              (Literal.forValue var value).eval assignment = true :=
+            Literal.eval_forValue_true assignment var value valueExact
+          have headSatisfaction : Clause.eval assignment clause = true :=
+            Clause.eval_true_of_containsLiteral
+              assignment
+              (Literal.forValue var value)
+              branchLiteralTrue
+              clause
+              hitEq
+          exact .cons headSatisfaction
+            (inductionHypothesis residualSatisfaction)
 
 /--
 Positive bundle exposing the residual syntax, its forward weakening witness,
@@ -328,6 +332,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.Clause.eval_true_of_containsLiteral
 #print axioms ConstitutiveSearch.SAT.branchResidual
 #print axioms ConstitutiveSearch.SAT.branchWeakening
+#print axioms ConstitutiveSearch.SAT.branchResidual_cons_hit
+#print axioms ConstitutiveSearch.SAT.branchResidual_cons_miss
 #print axioms ConstitutiveSearch.SAT.restoreSatisfaction
 #print axioms ConstitutiveSearch.SAT.BranchReductionResult
 #print axioms ConstitutiveSearch.SAT.branchReduction
