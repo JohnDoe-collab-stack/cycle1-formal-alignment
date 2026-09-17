@@ -24,6 +24,10 @@ constitution
 
 Circularity plays a central role in this framework, not as the general foundation of the theory, but as an **instance in which the whole architecture can be deployed and tested**.
 
+### Scientific positioning
+
+This theory lies close to work on organizational closure, relational wholes, individuation, structural boundaries, and identity. Its specific contribution does not lie in any one of these notions taken in isolation, but in the constructive order that connects them: reconstruction of a constitutive domain, determination of what is new relative to that domain, formation of a regime boundary, genesis of a fresh identity, and coherent persistence of that identity. The detailed comparative positioning is presented in [SCIENTIFIC_POSITIONING.md](SCIENTIFIC_POSITIONING.md).
+
 ---
 
 ## 1. Constitution
