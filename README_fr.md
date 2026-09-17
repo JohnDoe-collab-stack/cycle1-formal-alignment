@@ -12,6 +12,14 @@
 
 ---
 
+## Présentation théorique longue
+
+La présentation théorique détaillée en français est maintenue séparément :
+
+- **[Présentation longue — théorie constitutive de la détermination relationnelle](PRESENTATION_LONGUE.md)**
+
+---
+
 ## 1. Unité théorique
 
 L'unité théorique de ce projet n'est ni un module particulier ni un théorème final.
@@ -1034,6 +1042,10 @@ La persistance finie est néanmoins quantifiée uniformément sur toute profonde
 ---
 
 ## 23. Documentation
+
+Présentation théorique principale :
+
+- [Présentation longue — français](PRESENTATION_LONGUE.md)
 
 Pour les arguments complets et les détails méthodologiques :
 
