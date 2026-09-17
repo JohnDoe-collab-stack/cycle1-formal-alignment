@@ -25,6 +25,16 @@ def exactBackwardDepthThree :
   finiteBackwardEmbeddingOfMatching
     FiniteAnchoredMatchSearchRegression.computedMatching.toBackwardMatching 3
 
+/-- Reconstruct the same forward structural matching independently through finite search. -/
+def searchedForwardMatching :
+    ForwardAnchoredMatching FiniteAnchoredMatchSearchRegression.context :=
+  FiniteAnchoredMatchSearch.forwardMatchingOfCheck
+    FiniteAnchoredMatchSearchRegression.context
+    FiniteAnchoredMatchSearchRegression.anchorListing
+    FiniteAnchoredMatchSearchRegression.sourceListing
+    FiniteAnchoredMatchSearchRegression.targetListing
+    FiniteAnchoredMatchSearchRegression.forward_check_succeeds
+
 /-- Directional lifting preserves injectivity in the exact case. -/
 theorem exact_forward_injective :
     Function.Injective exactForwardDepthThree.map :=
@@ -34,6 +44,17 @@ theorem exact_forward_injective :
 theorem exact_forward_preservesGenesis :
     PreservesDirectionalGenesis exactForwardDepthThree.map :=
   exactForwardDepthThree.preservesGenesis
+
+/-- Independently reconstructed forward matchings have the same finite lift. -/
+theorem exact_forward_lift_canonical_against_search
+    (identity :
+      IteratedCarrier FiniteAnchoredMatchSearchRegression.SourceNode 3) :
+    exactForwardDepthThree.map identity =
+      (finiteForwardEmbeddingOfMatching searchedForwardMatching 3).map identity :=
+  finiteForwardEmbedding_pointwise_unique
+    FiniteAnchoredMatchSearchRegression.computedMatching.toForwardMatching
+    searchedForwardMatching
+    3 identity
 
 /-- On exact matching, the weaker directional lift agrees with exact forward transport. -/
 theorem exact_forward_agrees_with_transport
@@ -130,8 +151,10 @@ end Alignment.Tests.DirectionalGenesisPersistenceRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exactForwardDepthThree
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exactBackwardDepthThree
+#print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.searchedForwardMatching
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_forward_injective
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_forward_preservesGenesis
+#print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_forward_lift_canonical_against_search
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_forward_agrees_with_transport
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_backward_agrees_with_transport
 #print axioms Alignment.Tests.DirectionalGenesisPersistenceRegression.exact_classification_has_forward_embedding
