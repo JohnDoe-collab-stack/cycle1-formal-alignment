@@ -39,6 +39,14 @@ This README is intentionally shorter. Its role is to identify the formal core, s
 
 ---
 
+## Scientific positioning
+
+This project studies how a relational structure can first canonically constitute its own internal domain, then determine what appears as new when the same construction extends beyond that domain. In the circular instance formalized here, this progression connects perimeter reconstruction, residual determination, regime boundary, the genesis of a fresh identity, and the coherent persistence of that identity. The proposed contribution therefore does not lie in an isolated notion of closure, totality, or transport, but in the formal construction of this dependency chain.
+
+See [SCIENTIFIC_POSITIONING.md](SCIENTIFIC_POSITIONING.md) for the detailed comparative positioning.
+
+---
+
 ## Formal core
 
 The project separates several layers that must not be collapsed:
