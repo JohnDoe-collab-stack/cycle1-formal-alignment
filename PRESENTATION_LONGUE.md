@@ -328,6 +328,8 @@ périmètre canonique reconstruit
 
 Le périmètre joue donc une fonction charnière : **il transforme une collection d’accords locaux en une frontière structurelle à partir de laquelle peuvent être définis le nouveau, le résiduel, la maximalité du régime et la persistance des identités.**
 
+La circularité fournit ainsi une fermeture relationnelle suffisante pour que l’interne soit délimité par un périmètre canonique. Cette fermeture ne constitue pourtant pas une totalisation de tout ce qui peut être construit. Le périmètre est complet relativement aux rôles internes déjà constitués, alors même que la génération peut se poursuivre au-delà de lui. C’est cet écart entre complétude constitutive et continuation possible qui rend possible l’apparition d’un résiduel et, ensuite, la détermination d’une frontière de régime.
+
 ### 4.4 Le périmètre n’arrête pas la génération
 
 Une fois le périmètre canonique reconstruit, la construction libre peut encore continuer.
@@ -416,6 +418,8 @@ Ce noyau produit une occurrence résiduelle unique.
 Cette occurrence est ensuite utilisée pour construire l’interprétation de la frontière positive.
 
 À partir de cette interprétation, une tentative de totalisation est formulée.
+
+La tentative de totalisation cherche alors à absorber cette occurrence résiduelle dans une fermeture complète du régime. Dans l’instance circulaire, une telle absorption conduirait à contracter la différence constitutive que la construction a préservée.
 
 L’obstruction constitutive déjà préservée permet de rejeter cette tentative.
 
