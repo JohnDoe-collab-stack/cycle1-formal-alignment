@@ -15,10 +15,12 @@ roots = [
   "ConstitutiveSearch.RelationalTransport",
   "ConstitutiveSearch.IrreducibleFrontier",
   "ConstitutiveSearch.ConstitutiveWidth",
+  "ConstitutiveSearch.FiniteFrontierNormalization",
   "ConstitutiveSearch.SAT.ConstraintTransport",
   "ConstitutiveSearch.SAT.BinaryBranch",
   "ConstitutiveSearch.SAT.RestrictionTransport",
   "ConstitutiveSearch.SAT.ResidualFlipTransport",
+  "ConstitutiveSearch.SAT.ResidualTrajectory",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
@@ -70,8 +72,10 @@ roots = [
   "Tests.ConstitutiveRelationalRegression",
   "Tests.ConstitutiveIrreducibleFrontierRegression",
   "Tests.ConstitutiveWidthRegression",
+  "Tests.FiniteFrontierNormalizationRegression",
   "Tests.SATConstraintTransportRegression",
   "Tests.SATBinaryBranchRegression",
   "Tests.SATRestrictionTransportRegression",
-  "Tests.SATResidualFlipTransportRegression"
+  "Tests.SATResidualFlipTransportRegression",
+  "Tests.SATResidualTrajectoryRegression"
 ]
