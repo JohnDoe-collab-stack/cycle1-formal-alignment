@@ -58,6 +58,7 @@ roots = [
   "Tests.IntrinsicRelationalMediatorRegression",
   "Tests.IntrinsicRelationalRigidityRegression",
   "Tests.IntrinsicRelationalAmbiguityRegression",
+  "Tests.FiniteIntrinsicRelationalSearchRegression",
   "Tests.AnchoredMatchStrictnessRegression",
   "Tests.FiniteAnchoredMatchSearchRegression",
   "Tests.FiniteAlignmentClassificationRegression",
