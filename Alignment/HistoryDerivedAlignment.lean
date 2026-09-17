@@ -241,14 +241,15 @@ def occurrenceValues
     {source target : State}
     (history : History Step source target) :
     List (History.Occurrence history) :=
-  History.rec
-    (motive := fun {source target} currentHistory =>
+  @History.rec State Step source
+    (fun terminal currentHistory =>
       List (History.Occurrence currentHistory))
     []
     (fun previous step previousValues =>
       History.Occurrence.last ::
         previousValues.map
           (fun occurrence => History.Occurrence.earlier occurrence))
+    target
     history
 
 /-- The rooted history has no occurrences. -/
@@ -281,19 +282,9 @@ theorem occurrence_mem_values
     (occurrence : History.Occurrence history) :
     occurrence ∈ occurrenceValues history := by
   induction occurrence with
-  | @last _ _ _ previous step =>
-      change
-        History.Occurrence.last ∈
-          History.Occurrence.last ::
-            (occurrenceValues previous).map
-              (fun prior => History.Occurrence.earlier prior)
+  | last =>
       exact List.Mem.head _
-  | @earlier _ _ _ previous step occurrence inductionHypothesis =>
-      change
-        History.Occurrence.earlier occurrence ∈
-          History.Occurrence.last ::
-            (occurrenceValues previous).map
-              (fun prior => History.Occurrence.earlier prior)
+  | earlier occurrence inductionHypothesis =>
       exact
         List.Mem.tail _
           (mem_map_of_mem
