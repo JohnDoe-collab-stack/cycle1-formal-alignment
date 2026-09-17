@@ -30,6 +30,20 @@ jobs:
           path.write_text(text.replace(old, new), encoding='utf-8')
           PY
           python3 scripts/update-alignment-docs.py
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('README_fr.md')
+          lines = path.read_text(encoding='utf-8').splitlines()
+          prefixes = (
+              '- [`Alignment/GenesisReconstruction.lean`',
+              '- [`Alignment/GenesisRigidity.lean`',
+              '- [`Alignment/AnchoredRelationReconstruction.lean`',
+              '- [`Alignment/FiniteAnchoredMatchSearch.lean`',
+              '- [`Alignment/DirectionalGenesisPersistence.lean`',
+          )
+          cleaned = [line.rstrip() if line.startswith(prefixes) else line for line in lines]
+          path.write_text('\n'.join(cleaned) + '\n', encoding='utf-8')
+          PY
           rm scripts/update-alignment-docs.py
           git fetch origin main --depth=1
           git show FETCH_HEAD:.github/workflows/lean.yml > .github/workflows/lean.yml
