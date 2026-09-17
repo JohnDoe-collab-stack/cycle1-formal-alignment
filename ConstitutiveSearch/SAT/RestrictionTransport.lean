@@ -11,7 +11,7 @@ literal are deleted. Other clauses are kept unchanged. The residual therefore
 remains an order-preserving sub-CNF of the source.
 
 The residual CNF, its weakening witness, and the reconstruction of original
-satisfaction are built together by one structural recursion. This prevents a
+satisfaction are built together by one structural induction. This prevents a
 later proof layer from silently strengthening the residual construction.
 
 A branch completion transports to the residual by keeping the same assignment
@@ -104,46 +104,50 @@ structure BranchReductionResult
           Satisfies assignment formula
 
 /--
-Compute the branch residual, weakening witness, and reconstruction in one
-structural recursion over the CNF.
+Compute the branch residual, weakening witness, and reconstruction by structural
+induction over the CNF. The recursive result for the tail is supplied directly
+by the list recursor and is executable data.
 -/
-def branchReduction :
-    (formula : Cnf) →
-      (var : Var) →
-        (value : Bool) →
-          BranchReductionResult formula var value
-  | [], _var, _value =>
-      { residual := []
-        weakening := .done
-        restore := fun _assignment _valueExact _residualSatisfaction => .nil }
-  | clause :: rest, var, value =>
-      let tail := branchReduction rest var value
-      match hitEq :
+def branchReduction
+    (formula : Cnf)
+    (var : Var)
+    (value : Bool) :
+    BranchReductionResult formula var value := by
+  induction formula with
+  | nil =>
+      exact
+        { residual := []
+          weakening := .done
+          restore := fun _assignment _valueExact _residualSatisfaction => .nil }
+  | cons clause rest tail =>
+      cases hitEq :
           Clause.containsLiteral (Literal.forValue var value) clause with
       | true =>
-          { residual := tail.residual
-            weakening := .drop clause tail.weakening
-            restore := fun assignment valueExact residualSatisfaction =>
-              let branchLiteralTrue :
-                  (Literal.forValue var value).eval assignment = true :=
-                Literal.eval_forValue_true assignment var value valueExact
-              let headSatisfaction : Clause.eval assignment clause = true :=
-                Clause.eval_true_of_containsLiteral
-                  assignment
-                  (Literal.forValue var value)
-                  branchLiteralTrue
-                  clause
-                  hitEq
-              .cons headSatisfaction
-                (tail.restore assignment valueExact residualSatisfaction) }
+          exact
+            { residual := tail.residual
+              weakening := .drop clause tail.weakening
+              restore := fun assignment valueExact residualSatisfaction =>
+                let branchLiteralTrue :
+                    (Literal.forValue var value).eval assignment = true :=
+                  Literal.eval_forValue_true assignment var value valueExact
+                let headSatisfaction : Clause.eval assignment clause = true :=
+                  Clause.eval_true_of_containsLiteral
+                    assignment
+                    (Literal.forValue var value)
+                    branchLiteralTrue
+                    clause
+                    hitEq
+                .cons headSatisfaction
+                  (tail.restore assignment valueExact residualSatisfaction) }
       | false =>
-          { residual := clause :: tail.residual
-            weakening := .keep clause tail.weakening
-            restore := fun assignment valueExact residualSatisfaction =>
-              match residualSatisfaction with
-              | .cons headSatisfaction tailSatisfaction =>
-                  .cons headSatisfaction
-                    (tail.restore assignment valueExact tailSatisfaction) }
+          exact
+            { residual := clause :: tail.residual
+              weakening := .keep clause tail.weakening
+              restore := fun assignment valueExact residualSatisfaction =>
+                match residualSatisfaction with
+                | .cons headSatisfaction tailSatisfaction =>
+                    .cons headSatisfaction
+                      (tail.restore assignment valueExact tailSatisfaction) }
 
 /-- Residual CNF obtained after deleting clauses satisfied by the fixed bit. -/
 def branchResidual
