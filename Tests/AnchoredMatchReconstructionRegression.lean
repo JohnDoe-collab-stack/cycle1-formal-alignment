@@ -154,9 +154,9 @@ def partialContext :
 theorem true_has_no_structural_target :
     ¬ ∃ target : Unit, partialContext.Matches true target := by
   intro witness
-  rcases witness with ⟨target, matches⟩
+  rcases witness with ⟨target, matchProof⟩
   cases target
-  have impossible := matches ()
+  have impossible := matchProof ()
   change false = true at impossible
   cases impossible
 
