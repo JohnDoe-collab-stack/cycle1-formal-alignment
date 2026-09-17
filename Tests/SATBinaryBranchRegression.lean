@@ -18,30 +18,36 @@ def falseCompletion : Completion emptyFormula :=
 def trueCompletion : Completion emptyFormula :=
   ⟨allTrue, .nil⟩
 
-abbrev splitAtZero :=
-  variableBranchSplit emptyFormula 0
-
-/-- The false assignment enters the false branch by computation. -/
+/-- The false assignment enters the false branch through exact parent indexing. -/
 example :
-    splitAtZero.split falseCompletion =
-      .inl ⟨falseCompletion, rfl⟩ :=
+    splitCompletion emptyFormula 0 falseCompletion =
+      .inl (ValueIndexedCompletion.ofCompletion falseCompletion) :=
   rfl
 
-/-- The true assignment enters the true branch by computation. -/
+/-- The true assignment enters the true branch through exact parent indexing. -/
 example :
-    splitAtZero.split trueCompletion =
-      .inr ⟨trueCompletion, rfl⟩ :=
+    splitCompletion emptyFormula 0 trueCompletion =
+      .inr (ValueIndexedCompletion.ofCompletion trueCompletion) :=
   rfl
 
-/-- Merging after the exact branch split reconstructs the supplied completion. -/
+/-- Forgetting the branch after the exact split reconstructs the supplied completion. -/
 example :
-    splitAtZero.merge (splitAtZero.split falseCompletion) = falseCompletion :=
-  splitAtZero.mergeSplit falseCompletion
+    mergeCompletion emptyFormula 0
+        (splitCompletion emptyFormula 0 falseCompletion) =
+      falseCompletion :=
+  merge_split_completion emptyFormula 0 falseCompletion
+
+/-- The parent indexing itself has exact round trips. -/
+example :
+    (parentIndexing emptyFormula 0).backward
+        ((parentIndexing emptyFormula 0).forward trueCompletion) =
+      trueCompletion :=
+  (parentIndexing emptyFormula 0).forwardBackward trueCompletion
 
 end ConstitutiveSearch.Tests.SATBinaryBranchRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATBinaryBranchRegression.falseCompletion
 #print axioms ConstitutiveSearch.Tests.SATBinaryBranchRegression.trueCompletion
-#print axioms ConstitutiveSearch.Tests.SATBinaryBranchRegression.splitAtZero
+#print axioms ConstitutiveSearch.Tests.SATBinaryBranchRegression.merge_split_completion
 /- AXIOM_AUDIT_END -/
