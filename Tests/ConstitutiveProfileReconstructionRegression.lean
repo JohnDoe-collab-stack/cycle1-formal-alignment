@@ -74,7 +74,7 @@ theorem taggedResolver_roundTrip_one :
       TaggedBit.one :=
   taggedResolver.backwardForward TaggedBit.one
 
-/-- The reconstructed exact alignment extends canonically through finite genesis. -/
+/-- The reconstructed exact alignment extends canonically through arbitrary natural-depth genesis. -/
 theorem taggedResolver_depth_three_preservesGenesis :
     PreservesGenesis (taggedResolver.finiteTransport 3) :=
   taggedResolver.finiteTransport_preservesGenesis 3

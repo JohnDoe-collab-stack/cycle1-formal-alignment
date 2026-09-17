@@ -1,15 +1,15 @@
 import Alignment.GenesisCharacterization
 
 /-!
-# Rigidity of genesis-preserving finite alignment
+# Rigidity of genesis-preserving alignment at arbitrary natural depth
 
-The finite genesis condition determines every freshly generated stratum, but it
+The natural-depth genesis condition determines every freshly generated stratum, but it
 does not by itself choose among exact correspondences already available on the
 initial carriers.
 
 This module localizes that ambiguity precisely. Pointwise uniqueness of exact
 initial transports is equivalent to pointwise uniqueness of genesis-preserving
-transports at every supplied finite depth. Thus finite generation introduces no
+transports at every supplied natural-number depth. Thus generation indexed by natural depth introduces no
 new alignment ambiguity, but it also cannot remove a symmetry already present
 at the initial layer.
 
@@ -31,7 +31,7 @@ def InitialForwardRigid
       first.forward identity = second.forward identity
 
 /--
-All genesis-preserving exact transports at one finite depth have the same
+All genesis-preserving exact transports at one natural-number depth have the same
 forward map.
 -/
 def GenesisForwardRigid
@@ -47,7 +47,7 @@ def GenesisForwardRigid
     ∀ identity : IteratedCarrier Source depth,
       first.forward identity = second.forward identity
 
-/-- Pointwise agreement of initial transports is preserved by every finite lift. -/
+/-- Pointwise agreement of initial transports is preserved by every natural-depth lift. -/
 theorem liftToDepth_forward_congr
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -67,7 +67,7 @@ theorem liftToDepth_forward_congr
       cases witness
       rfl
 
-/-- Initial rigidity forces rigidity of every genesis-preserving finite transport. -/
+/-- Initial rigidity forces rigidity of every genesis-preserving transport at that natural depth. -/
 theorem genesisForwardRigid_of_initialForwardRigid
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -95,7 +95,7 @@ theorem genesisForwardRigid_of_initialForwardRigid
       (reconstruct_forward depth second secondPreserves identity).symm
 
 /--
-Rigidity at any finite depth reflects back to the initial carriers. Canonical
+Rigidity at any natural-number depth reflects back to the initial carriers. Canonical
 lifting therefore neither creates nor destroys pointwise transport ambiguity.
 -/
 theorem initialForwardRigid_of_genesisForwardRigid
@@ -157,7 +157,7 @@ theorem initialForwardRigid_of_genesisForwardRigid
 
 /--
 Initial pointwise rigidity is equivalent to pointwise rigidity of
-all genesis-preserving transports at any chosen finite depth.
+all genesis-preserving transports at any chosen natural-number depth.
 -/
 theorem initialForwardRigid_iff_genesisForwardRigid
     {Source : Type uSource}

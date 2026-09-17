@@ -1,9 +1,9 @@
 import Alignment.GenesisReconstruction
 
 /-!
-# Characterization of genesis-preserving finite transports
+# Characterization of genesis-preserving transports at arbitrary natural depth
 
-A terminal exact transport between two finite constitutive carriers is
+A terminal exact transport between two constitutive carriers at an arbitrary natural depth is
 reconstructible from the initial carriers exactly when it preserves every
 fresh-generation stratum.
 
@@ -55,7 +55,7 @@ theorem reconstructible_of_preservesGenesis
   · exact reconstruct_forward depth transport preserves
   · exact reconstruct_backward depth transport preserves
 
-/-- A canonical finite lift preserves every fresh-generation stratum. -/
+/-- A canonical lift to the chosen natural depth preserves every fresh-generation stratum. -/
 theorem preservesGenesis_of_reconstructible
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -81,7 +81,7 @@ theorem preservesGenesis_of_reconstructible
       liftToDepth_preservesGenesis initial depth extension
 
 /--
-Exact finite transports preserve genesis if and only if they are canonical
+Exact transports at arbitrary natural depth preserve genesis if and only if they are canonical
 lifts of an exact alignment between the initial carriers.
 -/
 theorem preservesGenesis_iff_reconstructible

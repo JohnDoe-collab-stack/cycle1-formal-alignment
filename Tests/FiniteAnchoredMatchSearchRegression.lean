@@ -144,7 +144,7 @@ theorem computed_source_roundTrip :
       SourceNode.next :=
   computedMatching.toExactTransport.forwardBackward SourceNode.next
 
-/-- The reconstructed alignment propagates through finite genesis depth. -/
+/-- The reconstructed alignment propagates through arbitrary natural-number genesis depth. -/
 theorem computed_depth_three_preservesGenesis :
     PreservesGenesis (computedMatching.finiteTransport 3) :=
   computedMatching.finiteTransport_preservesGenesis 3
@@ -165,7 +165,7 @@ theorem computed_classification_kind :
     computedClassification.kind = Kind.exact := by
   rfl
 
-/-- Exact classification exposes the finite genesis transport directly. -/
+/-- Exact classification exposes the transport at the requested natural-number genesis depth directly. -/
 theorem computed_classification_depth_three_transport :
     computedClassification.finiteTransport? 3 ≠ none := by
   intro impossible

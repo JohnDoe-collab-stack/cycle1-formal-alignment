@@ -14,7 +14,7 @@ values of the local relation from each realized anchor to that identity.
 
 If these anchored relational profiles separate identities on both sides, and
 positive forward and backward resolvers preserve all anchored observations,
-then the exact initial transport and every finite genesis-preserving lift are
+then the exact initial transport and every lift to an arbitrary natural-number depth that preserves genesis are
 constructed automatically.
 
 The anchor family need not enumerate the carrier. Its role is observational: it
@@ -132,7 +132,7 @@ theorem toExactTransport_preservesAnchors
         identity :=
   resolver.forwardPreservesAnchors identity anchor
 
-/-- Canonical finite alignment induced by the anchored relational reconstruction. -/
+/-- Canonical alignment at any requested natural-number depth induced by the anchored relational reconstruction. -/
 def finiteTransport
     {Source : Type uSource}
     {Target : Type uTarget}

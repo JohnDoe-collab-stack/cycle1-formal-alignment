@@ -1,19 +1,19 @@
 import Alignment.FinitePersistence
 
 /-!
-# Reconstruction of finite constitutive alignment
+# Reconstruction of constitutive alignment at arbitrary natural depth
 
 This module studies when an exact transport between two independently indexed
-finite constitutive carriers can be reconstructed from an alignment of their
+constitutive carriers indexed at an arbitrary natural depth can be reconstructed from an alignment of their
 initial carriers.
 
 The key condition is genesis preservation: every identity introduced as fresh
-at a finite depth must be transported to the identity introduced at the same
+at a natural-number depth must be transported to the identity introduced at the same
 depth on the target side. No common initial carrier is assumed in advance.
 
 Under that condition, the terminal exact transport determines an exact
 transport between the two initial carriers. Re-extending that reconstructed
-initial transport through the canonical finite old/fresh splits recovers the
+initial transport through the canonical iterated old/fresh splits recovers the
 original terminal transport pointwise.
 
 This is a relative reconstruction result. It does not determine which initial
@@ -244,7 +244,7 @@ def restrictOld
       exact Sum.inl.inj lifted }
 
 /--
-Lift an exact alignment of initial carriers through the canonical finite
+Lift an exact alignment of initial carriers through the canonical iterated
 old/fresh construction.
 -/
 def liftToDepth
@@ -259,7 +259,7 @@ def liftToDepth
   | depth + 1 => (liftToDepth initial depth).sumUnit
 
 /--
-The lifted transport commutes with every canonical finite extension.
+The lifted transport commutes with every canonical extension between natural-number depths.
 -/
 theorem liftToDepth_embedFrom
     {Source : Type uSource}
@@ -278,7 +278,7 @@ theorem liftToDepth_embedFrom
   | step prior inductionHypothesis =>
       exact congrArg Sum.inl inductionHypothesis
 
-/-- Every finite fresh-generation stratum is preserved by a transport. -/
+/-- Every fresh-generation stratum below the chosen natural depth is preserved by a transport. -/
 def PreservesGenesis
     {Source : Type uSource}
     {Target : Type uTarget}

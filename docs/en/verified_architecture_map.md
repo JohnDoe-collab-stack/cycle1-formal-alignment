@@ -148,7 +148,7 @@ therefore distinguish:
 - the **current Lean dependency**: the abstract module no longer depends on the
   circular instance.
 
-`Alignment.FinitePersistence` adds finite depth, extensions, and transports
+`Alignment.FinitePersistence` adds an arbitrary `n : Nat` depth, extensions, and transports
 through a constitutive index. `Alignment.ReadoutPersistence` attaches readouts
 only after constitution and realization.
 
@@ -158,7 +158,7 @@ only after constitution and realization.
 independent constructive kernel for mediator-level commutation, sequential
 realization, and pasting of adjacent squares.
 
-Its current application to finite alignment is:
+Its current application to alignment at arbitrary natural-number depth is:
 
 ```text
 MediatedTransitionCoherence
@@ -236,12 +236,12 @@ StrongPerimetralTurning ---------+
 Alignment.Constitutive ----------+
 ```
 
-## 4. Finite persistence of the circular instance
+## 4. Persistence of the circular instance uniform in natural-number depth
 
 `StrongPerimetralTurning/IteratedConstitutivePersistence.lean` imports
 `Alignment.ReadoutPersistence` and `StrongPerimetralTurning.ConstitutivePersistence`.
 
-It actually constructs the finite histories of the instance:
+It actually constructs `iteratedHistory n` for an arbitrary `n : Nat`:
 
 ```text
 iteratedHistory 0
@@ -265,7 +265,7 @@ ConstitutivePersistence + Alignment.ReadoutPersistence
            IteratedConstitutivePersistence
 ```
 
-The correct reading is “finite persistence of the circular instance”, not “a
+The correct reading is “persistence of the circular instance uniform for every `n : Nat`”, not “a
 second constitution of circularity”.
 
 ## 5. Representation branch

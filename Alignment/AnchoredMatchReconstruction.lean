@@ -268,7 +268,7 @@ def toAnchoredResolver
       intro identity anchor
       exact (matching.backward_matches identity anchor).symm }
 
-/-- Canonical finite alignment reconstructed from total anchored matching. -/
+/-- Canonical alignment at an arbitrary requested natural-number depth reconstructed from total anchored matching. -/
 def finiteTransport
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -282,7 +282,7 @@ def finiteTransport
       (IteratedCarrier Target depth) :=
   liftToDepth matching.toExactTransport depth
 
-/-- Structural matching propagates coherently through every finite genesis depth. -/
+/-- Structural matching propagates coherently through every natural-number genesis depth. -/
 theorem finiteTransport_preservesGenesis
     {Source : Type uSource}
     {Target : Type uTarget}

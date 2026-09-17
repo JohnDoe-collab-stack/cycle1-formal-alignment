@@ -199,7 +199,7 @@ Les principaux raccords formels sont exposés dans :
 - [`SegmentedResidualRole.lean`](SegmentedResidualRole.lean) pour le noyau de détermination résiduelle
 - [`AbstractSegmentedTurning.lean`](AbstractSegmentedTurning.lean) pour l'abstraction du mécanisme de frontière
 - [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean) pour l'identification du résiduel à l'identité fraîche
-- [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) pour la persistance finie et la naturalité des transports
+- [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) pour la persistance uniforme pour tout `n : Nat` et la naturalité des transports
 - [`Tests/DynamicAlignmentRegression.lean`](Tests/DynamicAlignmentRegression.lean) pour les contre-exemples montrant que l'exactitude seule ne suffit pas à la cohérence
 
 ## 6. Positionnement comparatif
@@ -300,11 +300,11 @@ La proposition centrale peut être formulée ainsi :
 
 Une partie substantielle de cette architecture est formalisée en Lean.
 
-Le développement établit notamment la reconstruction et le rôle du périmètre dans l'instance circulaire, la détermination résiduelle, la continuation stricte, la classification exacte d'un régime obstrué, l'impossibilité d'une extension stricte restant dans le même régime, le raccord entre résiduel et identité fraîche, la persistance à profondeur finie et la naturalité entre extension et changement de réalisation.
+Le développement établit notamment la reconstruction et le rôle du périmètre dans l'instance circulaire, la détermination résiduelle, la continuation stricte, la classification exacte d'un régime obstrué, l'impossibilité d'une extension stricte restant dans le même régime, le raccord entre résiduel et identité fraîche, la persistance uniforme pour tout `n : Nat` et la naturalité entre extension et changement de réalisation.
 
 Cette portée doit rester précisément délimitée.
 
-- La persistance démontrée est actuellement finie.
+- La persistance démontrée est uniforme pour tout `n : Nat` et n'impose aucune profondeur maximale. Le dépôt ne construit pas pour autant un carrier concret à l'étape `ω`.
 - Le **tout constitutif** est une lecture théorique de structures et de théorèmes formels précis. Il n'est pas introduit comme un prédicat métaphysique universel indépendant du développement.
 - La circularité reste l'instance centrale dans laquelle l'architecture complète est réalisée, même si le mécanisme de frontière a déjà été partiellement abstrait hors de cette géométrie.
 - Le développement formel n'établit pas à lui seul une théorie biologique générale.

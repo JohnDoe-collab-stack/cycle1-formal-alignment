@@ -712,9 +712,9 @@ Ainsi, lorsque la théorie passe à la persistance, elle ne commence pas avec un
 
 Elle suit une occurrence dont la constitution, le rôle résiduel, l’unicité et la relation à la frontière ont déjà été établis.
 
-### 6.4 Provenance structurelle des identités finies
+### 6.4 Provenance structurelle à profondeur naturelle arbitraire
 
-L’itération finie ne se contente pas de conserver des éléments dans des carriers successifs. Elle conserve une information structurelle sur leur provenance.
+L'itération indexée par un naturel arbitraire ne se contente pas de conserver des éléments dans des carriers successifs. Elle conserve une information structurelle sur leur provenance.
 
 Le carrier canonique à profondeur `n` a la forme récursive :
 
@@ -734,7 +734,7 @@ Le développement construit un code structurel :
 
 ```text
 identityCode :
-identité à une profondeur finie
+identité à une profondeur `n : Nat`
 → identité initiale + profondeur de genèse
 ```
 
@@ -760,7 +760,7 @@ m ≠ n
 identités toujours distinctes
 ```
 
-La profondeur joue ici le rôle d’un index de genèse dans la construction finie. Elle n’est pas une horloge extérieure ajoutée aux occurrences.
+La profondeur joue ici le rôle d'un index de genèse dans une construction indexée par un naturel arbitraire. Elle n’est pas une horloge extérieure ajoutée aux occurrences.
 
 Cette structure donne à la persistance une propriété plus forte que la simple survie d’un élément : **l’identité persiste avec la trace structurelle de son origine constitutive dans la chaîne d’extensions.**
 
@@ -882,7 +882,7 @@ Une identité antérieure ne fusionne pas avec une identité fraîche et deux id
 
 ### 7.4 Indépendance vis-à-vis du témoin d’extension
 
-Une extension finie `DepthExtension source target` est proof-relevant : plusieurs témoins peuvent décrire un passage entre les mêmes profondeurs.
+Une extension `DepthExtension source target` entre profondeurs naturelles est proof-relevant : plusieurs témoins peuvent décrire un passage entre les mêmes profondeurs.
 
 Le développement ne prétend pas que ces témoins de preuve sont eux-mêmes égaux.
 
@@ -899,7 +899,7 @@ embedFrom d₂(x)
 
 La même indépendance est démontrée pour les extensions concrètes induites entre réalisations.
 
-La persistance est donc indépendante du chemin proof-relevant choisi pour certifier une même extension finie, sans effacer pour autant la structure de ces témoins.
+La persistance est donc indépendante du chemin proof-relevant choisi pour certifier une même extension entre profondeurs naturelles, sans effacer pour autant la structure de ces témoins.
 
 ### 7.5 Persistance de l’occurrence résiduelle réelle
 
@@ -907,14 +907,14 @@ L’instance circulaire raccorde cette théorie générique aux histoires effect
 
 À la profondeur un, l’identité fraîche est exactement l’occurrence résiduelle opérationnelle.
 
-Cette identité est ensuite prolongée à toute profondeur finie ultérieure fournie.
+Cette identité est ensuite prolongée à toute profondeur naturelle ultérieure arbitrairement choisie.
 
 ```text
 résiduel à la première frontière
         =
 identité fraîche à la profondeur 1
         ↓
-extension finie
+extension vers une profondeur naturelle arbitraire
         ↓
 même identité à une profondeur ultérieure
 ```
@@ -1086,7 +1086,7 @@ Initial + Unit
 Extended
 ```
 
-À profondeur finie, l’index est `IteratedCarrier` et conserve les identités initiales ainsi que la profondeur de genèse de chaque identité fraîche.
+Pour tout `n : Nat`, l’index `IteratedCarrier Initial n` conserve les identités initiales ainsi que la profondeur de genèse de chaque identité fraîche.
 
 Cette architecture donne à l’alignement un caractère relationnel de second ordre : **deux réalisations sont coordonnées parce qu’elles réalisent exactement une même détermination constitutive, et non parce qu’un matching indépendant a été choisi entre elles.**
 
@@ -1200,7 +1200,7 @@ L’insuffisance de l’exactitude seule n’est pas seulement déclarative.
 
 Le développement contient un séparateur constructif.
 
-À profondeur finie, on peut construire une permutation exacte et bijective qui échange deux identités fraîches tout en conservant des aller-retour parfaits.
+À la profondeur 3, le développement construit une permutation exacte et bijective qui échange deux identités fraîches tout en conservant des aller-retour parfaits.
 
 ```text
 transport exact
@@ -1275,7 +1275,7 @@ commutation littérale
 
 L’injectivité globale de l’observation terminale est une condition suffisante plus forte qui fournit cette réflexion.
 
-Dans l’alignement constitutif fini, le médiateur est précisément `IteratedCarrier`. Les raccords exacts rendent l’observation terminale suffisamment fidèle pour récupérer la naturalité littérale déjà établie.
+Dans l'alignement constitutif indexé par une profondeur naturelle arbitraire, le médiateur est précisément `IteratedCarrier`. Les raccords exacts rendent l’observation terminale suffisamment fidèle pour récupérer la naturalité littérale déjà établie.
 
 Cette factorisation est conceptuellement importante : **la cohérence provient d’abord du fait que les deux chemins réalisent la même transition constitutive médiée. L’égalité concrète est ensuite récupérée lorsque l’observation terminale permet de réfléchir cette égalité.**
 
@@ -1315,7 +1315,7 @@ identité fraîche commune
 
 L’alignement du nouveau est ainsi une **co-réalisation d’une même genèse constitutive**, et non un matching postérieur entre deux sorties nouvelles.
 
-Cette propriété est ensuite stable sous extension finie : l’identité née à la première frontière reste suivie aux profondeurs ultérieures et cette persistance commute avec le changement de réalisation.
+Cette propriété est ensuite stable sous extension vers toute profondeur naturelle ultérieure : l’identité née à la première frontière reste suivie aux profondeurs ultérieures et cette persistance commute avec le changement de réalisation.
 
 ### 8.10 Définition théorique de l’alignement constitutif
 
@@ -1361,7 +1361,7 @@ Elle ne démontre pas que l’interface actuelle de l’alignement soit minimale
 
 Elle ne transporte pas automatiquement les rôles, les lectures, les valeurs, les statuts, les normes ou les propriétés sémantiques attachées aux identités.
 
-Elle est actuellement uniforme sur toute profondeur **finie** fournie. Elle ne construit pas un carrier concret à l’étape `ω`.
+Elle est uniforme pour tout `n : Nat`. Il n'existe donc aucune profondeur maximale fixée par ces théorèmes. Elle ne construit pas pour autant un carrier concret à l'étape `ω`.
 
 Enfin, elle ne constitue pas par elle-même une théorie de l’alignement comportemental ou normatif de systèmes d’intelligence artificielle entraînés.
 
@@ -1400,7 +1400,7 @@ identité fraîche
         ↓
 indexation et provenance structurelle
         ↓
-persistance finie
+persistance pour tout `n : Nat`
         ↓
 transports induits entre réalisations
         ↓

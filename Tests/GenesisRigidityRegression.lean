@@ -32,7 +32,7 @@ theorem bool_initial_not_forwardRigid :
   change false = true at impossible
   cases impossible
 
-/-- The same ambiguity persists at every chosen finite genesis depth. -/
+/-- The same ambiguity persists at every chosen natural-number genesis depth. -/
 theorem bool_depth_three_not_genesisForwardRigid :
     ¬ GenesisForwardRigid Bool Bool 3 := by
   intro terminalRigid

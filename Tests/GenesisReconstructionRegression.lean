@@ -4,11 +4,11 @@ open Alignment
 open Alignment.GenesisReconstruction
 
 /-!
-# Regression checks for finite genesis reconstruction
+# Regression checks for genesis reconstruction at arbitrary natural depth
 
 The first counterexample preserves the latest fresh identity at depth three but
 swaps two earlier fresh identities. It therefore tests that reconstruction
-requires the whole finite genesis stratification, not only the terminal fresh
+requires the whole natural-depth genesis stratification, not only the terminal fresh
 point.
 
 The second example shows the complementary limit: genesis preservation does

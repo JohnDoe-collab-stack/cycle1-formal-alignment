@@ -17,7 +17,7 @@ Forward and backward searches inspect complete carrier listings. Global Boolean
 checks certify that every listed source and every listed target has a match.
 A one-sided successful check constructs the corresponding structural matching
 and therefore its injective map. Successful checks in both directions construct
-`TotalAnchoredMatching`, exact transport, and finite genesis transport without
+`TotalAnchoredMatching`, exact transport, and genesis transport at any requested natural-number depth without
 an independently supplied resolver.
 -/
 
@@ -541,7 +541,7 @@ def searchExactTransport?
   (searchTotalMatching? context anchors sources targets).map
     TotalAnchoredMatching.toExactTransport
 
-/-- Search for the corresponding exact transport at any finite genesis depth. -/
+/-- Search for the corresponding exact transport at any requested natural-number genesis depth. -/
 def searchFiniteTransport?
     {Source : Type uSource}
     {Target : Type uTarget}

@@ -98,7 +98,7 @@ theorem totalMatching_target_roundTrip :
       TargetNode.successor :=
   totalMatching.toExactTransport.backwardForward TargetNode.successor
 
-/-- The structural matching propagates through finite genesis. -/
+/-- The structural matching propagates through arbitrary natural-depth genesis. -/
 theorem totalMatching_depth_three_preservesGenesis :
     PreservesGenesis (totalMatching.finiteTransport 3) :=
   totalMatching.finiteTransport_preservesGenesis 3

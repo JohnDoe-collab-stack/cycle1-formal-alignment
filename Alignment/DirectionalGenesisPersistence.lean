@@ -1,21 +1,21 @@
 import Alignment.FiniteAlignmentClassification
 
 /-!
-# Directional persistence through finite genesis
+# Directional persistence through arbitrary natural-depth genesis
 
 Exact transport is not required to propagate an injective structural matching
-through the canonical finite old/fresh construction. A one-sided injective map
+through the canonical iterated old/fresh construction. A one-sided injective map
 on the initial carriers can be lifted recursively by preserving old identities
 through `Sum.inl` and mapping each newly generated identity to the fresh point
 at the same depth.
 
 This module keeps that weaker directional result distinct from exact transport.
-A forward-only finite alignment therefore persists as an injective
-fresh-preserving embedding at every finite depth, without manufacturing a
+A forward-only alignment therefore persists as an injective
+fresh-preserving embedding for every `depth : Nat`, without manufacturing a
 reverse map. The backward-only case is symmetric.
 
 Profile separation also makes the one-sided structural map pointwise unique.
-That initial uniqueness propagates through every finite lift. Hence directional
+That initial uniqueness propagates through every natural-depth lift. Hence directional
 persistence adds no new ambiguity once the anchored structural context fixes
 the initial matching.
 -/
@@ -41,7 +41,7 @@ def liftMap
       | .inl old => .inl (liftMap initial depth old)
       | .inr _ => .inr ()
 
-/-- An injective initial map remains injective at every finite depth. -/
+/-- An injective initial map remains injective at every natural-number depth. -/
 theorem liftMap_injective
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -74,7 +74,7 @@ theorem liftMap_injective
               cases secondFresh
               rfl
 
-/-- Pointwise agreement of initial maps propagates through every finite lift. -/
+/-- Pointwise agreement of initial maps propagates through every natural-depth lift. -/
 theorem liftMap_congr
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -90,7 +90,7 @@ theorem liftMap_congr
       cases witness
       rfl
 
-/-- Directional preservation of every finite fresh-generation stratum. -/
+/-- Directional preservation of every fresh-generation stratum below the chosen natural depth. -/
 def PreservesDirectionalGenesis
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -104,7 +104,7 @@ def PreservesDirectionalGenesis
       IteratedCarrier.embedFrom extension
         (@IteratedCarrier.freshAtStep Target birth)
 
-/-- The lifted map commutes with every canonical finite extension. -/
+/-- The lifted map commutes with every canonical extension between natural-number depths. -/
 theorem liftMap_embedFrom
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -142,7 +142,7 @@ theorem liftMap_preservesGenesis
           (@IteratedCarrier.freshAtStep Target birth) := by
       rfl
 
-/-- Witness-carrying finite directional embedding preserving genesis. -/
+/-- Witness-carrying directional embedding at an arbitrary natural depth, preserving genesis. -/
 structure FiniteGenesisEmbedding
     (Source : Type uSource)
     (Target : Type uTarget)
@@ -151,7 +151,7 @@ structure FiniteGenesisEmbedding
   injective : Function.Injective map
   preservesGenesis : PreservesDirectionalGenesis map
 
-/-- Construct the finite genesis embedding induced by an injective initial map. -/
+/-- Construct the genesis embedding at an arbitrary natural depth induced by an injective initial map. -/
 def FiniteGenesisEmbedding.ofInjective
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -223,7 +223,7 @@ theorem backwardMatching_pointwise_unique
     (first.backward_matches target)
     (second.backward_matches target)
 
-/-- The finite forward genesis embedding is canonical for a fixed anchored context. -/
+/-- The forward genesis embedding at any natural depth is canonical for a fixed anchored context. -/
 theorem finiteForwardEmbedding_pointwise_unique
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -244,7 +244,7 @@ theorem finiteForwardEmbedding_pointwise_unique
       (forwardMatching_pointwise_unique first second)
       depth identity
 
-/-- The finite backward genesis embedding is canonical for a fixed anchored context. -/
+/-- The backward genesis embedding at any natural depth is canonical for a fixed anchored context. -/
 theorem finiteBackwardEmbedding_pointwise_unique
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -266,7 +266,7 @@ theorem finiteBackwardEmbedding_pointwise_unique
       depth identity
 
 /--
-Extract the finite forward genesis embedding exactly from classifications that
+Extract the forward genesis embedding at the requested natural depth exactly from classifications that
 contain forward structural totality.
 -/
 def finiteForwardEmbedding?
@@ -287,7 +287,7 @@ def finiteForwardEmbedding?
   | .noDirectionalMatching _ => none
 
 /--
-Extract the finite backward genesis embedding exactly from classifications that
+Extract the backward genesis embedding at the requested natural depth exactly from classifications that
 contain reverse structural totality.
 -/
 def finiteBackwardEmbedding?
@@ -309,7 +309,7 @@ def finiteBackwardEmbedding?
 
 /--
 For exact total matching, the directional forward lift agrees pointwise with
-the forward map of the reconstructed exact finite transport.
+the forward map of the reconstructed exact transport at that natural depth.
 -/
 theorem totalMatching_directional_forward_agrees
     {Source : Type uSource}
@@ -333,7 +333,7 @@ theorem totalMatching_directional_forward_agrees
           cases fresh
           rfl
 
-/-- The symmetric directional lift agrees with the exact backward finite transport. -/
+/-- The symmetric directional lift agrees with the exact backward transport at that natural depth. -/
 theorem totalMatching_directional_backward_agrees
     {Source : Type uSource}
     {Target : Type uTarget}

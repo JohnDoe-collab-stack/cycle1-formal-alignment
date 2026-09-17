@@ -6,7 +6,7 @@
 >
 > Les objets sont individués avant d'être lus, leurs rôles sont déterminés par les relations qui les constituent, les dépendances sont éprouvées sur des carriers affaiblis, puis seules les déterminations dont la conservation a été démontrée sont reconstruites et transportées.
 >
-> Dans l'instance circulaire, cela permet de construire une continuation opérationnelle exacte dont le statut change sans perte de constitution, d'identifier son occurrence résiduelle à l'identité fraîche de l'alignement constitutif, puis de démontrer que cette identité persiste de manière cohérente à travers toute extension finie fournie et entre des réalisations exactes distinctes.
+> Dans l'instance circulaire, cela permet de construire une continuation opérationnelle exacte dont le statut change sans perte de constitution, d'identifier son occurrence résiduelle à l'identité fraîche de l'alignement constitutif, puis de démontrer que cette identité persiste de manière cohérente à travers toute extension vers une profondeur naturelle arbitraire et entre des réalisations exactes distinctes.
 >
 > Une branche séparée de frontière représentationnelle établit un résultat constructif de non-représentabilité diagonale. Elle ne produit pas la sortie opérationnelle et n'est pas utilisée pour justifier la persistance constitutive.
 
@@ -47,7 +47,7 @@ changement de statut
     ↓
 réalisation exacte
     ↓
-persistance finie
+persistance pour tout `n : Nat`
     ↓
 transport entre réalisations
     ↓
@@ -471,7 +471,7 @@ l'identité fraîche devient une identité ancienne
 pour toute extension ultérieure
 ```
 
-Cette transition ancien/fresh constitue le pont entre détermination résiduelle et persistance finie.
+Cette transition ancien/fresh constitue le pont entre détermination résiduelle et persistance uniforme pour tout `n : Nat`.
 
 ---
 
@@ -487,7 +487,7 @@ Cette phrase est une interprétation architecturale des équations vérifiées d
 
 À un pas, les anciennes identités restent anciennes, l'identité fraîche reste distincte d'elles, et les transports entre réalisations exactes préservent les deux branches.
 
-À profondeur finie, le même mécanisme est itéré sur les histoires réellement produites par `generate` et `appendGenerated`.
+Pour tout `n : Nat`, le même mécanisme est itéré sur les histoires réellement produites par `generate` et `appendGenerated`.
 
 Chaque étape générée contribue une identité fraîche tout en conservant toutes les identités déjà constituées.
 
@@ -519,9 +519,9 @@ Le projet démontre que des identités nées à des profondeurs distinctes reste
 
 ---
 
-## 11. Persistance finie et naturalité
+## 11. Persistance uniforme pour toute profondeur naturelle et naturalité
 
-Pour les profondeurs finies, le projet démontre :
+Pour tout `n : Nat`, le projet démontre :
 
 - la persistance des identités déjà constituées ;
 - exactement une identité fraîche par étape générée ;
@@ -564,13 +564,13 @@ changer de réalisation puis étendre
 
 L'extension par des profondeurs intermédiaires et le transport par des réalisations intermédiaires se composent de manière cohérente.
 
-Le dépôt ne possède ni objet d'histoire infinie ni carrier concret à l'étape ω. La persistance est néanmoins uniforme pour toute profondeur finie arbitraire, plutôt qu'énoncée par un théorème distinct pour chaque profondeur.
+Le dépôt ne possède ni objet d'histoire infinie ni carrier concret à l'étape ω. Cela ne borne pas la profondeur : les théorèmes de persistance sont uniformes pour un `n : Nat` arbitraire et n'imposent aucune profondeur maximale.
 
 ---
 
 ## 12. Persistance du résidu opérationnel
 
-Puisque la première identité fraîche est exactement l'occurrence résiduelle opérationnelle, la machinerie générale de persistance finie s'applique à cet objet produit opérationnellement.
+Puisque la première identité fraîche est exactement l'occurrence résiduelle opérationnelle, la machinerie générale de persistance uniforme pour tout `n : Nat` s'applique à cet objet produit opérationnellement.
 
 La façade publique expose :
 
@@ -591,7 +591,7 @@ résidu opérationnel
         ↓
 identité constitutive fraîche
         ↓
-persistance finie
+persistance pour tout `n : Nat`
         ↓
 transport exact entre réalisations
         ↓
@@ -928,7 +928,7 @@ Aucun théorème ne convertit un objet dans l'autre.
 | la continuation quitte le régime opérationnel | `oneStepAfterPerimeter_notCircularRefinement` |
 | la continuation échoue à la spécification indépendante | `oneStepAfterPerimeter_notSpecificationSatisfaction` |
 | le fresh du premier alignement est le résidu opérationnel consommé | `oneStepAlignmentFreshIsConsumedResidual` |
-| persistance finie du résidu opérationnel | `finiteOperationalResidualPersists` |
+| persistance du résidu opérationnel pour tout `n : Nat` | `finiteOperationalResidualPersists` |
 | naturalité de la persistance du résidu | `finiteOperationalResidualNaturality` |
 | les extensions se composent | `Alignment.FiniteConstitutiveAlignment.Realization.extend_comp` |
 | les transports entre réalisations se composent | `Alignment.FiniteConstitutiveAlignment.Realization.transport_comp` |
@@ -958,7 +958,7 @@ Le développement actuel n'établit pas :
 - une non-représentabilité universelle indépendante de l'évaluateur fourni ;
 - que la méthode des rôles constitutifs relationnels soit déjà un métathéorème Lean universel.
 
-La persistance finie est néanmoins quantifiée uniformément sur toute profondeur cible finie arbitraire.
+La persistance est quantifiée uniformément pour toute profondeur cible `n : Nat` arbitraire, sans profondeur maximale fixée.
 
 ---
 
@@ -989,7 +989,7 @@ La persistance finie est néanmoins quantifiée uniformément sur toute profonde
   définit l'alignement constitutif générique exact à un pas, ancien/fresh.
 
 - [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean)  
-  dérive la persistance finie, la structure des identités entre profondeurs, le transport entre réalisations, la composition et la naturalité.
+  dérive la persistance uniforme pour tout `n : Nat`, la structure des identités entre profondeurs, le transport entre réalisations, la composition et la naturalité.
 
 - [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean)  
   ajoute les lectures en aval de l'identité et démontre la persistance des distinctions déjà établies.
@@ -998,7 +998,7 @@ La persistance finie est néanmoins quantifiée uniformément sur toute profonde
   fournit le noyau générique de commutation observée et de réflexion.
 
 - [`Alignment/MediatedTransitionCoherence.lean`](Alignment/MediatedTransitionCoherence.lean)  
-  instancie la cohérence médiée pour l'alignement constitutif fini.
+  instancie la cohérence médiée pour l'alignement constitutif indexé par une profondeur naturelle.
 
 - [`Alignment/MediatedTransitionPasting.lean`](Alignment/MediatedTransitionPasting.lean)  
   démontre la composition et le collage de carrés adjacents de naturalité médiée.
@@ -1009,7 +1009,7 @@ La persistance finie est néanmoins quantifiée uniformément sur toute profonde
   raccorde la continuation circulaire à un pas à l'alignement constitutif générique et identifie l'identité fraîche à l'occurrence résiduelle opérationnelle.
 
 - [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean)  
-  instancie la persistance finie sur les histoires réellement générées par le producteur circulaire.
+  instancie la persistance uniforme en `n : Nat` sur les histoires réellement générées par le producteur circulaire.
 
 ### Façade structurelle publique
 
@@ -1033,7 +1033,7 @@ La persistance finie est néanmoins quantifiée uniformément sur toute profonde
   teste la factorisation du noyau résiduel et le comportement des séparateurs.
 
 - [`Tests/DynamicAlignmentRegression.lean`](Tests/DynamicAlignmentRegression.lean)  
-  exerce la persistance finie et la séparation des identités.
+  exerce la persistance à plusieurs profondeurs naturelles et la séparation des identités.
 
 - [`Tests/MediatedTransitionCoherenceRegression.lean`](Tests/MediatedTransitionCoherenceRegression.lean)  
   teste la commutation médiée et les hypothèses porteuses du noyau générique.
@@ -1201,7 +1201,7 @@ changement de statut opérationnel/normatif
         ↓
 identité constitutive fraîche
         ↓
-persistance finie
+persistance pour tout `n : Nat`
         ↓
 transport cohérent entre réalisations
         ↓

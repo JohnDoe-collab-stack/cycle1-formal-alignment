@@ -13,7 +13,7 @@ sides. The inverse laws are then derived from profile preservation and
 separation.
 
 Thus an exact initial alignment can be constructed from structural matching data
-without postulating bijectivity. Its canonical finite lift preserves genesis,
+without postulating bijectivity. Its canonical lift to every requested natural-number depth preserves genesis,
 and every other terminal exact transport with the same reconstructed profile
 behavior agrees with that lift pointwise.
 
@@ -110,7 +110,7 @@ theorem toExactTransport_preservesProfile
       resolver.toExactTransport.forward :=
   resolver.forwardPreserves
 
-/-- Lift the reconstructed initial alignment through finite constitutive depth. -/
+/-- Lift the reconstructed initial alignment through an arbitrary natural-number constitutive depth. -/
 def finiteTransport
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -123,7 +123,7 @@ def finiteTransport
       (IteratedCarrier Target depth) :=
   liftToDepth resolver.toExactTransport depth
 
-/-- Every finite transport reconstructed from profiles preserves genesis. -/
+/-- Every transport reconstructed at a requested natural-number depth from profiles preserves genesis. -/
 theorem finiteTransport_preservesGenesis
     {Source : Type uSource}
     {Target : Type uTarget}

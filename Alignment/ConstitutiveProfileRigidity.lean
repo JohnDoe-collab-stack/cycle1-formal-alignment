@@ -1,9 +1,9 @@
 import Alignment.GenesisRigidity
 
 /-!
-# Constitutive profile rigidity for finite alignment
+# Constitutive profile rigidity for alignment at arbitrary natural depth
 
-Genesis preservation localizes all remaining finite alignment ambiguity in the
+Genesis preservation localizes all remaining natural-depth alignment ambiguity in the
 initial carriers. This module gives a structural condition that can remove that
 ambiguity without postulating a common carrier of identities.
 
@@ -13,7 +13,7 @@ identities. Two candidate transports are profile-compatible when they preserve
 all probe values. Under target-side separation, profile-compatible candidates
 have the same forward map.
 
-Combining this with finite genesis reconstruction gives uniqueness of the whole
+Combining this with genesis reconstruction at arbitrary natural depth gives uniqueness of the whole
 terminal alignment among candidates whose reconstructed initial transports
 preserve the constitutive profiles.
 
@@ -80,7 +80,7 @@ theorem profilePreserving_forward_unique
 
 /--
 Profile preservation imposed on the initial transport reconstructed from one
-finite terminal candidate.
+terminal candidate at an arbitrary natural depth.
 -/
 def ReconstructedInitialPreservesProfile
     {Source : Type uSource}
@@ -102,7 +102,7 @@ def ReconstructedInitialPreservesProfile
 
 /--
 A separating constitutive profile removes all remaining forward ambiguity from
-finite genesis-preserving alignment.
+genesis-preserving alignment at arbitrary natural depth.
 -/
 theorem genesis_forward_unique_of_profileSeparation
     {Source : Type uSource}

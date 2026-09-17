@@ -214,7 +214,7 @@ def Classification.exactTransport?
   | .backwardOnly _ => none
   | .noDirectionalMatching _ => none
 
-/-- Recover exact transport at a finite genesis depth only from the exact regime. -/
+/-- Recover exact transport at any requested natural-number genesis depth only from the exact regime. -/
 def Classification.finiteTransport?
     {Source : Type uSource}
     {Target : Type uTarget}

@@ -233,7 +233,7 @@ theorem iterated_extend_transport_natural
     depth occurrence
 
 /--
-Finite extension between two supplied concrete realizations depends only on
+Natural-depth extension between two supplied concrete realizations depends only on
 its source and target depths, not on the `DepthExtension` witness.
 -/
 theorem iteratedExtension_witness_independent

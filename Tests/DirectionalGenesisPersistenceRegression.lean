@@ -90,7 +90,7 @@ theorem exact_classification_has_backward_embedding :
   change some _ = none at impossible
   cases impossible
 
-/-- A forward-only initial matching still persists injectively through finite genesis. -/
+/-- A forward-only initial matching still persists injectively through arbitrary natural-depth genesis. -/
 def forwardOnlyDepthFour :
     FiniteGenesisEmbedding Unit FiniteAnchoredMatchSearchRegression.PartialTarget 4 :=
   finiteForwardEmbeddingOfMatching
@@ -134,13 +134,13 @@ theorem backwardOnly_classification_has_no_forward_embedding :
       FiniteAlignmentClassificationRegression.backwardOnlyClassification 4 = none := by
   rfl
 
-/-- The weakest negative regime exposes no forward finite genesis embedding. -/
+/-- The weakest negative regime exposes no forward genesis embedding at a natural depth. -/
 theorem noDirectional_classification_has_no_forward_embedding :
     finiteForwardEmbedding?
       FiniteAlignmentClassificationRegression.noDirectionalClassification 4 = none := by
   rfl
 
-/-- The weakest negative regime exposes no backward finite genesis embedding either. -/
+/-- The weakest negative regime exposes no backward genesis embedding at a natural depth either. -/
 theorem noDirectional_classification_has_no_backward_embedding :
     finiteBackwardEmbedding?
       FiniteAlignmentClassificationRegression.noDirectionalClassification 4 = none := by

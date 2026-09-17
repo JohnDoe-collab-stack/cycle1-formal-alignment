@@ -484,12 +484,13 @@ signature indépendante du contenu en porte la généralité. Le développement
 actuel démontre la suffisance de cette interface, mais ne revendique pas de
 théorème de minimalité stricte pour l'ensemble de ses champs.
 
-### 6.2 Persistance constitutive finie
+### 6.2 Persistance constitutive à profondeur naturelle arbitraire
 
-La décomposition à un pas est itérée sans chaîne ω. `DepthExtension k n` est
-un témoin fini positif que la profondeur `n` a été atteinte depuis `k`, et
-`IteratedCarrier I n` conserve le porteur initial tout en ajoutant une identité
-nouvelle à chaque étape. Les raccords exacts induisent le prolongement vertical
+La décomposition à un pas est itérée sans chaîne ω. Les profondeurs `k` et `n`
+sont arbitraires dans `Nat`. `DepthExtension k n` est un témoin positif que la
+profondeur `n` a été atteinte depuis `k`, et `IteratedCarrier I n` conserve le
+porteur initial tout en ajoutant une identité nouvelle à chaque étape. Ces lois
+sont uniformes en `n : Nat` et n'imposent aucune profondeur maximale. Les raccords exacts induisent le prolongement vertical
 `E` et le changement horizontal de réalisation `T` ; aucun des deux n'est
 stocké comme donnée de matching indépendante. Lean démontre ponctuellement :
 
@@ -507,9 +508,9 @@ profondeur fixée, puis son invariance sous tout prolongement. Le prolongement
 concret induit, le paquet fini de valeurs retenu et chaque valeur de lecture
 retenue sont donc indépendants du témoin. Le prolongement concret le reste
 lorsque sa source et sa cible utilisent deux réalisations fournies distinctes.
-À la profondeur un, les deux directions du raccord fini et les deux directions
-du transport horizontal fini coïncident ponctuellement avec les interfaces à
-un pas déjà établies. L'identité nouvelle finie réalisée est l'identité `fresh`
+À la profondeur un, les deux directions du raccord à cette profondeur et les deux directions
+du transport horizontal à cette profondeur coïncident ponctuellement avec les interfaces à
+un pas déjà établies. L'identité fraîche réalisée à la profondeur un est l'identité `fresh`
 à un pas, et le prolongement de profondeur `0 → 1` est l'application `old` à
 un pas.
 
@@ -517,13 +518,12 @@ un pas.
 réelles construites récursivement par `generate` et `appendGenerated`. À chaque
 étape successeur, les occurrences antérieures sont les occurrences natives
 `.earlier` et l'identité nouvelle est l'occurrence native `.last`. Le résultat
-couvre une identité depuis sa propre profondeur finie de constitution, et non
+couvre une identité depuis sa propre profondeur naturelle de constitution, quelle qu'elle soit, et non
 seulement les identités déjà présentes au périmètre.
 
 Les lectures sont attachées ensuite. Leur type arbitraire de valeurs ne joue
-aucun rôle dans le carré commutatif. Sous le prolongement fini de la lecture,
-toute distinction déjà établie à la profondeur `k` persiste à chaque profondeur
-ultérieure fournie.
+aucun rôle dans le carré commutatif. Sous le prolongement de la lecture vers une profondeur naturelle ultérieure arbitraire,
+toute distinction déjà établie à la profondeur `k` persiste à cette profondeur.
 L'exemple clos à trois étapes calcule les valeurs périmétrales `7` et `11`, puis
 les valeurs nouvelles successives `10`, `20` et `30`, dans les réalisations
 libre et journalisée. Cela établit une portée exécutable, non l'instanciation

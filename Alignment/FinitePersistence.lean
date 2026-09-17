@@ -1,9 +1,9 @@
 import Alignment.Constitutive
 
 /-!
-# Finite constitutive persistence
+# Constitutive persistence at arbitrary natural depth
 
-This module derives finite-depth alignment from a common constitutive index.
+This module derives alignment at an arbitrary natural-number depth from a common constitutive index.
 Every depth retains the initial identities and adds one fresh identity.  Exact
 realizations are connected horizontally through that index, while prior
 identities are embedded vertically into later depths.  The two directions are
@@ -16,7 +16,7 @@ namespace Alignment
 
 universe uInitial uCarrier uConcrete
 
-/-- A positively constructed finite extension from one depth to another. -/
+/-- A positively constructed extension between two natural-number depths. -/
 inductive DepthExtension : Nat → Nat → Type
   | refl (n : Nat) : DepthExtension n n
   | step {source target : Nat} :
@@ -24,12 +24,12 @@ inductive DepthExtension : Nat → Nat → Type
 
 namespace DepthExtension
 
-/-- Construct the finite extension from depth zero to any supplied depth. -/
+/-- Construct the extension from depth zero to any supplied natural-number depth. -/
 def zeroTo : (n : Nat) → DepthExtension 0 n
   | 0 => .refl 0
   | n + 1 => .step (zeroTo n)
 
-/-- Compose two finite depth extensions. -/
+/-- Compose two extensions between natural-number depths. -/
 def trans
     {first middle last : Nat} :
     DepthExtension first middle →
@@ -49,7 +49,7 @@ theorem toLE
 end DepthExtension
 
 /--
-The finite constitutive carrier at depth `n`: initial identities together with
+The constitutive carrier at arbitrary depth `n : Nat`: initial identities together with
 the `n` identities introduced by the successive extensions.
 -/
 def IteratedCarrier (Initial : Type uInitial) : Nat → Type uInitial
@@ -58,7 +58,7 @@ def IteratedCarrier (Initial : Type uInitial) : Nat → Type uInitial
 
 namespace IteratedCarrier
 
-/-- Preserve every existing identity in the next finite carrier. -/
+/-- Preserve every existing identity in the next natural-depth carrier. -/
 def embedPrevious
     {Initial : Type uInitial}
     {n : Nat} :
@@ -82,7 +82,7 @@ def embedFrom
   | .refl _ => fun identity => identity
   | .step prior => fun identity => .inl (embedFrom prior identity)
 
-/-- Embed an initial identity into any finite constitutive depth. -/
+/-- Embed an initial identity into any natural-number constitutive depth. -/
 def embedInitial
     {Initial : Type uInitial}
     (n : Nat) :
@@ -90,7 +90,7 @@ def embedInitial
   embedFrom (DepthExtension.zeroTo n)
 
 /--
-A depth-independent structural code for finite identities.  Initial identities
+A depth-independent structural code for identities at arbitrary natural depth.  Initial identities
 retain their identity; every fresh identity retains the depth at which it was
 introduced.  The code deliberately forgets the later carrier in which the
 identity is observed.
@@ -153,7 +153,7 @@ theorem identityCode_injective
               cases secondFresh
               rfl
 
-/-- Every finite extension preserves the same structural identity code. -/
+/-- Every extension between natural-number depths preserves the same structural identity code. -/
 theorem identityCode_embedFrom
     {Initial : Type uInitial}
     {source target : Nat}
@@ -299,8 +299,8 @@ theorem embedPrevious_eq_embedFrom
 end IteratedCarrier
 
 /--
-One carrier at a finite constitutive depth, exactly indexed by the canonical
-finite carrier.  Intermediate depths remain separate instances of this
+One carrier at an arbitrary natural-number constitutive depth, exactly indexed by the canonical
+carrier at that depth.  Intermediate depths remain separate instances of this
 structure rather than being collapsed into the final carrier.
 -/
 structure FiniteConstitutiveAlignment
@@ -311,7 +311,7 @@ structure FiniteConstitutiveAlignment
 
 namespace FiniteConstitutiveAlignment
 
-/-- One exact concrete realization of a finite-depth constitutive carrier. -/
+/-- One exact concrete realization of a constitutive carrier at an arbitrary natural-number depth. -/
 structure Realization
     {Initial : Type uInitial}
     {depth : Nat}
@@ -321,7 +321,7 @@ structure Realization
 
 namespace Realization
 
-/-- The derived spoke from the common finite index to one concrete carrier. -/
+/-- The derived spoke from the common natural-depth index to one concrete carrier. -/
 def indexedSpoke
     {Initial : Type uInitial}
     {depth : Nat}
@@ -435,7 +435,7 @@ theorem extend_atIndex
       target.indexedSpoke.forward (IteratedCarrier.embedFrom depth identity)
   rw [source.indexedSpoke.forwardBackward]
 
-/-- Concrete finite extension is independent of its depth witness. -/
+/-- Concrete natural-depth extension is independent of its depth witness. -/
 theorem extend_witness_independent
     {Initial : Type uInitial}
     {sourceDepth targetDepth : Nat}
@@ -494,7 +494,7 @@ theorem extend_comp
   rw [IteratedCarrier.embedFrom_trans]
 
 /--
-Finite extension commutes with change of exact realization.  This is the
+Natural-depth extension commutes with change of exact realization.  This is the
 two-axis coherence law: extending then changing realization gives the same
 concrete identity as changing realization then extending.
 -/
