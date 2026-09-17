@@ -2,8 +2,7 @@
 
 [English](../en/relative_alignment.md) | **Français**
 
-Navigation : [synthèse structurelle](fondements_structurels.md) ·
-[méthode](methode_roles_constitutifs_relationnels.md) ·
+Navigation : [méthode](methode_roles_constitutifs_relationnels.md) ·
 [frontière représentationnelle](frontiere_representationnelle.md)
 
 ## Statut
