@@ -10,6 +10,7 @@ roots = [
   "AbstractSegmentedTurning",
   "ExactTypeTransport",
   "MediatedTransitionCoherence",
+  "ConstitutiveSearch.ContinuationTransport",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
@@ -55,5 +56,6 @@ roots = [
   "Tests.FiniteAlignmentClassificationRegression",
   "Tests.DirectionalGenesisPersistenceRegression",
   "Tests.MediatedTransitionCoherenceRegression",
-  "Tests.MediatedTransitionPastingRegression"
+  "Tests.MediatedTransitionPastingRegression",
+  "Tests.ConstitutiveSearchRegression"
 ]
