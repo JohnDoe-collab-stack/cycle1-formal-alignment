@@ -1,4 +1,4 @@
-import Alignment.FiniteIntrinsicAlignmentDecision
+import Alignment.CertifiedFiniteIntrinsicAlignmentDecision
 import Tests.FiniteIntrinsicRelationalSearchRegression
 
 namespace Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
@@ -14,8 +14,9 @@ This regression exercises the end-to-end finite intrinsic decision layer without
 supplying `Anchor`, a mediator, a source/target pairing, an exact transport, or a
 `FiniteTransportListing`.
 
-The only finite search data passed to the new decision procedure are the
-complete local carrier listings themselves.
+The primary API is now the certified semantic decision: either an exact
+compatible alignment is constructed, or all such alignments are constructively
+refuted.  The optional search view is tested only as a derived projection.
 -/
 
 /--
@@ -31,22 +32,26 @@ theorem symmetric_generatedFinder_succeeds :
   generatedFinder_ne_none_of_alignment
     symmetricContext boolListing boolListing identityAlignment
 
-/-- The public positive wrapper also succeeds without a supplied transport list. -/
-theorem symmetric_searchFromListings_succeeds :
-    searchAlignmentFromListings?
+/-- The certified decision reports the positive semantic branch. -/
+theorem symmetric_certifiedDecision_is_aligned :
+    (decideAlignmentFromListings
+      symmetricContext boolListing boolListing).isAligned = true :=
+  decideAlignmentFromListings_isAligned_of_alignment
+    symmetricContext boolListing boolListing identityAlignment
+
+/-- The optional convenience view therefore exposes an alignment. -/
+theorem symmetric_certifiedSearch_succeeds :
+    certifiedSearchAlignmentFromListings?
         symmetricContext boolListing boolListing ≠ none := by
-  unfold searchAlignmentFromListings?
-  cases found :
-      findPassingCandidate
-        symmetricContext
-        boolListing
-        boolListing
-        (generatedPairs boolListing boolListing) with
-  | none =>
-      exact (symmetric_generatedFinder_succeeds found).elim
-  | some candidate =>
+  unfold certifiedSearchAlignmentFromListings?
+  cases decision :
+      decideAlignmentFromListings
+        symmetricContext boolListing boolListing with
+  | aligned alignment =>
       intro impossible
       cases impossible
+  | impossible refute =>
+      exact (refute identityAlignment).elim
 
 /-! ## Direct intrinsic incompatibility, with no transport enumeration -/
 
@@ -117,16 +122,33 @@ theorem incompatible_generatedFinder_returns_none :
           checked
       exact (incompatibleContext_no_alignment_direct alignment).elim
 
-/-- The public wrapper exposes the same negative decision. -/
-theorem incompatible_searchFromListings_returns_none :
-    searchAlignmentFromListings?
+/-- The certified decision reports the constructive impossibility branch. -/
+theorem incompatible_certifiedDecision_is_impossible :
+    (decideAlignmentFromListings
+      incompatibleContext boolListing boolListing).isAligned = false :=
+  decideAlignmentFromListings_isAligned_false_of_refutation
+    incompatibleContext
+    boolListing
+    boolListing
+    incompatibleContext_no_alignment_direct
+
+/-- The optional convenience view forgets that certificate and returns `none`. -/
+theorem incompatible_certifiedSearch_returns_none :
+    certifiedSearchAlignmentFromListings?
         incompatibleContext boolListing boolListing = none := by
-  unfold searchAlignmentFromListings?
-  rw [incompatible_generatedFinder_returns_none]
+  unfold certifiedSearchAlignmentFromListings?
+  cases decision :
+      decideAlignmentFromListings
+        incompatibleContext boolListing boolListing with
+  | aligned alignment =>
+      exact (incompatibleContext_no_alignment_direct alignment).elim
+  | impossible refute =>
+      rfl
 
 /--
-The generated `none` is a constructive certificate that no intrinsic compatible
-exact alignment exists. No candidate transport family occurs in this proof.
+The generated raw `none` remains independently sufficient to refute every
+intrinsic compatible exact alignment. No candidate transport family occurs in
+this proof.
 -/
 theorem incompatibleContext_has_no_alignment_from_local_listings
     (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False :=
@@ -141,10 +163,12 @@ end Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_generatedFinder_succeeds
-#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_searchFromListings_succeeds
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_certifiedDecision_is_aligned
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_certifiedSearch_succeeds
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.directedRelation_diagonal_false
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_no_alignment_direct
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_generatedFinder_returns_none
-#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_searchFromListings_returns_none
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_certifiedDecision_is_impossible
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_certifiedSearch_returns_none
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_has_no_alignment_from_local_listings
 /- AXIOM_AUDIT_END -/
