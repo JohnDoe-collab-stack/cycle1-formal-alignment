@@ -1,5 +1,7 @@
 # Présentation longue
 
+**Français** | [English](LONG_PRESENTATION.md)
+
 ## Théorie constitutive de la détermination relationnelle
 
 Cette théorie part d’un principe : **avant de représenter, mesurer, évaluer ou aligner un objet, il faut établir ce qui le constitue et ce qui permet de l’identifier à travers ses transformations.**
@@ -298,7 +300,6 @@ Cette distinction est indispensable à la notion de résiduel.
 Une occurrence ne peut être dite résiduelle que relativement à une structure dans laquelle les rôles internes ont déjà été déterminés et réalisés.
 
 Le périmètre fournit précisément cette structure de référence.
-
 Il remplit ensuite une deuxième fonction : il fournit le **représentant canonique relativement auquel le régime peut être classifié**.
 
 Enfin, dans la théorie de la persistance, les occurrences de ce périmètre fournissent le carrier initial de l’instance circulaire à partir duquel les identités déjà constituées peuvent être suivies sous extension.
