@@ -22,9 +22,11 @@ jobs:
         shell: bash
         run: |
           python3 scripts/fix-depth-wording.py
-          rm scripts/fix-depth-wording.py
-          git show 889dce6c26e8cf8081e703c55924b2079eb9c20a:scripts/verify-manifest.sh > scripts/verify-manifest.sh
-          git show 808e9d452b86a64433c8db97159b3bcdce113d07^:.github/workflows/lean.yml > .github/workflows/lean.yml
+          python3 scripts/fix-depth-wording-residual.py
+          rm scripts/fix-depth-wording.py scripts/fix-depth-wording-residual.py
+          git fetch origin main --depth=1
+          git show FETCH_HEAD:.github/workflows/lean.yml > .github/workflows/lean.yml
+          git show FETCH_HEAD:scripts/verify-manifest.sh > scripts/verify-manifest.sh
           git diff --check
           git config user.name 'John Doe'
           git config user.email 'Dissociation@outlook.fr'
