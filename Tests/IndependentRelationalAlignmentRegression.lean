@@ -46,14 +46,63 @@ def independentContext :
     sourceSeparates := sourceSelfProfile_separates
     targetSeparates := targetObservationProfile_separates }
 
+def encodeObservation : Bool → TargetObservation
+  | false => .absent
+  | true => .edge
+
+theorem encodeObservation_injective :
+    Function.Injective encodeObservation := by
+  intro first second equality
+  cases first <;> cases second
+  · rfl
+  · cases equality
+  · cases equality
+  · rfl
+
+theorem targetObservationRelation_direct
+    (first second : SourceNode) :
+    targetObservationRelation
+        (directForward first)
+        (directForward second) =
+      encodeObservation (sourceRelation first second) := by
+  cases first <;> cases second <;> rfl
+
 def independentDirectAlignment :
     IndependentCompatibleExactAlignment independentContext :=
   { transport := directTransport
     preservesPattern := by
       intro first second third fourth
-      cases first <;> cases second <;> cases third <;> cases fourth <;>
-        simp [sourceRelation, targetObservationRelation, directTransport,
-          directForward] }
+      constructor
+      · intro sourceEquality
+        calc
+          independentContext.targetRelation
+              (directTransport.forward first)
+              (directTransport.forward second) =
+            encodeObservation
+              (independentContext.sourceRelation first second) := by
+                exact targetObservationRelation_direct first second
+          _ = encodeObservation
+              (independentContext.sourceRelation third fourth) :=
+                congrArg encodeObservation sourceEquality
+          _ = independentContext.targetRelation
+              (directTransport.forward third)
+              (directTransport.forward fourth) := by
+                exact (targetObservationRelation_direct third fourth).symm
+      · intro targetEquality
+        apply encodeObservation_injective
+        calc
+          encodeObservation
+              (independentContext.sourceRelation first second) =
+            independentContext.targetRelation
+              (directTransport.forward first)
+              (directTransport.forward second) := by
+                exact (targetObservationRelation_direct first second).symm
+          _ = independentContext.targetRelation
+              (directTransport.forward third)
+              (directTransport.forward fourth) := targetEquality
+          _ = encodeObservation
+              (independentContext.sourceRelation third fourth) := by
+                exact targetObservationRelation_direct third fourth }
 
 def independentConstitutiveAlignment :
     IndependentConstitutiveAlignment independentContext :=
@@ -98,6 +147,9 @@ end Alignment.Tests.IndependentRelationalAlignmentRegression
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.targetObservationRelation
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.targetObservationProfile_separates
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.independentContext
+#print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.encodeObservation
+#print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.encodeObservation_injective
+#print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.targetObservationRelation_direct
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.independentDirectAlignment
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.independentConstitutiveAlignment
 #print axioms Alignment.Tests.IndependentRelationalAlignmentRegression.independent_preservesGenesis_at_arbitrary_depth
