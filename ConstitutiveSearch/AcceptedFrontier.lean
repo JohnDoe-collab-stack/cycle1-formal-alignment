@@ -32,7 +32,7 @@ def FrontierAccept
       FrontierAccept system rest continuation
 
 /-- Lift a search system pointwise to finite search frontiers. -/
-def SearchSystem.frontierSystem
+abbrev SearchSystem.frontierSystem
     (system : SearchSystem) : SearchSystem :=
   { State := List system.State
     Continuation := FrontierContinuation system
