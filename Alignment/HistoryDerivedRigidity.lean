@@ -17,7 +17,7 @@ namespace HistoryDerivedAlignment
 
 open StrongPerimetralTurning
 
-universe uState uStep
+universe uState uTargetState uStep
 
 /-- Equality of local chronology observations is exactly equality of their Bool fields. -/
 theorem historyRelation_eq_iff_bool_eq
@@ -625,7 +625,7 @@ theorem constitutiveAlignment_forward_unique
     {SourceStep : SourceState → SourceState → Type uStep}
     {sourceStart sourceEnd : SourceState}
     (sourceHistory : History SourceStep sourceStart sourceEnd)
-    {TargetState : Type uState}
+    {TargetState : Type uTargetState}
     {TargetStep : TargetState → TargetState → Type uStep}
     {targetStart targetEnd : TargetState}
     (targetHistory : History TargetStep targetStart targetEnd)
@@ -642,7 +642,7 @@ theorem constitutiveAlignment_depth_forward_unique
     {SourceStep : SourceState → SourceState → Type uStep}
     {sourceStart sourceEnd : SourceState}
     (sourceHistory : History SourceStep sourceStart sourceEnd)
-    {TargetState : Type uState}
+    {TargetState : Type uTargetState}
     {TargetStep : TargetState → TargetState → Type uStep}
     {targetStart targetEnd : TargetState}
     (targetHistory : History TargetStep targetStart targetEnd)
