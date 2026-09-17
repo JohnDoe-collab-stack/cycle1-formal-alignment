@@ -52,8 +52,9 @@ Despite the raw map, no acceptance-preserving source-to-target transport can
 exist.
 -/
 theorem raw_map_not_accepting :
-    ¬ AcceptingContinuationTransport
-      rawSystem RawState.source RawState.target := by
+    AcceptingContinuationTransport
+      rawSystem RawState.source RawState.target →
+      False := by
   intro transport
   exact transport.preservesAccept () True.intro
 
@@ -100,8 +101,9 @@ No total structural transport exists from the inhabited source continuation
 space to the empty target continuation space.
 -/
 theorem no_structural_accepting_transport :
-    ¬ AcceptingContinuationTransport
-      vacuousSystem VacuousState.source VacuousState.target := by
+    AcceptingContinuationTransport
+      vacuousSystem VacuousState.source VacuousState.target →
+      False := by
   intro transport
   exact Empty.elim (transport.map ())
 
