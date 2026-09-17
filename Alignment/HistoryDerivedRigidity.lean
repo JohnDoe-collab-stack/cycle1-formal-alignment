@@ -157,7 +157,7 @@ theorem latest_fixed_of_boolPattern
         (History.Occurrence.last :
           History.Occurrence (.extend previous step)) with
   | last =>
-      exact image
+      rfl
   | earlier moved =>
       let preimage :=
         automorphism.backward
@@ -453,51 +453,51 @@ theorem restrictPrevious_preservesBoolPattern
           ((restrictPrevious automorphism latestFixed).forward fourth)) := by
   constructor
   · intro sourceEquality
-    have targetEquality :=
+    have extendedSource :
+        occurrencePrecedesBool
+            (History.Occurrence.earlier first)
+            (History.Occurrence.earlier second) =
+          occurrencePrecedesBool
+            (History.Occurrence.earlier third)
+            (History.Occurrence.earlier fourth) := by
+      simpa only [occurrencePrecedesBool] using sourceEquality
+    have extendedTarget :=
       (preserves
         (History.Occurrence.earlier first)
         (History.Occurrence.earlier second)
         (History.Occurrence.earlier third)
-        (History.Occurrence.earlier fourth)).mp sourceEquality
-    change
-      occurrencePrecedesBool
-          (History.Occurrence.earlier
-            ((restrictPrevious automorphism latestFixed).forward first))
-          (History.Occurrence.earlier
-            ((restrictPrevious automorphism latestFixed).forward second)) =
+        (History.Occurrence.earlier fourth)).mp extendedSource
+    rw [← restrictPrevious_forward_spec automorphism latestFixed first,
+      ← restrictPrevious_forward_spec automorphism latestFixed second,
+      ← restrictPrevious_forward_spec automorphism latestFixed third,
+      ← restrictPrevious_forward_spec automorphism latestFixed fourth]
+      at extendedTarget
+    simpa only [occurrencePrecedesBool] using extendedTarget
+  · intro targetEquality
+    have extendedTarget :
         occurrencePrecedesBool
-          (History.Occurrence.earlier
-            ((restrictPrevious automorphism latestFixed).forward third))
-          (History.Occurrence.earlier
-            ((restrictPrevious automorphism latestFixed).forward fourth))
+            (History.Occurrence.earlier
+              ((restrictPrevious automorphism latestFixed).forward first))
+            (History.Occurrence.earlier
+              ((restrictPrevious automorphism latestFixed).forward second)) =
+          occurrencePrecedesBool
+            (History.Occurrence.earlier
+              ((restrictPrevious automorphism latestFixed).forward third))
+            (History.Occurrence.earlier
+              ((restrictPrevious automorphism latestFixed).forward fourth)) := by
+      simpa only [occurrencePrecedesBool] using targetEquality
     rw [restrictPrevious_forward_spec automorphism latestFixed first,
       restrictPrevious_forward_spec automorphism latestFixed second,
       restrictPrevious_forward_spec automorphism latestFixed third,
       restrictPrevious_forward_spec automorphism latestFixed fourth]
-    exact targetEquality
-  · intro targetEquality
-    have extendedTarget :
-        occurrencePrecedesBool
-            (automorphism.forward
-              (History.Occurrence.earlier first))
-            (automorphism.forward
-              (History.Occurrence.earlier second)) =
-          occurrencePrecedesBool
-            (automorphism.forward
-              (History.Occurrence.earlier third))
-            (automorphism.forward
-              (History.Occurrence.earlier fourth)) := by
-      rw [← restrictPrevious_forward_spec automorphism latestFixed first,
-        ← restrictPrevious_forward_spec automorphism latestFixed second,
-        ← restrictPrevious_forward_spec automorphism latestFixed third,
-        ← restrictPrevious_forward_spec automorphism latestFixed fourth]
-      exact targetEquality
-    exact
+      at extendedTarget
+    have extendedSource :=
       (preserves
         (History.Occurrence.earlier first)
         (History.Occurrence.earlier second)
         (History.Occurrence.earlier third)
         (History.Occurrence.earlier fourth)).mpr extendedTarget
+    simpa only [occurrencePrecedesBool] using extendedSource
 
 /-- Every Boolean-pattern-preserving history automorphism is pointwise fixed. -/
 theorem forward_fixed_of_boolPattern
@@ -592,7 +592,6 @@ theorem historyRelation_patternRigid
       exact
         (historyRelation_eq_iff_bool_eq
           first second third fourth).mp sourceRelationEquality
-  · exact identity
 
 /-- Any two closed history-derived alignments agree on their initial forward map. -/
 theorem constitutiveAlignment_forward_unique
