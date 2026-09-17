@@ -12,10 +12,9 @@ A separate representation-boundary branch proves a constructive diagonal non-rep
 
 ## Long-form theoretical presentation
 
-The detailed theoretical presentation is maintained separately in both languages:
+The detailed theoretical presentation in English is maintained separately:
 
 - **[Long-form presentation — Constitutive theory of relational determination](LONG_PRESENTATION.md)**
-- **[Présentation longue — théorie constitutive de la détermination relationnelle](PRESENTATION_LONGUE.md)**
 
 It develops the framework in the following order:
 
@@ -217,7 +216,6 @@ Files not listed in the manifest are not implicitly covered by it; their identit
 Primary theoretical presentation:
 
 - [Long-form presentation — English](LONG_PRESENTATION.md)
-- [Présentation longue — français](PRESENTATION_LONGUE.md)
 
 Method and structural foundations:
 
