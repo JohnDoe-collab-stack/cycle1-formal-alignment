@@ -426,7 +426,7 @@ def reconstructInitial
       PreservesGenesis transport →
       ExactTypeTransport Source Target
   | 0, transport, _ => transport
-  | depth + 1, transport, preserves =>
+  | _depth + 1, transport, preserves =>
       reconstructInitial
         (previousTransport transport preserves)
         (previousTransport_preservesGenesis transport preserves)
