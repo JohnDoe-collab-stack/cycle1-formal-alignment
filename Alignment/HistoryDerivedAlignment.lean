@@ -230,21 +230,133 @@ def occurrenceDecidableEq
           (fun equality =>
             distinct (congrArg occurrenceAge equality))
 
-/-- Raw finite occurrence enumeration derived only from history constructors. -/
-def occurrenceValues
+/-- Every occurrence age is strictly below the derived history length. -/
+theorem occurrenceAge_lt_length
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target}
+    (occurrence : History.Occurrence history) :
+    occurrenceAge occurrence < History.length history := by
+  induction occurrence with
+  | last =>
+      exact Nat.zero_lt_succ _
+  | earlier occurrence inductionHypothesis =>
+      change occurrenceAge occurrence + 1 < History.length _ + 1
+      exact Nat.succ_lt_succ inductionHypothesis
+
+/-- Canonical finite structural index of one occurrence. -/
+def occurrenceFin
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target}
+    (occurrence : History.Occurrence history) :
+    Fin (History.length history) :=
+  ⟨occurrenceAge occurrence, occurrenceAge_lt_length occurrence⟩
+
+/-- Constructive enumeration of every element of `Fin n`. -/
+def finValues : (n : Nat) → List (Fin n)
+  | 0 => []
+  | n + 1 =>
+      ⟨0, Nat.zero_lt_succ n⟩ ::
+        (finValues n).map Fin.succ
+
+/-- The constructive finite-index enumeration is complete. -/
+theorem finValues_complete
+    (n : Nat)
+    (index : Fin n) :
+    index ∈ finValues n := by
+  induction n with
+  | zero =>
+      exact Fin.elim0 index
+  | succ n inductionHypothesis =>
+      cases index with
+      | mk value bound =>
+          cases value with
+          | zero =>
+              exact List.Mem.head _
+          | succ value =>
+              have priorBound : value < n :=
+                Nat.lt_of_succ_lt_succ bound
+              have priorMember :
+                  (⟨value, priorBound⟩ : Fin n) ∈ finValues n :=
+                inductionHypothesis ⟨value, priorBound⟩
+              exact
+                List.Mem.tail _
+                  (mem_map_of_mem Fin.succ priorMember)
+
+/--
+Reconstruct the occurrence at a supplied structural age index. This is a
+positive recursive construction from the finite history itself.
+-/
+def occurrenceAtFin
     {State : Type uState}
     {Step : State → State → Type uStep} :
     {source target : State} →
       (history : History Step source target) →
-      List (History.Occurrence history)
-  | _, _, .root =>
-      []
-  | _, _, .extend previous step =>
-      History.Occurrence.last ::
-        (occurrenceValues previous).map
-          (fun occurrence => History.Occurrence.earlier occurrence)
+      Fin (History.length history) →
+      History.Occurrence history
+  | _, _, .root, index =>
+      Fin.elim0 index
+  | _, _, .extend previous step, ⟨0, _⟩ =>
+      .last
+  | _, _, .extend previous step, ⟨value + 1, bound⟩ =>
+      .earlier
+        (occurrenceAtFin previous
+          ⟨value, Nat.lt_of_succ_lt_succ bound⟩)
 
-/-- Every occurrence appears in the constructor-derived finite enumeration. -/
+/-- Reconstruction at an index has exactly that structural age. -/
+theorem occurrenceAtFin_age
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    (history : History Step source target)
+    (index : Fin (History.length history)) :
+    occurrenceAge (occurrenceAtFin history index) = index.val := by
+  induction history with
+  | root =>
+      exact Fin.elim0 index
+  | @extend source middle target previous step inductionHypothesis =>
+      cases index with
+      | mk value bound =>
+          cases value with
+          | zero =>
+              rfl
+          | succ value =>
+              change
+                occurrenceAge
+                    (occurrenceAtFin previous
+                      ⟨value, Nat.lt_of_succ_lt_succ bound⟩) + 1 =
+                  value + 1
+              exact
+                congrArg
+                  (fun current => current + 1)
+                  (inductionHypothesis
+                    ⟨value, Nat.lt_of_succ_lt_succ bound⟩)
+
+/-- Finite structural indexing reconstructs every occurrence exactly. -/
+theorem occurrenceAtFin_occurrenceFin
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    {history : History Step source target}
+    (occurrence : History.Occurrence history) :
+    occurrenceAtFin history (occurrenceFin occurrence) = occurrence := by
+  apply occurrenceAge_injective
+  exact occurrenceAtFin_age history (occurrenceFin occurrence)
+
+/-- Raw finite occurrence enumeration via the derived structural indices. -/
+def occurrenceValues
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source target : State}
+    (history : History Step source target) :
+    List (History.Occurrence history) :=
+  (finValues (History.length history)).map
+    (occurrenceAtFin history)
+
+/-- Every occurrence appears in the structurally derived finite enumeration. -/
 theorem occurrence_mem_values
     {State : Type uState}
     {Step : State → State → Type uStep}
@@ -252,16 +364,16 @@ theorem occurrence_mem_values
     {history : History Step source target}
     (occurrence : History.Occurrence history) :
     occurrence ∈ occurrenceValues history := by
-  induction occurrence with
-  | last =>
-      exact List.Mem.head _
-  | earlier occurrence inductionHypothesis =>
-      exact
-        List.Mem.tail History.Occurrence.last
-          (mem_map_of_mem
-            (fun previous =>
-              History.Occurrence.earlier previous)
-            inductionHypothesis)
+  have indexMember :
+      occurrenceFin occurrence ∈ finValues (History.length history) :=
+    finValues_complete _ (occurrenceFin occurrence)
+  have mapped :
+      occurrenceAtFin history (occurrenceFin occurrence) ∈
+        occurrenceValues history := by
+    unfold occurrenceValues
+    exact mem_map_of_mem (occurrenceAtFin history) indexMember
+  rw [occurrenceAtFin_occurrenceFin occurrence] at mapped
+  exact mapped
 
 /-- Complete finite listing derived from the history, with no supplied carrier list. -/
 def occurrenceListing
@@ -349,6 +461,13 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_gt_of_precedes
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_injective
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceDecidableEq
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_lt_length
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceFin
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.finValues
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.finValues_complete
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAtFin
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAtFin_age
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAtFin_occurrenceFin
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValues
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrence_mem_values
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceListing
