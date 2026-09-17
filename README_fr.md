@@ -20,6 +20,14 @@ La présentation théorique détaillée en français est maintenue séparément 
 
 ---
 
+## Positionnement scientifique
+
+Ce projet étudie comment une structure relationnelle peut d'abord constituer canoniquement son propre domaine interne, puis déterminer ce qui apparaît comme nouveau lorsque la même construction se prolonge au-delà de ce domaine. Dans l'instance circulaire formalisée ici, cette progression relie reconstruction du périmètre, détermination résiduelle, frontière de régime, naissance d'une identité fraîche et persistance cohérente de cette identité. La contribution proposée ne réside donc pas dans une notion isolée de clôture, de totalité ou de transport, mais dans la construction formelle de cette chaîne de dépendances.
+
+Voir [POSITIONNEMENT_SCIENTIFIQUE.md](POSITIONNEMENT_SCIENTIFIQUE.md) pour le positionnement comparatif détaillé.
+
+---
+
 ## 1. Unité théorique
 
 L'unité théorique de ce projet n'est ni un module particulier ni un théorème final.
@@ -1258,19 +1266,3 @@ Ces formulations sont des interprétations contraintes par les théorèmes véri
 Elles n'identifient pas les couches traversées.
 
 C'est précisément leur séparation qui donne un sens à la persistance.
-
----
-
-## Licence et citation
-
-Le projet est distribué sous licence Apache-2.0.
-
-Les métadonnées de citation sont fournies dans [`CITATION.cff`](CITATION.cff).
-
-## Conception
-
-> **Déclaration de conception intellectuelle et de génération par IA.**
->
-> Le responsable du projet déclare être à l'origine des idées essentielles et de la direction de recherche, et que l'intégralité du contenu textuel et du code de ce dépôt — sources Lean, énoncés formels, preuves, exemples, documentation, traductions, scripts, métadonnées, matériaux d'audit et organisation du dépôt — a été écrite par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours d'interactions successives.
->
-> Voir [`AI_AUTHORSHIP.md`](AI_AUTHORSHIP.md) pour la déclaration bilingue complète.
