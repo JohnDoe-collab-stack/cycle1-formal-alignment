@@ -151,6 +151,39 @@ theorem mem_allTables_of_forall_mem
       exact mem_map_of_mem (fun rest => head :: rest) tailMember
 
 /--
+A function table built directly from a source list is generated at exactly the
+source-list depth. This direct induction avoids any propositional rewriting of
+`List.length_map` in the completeness proof.
+-/
+theorem mappedTable_mem_allTables
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    (sources : List Source)
+    (targets : FiniteListing Target)
+    (function : Source → Target) :
+    sources.map function ∈ allTables targets.values sources.length := by
+  induction sources with
+  | nil =>
+      change [] ∈ ([[]] : List (List Target))
+      exact List.Mem.head []
+  | cons source rest ih =>
+      change
+        function source :: rest.map function ∈
+          targets.values.flatMap
+            (fun target =>
+              (allTables targets.values rest.length).map
+                (fun values => target :: values))
+      apply mem_flatMap_of_mem_of_mem
+        (fun target =>
+          (allTables targets.values rest.length).map
+            (fun values => target :: values))
+        (targets.complete (function source))
+      exact
+        mem_map_of_mem
+          (fun values => function source :: values)
+          ih
+
+/--
 Interpret a table against a source listing. A fallback is needed only to make
 the function total syntactically; completeness proves it unreachable on actual
 source identities for the tables used by the completeness proof.
@@ -238,24 +271,10 @@ def ofFallback
         (functionOfTable fallback sources.values)
     complete := by
       intro function
-      have tableContained :
-          (value : Target) →
-            value ∈ sources.values.map function →
-              value ∈ targets.values := by
-        intro value member
-        exact
-          codomain_mem_of_mem_map
-            targets function sources.values value member
       have tableMember :
           sources.values.map function ∈
-            allTables targets.values sources.values.length := by
-        have generated :=
-          mem_allTables_of_forall_mem
-            (sources.values.map function)
-            targets.values
-            tableContained
-        rw [List.length_map] at generated
-        exact generated
+            allTables targets.values sources.values.length :=
+        mappedTable_mem_allTables sources.values targets function
       let listed :=
         functionOfTable fallback sources.values (sources.values.map function)
       refine ⟨listed, ?_, ?_⟩
@@ -340,6 +359,7 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.mem_flatMap_of_mem_of_mem
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.allTables
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.mem_allTables_of_forall_mem
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.mappedTable_mem_allTables
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.functionOfTable
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.functionOfTable_map_eq
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicFunctionEnumeration.codomain_mem_of_mem_map
