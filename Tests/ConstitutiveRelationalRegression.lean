@@ -23,11 +23,20 @@ def action : RelationalContinuationAction Relation Completion :=
       cases witness
       exact () }
 
+/-- Exhaustive constructive search for the only relation witness in this test. -/
+def findRelation : (source target : State) → Option (Relation source target)
+  | .strong, .strong => none
+  | .strong, .weak => some .dropConstraint
+  | .strong, .isolated => none
+  | .weak, .strong => none
+  | .weak, .weak => none
+  | .weak, .isolated => none
+  | .isolated, .strong => none
+  | .isolated, .weak => none
+  | .isolated, .isolated => none
+
 def search : RelationSearch Relation :=
-  { find := fun source target =>
-      match source, target with
-      | .strong, .weak => some Relation.dropConstraint
-      | _, _ => none }
+  { find := findRelation }
 
 /-- The executable search finds only the structurally justified direction. -/
 theorem strongWeak_kind :
@@ -76,6 +85,7 @@ end ConstitutiveSearch.Tests.RelationalTransportRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.RelationalTransportRegression.action
+#print axioms ConstitutiveSearch.Tests.RelationalTransportRegression.findRelation
 #print axioms ConstitutiveSearch.Tests.RelationalTransportRegression.search
 #print axioms ConstitutiveSearch.Tests.RelationalTransportRegression.strongWeak_kind
 #print axioms ConstitutiveSearch.Tests.RelationalTransportRegression.strongToWeakTransport
