@@ -69,8 +69,7 @@ theorem flipAt
                   !decision.value := by
               rw [selected, headHold]
             constructor
-            · unfold flipDecisionsAt BranchDecision.flipAt
-              rw [if_pos same]
+            · rw [BranchDecision.flipAt, if_pos same]
               exact flippedHead
             · exact inductionHypothesis tailHold
           · have preserved :
@@ -78,8 +77,7 @@ theorem flipAt
                   assignment decision.var :=
               Assignment.flipAt_other var decision.var assignment same
             constructor
-            · unfold flipDecisionsAt BranchDecision.flipAt
-              rw [if_neg same]
+            · rw [BranchDecision.flipAt, if_neg same]
               rw [preserved]
               exact headHold
             · exact inductionHypothesis tailHold
