@@ -24,6 +24,7 @@ roots = [
   "Alignment.FiniteAnchoredMatchSearch",
   "Alignment.FiniteAnchoredMatchDecision",
   "Alignment.FiniteAlignmentClassification",
+  "Alignment.DirectionalGenesisPersistence",
   "Alignment.ReadoutPersistence",
   "StrongPerimetralTurning.ConstitutivePersistence",
   "StrongPerimetralTurning.IteratedConstitutivePersistence",
