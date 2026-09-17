@@ -118,7 +118,7 @@ Si le résultat reste dérivable, ces données n’étaient pas nécessaires à 
 
 Si le résultat cesse d’être dérivable, on cherche un **modèle séparateur** qui conserve les propriétés déjà établies tout en faisant échouer la propriété candidate.
 
-La méthode consiste alors à identifier exactement ce qui manque.
+La méthode consiste alors à identifier les dépendances dont la nécessité peut être établie par séparation dans la classe de structures considérée.
 
 ```text
 structure riche
@@ -132,8 +132,11 @@ résultat encore dérivable ?
 dépendance        séparateur
 inutile à          explicite
 ce niveau             ↓
-                  dépendance réelle
+                  dépendance établie
+                  par séparation
 ```
+
+Les séparateurs établissent ainsi des non-implications précises et localisent les dépendances effectivement utilisées par les constructions formalisées. Ils ne prétendent pas établir une minimalité absolue parmi toutes les formalisations ou toutes les preuves possibles.
 
 Enfin, lorsque des conditions supplémentaires sont réintroduites, on cherche à montrer que la structure plus riche peut être **reconstruite** à partir d’elles.
 
@@ -357,42 +360,42 @@ C’est cette différence qui permet de définir une véritable frontière const
 
 La distinction entre ancien et nouveau n’est donc pas ajoutée extérieurement : elle résulte de la factorisation structurelle de l’histoire en périmètre et continuation.
 
-Une nouvelle occurrence ne peut pas réutiliser un rôle constitutif interne déjà attribué au périmètre.
+Lorsque cette séparation ancien / nouveau est équipée d’un marquage fidèle des rôles, une nouvelle occurrence ne peut pas réutiliser un rôle constitutif interne déjà attribué au périmètre.
 
 ```text
 ancien
 ≠
 nouveau
-```
 
-et :
-
-```text
-nouvelle occurrence
++
+marquage fidèle
         ↓
-impossibilité de réutiliser
-un rôle interne
+impossibilité pour le nouveau
+de réutiliser un rôle interne
         ↓
 rôle résiduel
 ```
 
-Lorsque le type de rôle résiduel est contractile, toutes les nouvelles occurrences reçoivent le même rôle résiduel déterminé.
+Une fois exclue, pour les nouvelles occurrences, la réutilisation des rôles internes, la contractilité du type de rôle résiduel force tout rôle résiduel obtenu à coïncider avec un même rôle distingué.
 
 Le rôle résiduel n’est donc pas une étiquette ajoutée arbitrairement après la continuation. Il est obtenu par exclusion des rôles internes et détermination du seul rôle résiduel disponible.
 
 ### 4.6 Unicité de l’occurrence résiduelle
 
-Si le marquage des occurrences est fidèle, deux occurrences portant le même rôle ne peuvent pas être distinctes.
+Le noyau de détermination résiduelle établit d’abord que toute nouvelle occurrence porte le même rôle résiduel distingué.
 
-Puisque toute nouvelle occurrence porte le même rôle résiduel, les nouvelles occurrences coïncident.
+Lorsque le marquage des nouvelles occurrences est injectif, deux nouvelles occurrences portant ce même rôle ne peuvent pas rester distinctes.
 
 ```text
-toute nouvelle occurrence
-→ même rôle résiduel
-
+exclusion des rôles internes
++
+contractilité du rôle résiduel
+        ↓
+même rôle résiduel
+pour toute nouvelle occurrence
+        ↓
 fidélité du marquage
         ↓
-
 une seule occurrence résiduelle
 ```
 
@@ -544,6 +547,8 @@ périmètre constitué
 ```
 
 ---
+
+Dans ce qui suit, les termes **identité**, **détermination constitutive** et **alignement** donnent une lecture théorique de structures et d’équations formelles explicites. Le développement Lean vérifie directement les occurrences, indexations, transports exacts, extensions, compositions et lois de naturalité qui contraignent cette lecture. Ces termes ne sont pas introduits comme des prédicats primitifs supplémentaires indépendants de ces constructions.
 
 ## 6. Identité et indexation constitutive
 
