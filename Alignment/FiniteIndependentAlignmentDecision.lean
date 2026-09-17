@@ -130,19 +130,16 @@ def relationPatternEntryCheck
       IndependentRelationalContext Source Target SourceValue TargetValue)
     (forward : Source → Target)
     (first second : Source × Source) : Bool :=
-  if sourceEqual :
-      context.sourceRelation first.1 first.2 =
-        context.sourceRelation second.1 second.2 then
-    if targetEqual :
-        context.targetRelation (forward first.1) (forward first.2) =
-          context.targetRelation (forward second.1) (forward second.2) then
+  if context.sourceRelation first.1 first.2 =
+      context.sourceRelation second.1 second.2 then
+    if context.targetRelation (forward first.1) (forward first.2) =
+        context.targetRelation (forward second.1) (forward second.2) then
       true
     else
       false
   else
-    if targetEqual :
-        context.targetRelation (forward first.1) (forward first.2) =
-          context.targetRelation (forward second.1) (forward second.2) then
+    if context.targetRelation (forward first.1) (forward first.2) =
+        context.targetRelation (forward second.1) (forward second.2) then
       false
     else
       true
