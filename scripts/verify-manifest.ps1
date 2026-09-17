@@ -47,7 +47,7 @@ foreach ($line in Get-Content -LiteralPath $manifestPath) {
     $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $targetPath).Hash.ToLowerInvariant()
 
     if ($actualHash -ne $expectedHash) {
-        $failures.Add("Hash mismatch: $relativePath")
+        $failures.Add("Hash mismatch: $relativePath`n  expected: $expectedHash`n  actual:   $actualHash")
         continue
     }
 
