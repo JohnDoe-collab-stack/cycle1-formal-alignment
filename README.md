@@ -225,12 +225,10 @@ Primary theoretical presentation:
 
 - [Long-form presentation — English](LONG_PRESENTATION.md)
 
-Method and structural foundations:
+Method:
 
 - [Relational constitutive roles — method](docs/en/relational_constitutive_roles_method.md)
 - [Méthode des rôles constitutifs relationnels](docs/fr/methode_roles_constitutifs_relationnels.md)
-- [Structural foundations](docs/en/structural_foundations.md)
-- [Fondements structurels](docs/fr/fondements_structurels.md)
 
 Alignment and architecture:
 
