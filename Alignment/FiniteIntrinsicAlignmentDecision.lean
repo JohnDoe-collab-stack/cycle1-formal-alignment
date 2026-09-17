@@ -1,4 +1,5 @@
 import Alignment.FiniteIntrinsicFunctionEnumeration
+import Alignment.IntrinsicRelationalMediator
 
 /-!
 # Finite intrinsic alignment decision from local carrier listings
