@@ -12,19 +12,19 @@
 
 ---
 
-## Présentation théorique longue
-
-La présentation théorique détaillée en français est maintenue séparément :
-
-- **[Présentation longue — théorie constitutive de la détermination relationnelle](PRESENTATION_LONGUE.md)**
-
----
-
 ## Positionnement scientifique
 
 Ce projet étudie comment une structure relationnelle peut d'abord constituer canoniquement son propre domaine interne, puis déterminer ce qui apparaît comme nouveau lorsque la même construction se prolonge au-delà de ce domaine. Dans l'instance circulaire formalisée ici, cette progression relie reconstruction du périmètre, détermination résiduelle, frontière de régime, naissance d'une identité fraîche et persistance cohérente de cette identité. La contribution proposée ne réside donc pas dans une notion isolée de clôture, de totalité ou de transport, mais dans la construction formelle de cette chaîne de dépendances.
 
 Voir [POSITIONNEMENT_SCIENTIFIQUE.md](POSITIONNEMENT_SCIENTIFIQUE.md) pour le positionnement comparatif détaillé.
+
+---
+
+## Présentation théorique longue
+
+La présentation théorique détaillée en français est maintenue séparément :
+
+- **[Présentation longue — théorie constitutive de la détermination relationnelle](PRESENTATION_LONGUE.md)**
 
 ---
 
