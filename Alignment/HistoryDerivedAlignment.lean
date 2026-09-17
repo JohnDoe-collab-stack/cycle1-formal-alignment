@@ -231,65 +231,82 @@ def occurrenceDecidableEq
             distinct (congrArg occurrenceAge equality))
 
 /--
-Raw finite occurrence enumeration using the primitive recursor of the
-proof-relevant history. This avoids dependent equation compilation: the list
-is generated directly from the same constructors that generate occurrences.
+Executable occurrence enumeration with a fixed final carrier.
+
+The recursive history may shrink, but every discovered occurrence is embedded
+into the fixed final history. Consequently the result type does not vary during
+recursion and the code generator accepts the construction directly.
 -/
+def occurrenceValuesAux
+    {State : Type uState}
+    {Step : State → State → Type uStep}
+    {source finalTarget : State}
+    (finalHistory : History Step source finalTarget) :
+    {currentTarget : State} →
+      (currentHistory : History Step source currentTarget) →
+      (History.Occurrence currentHistory →
+        History.Occurrence finalHistory) →
+      List (History.Occurrence finalHistory)
+  | _, .root, _ =>
+      []
+  | _, .extend previous step, embed =>
+      embed History.Occurrence.last ::
+        occurrenceValuesAux finalHistory previous
+          (fun occurrence =>
+            embed (History.Occurrence.earlier occurrence))
+
+/-- Enumerate the occurrences of one history inside that same history. -/
 def occurrenceValues
     {State : Type uState}
     {Step : State → State → Type uStep}
     {source target : State}
     (history : History Step source target) :
     List (History.Occurrence history) :=
-  @History.rec State Step source
-    (fun terminal currentHistory =>
-      List (History.Occurrence currentHistory))
-    []
-    (fun previous step previousValues =>
-      History.Occurrence.last ::
-        previousValues.map
-          (fun occurrence => History.Occurrence.earlier occurrence))
-    target
-    history
+  occurrenceValuesAux history history id
 
-/-- The rooted history has no occurrences. -/
-theorem occurrenceValues_root
+/--
+Completeness of the accumulator enumeration for any supplied embedding into the
+fixed final history.
+-/
+theorem occurrenceValuesAux_complete
     {State : Type uState}
     {Step : State → State → Type uStep}
-    {state : State} :
-    occurrenceValues (.root : History Step state state) = [] :=
-  rfl
+    {source finalTarget currentTarget : State}
+    (finalHistory : History Step source finalTarget)
+    (currentHistory : History Step source currentTarget)
+    (embed :
+      History.Occurrence currentHistory →
+        History.Occurrence finalHistory)
+    (occurrence : History.Occurrence currentHistory) :
+    embed occurrence ∈
+      occurrenceValuesAux finalHistory currentHistory embed := by
+  revert embed occurrence
+  induction currentHistory with
+  | root =>
+      intro embed occurrence
+      exact nomatch occurrence
+  | extend previous step inductionHypothesis =>
+      intro embed occurrence
+      cases occurrence with
+      | last =>
+          exact List.Mem.head _
+      | earlier prior =>
+          exact
+            List.Mem.tail _
+              (inductionHypothesis
+                (fun occurrence =>
+                  embed (History.Occurrence.earlier occurrence))
+                prior)
 
-/-- One extension adds exactly its last occurrence to the prior enumeration. -/
-theorem occurrenceValues_extend
-    {State : Type uState}
-    {Step : State → State → Type uStep}
-    {source middle target : State}
-    (previous : History Step source middle)
-    (step : Step middle target) :
-    occurrenceValues (.extend previous step) =
-      History.Occurrence.last ::
-        (occurrenceValues previous).map
-          (fun occurrence => History.Occurrence.earlier occurrence) :=
-  rfl
-
-/-- Every occurrence appears in the constructor-derived finite enumeration. -/
+/-- Every occurrence appears in the structurally derived finite enumeration. -/
 theorem occurrence_mem_values
     {State : Type uState}
     {Step : State → State → Type uStep}
     {source target : State}
     {history : History Step source target}
     (occurrence : History.Occurrence history) :
-    occurrence ∈ occurrenceValues history := by
-  induction occurrence with
-  | last =>
-      exact List.Mem.head _
-  | earlier occurrence inductionHypothesis =>
-      exact
-        List.Mem.tail _
-          (mem_map_of_mem
-            (fun prior => History.Occurrence.earlier prior)
-            inductionHypothesis)
+    occurrence ∈ occurrenceValues history :=
+  occurrenceValuesAux_complete history history id occurrence
 
 /-- Complete finite listing derived from the history, with no supplied carrier list. -/
 def occurrenceListing
@@ -377,9 +394,9 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_gt_of_precedes
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceAge_injective
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceDecidableEq
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValuesAux
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValues
-#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValues_root
-#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValues_extend
+#print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceValuesAux_complete
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrence_mem_values
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.occurrenceListing
 #print axioms Alignment.GenesisReconstruction.HistoryDerivedAlignment.context
