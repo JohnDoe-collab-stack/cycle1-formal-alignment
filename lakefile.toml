@@ -25,6 +25,7 @@ roots = [
   "ConstitutiveSearch.SAT.BranchContext",
   "ConstitutiveSearch.SAT.BranchContextTransport",
   "ConstitutiveSearch.SAT.GeneratedContext",
+  "ConstitutiveSearch.SAT.GlobalContextRelation",
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
@@ -85,5 +86,6 @@ roots = [
   "Tests.SATResidualTrajectoryRegression",
   "Tests.SATBranchContextRegression",
   "Tests.SATBranchContextTransportRegression",
-  "Tests.SATGeneratedContextRegression"
+  "Tests.SATGeneratedContextRegression",
+  "Tests.SATGlobalContextRelationRegression"
 ]
