@@ -157,6 +157,32 @@ def splitContextCompletion
         { underlying := completion
           valueExact := valueEq }
 
+/-- Exact computation rule for a parent completion known to realize `false`. -/
+theorem splitContextCompletion_false
+    (parent : BranchContext)
+    (var : Var)
+    (completion : parent.Carrier)
+    (valueExact : parent.assignment completion var = false) :
+    splitContextCompletion parent var completion =
+      Sum.inl
+        ({ underlying := completion
+           valueExact := valueExact } :
+          IndexedContextCompletion parent var false) := by
+  simp [splitContextCompletion, valueExact]
+
+/-- Exact computation rule for a parent completion known to realize `true`. -/
+theorem splitContextCompletion_true
+    (parent : BranchContext)
+    (var : Var)
+    (completion : parent.Carrier)
+    (valueExact : parent.assignment completion var = true) :
+    splitContextCompletion parent var completion =
+      Sum.inr
+        ({ underlying := completion
+           valueExact := valueExact } :
+          IndexedContextCompletion parent var true) := by
+  simp [splitContextCompletion, valueExact]
+
 /-- Forget one freshly constituted child decision and recover the parent completion. -/
 def mergeContextCompletion
     (parent : BranchContext)
@@ -166,6 +192,13 @@ def mergeContextCompletion
         parent.Carrier
   | .inl completion => completion.underlying
   | .inr completion => completion.underlying
+
+/-- Every Boolean value is one of the two exact branch values. -/
+theorem bool_false_or_true (value : Bool) :
+    value = false ∨ value = true := by
+  cases value with
+  | false => exact Or.inl rfl
+  | true => exact Or.inr rfl
 
 /-- The recursive Boolean branch is an exact reversible split of completion spaces. -/
 def contextSplit
@@ -182,21 +215,26 @@ def contextSplit
       intro branch
       cases branch with
       | inl completion =>
-          unfold splitContextCompletion mergeContextCompletion
-          rw [completion.valueExact]
-          apply congrArg Sum.inl
-          apply IndexedContextCompletion.ext
-          rfl
+          cases completion with
+          | mk underlying valueExact =>
+              exact
+                splitContextCompletion_false
+                  parent var underlying valueExact
       | inr completion =>
-          unfold splitContextCompletion mergeContextCompletion
-          rw [completion.valueExact]
-          apply congrArg Sum.inr
-          apply IndexedContextCompletion.ext
-          rfl
+          cases completion with
+          | mk underlying valueExact =>
+              exact
+                splitContextCompletion_true
+                  parent var underlying valueExact
     mergeSplit := by
       intro completion
-      unfold splitContextCompletion mergeContextCompletion
-      cases valueEq : parent.assignment completion var <;> rfl }
+      cases bool_false_or_true (parent.assignment completion var) with
+      | inl valueExact =>
+          rw [splitContextCompletion_false parent var completion valueExact]
+          rfl
+      | inr valueExact =>
+          rw [splitContextCompletion_true parent var completion valueExact]
+          rfl }
 
 /-- Direct exact split at a context, useful for recursive clients. -/
 def splitAtContext
@@ -233,7 +271,10 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.childContext_newDecisionExact
 #print axioms ConstitutiveSearch.SAT.childContext_parentDecisionsExact
 #print axioms ConstitutiveSearch.SAT.splitContextCompletion
+#print axioms ConstitutiveSearch.SAT.splitContextCompletion_false
+#print axioms ConstitutiveSearch.SAT.splitContextCompletion_true
 #print axioms ConstitutiveSearch.SAT.mergeContextCompletion
+#print axioms ConstitutiveSearch.SAT.bool_false_or_true
 #print axioms ConstitutiveSearch.SAT.contextSplit
 #print axioms ConstitutiveSearch.SAT.merge_splitAtContext
 /- AXIOM_AUDIT_END -/
