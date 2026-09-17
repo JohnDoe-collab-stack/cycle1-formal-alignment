@@ -73,14 +73,14 @@ theorem eval_flipAt
             flipAt var (.positive var) = .negative var := by
           rw [flipAt, if_pos rfl]
         rw [flippedLiteral]
-        change !(Assignment.flipAt var assignment var) = assignment var
+        dsimp [Literal.eval]
         rw [Assignment.flipAt_selected]
         cases assignment var <;> rfl
       · have flippedLiteral :
             flipAt var (.positive query) = .positive query := by
           rw [flipAt, if_neg same]
         rw [flippedLiteral]
-        change Assignment.flipAt var assignment query = assignment query
+        dsimp [Literal.eval]
         exact Assignment.flipAt_other var query assignment same
   | negative query =>
       by_cases same : query = var
@@ -89,13 +89,13 @@ theorem eval_flipAt
             flipAt var (.negative var) = .positive var := by
           rw [flipAt, if_pos rfl]
         rw [flippedLiteral]
-        change Assignment.flipAt var assignment var = !(assignment var)
+        dsimp [Literal.eval]
         exact Assignment.flipAt_selected var assignment
       · have flippedLiteral :
             flipAt var (.negative query) = .negative query := by
           rw [flipAt, if_neg same]
         rw [flippedLiteral]
-        change !(Assignment.flipAt var assignment query) = !(assignment query)
+        dsimp [Literal.eval]
         rw [Assignment.flipAt_other var query assignment same]
 
 end Literal
