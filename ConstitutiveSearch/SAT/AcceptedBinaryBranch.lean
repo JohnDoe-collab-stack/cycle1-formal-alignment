@@ -83,8 +83,6 @@ theorem split_merge_assignment
               .inl ⟨assignment, valueExact⟩
           unfold splitAssignment
           rw [dif_pos valueExact]
-          apply congrArg Sum.inl
-          apply Subtype.ext
   | inr rightAssignment =>
       cases rightAssignment with
       | mk assignment valueExact =>
@@ -97,8 +95,6 @@ theorem split_merge_assignment
               .inr ⟨assignment, valueExact⟩
           unfold splitAssignment
           rw [dif_neg notFalse]
-          apply congrArg Sum.inr
-          apply Subtype.ext
 
 /-- Parent and two structurally indexed child views of one SAT formula. -/
 inductive StructuralVariableBranchState where
