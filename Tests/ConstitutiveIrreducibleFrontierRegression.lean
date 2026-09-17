@@ -15,11 +15,20 @@ abbrev Completion (_ : State) := Unit
 def action : RelationalContinuationAction Relation Completion :=
   { act := fun _ _ => () }
 
+/-- Exhaustive constructive search for the only relation witness in this test. -/
+def findRelation : (source target : State) → Option (Relation source target)
+  | .strong, .strong => none
+  | .strong, .weak => some .strongToWeak
+  | .strong, .separate => none
+  | .weak, .strong => none
+  | .weak, .weak => none
+  | .weak, .separate => none
+  | .separate, .strong => none
+  | .separate, .weak => none
+  | .separate, .separate => none
+
 def search : RelationSearch Relation :=
-  { find := fun source target =>
-      match source, target with
-      | .strong, .weak => some .strongToWeak
-      | _, _ => none }
+  { find := findRelation }
 
 /-- The available directional relation reduces the pair to one retained state. -/
 def reducedStrongWeak :=
@@ -53,6 +62,7 @@ end ConstitutiveSearch.Tests.IrreducibleFrontierRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.IrreducibleFrontierRegression.action
+#print axioms ConstitutiveSearch.Tests.IrreducibleFrontierRegression.findRelation
 #print axioms ConstitutiveSearch.Tests.IrreducibleFrontierRegression.search
 #print axioms ConstitutiveSearch.Tests.IrreducibleFrontierRegression.reducedStrongWeak
 #print axioms ConstitutiveSearch.Tests.IrreducibleFrontierRegression.reducedStrongSeparate
