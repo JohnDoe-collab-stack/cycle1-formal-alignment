@@ -50,22 +50,47 @@ theorem symmetric_searchFromListings_succeeds :
 
 /-! ## Direct intrinsic incompatibility, with no transport enumeration -/
 
+/-- Every target diagonal entry of the directed relation is false. -/
+theorem directedRelation_diagonal_false
+    (value : Bool) :
+    directedRelation value value = false := by
+  cases value <;> rfl
+
 /--
 The incompatible context has no exact intrinsic alignment for a local reason:
 the source diagonal observation at `false` is `true`, whereas every target
-diagonal observation is `false`.  No case split over candidate transports is
+diagonal observation is `false`. No case split over candidate transports is
 needed.
 -/
 theorem incompatibleContext_no_alignment_direct
     (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False := by
-  have diagonal := alignment.preservesRelation false false
-  cases image : alignment.transport.forward false with
-  | false =>
-      change false = true at diagonal
-      cases diagonal
-  | true =>
-      change false = true at diagonal
-      cases diagonal
+  have diagonal :
+      incompatibleContext.targetRelation
+          (alignment.transport.forward false)
+          (alignment.transport.forward false) =
+        incompatibleContext.sourceRelation false false :=
+    alignment.preservesRelation false false
+  have targetDiagonal :
+      incompatibleContext.targetRelation
+          (alignment.transport.forward false)
+          (alignment.transport.forward false) = false := by
+    change
+      directedRelation
+          (alignment.transport.forward false)
+          (alignment.transport.forward false) = false
+    exact directedRelation_diagonal_false (alignment.transport.forward false)
+  have sourceDiagonal :
+      incompatibleContext.sourceRelation false false = true := by
+    rfl
+  have impossible : false = true := by
+    calc
+      false =
+          incompatibleContext.targetRelation
+            (alignment.transport.forward false)
+            (alignment.transport.forward false) := targetDiagonal.symm
+      _ = incompatibleContext.sourceRelation false false := diagonal
+      _ = true := sourceDiagonal
+  cases impossible
 
 /--
 Consequently the exhaustive raw-function finder must return `none`: a returned
@@ -127,6 +152,7 @@ end Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_generatedFinder_succeeds
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.symmetric_searchFromListings_succeeds
+#print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.directedRelation_diagonal_false
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatibleContext_no_alignment_direct
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_generatedFinder_returns_none
 #print axioms Alignment.Tests.FiniteIntrinsicAlignmentDecisionRegression.incompatible_searchFromListings_returns_none
