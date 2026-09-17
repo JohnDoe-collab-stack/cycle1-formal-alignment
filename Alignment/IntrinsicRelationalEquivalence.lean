@@ -85,7 +85,8 @@ theorem alignmentMediatorRoundTrip_forward
     (mediator : RelationalMediator context)
     (identity : Source) :
     (RelationalMediator.toExactTransport
-      mediator.toIntrinsicCompatibleExactAlignment.toRelationalMediator).forward
+      (IntrinsicCompatibleExactAlignment.toRelationalMediator
+        (RelationalMediator.toIntrinsicCompatibleExactAlignment mediator))).forward
         identity = mediator.toExactTransport.forward identity :=
   mediator.toIntrinsicCompatibleExactAlignment.mediatorReconstruction_forward
     identity
@@ -99,7 +100,8 @@ theorem alignmentMediatorRoundTrip_backward
     (mediator : RelationalMediator context)
     (identity : Target) :
     (RelationalMediator.toExactTransport
-      mediator.toIntrinsicCompatibleExactAlignment.toRelationalMediator).backward
+      (IntrinsicCompatibleExactAlignment.toRelationalMediator
+        (RelationalMediator.toIntrinsicCompatibleExactAlignment mediator))).backward
         identity = mediator.toExactTransport.backward identity :=
   mediator.toIntrinsicCompatibleExactAlignment.mediatorReconstruction_backward
     identity
@@ -120,8 +122,8 @@ theorem relationalMediatorRoundTrip_forward
     (alignment : IntrinsicCompatibleExactAlignment context)
     (identity : Source) :
     (RelationalMediator.toIntrinsicCompatibleExactAlignment
-      alignment.toRelationalMediator).transport.forward identity =
-      alignment.transport.forward identity :=
+      (IntrinsicCompatibleExactAlignment.toRelationalMediator alignment)).transport.forward
+        identity = alignment.transport.forward identity :=
   alignment.mediatorReconstruction_forward identity
 
 /-- The reconstructed backward correspondence is also pointwise unchanged. -/
@@ -133,8 +135,8 @@ theorem relationalMediatorRoundTrip_backward
     (alignment : IntrinsicCompatibleExactAlignment context)
     (identity : Target) :
     (RelationalMediator.toIntrinsicCompatibleExactAlignment
-      alignment.toRelationalMediator).transport.backward identity =
-      alignment.transport.backward identity :=
+      (IntrinsicCompatibleExactAlignment.toRelationalMediator alignment)).transport.backward
+        identity = alignment.transport.backward identity :=
   alignment.mediatorReconstruction_backward identity
 
 end IntrinsicCompatibleExactAlignment
