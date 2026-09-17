@@ -17,17 +17,31 @@ abbrev FixedAssignment
     (value : Bool) : Type :=
   { assignment : Assignment // assignment var = value }
 
+/-- A Boolean distinct from false is true. -/
+theorem bool_true_of_not_false_for_split
+    (value : Bool)
+    (notFalse : value ≠ false) :
+    value = true := by
+  cases value with
+  | false =>
+      exact False.elim (notFalse rfl)
+  | true =>
+      rfl
+
 /-- Split every assignment by its actual value at one variable. -/
 def splitAssignment
     (var : Var)
     (assignment : Assignment) :
     FixedAssignment var false ⊕
       FixedAssignment var true :=
-  match valueExact : assignment var with
-  | false =>
-      .inl ⟨assignment, valueExact⟩
-  | true =>
-      .inr ⟨assignment, valueExact⟩
+  if valueFalse : assignment var = false then
+    .inl ⟨assignment, valueFalse⟩
+  else
+    .inr
+      ⟨assignment,
+        bool_true_of_not_false_for_split
+          (assignment var)
+          valueFalse⟩
 
 /-- Forget the decision index and recover the underlying assignment. -/
 def mergeAssignment
@@ -44,8 +58,17 @@ theorem merge_split_assignment
     (assignment : Assignment) :
     mergeAssignment (splitAssignment var assignment) =
       assignment := by
-  unfold splitAssignment
-  cases valueExact : assignment var <;> rfl
+  by_cases valueFalse : assignment var = false
+  · simp only [
+      splitAssignment,
+      dif_pos valueFalse,
+      mergeAssignment
+    ]
+  · simp only [
+      splitAssignment,
+      dif_neg valueFalse,
+      mergeAssignment
+    ]
 
 /-- Splitting after forgetting reconstructs the indexed branch. -/
 theorem split_merge_assignment
@@ -59,21 +82,23 @@ theorem split_merge_assignment
   | inl leftAssignment =>
       cases leftAssignment with
       | mk assignment valueExact =>
-          unfold mergeAssignment
-          unfold splitAssignment
-          rw [valueExact]
-          apply congrArg Sum.inl
-          apply Subtype.ext
-          rfl
+          simp only [
+            mergeAssignment,
+            splitAssignment,
+            dif_pos valueExact
+          ]
   | inr rightAssignment =>
       cases rightAssignment with
       | mk assignment valueExact =>
-          unfold mergeAssignment
-          unfold splitAssignment
-          rw [valueExact]
-          apply congrArg Sum.inr
-          apply Subtype.ext
-          rfl
+          have notFalse : assignment var ≠ false := by
+            intro falseExact
+            rw [valueExact] at falseExact
+            cases falseExact
+          simp only [
+            mergeAssignment,
+            splitAssignment,
+            dif_neg notFalse
+          ]
 
 /-- Parent and two structurally indexed child views of one SAT formula. -/
 inductive StructuralVariableBranchState where
@@ -125,15 +150,38 @@ def structuralVariableBranchSplit
     mergeSplit := merge_split_assignment var
     splitPreservesAccept := by
       intro assignment accepted
-      unfold splitAssignment
-      cases valueExact : assignment var <;> exact accepted
+      by_cases valueFalse : assignment var = false
+      · simpa only [
+          splitAssignment,
+          dif_pos valueFalse,
+          BinaryAccept,
+          structuralVariableBranchSystem,
+          StructuralVariableBranchAccept
+        ] using accepted
+      · simpa only [
+          splitAssignment,
+          dif_neg valueFalse,
+          BinaryAccept,
+          structuralVariableBranchSystem,
+          StructuralVariableBranchAccept
+        ] using accepted
     mergePreservesAccept := by
       intro branch accepted
       cases branch with
-      | inl _leftAssignment =>
-          exact accepted
-      | inr _rightAssignment =>
-          exact accepted }
+      | inl leftAssignment =>
+          simpa only [
+            BinaryAccept,
+            structuralVariableBranchSystem,
+            StructuralVariableBranchAccept,
+            mergeAssignment
+          ] using accepted
+      | inr rightAssignment =>
+          simpa only [
+            BinaryAccept,
+            structuralVariableBranchSystem,
+            StructuralVariableBranchAccept,
+            mergeAssignment
+          ] using accepted }
 
 /-- Parent viability is exactly the disjunction of the two decision branches. -/
 theorem structural_branch_viable_iff
@@ -152,6 +200,7 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.FixedAssignment
+#print axioms ConstitutiveSearch.SAT.bool_true_of_not_false_for_split
 #print axioms ConstitutiveSearch.SAT.splitAssignment
 #print axioms ConstitutiveSearch.SAT.merge_split_assignment
 #print axioms ConstitutiveSearch.SAT.split_merge_assignment
