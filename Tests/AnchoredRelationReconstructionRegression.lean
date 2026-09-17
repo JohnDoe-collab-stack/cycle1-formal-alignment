@@ -119,12 +119,12 @@ theorem anchoredResolver_depth_two_initial_next :
 /-- With no anchors, the induced profile cannot separate a two-point carrier. -/
 theorem emptyAnchors_not_separating :
     ¬ ProfileSeparates
-      (fun (_ : Bool) (anchor : Empty) => nomatch anchor) := by
+      (fun (_ : Bool) (anchor : Empty) => (Empty.elim anchor : Bool)) := by
   intro separates
   have impossible : false = true :=
     separates false true (by
       intro anchor
-      exact nomatch anchor)
+      exact Empty.elim anchor)
   cases impossible
 
 end Alignment.Tests.AnchoredRelationReconstructionRegression
