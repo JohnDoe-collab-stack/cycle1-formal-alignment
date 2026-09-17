@@ -94,6 +94,28 @@ def ofParent
   { underlying := completion
     valueExact := rfl }
 
+/--
+Two indexed completions are equal once their underlying parent completions are
+equal. Equality of proof fields contributes no additional branch identity.
+-/
+theorem ext_underlying
+    {parent : BranchContext}
+    {var : Var}
+    {value : Bool}
+    {left right : IndexedContextCompletion parent var value}
+    (underlyingExact : left.underlying = right.underlying) :
+    left = right := by
+  cases left with
+  | mk leftUnderlying leftValueExact =>
+      cases right with
+      | mk rightUnderlying rightValueExact =>
+          dsimp at underlyingExact
+          cases underlyingExact
+          have proofExact : leftValueExact = rightValueExact :=
+            Subsingleton.elim _ _
+          cases proofExact
+          rfl
+
 end IndexedContextCompletion
 
 /--
@@ -181,7 +203,14 @@ theorem splitContextCompletion_false
         ({ underlying := completion
            valueExact := valueExact } :
           IndexedContextCompletion parent var false) := by
-  simp [splitContextCompletion, valueExact]
+  unfold splitContextCompletion
+  rw [dif_pos valueExact]
+  apply congrArg
+    (fun indexed : IndexedContextCompletion parent var false =>
+      (Sum.inl indexed :
+        IndexedContextCompletion parent var false ⊕
+          IndexedContextCompletion parent var true))
+  exact IndexedContextCompletion.ext_underlying rfl
 
 /-- Exact computation rule for a parent completion known to realize `true`. -/
 theorem splitContextCompletion_true
@@ -199,7 +228,14 @@ theorem splitContextCompletion_true
     have impossible : true = false :=
       valueExact.symm.trans falseExact
     cases impossible
-  simp [splitContextCompletion, notFalse]
+  unfold splitContextCompletion
+  rw [dif_neg notFalse]
+  apply congrArg
+    (fun indexed : IndexedContextCompletion parent var true =>
+      (Sum.inr indexed :
+        IndexedContextCompletion parent var false ⊕
+          IndexedContextCompletion parent var true))
+  exact IndexedContextCompletion.ext_underlying rfl
 
 /-- Forget one freshly constituted child decision and recover the parent completion. -/
 def mergeContextCompletion
@@ -284,6 +320,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.rootContext
 #print axioms ConstitutiveSearch.SAT.IndexedContextCompletion
 #print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.ofParent
+#print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.ext_underlying
 #print axioms ConstitutiveSearch.SAT.IndexedContextCompletion.valueExact
 #print axioms ConstitutiveSearch.SAT.childContext
 #print axioms ConstitutiveSearch.SAT.childContext_newDecisionExact
