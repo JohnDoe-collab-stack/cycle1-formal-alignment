@@ -16,9 +16,9 @@ completion by keeping the same assignment and restricting the satisfaction
 proof.  This gives a concrete `ContinuationTransport` from a purely structural
 constraint relation.
 
-An executable subsequence search constructs weakening witnesses when it finds
-them.  As in the generic layer, `none` is only a search result.  This module does
-not yet prove completeness of that search as a negative decision procedure.
+An executable structural search constructs weakening witnesses when it finds
+them.  It is deliberately not used as a negative decision procedure: `none`
+means only that this search found no witness.
 -/
 
 namespace ConstitutiveSearch
@@ -39,8 +39,8 @@ namespace Literal
 
 /-- Boolean evaluation of one literal under a total assignment. -/
 def eval (assignment : Assignment) : Literal → Bool
-  | .positive variable => assignment variable
-  | .negative variable => !(assignment variable)
+  | .positive var => assignment var
+  | .negative var => !(assignment var)
 
 end Literal
 
@@ -53,13 +53,19 @@ def eval (assignment : Assignment) : Clause → Bool
 
 end Clause
 
-/-- A total assignment satisfies every clause in the CNF. -/
-def Satisfies (formula : Cnf) (assignment : Assignment) : Prop :=
-  List.Forall (fun clause => Clause.eval assignment clause = true) formula
+/-- Constructive proof that one assignment satisfies every clause of a CNF. -/
+inductive Satisfies (assignment : Assignment) : Cnf → Prop
+  | nil : Satisfies assignment []
+  | cons
+      {clause : Clause}
+      {rest : Cnf}
+      (headSatisfied : Clause.eval assignment clause = true)
+      (tailSatisfied : Satisfies assignment rest) :
+      Satisfies assignment (clause :: rest)
 
 /-- Proof-relevant terminal completion space of a CNF. -/
 abbrev Completion (formula : Cnf) : Type :=
-  { assignment : Assignment // Satisfies formula assignment }
+  { assignment : Assignment // Satisfies assignment formula }
 
 /--
 Constructive clause-deletion relation.  `CnfWeakening source target` means that
@@ -86,11 +92,11 @@ def refl : (formula : Cnf) → CnfWeakening formula formula
   | clause :: rest => .keep clause (refl rest)
 
 /-- Weakening preserves satisfaction by deleting obligations only. -/
-def preservesSatisfaction
+theorem preservesSatisfaction
     {source target : Cnf}
     (weakening : CnfWeakening source target)
     {assignment : Assignment} :
-    Satisfies source assignment → Satisfies target assignment := by
+    Satisfies assignment source → Satisfies assignment target := by
   induction weakening with
   | done =>
       intro _
@@ -123,38 +129,34 @@ def toTransport
     ContinuationTransport Completion source target :=
   { map := weakening.completionMap }
 
+/-- Keep structurally equal clause heads while retaining the dependent indices. -/
+def keepOfEq
+    {source target : Cnf}
+    (sourceHead targetHead : Clause)
+    (headsEqual : sourceHead = targetHead)
+    (rest : CnfWeakening source target) :
+    CnfWeakening (sourceHead :: source) (targetHead :: target) := by
+  cases headsEqual
+  exact .keep sourceHead rest
+
 /--
-Executable search for an order-preserving target sublist inside the source CNF.
-It constructs a weakening witness when successful.
+Executable structural search for a target sub-CNF.  The recursion is structural
+on the source list.  When equal heads are encountered the procedure commits to
+retaining them, so failure remains only failure of this particular search.
 -/
-def find : (source target : Cnf) → Option (CnfWeakening source target) := by
-  intro source
-  induction source with
-  | nil =>
-      intro target
-      cases target with
-      | nil => exact some .done
-      | cons _ _ => exact none
-  | cons sourceHead sourceTail inductionHypothesis =>
-      intro target
-      cases target with
-      | nil =>
-          exact some .done
-      | cons targetHead targetTail =>
-          by_cases headsEqual : sourceHead = targetHead
-          · subst targetHead
-            match inductionHypothesis targetTail with
-            | some retainedTail =>
-                exact some (.keep sourceHead retainedTail)
-            | none =>
-                match inductionHypothesis (sourceHead :: targetTail) with
-                | some droppedTail =>
-                    exact some (.drop sourceHead droppedTail)
-                | none => exact none
-          · match inductionHypothesis (targetHead :: targetTail) with
-            | some droppedTail =>
-                exact some (.drop sourceHead droppedTail)
-            | none => exact none
+def find : (source target : Cnf) → Option (CnfWeakening source target)
+  | _, [] => some .done
+  | [], _ :: _ => none
+  | sourceHead :: sourceTail, targetHead :: targetTail =>
+      if headsEqual : sourceHead = targetHead then
+        match find sourceTail targetTail with
+        | some retainedTail =>
+            some (keepOfEq sourceHead targetHead headsEqual retainedTail)
+        | none => none
+      else
+        match find sourceTail (targetHead :: targetTail) with
+        | some droppedTail => some (.drop sourceHead droppedTail)
+        | none => none
 
 end CnfWeakening
 
@@ -169,12 +171,12 @@ def weakeningSearch : RelationSearch CnfWeakening :=
   { find := CnfWeakening.find }
 
 /-- Convenient singleton positive clause. -/
-def positiveUnit (variable : Var) : Clause :=
-  [Literal.positive variable]
+def positiveUnit (var : Var) : Clause :=
+  [Literal.positive var]
 
 /-- Convenient singleton negative clause. -/
-def negativeUnit (variable : Var) : Clause :=
-  [Literal.negative variable]
+def negativeUnit (var : Var) : Clause :=
+  [Literal.negative var]
 
 end SAT
 end ConstitutiveSearch
