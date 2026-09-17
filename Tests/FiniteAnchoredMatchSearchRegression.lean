@@ -232,10 +232,35 @@ theorem partial_forward_check_succeeds :
       partialContext unitListing unitListing partialTargetListing = true := by
   rfl
 
+/-- The successful forward check constructs an actual one-sided structural matching. -/
+def partialForwardMatching : ForwardAnchoredMatching partialContext :=
+  forwardMatchingOfCheck
+    partialContext unitListing unitListing partialTargetListing
+    partial_forward_check_succeeds
+
+/-- The computed one-sided structural matching is injective. -/
+theorem partial_forward_injective :
+    Function.Injective partialForwardMatching.forward :=
+  partialForwardMatching.forward_injective
+
+/-- The executable forward search returns the positive structural matching. -/
+theorem partial_forward_search_succeeds :
+    searchForwardMatching?
+      partialContext unitListing unitListing partialTargetListing ≠ none := by
+  intro impossible
+  change some _ = none at impossible
+  cases impossible
+
 /-- Reverse totality fails because the extra target has no source profile match. -/
 theorem partial_backward_check_fails :
     backwardTotalCheck
       partialContext unitListing unitListing partialTargetListing = false := by
+  rfl
+
+/-- The executable reverse search rejects the missing reverse totality. -/
+theorem partial_backward_search_rejects :
+    searchBackwardMatching?
+      partialContext unitListing unitListing partialTargetListing = none := by
   rfl
 
 /-- The end-to-end procedure refuses to manufacture an exact alignment when totality fails. -/
@@ -263,6 +288,10 @@ end Alignment.Tests.FiniteAnchoredMatchSearchRegression
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.optional_search_succeeds
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialContext
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_check_succeeds
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partialForwardMatching
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_injective
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_forward_search_succeeds
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_backward_check_fails
+#print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_backward_search_rejects
 #print axioms Alignment.Tests.FiniteAnchoredMatchSearchRegression.partial_optional_search_rejects
 /- AXIOM_AUDIT_END -/
