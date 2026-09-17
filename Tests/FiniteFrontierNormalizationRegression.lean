@@ -22,13 +22,25 @@ def demoAction :
     RelationalContinuationAction DemoRelation DemoCompletion :=
   { act := fun _relation completion => completion }
 
-/-- Executable search for exactly the two declared structural relations. -/
+/--
+Exhaustive executable search for exactly the two declared structural relations.
+Writing the dependent cases as equations keeps the regression axiom-free.
+-/
+def findDemoRelation :
+    (source target : DemoState) → Option (DemoRelation source target)
+  | .a, .a => none
+  | .a, .b => none
+  | .a, .c => some .aToC
+  | .b, .a => none
+  | .b, .b => none
+  | .b, .c => some .bToC
+  | .c, .a => none
+  | .c, .b => none
+  | .c, .c => none
+
+/-- Executable search exposing the exhaustive relation finder. -/
 def demoSearch : RelationSearch DemoRelation :=
-  { find := fun source target =>
-      match source, target with
-      | .a, .c => some .aToC
-      | .b, .c => some .bToC
-      | _, _ => none }
+  { find := findDemoRelation }
 
 /-- Three states normalize constructively to the single absorbing state `c`. -/
 def normalizedABC :=
@@ -67,6 +79,7 @@ end ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.DemoRelation
 #print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.demoAction
+#print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.findDemoRelation
 #print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.demoSearch
 #print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.normalizedABC
 #print axioms ConstitutiveSearch.Tests.FiniteFrontierNormalizationRegression.normalizedABC_retained
