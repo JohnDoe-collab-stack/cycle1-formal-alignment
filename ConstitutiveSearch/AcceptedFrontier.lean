@@ -104,11 +104,11 @@ def expandHead
             splitter.splitPreservesAccept continuation accepted
           cases splitExact : splitter.split continuation with
           | inl leftContinuation =>
-              change system.Accept left leftContinuation
+              rw [splitExact]
               rw [splitExact] at branchAccepted
               exact branchAccepted
           | inr rightContinuation =>
-              change system.Accept right rightContinuation
+              rw [splitExact]
               rw [splitExact] at branchAccepted
               exact branchAccepted
       | tail restContinuation =>
