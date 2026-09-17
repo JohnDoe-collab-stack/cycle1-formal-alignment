@@ -1,1260 +1,1395 @@
-# Stratégie complète - recherche constitutive et calcul par trajectoire
+# Strategie auditee - recherche constitutive et calcul par trajectoire
 
 ## Statut du document
 
-Ce document est un document de chantier de la branche `research/constitutive-search`.
+Ce document est le plan scientifique de travail de la branche `research/constitutive-search`.
 
-Il fixe la stratégie scientifique et formelle du travail en cours autour de l'idée suivante :
-
-> le chemin de résolution n'est pas parcouru par le calcul comme une structure déjà donnée. Le chemin est constitué par le calcul lui-même. Les déterminations déjà obtenues deviennent une partie de la structure utilisée pour produire les déterminations suivantes.
-
-Ce document n'est pas une revendication sur `P = NP` et ne doit pas être fusionné dans `main` sous cette forme. Conformément aux règles du dépôt, il devra être supprimé ou transformé en documentation scientifique canonique avant une éventuelle pull request vers `main`.
-
----
-
-## 1. But scientifique
-
-Le programme vise à formaliser une classe de calculs où une recherche se construit par interaction entre :
+Version auditee le 17 septembre 2026 contre le code du commit de reference :
 
 ```text
-possibilités de continuation
-        ↓
-contraintes déjà constituées
-        ↓
-relations calculables localement
-        ↓
-transports entre espaces de continuation
-        ↓
-réduction de la frontière active
-        ↓
-nouvelles déterminations
-        ↓
-nouveau contexte de calcul
+36d3ae581eaca839bde225dd2bdfde4cd24a5175
 ```
 
-L'objectif n'est pas de supposer une procédure qui sait quelle branche contient une solution.
+Le code de ce commit a passe les gates Linux et Windows du projet, y compris le build Lean, la bibliotheque de regressions et les controles de manifeste.
 
-L'objectif est de déterminer si des relations structurelles plus faibles peuvent permettre de construire positivement des transformations de continuations suffisantes pour réduire la recherche sans décider directement l'existence d'une solution dans chaque branche.
-
-Le cas d'étude final visé est SAT, mais aucune primitive du noyau générique ne doit mentionner SAT, P, NP, satisfaisabilité ou complexité polynomialement bornée.
-
-La complexité intervient seulement après que la structure de calcul, ses transformations et ses invariants de correction ont été reconstruits.
+Ce document est un document de chantier. Il ne constitue aucune revendication sur `P = NP`. Il doit rester distinct de la documentation scientifique canonique tant que les resultats de la branche ne sont pas stabilises.
 
 ---
 
-## 2. Principe méthodologique
+## 1. Idee directrice
 
-Le travail suit la discipline générale du projet :
+Le programme formalise une classe de calculs ou le chemin de resolution n'est pas un objet donne a l'avance puis parcouru par une procedure externe.
+
+Le chemin est constitue pendant le calcul.
+
+Les determinations deja produites deviennent des donnees structurelles qui conditionnent les transformations disponibles aux etapes suivantes.
+
+La chaine conceptuelle visee est :
+
+```text
+etat constitue
+-> continuations possibles
+-> relations localement reconstructibles
+-> transports entre espaces de continuations
+-> absorption certifiee de certaines alternatives
+-> nouvelle frontiere active
+-> nouvelles determinations
+-> nouveau contexte relationnel
+-> nouvelle etape de calcul
+```
+
+La question centrale n'est pas :
+
+```text
+quelle branche contient une solution ?
+```
+
+La question centrale est :
+
+```text
+quelles transformations positives entre futurs possibles peut-on reconstruire
+sans connaitre a l'avance la positivite des branches ?
+```
+
+---
+
+## 2. Regle methodologique principale
+
+Le travail suit la discipline :
 
 ```text
 affaiblir
-→ séparer
-→ reconstruire
+-> separer
+-> reconstruire
 ```
 
-Aucune propriété forte ne doit être ajoutée parce qu'elle rendrait la preuve facile.
+Aucune propriete forte ne doit etre introduite seulement parce qu'elle rend une preuve possible.
 
-En particulier, il est interdit de mettre comme primitive une propriété du type :
+En particulier, les primitives suivantes sont interdites lorsqu'elles cachent la difficulte recherchee :
 
 ```text
-la branche conservée contient une solution si une solution existe
+la branche retenue est satisfiable
+la branche eliminee est insatisfiable
+une solution existe ici
+aucune solution n'existe ici
+le bon choix est cette branche
 ```
 
-ou :
+La primitive positive minimale reste de la forme :
 
 ```text
-la branche A est satisfaisable implique que la branche B est satisfaisable
+Completion source -> Completion target
 ```
 
-lorsque cette propriété peut être remplacée par une construction positive plus fondamentale.
-
-La forme primitive recherchée est plutôt :
-
-```text
-Completion A → Completion B
-```
-
-Une implication d'existence doit ensuite être dérivée de cette transformation.
-
-L'ordre de dépendance prévu est :
-
-```text
-états constitués
-→ espaces de complétions
-→ splits de continuation
-→ transports directionnels
-→ réduction de frontière
-→ reconstruction relationnelle des transports
-→ contexte dynamique et ancres
-→ largeur constitutive
-→ terminaison structurelle
-→ bornes de représentation
-→ bornes de temps
-→ instance SAT
-```
-
-La mesure numérique ne doit pas constituer rétroactivement la structure.
+Une propriete existentielle doit etre derivee de cette construction, jamais utilisee pour la fabriquer.
 
 ---
 
-## 3. Invariants conceptuels à préserver
+## 3. Ordre de dependance revise
 
-Les distinctions suivantes sont obligatoires pendant tout le chantier :
+La premiere version du plan placait SAT presque uniquement apres la couche de complexite. Le code a montre que cet ordre etait trop rigide.
+
+SAT est utile beaucoup plus tot comme instance de validation structurelle, a condition que la complexite ne soit pas introduite prematurement.
+
+L'ordre de travail revise est :
 
 ```text
-état de recherche ≠ lecture de l'état
-branche ≠ existence d'une solution dans la branche
-relation structurelle ≠ transport de complétions
-transport de complétions ≠ transport exact d'identités
-existence d'un transport ≠ recherche réussie d'un transport
-échec de recherche ≠ preuve de non-existence
-séparation des profils ≠ existence d'un correspondant
-unicité d'un correspondant ≠ existence d'un correspondant
-réduction locale ≠ réduction globale garantie
-frontière petite ≠ représentation petite
-terminaison structurelle ≠ temps polynomial
-équivalence sémantique ≠ identité constitutive
+noyau positif de transport
+-> split exact
+-> reduction de frontiere
+-> recherche relationnelle
+-> irreductibilite relative a la recherche
+-> normalisation finie
+-> largeur derivee
+-> instance SAT structurelle minimale
+-> provenance recursive des branches
+-> transport entre branches avec provenance
+-> etat global de recherche genere
+-> trajectoire complete de frontieres
+-> fermeture et composition des transports
+-> ancres dynamiques
+-> progression structurelle et terminalite
+-> familles positives et familles separatrices
+-> taille des representations et cout local
+-> theorematisation de complexite
+-> audit externe de nouveaute et de litterature
+-> audit P/NP uniquement si toutes les gates precedentes sont fermees
 ```
 
-Une couche ultérieure ne doit jamais être utilisée silencieusement pour définir une couche antérieure.
+SAT sert donc d'abord de banc d'essai formel. Les conclusions de complexite viennent seulement apres.
 
 ---
 
-## 4. Noyau déjà engagé sur la branche
+## 4. Etat reel de la formalisation au commit audite
 
-### 4.1 `ConstitutiveSearch.ContinuationTransport`
+### 4.1 Noyau generique deja formalise
 
-Ce module définit le noyau directionnel minimal.
-
-Pour un type d'états `State` et une famille :
-
-```lean
-Completion : State → Type
-```
-
-un transport de continuation est une donnée positive :
-
-```lean
-ContinuationTransport Completion source target
-```
-
-qui contient essentiellement :
+Les modules suivants existent et sont integres au build.
 
 ```text
-Completion source → Completion target
+ConstitutiveSearch/ContinuationTransport.lean
+ConstitutiveSearch/FrontierReduction.lean
+ConstitutiveSearch/RelationalTransport.lean
+ConstitutiveSearch/IrreducibleFrontier.lean
+ConstitutiveSearch/ConstitutiveWidth.lean
+ConstitutiveSearch/FiniteFrontierNormalization.lean
 ```
 
-Aucune injectivité, aucun inverse et aucune décidabilité ne sont supposés.
-
-Le module contient aussi un split binaire exact :
+Ils fournissent deja :
 
 ```text
-Completion parent
-    ≃
-Completion left ⊕ Completion right
-```
-
-et les constructions qui permettent d'absorber une branche dans l'autre lorsqu'un transport directionnel existe.
-
-Ce niveau est volontairement indépendant de toute notion de complexité.
-
-### 4.2 `ConstitutiveSearch.FrontierReduction`
-
-Cette couche introduit une frontière active de recherche.
-
-Le rôle de la frontière est de représenter les histoires ou états qui restent simultanément nécessaires faute de transport permettant encore de les absorber.
-
-Une réduction doit conserver constructivement toute complétion pertinente en fournissant un chemin explicite vers un état retenu.
-
-Le but n'est pas de conserver une simple propriété existentielle, mais une transformation positive suffisamment forte pour dériver cette propriété.
-
-### 4.3 `ConstitutiveSearch.RelationalTransport`
-
-Cette couche sépare trois objets :
-
-```text
-relation structurelle
-        ↓
-action démontrée sur les complétions
-        ↓
-transport de continuation
-```
-
-La recherche exécutable d'un témoin relationnel reste distincte de la preuve de son inexistence.
-
-Un résultat `none` signifie seulement qu'aucun témoin n'a été trouvé par la procédure considérée.
-
-Il ne doit jamais être transformé sans théorème supplémentaire en certificat d'impossibilité.
-
----
-
-## 5. Objet central à construire : la frontière constitutive
-
-Pour une instance donnée, le calcul maintient une frontière :
-
-```text
-F₀
-→ F₁
-→ F₂
-→ ...
-```
-
-Chaque élément de `Fₖ` est une histoire constituée, pas seulement une formule résiduelle ou une valeur.
-
-Chaque étape comporte conceptuellement deux mouvements.
-
-### Expansion
-
-Un état peut produire plusieurs continuations :
-
-```text
-H
-↓
-H₁ OR H₂ OR ... OR Hₙ
-```
-
-L'expansion doit être structurellement exacte relativement à la notion de complétion choisie.
-
-### Réduction
-
-Si l'on construit :
-
-```text
-Completion Hᵢ → Completion Hⱼ
-```
-
-alors `Hᵢ` devient absorbable par `Hⱼ` relativement à la conservation d'existence de complétion.
-
-La réduction ne dépend pas du fait de savoir si `Hᵢ` est effectivement positif.
-
-La frontière réduite contient les états qui ne sont pas encore absorbables par les transports actuellement reconstructibles.
-
----
-
-## 6. Largeur constitutive
-
-La notion quantitative centrale sera introduite seulement après la définition de la frontière et de sa réduction.
-
-Intuition :
-
-> la largeur constitutive à une étape mesure le nombre d'états de frontière qui restent simultanément nécessaires après toutes les réductions justifiées par l'interface de transports disponible.
-
-Cette largeur ne doit pas être confondue avec :
-
-```text
-nombre de solutions
-nombre de témoins
-nombre de branches syntaxiques produites avant réduction
-largeur d'un arbre de recherche brut
-```
-
-Le programme devra distinguer au moins trois régimes :
-
-```text
-largeur 1
-largeur polynomialement contrôlée
-largeur non contrôlée ou explosive
-```
-
-Le cas de largeur 1 correspond à une trajectoire effectivement orientée vers un représentant unique à chaque étape.
-
-Le cas de largeur polynomialement contrôlée autorise plusieurs histoires incomparables sans exiger un ordre total.
-
-Le dernier cas doit être conservé comme diagnostic d'échec du mécanisme disponible, pas remplacé par une conclusion arbitraire.
-
----
-
-## 7. Reconstruction des transports depuis des relations locales
-
-Le coeur scientifique du programme se situe ici.
-
-Il faut éviter une structure primitive du type :
-
-```lean
-transport : Completion A → Completion B
-```
-
-lorsqu'une instance concrète doit montrer d'où ce transport provient.
-
-La branche générique doit autoriser cette interface abstraite, mais les instances scientifiques devront reconstruire le transport depuis une structure relationnelle plus faible.
-
-Schéma cible :
-
-```text
-relations locales entre états
-        ↓
-observations structurées
-        ↓
-profil relationnel
-        ↓
-condition de transformation
-        ↓
-action sur une complétion
-        ↓
-ContinuationTransport
-```
-
-Il faut distinguer soigneusement :
-
-```text
-le profil permet de distinguer les états
-```
-
-et :
-
-```text
-le profil permet de transformer les complétions
-```
-
-La seconde propriété est plus forte et devra être démontrée séparément.
-
----
-
-## 8. Ancres dynamiques
-
-Le projet d'alignement utilise déjà des relations à des ancres pour reconstruire des correspondances.
-
-La recherche constitutive doit tester une version dynamique de cette idée.
-
-Une histoire `Hₖ` contient des déterminations déjà constituées :
-
-```text
-Aₖ = {a₁, a₂, ..., aₖ}
-```
-
-Ces déterminations peuvent devenir des points de référence pour observer les continuations suivantes.
-
-Une continuation `C` peut recevoir un profil :
-
-```text
-R(a₁, C)
-R(a₂, C)
-...
-R(aₖ, C)
-```
-
-Le point décisif est que :
-
-```text
-Aₖ
-→ nouvelles observations
-→ nouvelle détermination
-→ Aₖ₊₁
-```
-
-Le chemin construit donc progressivement une partie du système de référence utilisé pour calculer le chemin suivant.
-
-C'est la formulation exacte de l'idée :
-
-> le chemin est le calcul lui-même.
-
-La nouvelle détermination n'est pas seulement un résultat intermédiaire. Elle modifie l'espace relationnel dans lequel l'étape suivante est calculée.
-
----
-
-## 9. Composition des transports
-
-Les transports doivent être composables.
-
-Si :
-
-```text
-Completion A → Completion B
-```
-
-et :
-
-```text
-Completion B → Completion C
-```
-
-alors on doit construire :
-
-```text
-Completion A → Completion C
-```
-
-Cette composition permet de ne pas conserver chaque réduction intermédiaire comme branche active.
-
-La provenance de la réduction doit néanmoins rester reconstructible.
-
-Une phase ultérieure pourra introduire une structure de DAG de réduction où un état supprimé conserve un chemin de transport vers son représentant actif.
-
-Les propriétés à établir comprennent :
-
-```text
+transport directionnel de completions
 composition des transports
-identité
-cohérence des réductions composées
-indépendance vis-à-vis d'intermédiaires lorsqu'elle est justifiée
+split binaire exact
+frontiere proof-relevant
+absorption gauche et droite
+recherche executable de relations
+classification directionnelle
+irreductibilite relative a une recherche
+reduction certifiee d'une paire
+largeur derivee d'une reduction
+normalisation constructive d'une frontiere finie
 ```
 
-Aucune unicité globale du transport ne doit être supposée sans structure supplémentaire.
+### 4.2 Instance SAT deja formalisee
 
----
-
-## 10. Canonicalité et ambiguïté
-
-Plusieurs transports peuvent exister entre les mêmes espaces de complétions.
-
-Le chantier doit distinguer :
+Les modules SAT suivants existent et sont integres au build.
 
 ```text
-existence d'un transport
-unicité de son action
-choix canonique d'un transport
+ConstitutiveSearch/SAT/ConstraintTransport.lean
+ConstitutiveSearch/SAT/BinaryBranch.lean
+ConstitutiveSearch/SAT/RestrictionTransport.lean
+ConstitutiveSearch/SAT/ResidualFlipTransport.lean
+ConstitutiveSearch/SAT/ResidualTrajectory.lean
+ConstitutiveSearch/SAT/BranchContext.lean
+ConstitutiveSearch/SAT/BranchContextTransport.lean
 ```
 
-Un transport quelconque peut suffire pour préserver l'existence d'une solution.
-
-Une théorie de persistance ou de reconstruction plus forte peut nécessiter davantage.
-
-Il ne faut pas importer automatiquement les exigences d'`ExactTypeTransport` dans ce noyau.
-
-L'un des objectifs de la branche est précisément de déterminer le minimum réellement nécessaire pour la réduction de recherche.
-
----
-
-## 11. Séparateurs obligatoires
-
-Chaque propriété forte candidate doit être testée par un séparateur.
-
-### 11.1 Transport directionnel sans inverse
-
-Construire une instance où :
+Ils fournissent deja :
 
 ```text
-Completion A → Completion B
+syntaxe CNF minimale et satisfaction constructive
+affaiblissement de CNF avec transport de completions
+split exact d'une completion par valeur booleenne
+residuel de branche avec witness de weakening
+reconstruction du probleme parent depuis le residuel et la valeur fixee
+flip de polarite sur une variable et transport des completions
+trajectoire residuelle finie
+contexte de branche avec historique explicite des decisions
+split recursif des contextes
+reconstruction d'un carrier de contexte depuis affectation, satisfaction et provenance
+flip entre deux enfants d'un meme parent avec preservation des decisions anterieures
+recherche executable de ce transport
+largeur derivee directement sur des branches porteuses de provenance
 ```
 
-existe mais où :
+### 4.3 Regressions deja presentes
+
+La branche possede notamment des regressions pour :
 
 ```text
-Completion B → Completion A
-```
-
-est impossible.
-
-Ce séparateur existe déjà dans les régressions initiales et doit rester présent.
-
-### 11.2 Transport non injectif
-
-Montrer qu'un transport suffisant pour préserver l'existence peut fusionner plusieurs complétions.
-
-Cela empêche d'introduire inutilement l'injectivité comme primitive du noyau.
-
-### 11.3 Distinction sans dominance
-
-Construire des profils qui séparent parfaitement deux états mais ne fournissent aucun transport entre leurs complétions.
-
-Conclusion attendue :
-
-```text
-séparation
-n'implique pas
-réduction de frontière
-```
-
-### 11.4 Dominance sémantique sans reconstruction exécutable
-
-Construire une situation où un transport existe mathématiquement mais où l'interface de recherche choisie ne sait pas le reconstruire.
-
-Conclusion attendue :
-
-```text
-existence du transport
-n'implique pas
-transport calculé par l'interface
-```
-
-### 11.5 Réduction locale sans borne globale
-
-Construire une famille où plusieurs réductions locales sont possibles mais où la largeur de frontière continue de croître rapidement.
-
-Conclusion attendue :
-
-```text
-réduction locale
-n'implique pas
-largeur globalement contrôlée
-```
-
-### 11.6 Frontière petite avec représentations grandes
-
-Construire ou formaliser un modèle où le nombre d'états actifs est faible mais où leur représentation ou les certificats de transport peuvent devenir très grands.
-
-Conclusion attendue :
-
-```text
-petite largeur
-n'implique pas
-petit coût de représentation
-```
-
-### 11.7 Progression sans terminaison bornée
-
-Construire un modèle où chaque étape est différente de la précédente mais où aucune borne structurale suffisante n'est disponible.
-
-Conclusion attendue :
-
-```text
-irréflexivité locale
-n'implique pas
-borne polynomialement contrôlée
+transport directionnel sans inverse automatique
+transport non injectif
+reduction de paire
+irreductibilite relative a la recherche
+largeur derivee
+normalisation de frontiere finie
+affaiblissement CNF
+split SAT exact
+restriction residuelle
+flip entre residuels
+trajectoire residuelle
+provenance recursive des decisions
+transport entre contextes SAT avec preservation d'une decision anterieure
+largeur 1 sur une bifurcation SAT contextuelle symetrique
 ```
 
 ---
 
-## 12. Modèle générique de calcul à construire
+## 5. Ce que le noyau actuel etablit exactement
 
-Après les noyaux de transport et de frontière, introduire une structure de calcul générique.
+### 5.1 Transport directionnel
 
-Esquisse conceptuelle :
-
-```lean
-structure ConstitutiveSearchSystem where
-  State : Type
-  Completion : State → Type
-  expand : State → ...
-  relation : State → State → Type
-  relationTransport : relation a b → ContinuationTransport Completion a b
-```
-
-Cette esquisse ne fixe pas encore la représentation de la frontière ni les conditions de finitude.
-
-Une seconde interface exécutable pourra ajouter :
+Un `ContinuationTransport` est une transformation positive :
 
 ```text
-énumération finie des successeurs immédiats
-procédure de recherche de relations
-procédure de réduction
-états terminaux
-vérification terminale
+Completion source -> Completion target
 ```
 
-La version propositionnelle et la version exécutable doivent rester séparées.
+Il ne suppose pas :
+
+```text
+injectivite
+surjectivite
+inverse
+unicite
+canonicalite
+```
+
+C'est intentionnel.
+
+### 5.2 Frontiere proof-relevant
+
+`FrontierCompletion` represente une completion portee par l'un des etats d'une liste finie.
+
+La frontiere ne dit pas quelle branche est positive.
+
+Elle materialise la disjonction des espaces de completions sans la reduire a une proposition booleenne.
+
+### 5.3 Absorption
+
+Si un transport est construit d'une branche vers une autre branche deja presente dans la frontiere, la premiere peut etre absorbee.
+
+Cette operation ne demande pas si la branche absorbee possede effectivement une completion.
+
+### 5.4 Irreductibilite actuelle
+
+`SearchIrreducible search frontier` signifie seulement que la procedure `search.find` ne trouve aucun witness directionnel direct entre les paires pertinentes de la frontiere.
+
+Cela ne signifie pas :
+
+```text
+aucun transport mathematique n'existe
+aucun transport compose n'existe
+aucun autre moteur de recherche ne pourrait trouver une relation
+```
+
+Cette relativite doit rester explicite dans toute documentation future.
+
+### 5.5 Largeur actuelle
+
+`IrreducibleFrontierReduction.width` est la longueur de la frontiere retenue apres qu'une reduction certifiee a deja ete construite.
+
+La largeur ne choisit pas les survivants.
+
+Elle mesure le resultat d'une construction anterieure.
+
+### 5.6 Normalisation finie actuelle
+
+`normalizeFrontier` est une normalisation par insertion.
+
+Elle normalise d'abord la queue de la liste, puis insere la tete contre la frontiere deja irreductible.
+
+Cette procedure est constructive et conserve les completions.
+
+Elle n'est pas actuellement declaree canonique.
+
+Elle n'est pas actuellement prouvee independante de l'ordre de la liste.
+
+Dans un cas bidirectionnel, la reduction de paire retient un cote determine par l'implementation.
+
+Par consequent, `normalizedWidth` doit etre traite comme une mesure operationnelle relative a :
+
+```text
+la procedure de recherche de relations
+la procedure de normalisation
+l'ordre de la frontiere
+les generateurs de transports disponibles
+```
+
+Il ne faut pas l'appeler sans qualification "la largeur du probleme".
 
 ---
 
-## 13. Théorème générique de correction de trajectoire
+## 6. Distinction revisee des notions de largeur
 
-Premier objectif global : établir sans complexité que la trajectoire de frontières conserve exactement la possibilité d'une complétion pertinente.
+Le chantier doit maintenant distinguer plusieurs niveaux.
 
-Forme visée :
+### 6.1 Largeur d'une reduction certifiee
+
+Deja formalisee.
 
 ```text
-completion initiale
-        ↓
+largeur = nombre d'etats retenus par cette reduction precise
+```
+
+Cette notion est locale a un certificat donne.
+
+### 6.2 Largeur operationnelle normalisee
+
+Deja calculable avec `normalizeFrontier`.
+
+Elle depend de l'algorithme de normalisation et de l'ordre des etats.
+
+C'est la bonne notion pour mesurer une procedure executable concrete.
+
+### 6.3 Largeur relative a une fermeture de transports
+
+A construire.
+
+Une frontiere directement irreductible peut devenir reductible si des transports elementaires peuvent etre composes.
+
+Il faudra distinguer :
+
+```text
+irreductible sous recherche directe
+irreductible sous chemins de transports reconstructibles
+```
+
+### 6.4 Largeur minimale certifiable
+
+A envisager seulement si elle devient scientifiquement utile.
+
+Cette notion mesurerait la plus petite frontiere atteignable parmi une classe explicitement definie de reductions certifiees.
+
+Elle ne doit pas etre introduite comme primitive de calcul.
+
+Sa recherche pourrait elle-meme etre difficile.
+
+Il faut donc separer clairement :
+
+```text
+mesure mathematique minimale
+procedure executable qui produit une reduction
+```
+
+---
+
+## 7. Premiere lacune generique a fermer : preservation dans les deux sens de l'existence
+
+Les structures actuelles enregistrent principalement un transport :
+
+```text
+frontiere source -> frontiere retenue
+```
+
+Cela suffit pour montrer qu'une completion source n'est pas perdue.
+
+Pour une procedure de decision complete, il faut aussi enregistrer ou reconstruire le fait que les etats retenus proviennent legitimement de la frontiere source.
+
+Dans les absorptions actuelles, cette propriete est vraie structurellement parce que l'etat retenu etait deja present dans la frontiere source.
+
+Dans `insertIntoIrreducible`, une information `retainedFromSource` est deja transportee localement pour prouver l'irreductibilite finale.
+
+Cette provenance est toutefois perdue dans l'interface finale `IrreducibleFrontierReduction`.
+
+### Objectif
+
+Introduire une couche generique de preservation de frontiere qui fournisse deux transformations :
+
+```text
+FrontierCompletion source -> FrontierCompletion target
+FrontierCompletion target -> FrontierCompletion source
+```
+
+Ces deux transformations n'ont pas besoin d'etre inverses.
+
+Le but est seulement d'obtenir constructivement :
+
+```text
+Nonempty source <-> Nonempty target
+```
+
+sans importer les exigences de `ExactTypeTransport`.
+
+### Gate
+
+Aucune completion terminale ne doit pouvoir etre interpretee comme un temoin de l'instance initiale sans chemin constructif de retour vers la frontiere initiale.
+
+---
+
+## 8. Deuxieme lacune : fermeture et composition des relations
+
+La recherche actuelle est paire par paire et directe.
+
+Si la procedure trouve :
+
+```text
+A -> B
+B -> C
+```
+
+alors le noyau sait composer les transports et construire :
+
+```text
+A -> C
+```
+
+Mais l'irreductibilite actuelle ne demande pas si un tel chemin compose existe.
+
+### Objectif semantique
+
+Definir un witness proof-relevant de chemin de transports elementaires.
+
+Par exemple conceptuellement :
+
+```text
+TransportPath A B
+```
+
+avec :
+
+```text
+identite
+pas elementaire
+composition
+```
+
+### Objectif executable
+
+La recherche de chemins doit rester distincte de l'existence abstraite d'un chemin.
+
+On devra donc separer :
+
+```text
+fermeture mathematique des generateurs
+procedure executable de recherche dans cette fermeture
+cout de cette recherche
+```
+
+### Gate
+
+Ne jamais declarer une frontiere globalement irreductible parce que les recherches directes echouent si la classe annoncee de reductions autorise la composition.
+
+---
+
+## 9. Troisieme lacune : etat global de branche SAT
+
+`ContextFlipRelation parent var source target` compare actuellement deux enfants booleens d'un meme parent et d'une meme variable.
+
+C'est suffisant pour la regression actuelle.
+
+Ce n'est pas encore une relation sur une frontiere recursive heterogene de `BranchContext` provenant de parents differents.
+
+### Objectif
+
+Introduire un etat SAT genere qui porte explicitement :
+
+```text
+le BranchContext courant
+un witness de reconstruction du carrier
+la provenance de generation depuis la racine
+les invariants de fraicheur utiles
+```
+
+Nom de travail possible :
+
+```text
+GeneratedBranchContext
+```
+
+La definition exacte doit etre derivee des besoins des preuves, pas du nom.
+
+### Completion globale
+
+La famille de completions doit devenir indexee directement par l'etat genere :
+
+```text
+GeneratedBranchCompletion state
+```
+
+### Relation globale
+
+Il faudra ensuite definir des relations entre deux etats generes, potentiellement issus de parents differents.
+
+Chaque witness devra prouver explicitement comment l'affectation, la satisfaction et la provenance cible sont reconstruites.
+
+### Gate
+
+Aucun oubli de provenance ne doit etre justifie uniquement par une egalite de formules residuelles.
+
+---
+
+## 10. Reconstruction des carriers et statut de `BranchContext`
+
+`BranchContext` reste volontairement abstrait sur son `Carrier`.
+
+Tous les `BranchContext` arbitraires ne sont donc pas automatiquement reconstruisibles depuis :
+
+```text
+affectation
+satisfaction
+historique de decisions
+```
+
+Le module `BranchContextTransport` introduit separement :
+
+```text
+BranchContextReconstruction context
+```
+
+Cette interface est disponible pour la racine et se propage aux enfants generes.
+
+### Decision d'architecture
+
+Ne pas renforcer `BranchContext` en lui ajoutant automatiquement cette propriete.
+
+Conserver la separation :
+
+```text
+contexte abstrait
+contexte reconstructible
+contexte effectivement genere par la recherche SAT
+```
+
+Cela permet de construire des separateurs et d'eviter d'introduire une reconstruction non justifiee comme primitive universelle.
+
+---
+
+## 11. Semantique exacte du residuel SAT actuel
+
+Le residuel actuellement implemente est volontairement faible.
+
+Pour une valeur de branche, `branchResidual` :
+
+```text
+supprime une clause si elle contient le litteral rendu vrai par la decision
+conserve les autres clauses sans supprimer le litteral rendu faux
+```
+
+Ce n'est donc pas encore la restriction CNF standard completement simplifiee.
+
+Cette construction est neanmoins correcte pour le modele actuel parce que les completions residuelles conservent explicitement la valeur fixee de la variable.
+
+### Consequence
+
+Toute documentation doit parler de :
+
+```text
+residuel par suppression de clauses satisfaites
+```
+
+et non d'une simplification SAT standard complete.
+
+### Extension future
+
+Ajouter, separement, une restriction plus forte qui :
+
+```text
+supprime les clauses satisfaites
+supprime le litteral falsifie dans les clauses restantes
+```
+
+Puis reconstruire les transports entre :
+
+```text
+branche exacte
+residuel faible actuel
+residuel simplifie
+```
+
+### Gate
+
+Ne jamais remplacer silencieusement le residuel faible par une notion syntaxique plus forte sans theorem de correspondance des completions.
+
+---
+
+## 12. Trajectoire complete de frontieres
+
+Le module `ResidualTrajectory` actuel est une trajectoire lineaire de CNF residuelles.
+
+`SATBranchContextRegression` construit egalement plusieurs niveaux de branchement.
+
+Il manque encore un objet generique qui fasse de la trajectoire complete un objet proof-relevant de premier rang.
+
+### Objet cible
+
+Un pas de trajectoire doit contenir au minimum :
+
+```text
+frontiere source
 expansion exacte
-        ↓
-réductions par transports
-        ↓
-frontière suivante
+frontiere developpee
+reduction certifiee
+frontiere retenue
+provenance des etats retenus
 ```
 
-avec un théorème constructif du type :
+Conceptuellement :
 
 ```text
-Completion initial
-→ FrontierCompletion frontier_k
+F_k
+-> expansion exacte
+G_k
+-> reduction certifiee
+F_(k+1)
 ```
 
-pour toute étape construite.
+### Histoire de frontieres
 
-Si la réciproque est nécessaire pour une instance, elle devra être prouvée séparément.
+Une trajectoire doit composer ces pas :
 
-Le noyau de décision positive n'a pas besoin d'une équivalence lorsque la direction de conservation suffit.
+```text
+F_0 -> F_1 -> ... -> F_n
+```
+
+et transporter les completions de bout en bout.
+
+### Theoreme prioritaire
+
+Construire un theorem de conservation de l'existence dans les deux sens pour toute trajectoire composee, en utilisant la couche de provenance de la section 7.
+
+Ce theorem doit etre obtenu avant toute analyse de complexite globale.
 
 ---
 
-## 14. Terminaison structurelle avant complexité
+## 13. Ancres dynamiques
 
-La terminaison ne doit pas être définie d'abord par un compteur arbitraire.
+L'idee "le chemin est le calcul" ne sera pleinement formalisee que lorsqu'une determination nouvelle changera effectivement les relations reconstructibles ensuite.
 
-Il faut rechercher une relation structurelle de progrès.
+Les decisions de `BranchContext` donnent deja une premiere forme de provenance dynamique.
 
-Exemples possibles selon l'instance :
+Le transport contextuel actuel montre qu'une relation future doit respecter les decisions anterieures.
+
+Il ne montre pas encore un cas ou une nouvelle determination rend disponible un transport qui etait auparavant introuvable.
+
+### Milestone central
+
+Construire une instance ou :
 
 ```text
-nouvelle variable constituée
-nouvelle contrainte irréversible ajoutée
-réduction stricte d'un espace de choix
-progression dans une profondeur de genèse
-réduction d'une frontière selon une mesure dérivée
+au niveau k
+la recherche relationnelle ne trouve pas de transport entre deux continuations
+
+apres une nouvelle determination d_k
+la provenance ou une nouvelle ancre rend un witness relationnel reconstructible
+
+ce nouveau transport reduit la frontiere au niveau k + 1
 ```
 
-On doit d'abord prouver que les transitions légales progressent relativement à cette structure.
+C'est le test formel direct de l'hypothese centrale du programme.
 
-Une longueur ou une borne numérique pourra ensuite être dérivée.
+### Gate
 
-Cette discipline suit directement la méthode générale du dépôt.
+Une "ancre" doit changer une capacite de reconstruction, pas seulement ajouter un label a l'etat.
 
 ---
 
-## 15. Couche de complexité
+## 14. Progression structurelle SAT
 
-La complexité ne sera introduite qu'après la correction structurelle.
+La terminaison ne doit pas etre definie uniquement par un compteur externe.
 
-Le théorème générique visé devra séparer au moins quatre bornes.
-
-### 15.1 Profondeur
-
-Nombre maximal d'étapes constitutives nécessaires avant un état terminal.
-
-### 15.2 Largeur
-
-Nombre maximal d'états irréductibles simultanément présents dans une frontière réduite.
-
-### 15.3 Taille de représentation
-
-Taille maximale de chaque état, de son contexte dynamique et des témoins relationnels nécessaires à sa réduction.
-
-### 15.4 Coût local
-
-Coût maximal de :
+Pour l'instance SAT recursive, la structure de provenance suggere un candidat concret :
 
 ```text
-l'expansion d'un état
-la recherche d'un témoin relationnel
-la construction du transport associé
-la réduction d'une frontière
-la vérification terminale
+chaque split legal ajoute une nouvelle decision sur une variable fraiche
 ```
 
-Un résultat polynomial devra démontrer les quatre composantes.
+### Travail a faire
 
-Une simple borne de largeur ne suffira pas.
+Definir les variables pertinentes de l'instance initiale comme un objet fini.
+
+Etablir :
+
+```text
+chaque decision de l'histoire porte sur une variable pertinente
+aucune variable n'est decidee deux fois le long d'une histoire legale
+une etape non terminale ajoute une nouvelle variable decidee
+```
+
+La borne numerique sur la profondeur doit ensuite etre derivee du nombre fini de variables pertinentes.
+
+### Gate
+
+La longueur de l'histoire ne doit pas servir a justifier retroactivement la fraicheur. La fraicheur est une propriete structurelle de la transition.
 
 ---
 
-## 16. Théorème de largeur polynomialement contrôlée
+## 15. Generateurs de transports SAT
 
-Une fois les couches précédentes établies, viser un théorème conditionnel honnête :
+Chaque generateur doit etre traite comme une couche scientifique separee.
 
-> si une famille de systèmes de recherche possède une profondeur polynomialement bornée, une largeur constitutive polynomialement bornée, des représentations polynomialement bornées et des opérations locales polynomialement exécutables, alors la procédure de frontière correspondante est polynomialement exécutable.
+Pour chaque generateur, exiger quatre objets :
 
-Ce théorème ne résout aucun problème difficile à lui seul.
+```text
+type de witness structurel
+action constructive sur les completions
+procedure executable de recherche du witness
+preuve de correction de cette recherche lorsqu'elle retourne un witness
+```
 
-Il localise exactement ce qu'une instance SAT devra établir.
+La complexite de la recherche sera ajoutee plus tard.
+
+### 15.1 Deja present : affaiblissement de CNF
+
+Un witness de weakening transporte une completion d'une formule plus contrainte vers une formule moins contrainte.
+
+### 15.2 Deja present : flip de polarite
+
+Un flip couple sur la formule et l'affectation transporte les completions lorsque les residuels sont exactement relies par cette transformation.
+
+### 15.3 Deja present : lift du flip au contexte
+
+Le flip peut etre eleve aux vrais enfants `BranchContext` lorsqu'il preserve l'historique deja constitue et que le carrier parent est reconstructible.
+
+### 15.4 Prochain : renommage de variables
+
+Formaliser des permutations ou renommages finis avec action explicite sur :
+
+```text
+litteraux
+clauses
+CNF
+affectations
+histoires de decisions
+```
+
+### 15.5 Prochain : restriction SAT simplifiee
+
+Introduire la suppression du litteral falsifie et prouver sa relation au residuel faible actuel.
+
+### 15.6 Prochain : substitutions directionnelles
+
+Tester des transformations qui transportent les completions sans etre necessairement inversibles.
+
+### 15.7 Prochain : propagation certifiee
+
+Traiter propagation unitaire, simplification locale et autres operations seulement lorsque leur action sur les completions est explicite.
+
+### 15.8 Composition
+
+Les generateurs elementaires doivent pouvoir produire des chemins de transports plus riches sans appel a un solveur global.
 
 ---
 
-## 17. Instance SAT
+## 16. Familles positives a viser
 
-SAT ne doit être introduit qu'après stabilisation du noyau générique.
+Avant SAT general, il faut obtenir des theoremes parametriques sur des familles non triviales.
 
-### 17.1 État SAT
+### 16.1 Premiere cible : famille symetrique parametrique
 
-Un état doit conserver au minimum :
-
-```text
-formule ou représentation résiduelle
-assignations déjà constituées
-provenance des assignations
-transformations appliquées
-contexte relationnel utile
-```
-
-Deux états ayant la même formule résiduelle ne doivent pas nécessairement être identifiés sans preuve que la provenance peut être oubliée pour la propriété étudiée.
-
-### 17.2 Complétion SAT
-
-Une complétion d'un état est une affectation des variables restantes qui prolonge les déterminations déjà constituées et satisfait la formule initiale relativement à cette histoire.
-
-La définition doit permettre de reconstruire un témoin final pour l'instance initiale.
-
-### 17.3 Split SAT
-
-Le split sur une variable doit construire une décomposition exacte de l'espace de complétions :
+Construire une famille avec plusieurs blocs de la forme generale :
 
 ```text
-Completion H
-≃
-Completion (H + x := false)
-⊕
-Completion (H + x := true)
+(x_i OR y_i)
+AND
+(NOT x_i OR y_i)
 ```
 
-La preuve doit porter sur les complétions, pas seulement sur une équivalence propositionnelle de satisfaisabilité.
+ou une variante adaptee au residuel formel courant.
 
-### 17.4 Vérification terminale
+L'objectif est de prouver par induction que les deux enfants produits sur chaque `x_i` sont relies par un transport structurel explicite et que la frontiere reste de largeur operationnelle 1 sous la strategie definie.
 
-Lorsque toutes les déterminations nécessaires sont constituées, le témoin terminal doit être vérifiable directement.
+Cette cible generalise directement les regressions symetriques actuelles.
 
-Aucune décision SAT générale ne doit être utilisée dans les étapes intermédiaires.
+### 16.2 Deuxieme cible : familles ou weakening et symetries composent
 
----
+Chercher une famille ou aucun generateur pris seul ne suffit, mais ou leur composition controle la frontiere.
 
-## 18. Générateurs de transports SAT à tester
+Cette cible testera reellement la fermeture des transports.
 
-Commencer par des transformations dont l'action sur une affectation est explicite.
+### 16.3 Cibles ulterieures
 
-### 18.1 Affaiblissement de contraintes
-
-Si une branche possède toutes les contraintes d'une autre et éventuellement davantage, une affectation satisfaisant la branche plus forte peut être transportée vers la branche plus faible.
-
-Le transport peut souvent être l'identité sur l'affectation restante.
-
-### 18.2 Renommage de variables
-
-Une bijection ou injection structurée sur les variables peut transporter les affectations lorsque la transformation des clauses est prouvée compatible.
-
-Le but est de reconstruire l'action sur les complétions depuis le renommage lui-même.
-
-### 18.3 Symétries
-
-Tester des symétries syntaxiques explicites de la formule et leur action sur les complétions.
-
-### 18.4 Substitutions locales
-
-Certaines substitutions peuvent induire un transport directionnel même lorsqu'elles ne sont pas inversibles.
-
-### 18.5 Propagation de contraintes
-
-Étudier séparément les transformations produites par propagation unitaire, simplification et élimination locale.
-
-Il faut distinguer :
-
-```text
-simplification équivalente
-```
-
-et :
-
-```text
-simplification seulement directionnelle relativement aux complétions
-```
-
-### 18.6 Composition
-
-Les transformations élémentaires doivent composer pour reconstruire des transports plus riches sans introduire un solveur global.
-
----
-
-## 19. Test de familles positives
-
-Avant SAT général, valider le modèle sur des familles où l'on s'attend à une structure fortement réductible.
-
-Exemples possibles :
+Apres stabilisation du moteur :
 
 ```text
 2-SAT
 Horn-SAT
-formules avec forte symétrie
-familles à largeur structurelle déjà contrôlée
-CSP où la cohérence locale suffit
+CSP de largeur bornee
+familles de CNF avec parametres structurels controles
 ```
 
-Le but n'est pas de redémontrer leur appartenance à P de manière artificielle.
+Le but n'est pas de redemontrer artificiellement leur tractabilite.
 
-Le but est de vérifier que la notion de frontière constitutive capture effectivement une raison structurelle de leur tractabilité.
-
-Si le formalisme ne sait pas expliquer au moins certaines classes déjà tractables sans tricher, il est trop faible ou mal posé.
+Le but est de voir si la largeur constitutive explique une structure algorithmique identifiable.
 
 ---
 
-## 20. Test de familles séparatrices
+## 17. Familles separatrices obligatoires
 
-Il faut également rechercher des familles où chaque interface faible échoue.
+Les separateurs sont aussi importants que les cas positifs.
 
-Exemples de questions :
+### 17.1 Aucun transport trouve
+
+Construire une famille ou la frontiere double sous les splits parce que le moteur relationnel choisi ne trouve aucune absorption.
+
+### 17.2 Weakening seul insuffisant
+
+Construire une famille ou les branches ne sont pas comparables par weakening alors qu'une autre transformation serait disponible.
+
+### 17.3 Flip seul insuffisant
+
+Construire une famille asymetrique ou le flip exact ne s'applique pas et ou la largeur augmente.
+
+### 17.4 Irreductibilite directe mais reductibilite composee
+
+Construire trois etats :
 
 ```text
-l'affaiblissement seul laisse-t-il une largeur exponentielle ?
-les renommages seuls suffisent-ils à fusionner les symétries utiles ?
-la propagation locale produit-elle une frontière non contrôlée ?
-la composition des transports réduit-elle réellement la largeur ?
-les ancres dynamiques créent-elles des relations nouvelles ou seulement des labels ?
+A
+B
+C
 ```
 
-Chaque échec doit devenir un résultat du chantier, pas être masqué.
+avec transports elementaires permettant un chemin utile sans relation directe trouvee entre certaines extremites.
+
+Ce separateur doit justifier la couche de fermeture par composition.
+
+### 17.5 Sensibilite a l'ordre de normalisation
+
+Construire une instance ou deux ordres de la meme frontiere donnent des representants differents, et si possible des largeurs operationnelles differentes.
+
+Si aucune difference de largeur n'est possible sous les invariants actuels, le prouver.
+
+Ne pas supposer l'independance a l'ordre.
+
+### 17.6 Petite frontiere, gros certificats
+
+Construire une interface ou la frontiere est petite mais les witnesses relationnels grossissent rapidement.
+
+### 17.7 Provenance incompatible
+
+Construire deux etats syntaxiquement proches ou egaux dont les historiques de decisions empechent un transport contextuel annonce.
+
+### 17.8 Progression locale sans borne globale
+
+Construire un systeme abstrait avec transitions strictes mais sans borne raisonnable de profondeur.
 
 ---
 
-## 21. Critères anti-triche
+## 18. Correction d'une procedure de decision
 
-Toute instance prétendant obtenir une réduction forte devra passer les contrôles suivants.
+Une procedure complete doit distinguer deux questions.
 
-### Gate A - aucune décision cachée de satisfaisabilité
+### 18.1 Preservation pendant le calcul
 
-Aucune fonction utilisée pour construire un transport ne doit appeler ou supposer :
+Les expansions et reductions doivent conserver l'existence d'une completion pertinente.
+
+### 18.2 Interpretation terminale
+
+Les etats terminaux doivent disposer d'une decision directe ou d'un certificat direct de leur statut relativement a l'instance initiale.
+
+Pour SAT, le chemin naturel est :
 
 ```text
-SAT(branch)
-UNSAT(branch)
-existence d'un témoin
-absence de témoin
+frontiere initiale
+-> splits exacts et reductions certifiees
+-> frontiere terminale finie
+-> completions terminales correspondant a des affectations completes
+-> verification directe de la formule
 ```
 
-sauf dans les théorèmes de spécification utilisés uniquement pour prouver la correction d'une procédure déjà définie indépendamment.
-
-### Gate B - témoins positifs
-
-Lorsqu'une branche est absorbée, la justification doit contenir une transformation effective de complétions ou une construction dont cette transformation est dérivée.
-
-### Gate C - échec de recherche honnête
-
-`none` ne devient jamais une réfutation sans théorème de complétude explicite de la procédure de recherche.
-
-### Gate D - pas de classicalisation silencieuse
-
-Respecter les règles du dépôt : aucune dépendance à `Classical`, aucune déclaration `noncomputable`, aucun `sorry`, aucun axiome ajouté.
-
-### Gate E - représentation contrôlée
-
-Une preuve de largeur polynomialement bornée est insuffisante si les états, ancres ou certificats deviennent exponentiellement grands.
-
-### Gate F - profondeur contrôlée
-
-Une étape strictement progressive n'est pas suffisante si le nombre d'étapes peut être superpolynomial.
-
-### Gate G - généralité réelle de SAT
-
-Une conclusion sur SAT général exige que l'instance traite toutes les CNF de la classe annoncée sans hypothèse cachée de structure favorable.
-
-### Gate H - séparation décision / construction
-
-La vérification finale d'un témoin ne doit pas être utilisée rétroactivement pour guider la construction du témoin.
+La verification terminale ne doit jamais guider retroactivement les choix de reduction.
 
 ---
 
-## 22. Plan de modules Lean
+## 19. Couche de complexite, seulement apres la correction structurelle
 
-Architecture proposée à court et moyen terme :
+Aucun mot "polynomial" ne doit porter la preuve d'une etape structurelle.
+
+Une fois la trajectoire correcte, introduire explicitement les quantites suivantes.
+
+### 19.1 Taille d'entree
+
+Definir une taille encodee de l'instance initiale.
+
+### 19.2 Profondeur
+
+Nombre maximal d'etapes constitutives avant terminalite.
+
+### 19.3 Largeur operationnelle
+
+Nombre maximal d'etats actifs produits par l'algorithme de normalisation choisi.
+
+### 19.4 Taille d'etat
+
+Taille de :
+
+```text
+formule residuelle
+historique de decisions
+contexte d'ancres
+donnees de reconstruction
+```
+
+### 19.5 Taille des witnesses
+
+Taille des preuves ou certificats structurels necessaires pour appliquer un transport.
+
+### 19.6 Cout de recherche
+
+Cout de :
+
+```text
+expansion
+recherche de relation
+recherche dans la fermeture de relations
+construction du transport
+normalisation de frontiere
+verification terminale
+```
+
+### 19.7 Theoreme conditionnel vise
+
+Seulement apres definition de ces quantites :
+
+> si profondeur, largeur operationnelle, tailles de representations, tailles de witnesses et couts locaux sont tous bornes polynomialement dans la taille d'entree, alors la procedure executable correspondante a un cout polynomial.
+
+Ce theorem est une consequence de l'interface de cout. Il ne doit pas etre utilise pour fabriquer les bornes.
+
+---
+
+## 20. Audit de nouveaute et positionnement par rapport a la litterature
+
+Le programme possede des voisins conceptuels importants.
+
+Avant toute revendication de nouveaute, comparer formellement ou textuellement la construction avec au moins :
+
+```text
+P-selectivity et auto-reduction
+simulation et preordres de dominance
+algorithmes par antichaines
+BDD, OBDD et branching programs
+subsumption et reduction symbolique d'espaces d'etats
+CSP de largeur bornee et coherence locale
+parametres de largeur tels que treewidth et pathwidth
+DPLL, CDCL et complexite des preuves
+```
+
+Le but de cet audit est de repondre a des questions precises :
+
+```text
+la largeur constitutive est-elle deja une largeur connue sous une autre presentation ?
+le transport de completions est-il un preorder de simulation standard dans une instance donnee ?
+la provenance des branches ajoute-t-elle une structure absente de ces modeles ?
+les ancres dynamiques donnent-elles un pouvoir de reconstruction reellement different ?
+les bornes positives ou negatives se traduisent-elles dans un parametre connu ?
+```
+
+Aucune revendication de nouveaute conceptuelle ne doit preceder cet audit.
+
+---
+
+## 21. Gates anti-triche revisees
+
+### Gate A - aucune decision SAT cachee
+
+Aucune construction de transport ne peut utiliser comme entree une decision generale de satisfaisabilite ou d'insatisfaisabilite de la branche.
+
+### Gate B - witness positif
+
+Toute absorption doit etre justifiee par une transformation effective des completions ou par une construction dont cette transformation est derivee.
+
+### Gate C - `none` reste un echec de recherche
+
+Un echec de `search.find` n'est pas une preuve d'inexistence sans theorem de completude explicite.
+
+### Gate D - provenance des survivants
+
+Une frontiere retenue doit rester reliee constructivement a la frontiere source dans le sens necessaire a l'interpretation terminale.
+
+### Gate E - pas de quotient gratuit
+
+Deux etats ayant la meme lecture ou la meme formule residuelle ne sont pas identifies sans theorem permettant d'oublier leur provenance.
+
+### Gate F - fermeture annoncee honnetement
+
+Si la classe de transports autorise la composition, l'irreductibilite doit etre qualifiee relativement a la recherche directe ou a la fermeture effectivement exploree.
+
+### Gate G - largeur qualifiee
+
+Toujours preciser s'il s'agit de :
+
+```text
+largeur d'un certificat
+largeur operationnelle de l'algorithme courant
+largeur relative a une fermeture
+largeur minimale abstraite
+```
+
+### Gate H - taille des representations
+
+Une petite largeur ne suffit pas si les etats ou witnesses ont une taille superpolynomiale.
+
+### Gate I - profondeur
+
+Une transition stricte ne suffit pas si le nombre d'etapes n'est pas controle.
+
+### Gate J - execution constructive
+
+Aucun `sorry`, aucun axiome ajoute, aucun `noncomputable` et aucune classicalisation silencieuse dans les couches executables de la branche.
+
+### Gate K - generalite SAT
+
+Toute conclusion sur SAT general exige que les generateurs et bornes couvrent toutes les instances de la classe annoncee.
+
+### Gate L - decision terminale separee de la construction
+
+Le test final d'un temoin ne peut pas etre utilise pour fabriquer le chemin qui conduit a ce temoin.
+
+---
+
+## 22. Architecture Lean revisee
+
+### 22.1 Modules generiques existants
 
 ```text
 ConstitutiveSearch/
-  ContinuationTransport.lean          [créé]
-  FrontierReduction.lean              [créé]
-  RelationalTransport.lean            [créé]
-  DynamicAnchors.lean
-  FrontierHistory.lean
-  StructuralProgress.lean
-  ConstitutiveWidth.lean
-  ExecutableReduction.lean
-  ComplexityInterface.lean
+  ContinuationTransport.lean             [fait]
+  FrontierReduction.lean                 [fait]
+  RelationalTransport.lean               [fait]
+  IrreducibleFrontier.lean               [fait]
+  ConstitutiveWidth.lean                 [fait]
+  FiniteFrontierNormalization.lean       [fait]
+```
 
+### 22.2 Prochains modules generiques probables
+
+Les noms restent provisoires.
+
+```text
+ConstitutiveSearch/
+  FrontierPreservation.lean              [prochain]
+  TransportClosure.lean                  [prochain]
+  FrontierTrajectory.lean                [prochain]
+  DynamicAnchors.lean                    [apres trajectoire]
+  StructuralProgress.lean                [apres etat global]
+  ComplexityInterface.lean               [tardif]
+```
+
+### 22.3 Modules SAT existants
+
+```text
 ConstitutiveSearch/SAT/
-  Syntax.lean
-  State.lean
-  Completion.lean
-  BinarySplit.lean
-  WeakeningTransport.lean
-  RenamingTransport.lean
-  SubstitutionTransport.lean
-  PropagationTransport.lean
-  RelationalReduction.lean
-  Frontier.lean
-  WidthExperiments.lean
-
-Tests/
-  ConstitutiveSearchRegression.lean    [créé]
-  ConstitutiveFrontierRegression.lean  [créé]
-  RelationalTransportRegression.lean   [créé]
-  DynamicAnchorsRegression.lean
-  ConstitutiveWidthRegression.lean
-  SATTransportRegression.lean
-  SATSeparatorsRegression.lean
+  ConstraintTransport.lean               [fait]
+  BinaryBranch.lean                      [fait]
+  RestrictionTransport.lean              [fait]
+  ResidualFlipTransport.lean             [fait]
+  ResidualTrajectory.lean                [fait, lineaire seulement]
+  BranchContext.lean                     [fait]
+  BranchContextTransport.lean            [fait, enfants d'un meme parent]
 ```
 
-Les noms peuvent évoluer si l'architecture réelle impose une meilleure factorisation.
+### 22.4 Prochains modules SAT probables
+
+```text
+ConstitutiveSearch/SAT/
+  GeneratedContext.lean                  [prochain]
+  GlobalContextRelation.lean             [prochain]
+  ContextFrontier.lean                   [prochain]
+  ContextTrajectory.lean                 [prochain]
+  RenamingTransport.lean                 [ensuite]
+  SimplifiedRestriction.lean             [ensuite]
+  SubstitutionTransport.lean             [ensuite]
+  PropagationTransport.lean              [ensuite]
+  ParametricSymmetricFamily.lean         [benchmark positif]
+  WidthSeparators.lean                   [benchmark negatif]
+```
 
 ---
 
-## 23. Plan de développement par phases
+## 23. Phases revisees et statut reel
 
-### Phase 0 - noyau directionnel
+### Phase A - noyau directionnel
 
-Statut : engagé.
+Statut : fait.
 
-Livrables :
+Gate : verte.
 
-```text
-ContinuationTransport
-composition
-préservation d'existence dérivée
-ExactBinarySplit
-absorption gauche / droite
-séparateurs directionnels
-```
+### Phase B - frontiere proof-relevant et reductions
 
-Gate : compilation, audits axiomatiques, régressions.
+Statut : fait pour les operations de base.
 
-### Phase 1 - frontière proof-relevant
+Gate restante : ajouter la preservation inverse de provenance au niveau generique.
 
-Statut : engagé.
+### Phase C - recherche relationnelle et irreductibilite
 
-Livrables :
+Statut : fait pour la recherche directe.
 
-```text
-frontière active
-expansion structurée
-absorption interne
-conservation des complétions
-provenance des réductions
-```
+Gate restante : distinguer et formaliser la fermeture composee.
 
-Gate : aucune branche supprimée sans transport positif.
+### Phase D - largeur et normalisation finie
 
-### Phase 2 - reconstruction relationnelle
+Statut : fait au niveau operationnel.
 
-Statut : engagé.
+Gate restante : tester la sensibilite a l'ordre et clarifier la hierarchie des largeurs.
 
-Livrables :
+### Phase E - SAT structurel minimal
 
-```text
-relation locale
-interprétation de relation en transport
-classification directionnelle
-recherche exécutable sans fausse complétude
-```
+Statut : fait.
 
-Gate : `none` reste distinct de l'impossibilité.
+Le split, le residuel, le weakening et le flip sont disponibles.
 
-### Phase 3 - ancres dynamiques
+### Phase F - provenance recursive SAT
 
-Statut : à construire.
+Statut : fait pour des branches generees recursivement.
+
+Le transport contextuel preserve deja une decision anterieure dans la regression actuelle.
+
+### Phase G - etat SAT global heterogene
+
+Statut : prochain verrou principal.
 
 Livrables :
 
 ```text
-contexte d'ancres constitué par l'histoire
-extension canonique du contexte
-profils relatifs au contexte courant
-reconstruction de relations supplémentaires
+etat genere
+reconstruction attachee
+relation entre etats de parents differents
+frontiere de tels etats
 ```
 
-Gate : démontrer qu'une nouvelle ancre peut ajouter une distinction ou un transport réellement nouveau dans au moins une instance non triviale.
+### Phase H - trajectoire complete
 
-### Phase 4 - histoire de frontière
-
-Statut : à construire.
+Statut : a construire.
 
 Livrables :
 
 ```text
-suite proof-relevant de frontières
-provenance de chaque état actif
-DAG de réductions
-composition des transports vers les représentants courants
+suite de frontieres
+expansion puis reduction par etape
+provenance composee
+conservation de l'existence dans les deux sens
 ```
 
-Gate : reconstruire explicitement comment une complétion initiale atteint un état actif ultérieur.
+### Phase I - fermeture de transports
 
-### Phase 5 - progression structurelle
-
-Statut : à construire.
+Statut : a construire.
 
 Livrables :
 
 ```text
-relation de progrès
-irréflexivité ou bien-fondation adaptée
-conditions de terminalité
+chemins proof-relevant de transports
+recherche executable de chemins
+separateur direct vs compose
 ```
 
-Gate : aucun compteur numérique ne doit servir de définition cachée du progrès si une relation constitutive plus primitive est visée.
+### Phase J - ancres dynamiques
 
-### Phase 6 - largeur constitutive
+Statut : a construire apres stabilisation de l'etat global.
 
-Statut : à construire.
+Gate centrale : une nouvelle determination doit rendre reconstructible un transport auparavant indisponible.
 
-Livrables :
+### Phase K - progression et terminalite
 
-```text
-frontière irréductible relative à une interface
-notion de largeur
-monotonies ou bornes utiles
-séparateurs largeur / taille
-```
+Statut : a construire.
 
-Gate : distinguer cardinalité de frontière, taille de représentation et coût de réduction.
+Premiere cible SAT : decisions sur variables pertinentes sans repetition.
 
-### Phase 7 - interface de complexité
+### Phase L - familles positives et negatives
 
-Statut : à construire après les phases structurelles.
+Statut : a construire.
 
-Livrables :
+Commencer par la famille symetrique parametrique et des separateurs synthetiques.
 
-```text
-coût local explicite
-borne de profondeur
-borne de largeur
-borne de taille
-théorème conditionnel de temps polynomial
-```
+### Phase M - complexite
 
-Gate : aucune hypothèse de complexité ne doit être cachée dans une primitive de transport.
+Statut : interdit tant que les phases G a L ne sont pas stabilisees.
 
-### Phase 8 - instance SAT minimale
+### Phase N - audit de nouveaute
 
-Statut : à construire.
+Statut : a mener en parallele des premiers theoremes parametriques, avant toute communication de nouveaute forte.
 
-Livrables :
+### Phase O - audit P/NP
 
-```text
-état SAT avec provenance
-complétions
-split sur variable
-vérification terminale
-premiers transports structurels
-```
+Statut : non ouvert.
 
-Gate : aucune requête SAT intermédiaire.
-
-### Phase 9 - enrichissement relationnel SAT
-
-Statut : futur.
-
-Livrables :
-
-```text
-affaiblissement
-renommage
-symétrie
-substitution
-propagation
-composition
-```
-
-Gate : chaque transformation est accompagnée d'une action constructive sur les complétions.
-
-### Phase 10 - étude de largeur
-
-Statut : futur.
-
-Livrables :
-
-```text
-familles positives
-familles séparatrices
-mesure de largeur
-mesure de taille de contexte
-mesure de coût des recherches de transport
-```
-
-Gate : distinguer les résultats vérifiés en Lean des observations expérimentales.
-
-### Phase 11 - audit P/NP
-
-Cette phase ne peut commencer que si les phases précédentes donnent une instance SAT générale avec bornes prouvées.
-
-Elle doit rechercher activement les endroits où une hypothèse contient déjà la difficulté NP.
-
-La charge de preuve est entièrement du côté de la construction.
+Il ne devient legitime que si une instance SAT generale et ses bornes globales sont effectivement prouvees.
 
 ---
 
-## 24. Stratégie d'expérimentation
+## 24. Sequence d'implementation immediate
 
-Les expériences servent à chercher des séparateurs et des conjectures, pas à établir des théorèmes.
-
-Pour une famille SAT donnée, enregistrer :
+L'ordre recommande apres l'audit est maintenant :
 
 ```text
-nombre de variables
-nombre de clauses
-nombre de branches avant réduction
-nombre de branches après réduction
-nombre de transports trouvés
-profondeur
-largeur maximale
-longueur des certificats
-coût de recherche des transports
+1. FrontierPreservation
+2. regression montrant Nonempty source <-> Nonempty retenue pour une absorption
+3. preservation correspondante pour normalizeFrontier
+4. GeneratedBranchContext
+5. relation globale entre contextes generes
+6. frontiere heterogene de contextes SAT
+7. FrontierTrajectory generique
+8. trajectoire SAT de plusieurs niveaux avec reduction a chaque niveau
+9. TransportClosure et separateur direct vs compose
+10. test de sensibilite a l'ordre du normaliseur
+11. famille SAT symetrique parametrique avec borne de largeur
+12. premier exemple d'ancre dynamique qui debloque un transport
+13. progression par variables fraiches et borne de profondeur
+14. seulement ensuite premiers comptes de taille et de cout
 ```
 
-Chaque protocole confirmatoire devra respecter les règles de reproductibilité du dépôt.
+Cet ordre remplace l'ancienne sequence qui commencait directement par `DynamicAnchors`.
 
-Les heuristiques peuvent être explorées, mais aucune conclusion formelle ne doit dépendre d'une heuristique non certifiée.
-
----
-
-## 25. Critères de réussite intermédiaires
-
-Le chantier produit déjà un résultat utile si l'on obtient l'une des situations suivantes :
-
-### Résultat A
-
-Une nouvelle théorie générique de réduction de recherche par transports directionnels, indépendante de P/NP.
-
-### Résultat B
-
-Une caractérisation structurelle de classes de SAT ou CSP tractables par largeur constitutive bornée.
-
-### Résultat C
-
-Des séparateurs montrant précisément pourquoi certaines interfaces locales ne peuvent pas contrôler la largeur globale.
-
-### Résultat D
-
-Une reconstruction dynamique d'ancres montrant comment le chemin crée les relations utilisées pour sa propre continuation.
-
-### Résultat E
-
-Une borne non triviale sur une famille SAT jusque-là mal décrite par les interfaces testées.
-
-Le chantier n'a donc pas besoin d'aboutir à P = NP pour avoir un contenu scientifique réel.
+La raison est maintenant prouvee par l'experience de formalisation : les ancres dynamiques ne peuvent etre evaluees proprement avant d'avoir un etat global, une trajectoire et une notion precise de preservation de frontiere.
 
 ---
 
-## 26. Conditions minimales avant toute revendication forte
+## 25. Premier theorem global vise
 
-Aucune phrase du type :
+Le prochain grand resultat ne doit pas parler de complexite.
+
+Forme cible :
+
+> Pour toute trajectoire finie construite par splits exacts et absorptions certifiees, une completion de la frontiere initiale peut etre transportee vers la frontiere finale, et toute completion de la frontiere finale peut etre interpretee constructivement comme une completion de la frontiere initiale.
+
+Ce resultat donne :
 
 ```text
-SAT est en P
-P = NP
+Nonempty frontiere initiale
+<->
+Nonempty frontiere finale
 ```
 
-ne doit apparaître comme conclusion scientifique du projet tant que les conditions suivantes ne sont pas toutes fermées.
+sans exiger que les transports d'absorption soient inversibles.
 
-1. L'instance couvre SAT général tel qu'annoncé.
-2. Le split conserve exactement les complétions.
-3. Chaque réduction est justifiée par un transport constructif.
-4. Les transports sont reconstruits par une procédure explicitement définie.
-5. Cette procédure n'utilise aucune décision SAT cachée.
-6. Sa complétude nécessaire est démontrée, pas supposée.
-7. La profondeur est polynomialement bornée.
-8. La largeur constitutive est polynomialement bornée.
-9. La taille des états et contextes est polynomialement bornée.
-10. La taille des témoins de transport est polynomialement bornée.
-11. Le coût de recherche et de validation des transports est polynomialement borné.
-12. La procédure complète est exécutable.
-13. Les preuves Lean sont constructives et sans axiomes interdits.
-14. Les séparateurs connus du chantier ne contredisent pas l'interface finale.
-15. Un audit externe de la formalisation et du modèle de coût est effectué avant toute communication forte.
-
-Si une seule de ces conditions manque, le statut doit rester conditionnel ou exploratoire.
+C'est le socle correct pour une procedure de decision.
 
 ---
 
-## 27. Audit permanent de la direction de dépendance
+## 26. Premier theorem SAT parametrique vise
 
-À chaque nouvelle définition, poser les questions suivantes :
+Apres le theorem global de trajectoire :
+
+> Une famille parametrique de CNF a symetries locales explicites admet une trajectoire de contextes dans laquelle chaque split sur une variable fraiche est suivi d'une absorption contextuelle certifiee, et la largeur operationnelle de la frontiere reste egale a 1 le long de la strategie definie.
+
+Ce theorem doit etre prouve pour une famille de taille arbitraire, pas seulement pour un exemple ferme.
+
+Il fournira le premier test de passage :
 
 ```text
-Cette donnée est-elle réellement primitive ?
-Peut-elle être reconstruite ?
-Est-elle utilisée pour définir quelque chose dont elle dépend en réalité ?
-Introduit-elle implicitement l'existence d'une solution ?
-Introduit-elle implicitement une décision globale ?
-Peut-on construire un séparateur où elle échoue mais où les couches précédentes restent valides ?
+regression locale
+-> theorem de famille
 ```
-
-Ce questionnaire doit devenir un réflexe de développement.
 
 ---
 
-## 28. Discipline de branche
+## 27. Premier theorem separateur vise
 
-La branche `research/constitutive-search` est une branche de recherche.
+Construire une famille ou une interface de transports explicitement limitee ne controle pas la largeur.
 
-Pendant le chantier :
+Forme cible :
+
+> Sous le moteur relationnel R choisi, la frontiere produite par la strategie S contient au moins k etats irreductibles apres k etapes, ou suit une autre croissance explicite.
+
+Le but n'est pas necessairement d'obtenir immediatement une borne exponentielle.
+
+Le premier objectif est de formaliser proprement une impossibilite relative a une interface annoncee.
+
+---
+
+## 28. Criteres de valeur scientifique independants de P/NP
+
+Le chantier possede un interet propre si au moins un des resultats suivants est obtenu.
+
+### Resultat A
+
+Une theorie generique constructive de reduction de recherche par transports directionnels avec provenance de frontiere.
+
+### Resultat B
+
+Une hierarchie propre entre largeur directe, largeur operationnelle, largeur fermee par composition et largeur minimale certifiable.
+
+### Resultat C
+
+Des theoremes parametriques expliquant la tractabilite de familles de contraintes par des transports de futurs.
+
+### Resultat D
+
+Des separateurs montrant exactement quelles interfaces relationnelles echouent a controler la frontiere.
+
+### Resultat E
+
+Un mecanisme d'ancres dynamiques ou le chemin constitue de nouvelles capacites de reduction.
+
+### Resultat F
+
+Une correspondance ou une separation rigoureuse entre cette theorie et une notion existante de simulation, antichaines, branching programs ou largeur de CSP.
+
+---
+
+## 29. Conditions avant toute revendication de complexite forte
+
+Aucune conclusion telle que `SAT est en P` ou `P = NP` ne peut etre formulee comme resultat du projet tant que toutes les conditions suivantes ne sont pas fermees.
+
+1. L'instance couvre exactement la classe SAT annoncee.
+2. Les splits sont exacts au niveau des completions.
+3. Les reductions conservent les completions sources.
+4. Les completions retenues restent interpretables dans la source.
+5. Les transports sont reconstruits depuis des witnesses structurels explicites.
+6. Les procedures de recherche n'utilisent aucune decision SAT cachee.
+7. La fermeture des transports utilisee par l'algorithme est explicitement definie.
+8. La profondeur globale est bornee polynomialement.
+9. La largeur operationnelle globale est bornee polynomialement.
+10. La taille des etats est bornee polynomialement.
+11. La taille des historiques et ancres est bornee polynomialement.
+12. La taille des witnesses de transport est bornee polynomialement.
+13. Le cout de recherche des relations et de leurs compositions est borne polynomialement.
+14. Le cout de normalisation de la frontiere est borne polynomialement.
+15. La procedure terminale est executable et correcte.
+16. Les preuves Lean n'utilisent aucun axiome interdit.
+17. Les separateurs connus ne refutent pas l'interface finale annoncee.
+18. Le modele de cout a ete audite independamment de la preuve structurelle.
+19. Le positionnement par rapport aux resultats connus a ete verifie.
+20. Un audit externe du resultat complet a ete effectue avant toute communication forte.
+
+Si une seule de ces conditions manque, le statut reste conditionnel ou exploratoire.
+
+---
+
+## 30. Discipline de branche
+
+Sur `research/constitutive-search` :
 
 ```text
 commits petits et auditables
-aucun merge vers main sans demande explicite
-régressions ajoutées avec chaque nouvelle couche
-un bloc AXIOM_AUDIT par fichier Lean
-aucun noncomputable
-aucun Classical
+regression avec chaque nouvelle couche
+AXIOM_AUDIT dans chaque fichier Lean scientifique
 aucun sorry
+aucun noncomputable
+aucun Classical introduit silencieusement
+aucun merge vers main sans demande explicite
 ```
 
-Avant une éventuelle pull request :
+Pour les changements structurels importants :
 
 ```text
-supprimer ce document de chantier ou le convertir en document scientifique canonique
-mettre à jour les versions française et anglaise si une documentation canonique est ajoutée
-mettre à jour le manifeste
-vérifier lake build
-vérifier AuditRegression
-scanner noncomputable
-vérifier les audits axiomatiques
-nettoyer tout fichier temporaire
+travailler si utile sur une branche de validation
+laisser le CI Linux et Windows passer
+fast-forward seulement apres validation
+```
+
+Avant toute pull request vers `main` :
+
+```text
+convertir ou supprimer ce document de chantier
+mettre a jour la documentation scientifique canonique
+mettre a jour le manifeste si necessaire
+verifier lake build
+verifier AuditRegression
+verifier les audits axiomatiques
+scanner noncomputable et sorry
+nettoyer les branches ou fichiers temporaires utiles seulement au chantier
 ```
 
 ---
 
-## 29. Prochaine séquence d'implémentation
+## 31. Resume audite du programme
 
-Ordre recommandé immédiat :
-
-```text
-1. DynamicAnchors
-2. FrontierHistory
-3. séparateur distinction sans transport
-4. séparateur transport existant mais non trouvé
-5. composition de réductions avec provenance
-6. StructuralProgress
-7. ConstitutiveWidth
-8. premier mini-système exécutable non SAT
-9. SAT.State et SAT.Completion
-10. SAT.BinarySplit
-11. WeakeningTransport
-12. RenamingTransport
-13. premières expériences de largeur
-```
-
-Le premier objectif concret est de montrer sur un système fini simple que :
+La chaine scientifique revisee est :
 
 ```text
-une détermination produite à l'étape k
-→ devient une ancre à l'étape k + 1
-→ rend reconstructible un transport auparavant indisponible
-→ réduit effectivement la frontière
+etats constitues
+-> espaces de completions
+-> splits exacts
+-> relations structurelles
+-> transports directionnels
+-> absorption certifiee
+-> provenance des survivants
+-> frontiere irreductible relative a une recherche
+-> normalisation finie operationnelle
+-> contexte SAT recursif avec provenance
+-> etat global genere
+-> trajectoire complete de frontieres
+-> composition et fermeture des transports
+-> ancres dynamiques
+-> progression structurelle
+-> largeur qualifiee
+-> familles positives et separatrices
+-> tailles et couts
+-> theorem de complexite conditionnel
+-> audit de nouveaute
+-> seulement ensuite audit P/NP
 ```
 
-Ce résultat démontrerait formellement le mécanisme central du programme :
+Le probleme central reste :
 
-> la trajectoire constituée modifie les relations disponibles et devient ainsi une partie effective du calcul qui produit sa propre continuation.
+> construire suffisamment de transformations entre futurs possibles pour reduire les alternatives sans connaitre leur positivite a l'avance.
 
----
+Le prochain verrou n'est plus la construction d'un transport local sur un exemple SAT.
 
-## 30. Résumé du programme
+Ce verrou est deja franchi.
 
-La chaîne scientifique visée est :
+Le prochain verrou est de passer de ces transports locaux a une **trajectoire globale de frontieres porteuses de provenance**, avec preservation bidirectionnelle de l'existence, relations composables et largeur clairement qualifiee.
 
-```text
-états constitués
-        ↓
-espaces de complétions
-        ↓
-splits AND/OR exacts
-        ↓
-relations locales
-        ↓
-transports directionnels reconstructibles
-        ↓
-réduction sûre des alternatives
-        ↓
-frontière constitutive
-        ↓
-déterminations nouvelles
-        ↓
-ancres nouvelles
-        ↓
-relations nouvelles
-        ↓
-réductions nouvelles
-        ↓
-trajectoire comme calcul
-        ↓
-terminaison structurelle
-        ↓
-largeur dérivée
-        ↓
-coût dérivé
-        ↓
-instance SAT
-```
-
-Le problème central n'est pas de choisir directement la branche qui contient une solution.
-
-Le problème central est de reconstruire suffisamment de transformations entre les futurs possibles pour que les alternatives puissent être absorbées sans connaissance préalable de leur positivité.
-
-La question de complexité devient alors :
-
-> la structure relationnelle ainsi constituée suffit-elle à maintenir, pour SAT général, une profondeur, une largeur, une représentation et un coût local tous polynomialement contrôlés ?
-
-C'est cette question qui doit guider la branche, sans raccourci sémantique et sans introduire la réponse dans les hypothèses.
+C'est cette etape qui transformera le noyau actuel en veritable theorie de calcul par trajectoire.
