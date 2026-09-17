@@ -2,8 +2,7 @@
 
 **English** | [Français](../fr/alignement_relatif.md)
 
-Navigation: [structural synthesis](structural_foundations.md) ·
-[method](relational_constitutive_roles_method.md) ·
+Navigation: [method](relational_constitutive_roles_method.md) ·
 [representation boundary](representation_boundary.md)
 
 ## Status
