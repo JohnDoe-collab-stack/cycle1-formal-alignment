@@ -170,15 +170,12 @@ theorem relationEquality_of_mem_of_mem_of_rows_true
               | false => false) = true at checked
             rw [rowCheck] at checked
             exact checked
-          have firstCases : first = current ∨ first ∈ rest :=
-            List.mem_cons.mp firstMember
-          cases firstCases with
-          | inl firstEq =>
-              subst first
+          cases firstMember with
+          | head =>
               exact rowEquality_of_mem_of_true
-                context transport current second allSources
+                context transport first second allSources
                 secondMember rowCheck
-          | inr tailMember =>
+          | tail _ tailMember =>
               exact ih tailMember tailChecked
 
 /-- Boolean preservation test for the complete listed relation matrix. -/
@@ -355,23 +352,24 @@ theorem findCompatibleTransport_ne_none_of_mem_of_true
   | nil =>
       cases member
   | cons candidate rest ih =>
-      have memberCases : transport = candidate ∨ transport ∈ rest :=
-        List.mem_cons.mp member
-      cases memberCases with
-      | inl transportEq =>
-          subst transport
-          simp [findCompatibleTransport, checked]
-      | inr tailMember =>
+      cases member with
+      | head =>
+          intro impossible
+          unfold findCompatibleTransport at impossible
+          rw [checked] at impossible
+          cases impossible
+      | tail _ tailMember =>
           cases candidateCheck : preservesRelationOn context sources candidate with
           | true =>
-              simp [findCompatibleTransport, candidateCheck]
+              intro impossible
+              unfold findCompatibleTransport at impossible
+              rw [candidateCheck] at impossible
+              cases impossible
           | false =>
               intro impossible
-              have tailNe :
-                  findCompatibleTransport context sources rest ≠ none :=
-                ih tailMember
-              apply tailNe
-              simpa [findCompatibleTransport, candidateCheck] using impossible
+              unfold findCompatibleTransport at impossible
+              rw [candidateCheck] at impossible
+              exact (ih tailMember) impossible
 
 /-- Convert a successful checked transport into the intrinsic compatible alignment. -/
 def alignmentOfCheckedTransport
