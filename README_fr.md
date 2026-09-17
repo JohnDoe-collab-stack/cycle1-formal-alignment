@@ -1266,3 +1266,19 @@ Ces formulations sont des interprétations contraintes par les théorèmes véri
 Elles n'identifient pas les couches traversées.
 
 C'est précisément leur séparation qui donne un sens à la persistance.
+
+---
+
+## Licence et citation
+
+Le projet est distribué sous licence Apache-2.0.
+
+Les métadonnées de citation sont fournies dans [`CITATION.cff`](CITATION.cff).
+
+## Conception
+
+> **Déclaration de conception intellectuelle et de génération par IA.**
+>
+> Le responsable du projet déclare être à l'origine des idées essentielles et de la direction de recherche, et que l'intégralité du contenu textuel et du code de ce dépôt — sources Lean, énoncés formels, preuves, exemples, documentation, traductions, scripts, métadonnées, matériaux d'audit et organisation du dépôt — a été écrite par des modèles de la série ChatGPT d'OpenAI, sous direction humaine et au cours d'interactions successives.
+>
+> Voir [`AI_AUTHORSHIP.md`](AI_AUTHORSHIP.md) pour la déclaration bilingue complète.
