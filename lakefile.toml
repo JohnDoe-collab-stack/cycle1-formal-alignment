@@ -18,6 +18,7 @@ roots = [
   "Alignment.GenesisRigidity",
   "Alignment.ConstitutiveProfileRigidity",
   "Alignment.ConstitutiveProfileReconstruction",
+  "Alignment.AnchoredRelationReconstruction",
   "Alignment.ReadoutPersistence",
   "StrongPerimetralTurning.ConstitutivePersistence",
   "StrongPerimetralTurning.IteratedConstitutivePersistence",
@@ -41,6 +42,7 @@ roots = [
   "Tests.GenesisRigidityRegression",
   "Tests.ConstitutiveProfileRigidityRegression",
   "Tests.ConstitutiveProfileReconstructionRegression",
+  "Tests.AnchoredRelationReconstructionRegression",
   "Tests.MediatedTransitionCoherenceRegression",
   "Tests.MediatedTransitionPastingRegression"
 ]
