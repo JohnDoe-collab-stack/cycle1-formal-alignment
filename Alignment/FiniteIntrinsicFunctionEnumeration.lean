@@ -1,4 +1,4 @@
-import Alignment.FiniteIntrinsicRelationalSearch
+import Alignment.FiniteAnchoredMatchSearch
 
 /-!
 # Finite intrinsic function enumeration
