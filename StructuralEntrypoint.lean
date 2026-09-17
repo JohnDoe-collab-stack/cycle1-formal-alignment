@@ -1,4 +1,5 @@
 import StrongPerimetralTurning.IteratedConstitutivePersistence
+import StrongPerimetralTurning.HistoryDerivedIntrinsicAlignment
 
 open Alignment
 
@@ -221,6 +222,52 @@ def finiteConstitutivePersistenceRealization
     (n : Nat) :
     (finiteConstitutivePersistence P n).Realization :=
   IteratedConstitutivePersistence.iteratedRealization P A n
+
+
+/-!
+## Intrinsic canonicity of finite circular alignment
+
+At each natural depth the two concrete histories determine their own local
+chronology from their occurrence constructors.  No relation, observation
+codomain, anchor, mediator, transport candidate, or carrier listing is supplied
+to this alignment layer.
+-/
+
+/-- The history-derived intrinsic alignment between two concrete realizations. -/
+def finiteIntrinsicConstitutiveAlignment
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (depth : Nat) :
+    Alignment.GenesisReconstruction.HistoryDerivedAlignment.ConstitutiveAlignment
+      (A.realizeHistory
+        (IteratedConstitutivePersistence.iteratedHistory P depth).history)
+      (B.realizeHistory
+        (IteratedConstitutivePersistence.iteratedHistory P depth).history) :=
+  HistoryDerivedIntrinsicAlignment.iteratedConcreteConstitutiveAlignment
+    P A B depth
+
+/--
+Canonicity at arbitrary natural depth: every compatible alignment derived from
+the two concrete histories is forced pointwise to be the exact transport
+already used by constitutive persistence.
+-/
+theorem finiteIntrinsicAlignmentCanonical
+    (P : CircularPresentation)
+    (A B : ConcreteContinuationAlgebra P)
+    (depth : Nat)
+    (candidate :
+      Alignment.GenesisReconstruction.HistoryDerivedAlignment.ConstitutiveAlignment
+        (A.realizeHistory
+          (IteratedConstitutivePersistence.iteratedHistory P depth).history)
+        (B.realizeHistory
+          (IteratedConstitutivePersistence.iteratedHistory P depth).history))
+    (occurrence :
+      (finiteConstitutivePersistenceRealization P A depth).Concrete) :
+    candidate.initial.transport.forward occurrence =
+      ((finiteConstitutivePersistenceRealization P A depth).transport
+        (finiteConstitutivePersistenceRealization P B depth)).forward occurrence :=
+  HistoryDerivedIntrinsicAlignment.iteratedConcreteAlignment_canonical
+    P A B depth candidate occurrence
 
 /--
 Natural-depth extension and change of realization commute on the actual circular instance
@@ -890,6 +937,8 @@ end StructuralEntrypoint
 #print axioms StructuralEntrypoint.canonicalConstitutiveAlignmentRealization
 #print axioms StructuralEntrypoint.finiteConstitutivePersistence
 #print axioms StructuralEntrypoint.finiteConstitutivePersistenceRealization
+#print axioms StructuralEntrypoint.finiteIntrinsicConstitutiveAlignment
+#print axioms StructuralEntrypoint.finiteIntrinsicAlignmentCanonical
 #print axioms StructuralEntrypoint.finiteExtensionRealizationNaturality
 #print axioms StructuralEntrypoint.finiteExtensionWitnessIndependent
 #print axioms StructuralEntrypoint.finiteExtensionWitnessIndependentAcrossRealizations
