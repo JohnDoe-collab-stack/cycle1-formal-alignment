@@ -24,7 +24,7 @@ initial carriers themselves.
 namespace Alignment
 namespace GenesisReconstruction
 
-universe uSource uTarget
+universe uOld uSource uTarget
 
 /-- Every exact transport is injective in the forward direction. -/
 theorem forward_injective
@@ -107,66 +107,53 @@ theorem backward_old_ne_fresh
   cases impossible
 
 /--
-Constructively classify the forward image of an old source identity as an old
-target identity, retaining the classification equation as data.
+Extract the old component of a value known not to be the distinguished fresh
+point. The elimination is constructive because the fresh summand is `Unit`.
 -/
-def classifyForwardOld
-    {Source : Type uSource}
-    {Target : Type uTarget}
-    (transport : ExactTypeTransport (Source ⊕ Unit) (Target ⊕ Unit))
-    (freshPreserved :
-      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit))
-    (source : Source) :
-    { target : Target //
-      transport.forward (.inl source) =
-        (Sum.inl target : Target ⊕ Unit) } :=
-  match equality : transport.forward (.inl source) with
-  | .inl target => ⟨target, equality⟩
+def oldOfSum
+    {Old : Type uOld}
+    (value : Old ⊕ Unit)
+    (notFresh : value ≠ (.inr () : Old ⊕ Unit)) : Old :=
+  match value with
+  | .inl old => old
   | .inr witness => by
       cases witness
-      exact False.elim
-        (forward_old_ne_fresh transport freshPreserved source equality)
+      exact False.elim (notFresh rfl)
 
-/--
-Constructively classify the backward image of an old target identity as an old
-source identity, retaining the classification equation as data.
--/
-def classifyBackwardOld
-    {Source : Type uSource}
-    {Target : Type uTarget}
-    (transport : ExactTypeTransport (Source ⊕ Unit) (Target ⊕ Unit))
-    (freshPreserved :
-      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit))
-    (target : Target) :
-    { source : Source //
-      transport.backward (.inl target) =
-        (Sum.inl source : Source ⊕ Unit) } :=
-  match equality : transport.backward (.inl target) with
-  | .inl source => ⟨source, equality⟩
-  | .inr witness => by
+theorem oldOfSum_spec
+    {Old : Type uOld}
+    (value : Old ⊕ Unit)
+    (notFresh : value ≠ (.inr () : Old ⊕ Unit)) :
+    value = Sum.inl (oldOfSum value notFresh) := by
+  cases value with
+  | inl old => rfl
+  | inr witness =>
       cases witness
-      exact False.elim
-        (backward_old_ne_fresh transport freshPreserved target equality)
+      exact False.elim (notFresh rfl)
 
-/-- Extract the old-to-old forward map from the constructive classifier. -/
+/-- Extract the old-to-old forward map from a fresh-preserving exact transport. -/
 def restrictOldForward
     {Source : Type uSource}
     {Target : Type uTarget}
     (transport : ExactTypeTransport (Source ⊕ Unit) (Target ⊕ Unit))
     (freshPreserved :
-      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit)) :
-    Source → Target :=
-  fun source => (classifyForwardOld transport freshPreserved source).1
+      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit))
+    (source : Source) : Target :=
+  oldOfSum
+    (transport.forward (.inl source))
+    (forward_old_ne_fresh transport freshPreserved source)
 
-/-- Extract the old-to-old backward map from the constructive classifier. -/
+/-- Extract the old-to-old backward map from a fresh-preserving exact transport. -/
 def restrictOldBackward
     {Source : Type uSource}
     {Target : Type uTarget}
     (transport : ExactTypeTransport (Source ⊕ Unit) (Target ⊕ Unit))
     (freshPreserved :
-      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit)) :
-    Target → Source :=
-  fun target => (classifyBackwardOld transport freshPreserved target).1
+      transport.forward (.inr ()) = (.inr () : Target ⊕ Unit))
+    (target : Target) : Source :=
+  oldOfSum
+    (transport.backward (.inl target))
+    (backward_old_ne_fresh transport freshPreserved target)
 
 theorem restrictOldForward_spec
     {Source : Type uSource}
@@ -179,7 +166,9 @@ theorem restrictOldForward_spec
       (Sum.inl
         (restrictOldForward transport freshPreserved source) :
         Target ⊕ Unit) :=
-  (classifyForwardOld transport freshPreserved source).2
+  oldOfSum_spec
+    (transport.forward (.inl source))
+    (forward_old_ne_fresh transport freshPreserved source)
 
 theorem restrictOldBackward_spec
     {Source : Type uSource}
@@ -192,7 +181,9 @@ theorem restrictOldBackward_spec
       (Sum.inl
         (restrictOldBackward transport freshPreserved target) :
         Source ⊕ Unit) :=
-  (classifyBackwardOld transport freshPreserved target).2
+  oldOfSum_spec
+    (transport.backward (.inl target))
+    (backward_old_ne_fresh transport freshPreserved target)
 
 /--
 Restrict a fresh-preserving exact transport to the old carriers. No choice
@@ -362,49 +353,35 @@ theorem restrictOld_preservesGenesis
         @IteratedCarrier.freshAtStep Target depth) :
     PreservesGenesis (restrictOld transport freshPreserved) := by
   intro birth extension
+  let sourceFresh : IteratedCarrier Source depth :=
+    IteratedCarrier.embedFrom extension
+      (@IteratedCarrier.freshAtStep Source birth)
+  let targetFresh : IteratedCarrier Target depth :=
+    IteratedCarrier.embedFrom extension
+      (@IteratedCarrier.freshAtStep Target birth)
+  have oldSpec :
+      transport.forward (Sum.inl sourceFresh) =
+        (Sum.inl
+          ((restrictOld transport freshPreserved).forward sourceFresh) :
+          IteratedCarrier Target depth ⊕ Unit) :=
+    restrictOldForward_spec transport freshPreserved sourceFresh
   have global :=
     preserves
       (birth := birth)
       (DepthExtension.step extension)
-  have oldSpec :=
-    restrictOldForward_spec transport freshPreserved
-      (IteratedCarrier.embedFrom extension
-        (@IteratedCarrier.freshAtStep Source birth))
-  have lifted :
-      (Sum.inl
-          ((restrictOld transport freshPreserved).forward
-            (IteratedCarrier.embedFrom extension
-              (@IteratedCarrier.freshAtStep Source birth))) :
-        IteratedCarrier Target depth ⊕ Unit) =
-        Sum.inl
-          (IteratedCarrier.embedFrom extension
-            (@IteratedCarrier.freshAtStep Target birth)) := by
-    calc
-      (Sum.inl
-            ((restrictOld transport freshPreserved).forward
-              (IteratedCarrier.embedFrom extension
-                (@IteratedCarrier.freshAtStep Source birth))) :
-          IteratedCarrier Target depth ⊕ Unit) =
-          transport.forward
-            (Sum.inl
-              (IteratedCarrier.embedFrom extension
-                (@IteratedCarrier.freshAtStep Source birth))) :=
-        oldSpec.symm
-      _ = transport.forward
-            (IteratedCarrier.embedFrom
-              (DepthExtension.step extension)
-              (@IteratedCarrier.freshAtStep Source birth)) := by
-        rfl
-      _ = IteratedCarrier.embedFrom
+  have globalOld :
+      transport.forward (Sum.inl sourceFresh) =
+        (Sum.inl targetFresh : IteratedCarrier Target depth ⊕ Unit) := by
+    change
+      transport.forward
+          (IteratedCarrier.embedFrom
             (DepthExtension.step extension)
-            (@IteratedCarrier.freshAtStep Target birth) :=
-        global
-      _ = (Sum.inl
-            (IteratedCarrier.embedFrom extension
-              (@IteratedCarrier.freshAtStep Target birth)) :
-          IteratedCarrier Target depth ⊕ Unit) := by
-        rfl
-  exact Sum.inl.inj lifted
+            (@IteratedCarrier.freshAtStep Source birth)) =
+        IteratedCarrier.embedFrom
+          (DepthExtension.step extension)
+          (@IteratedCarrier.freshAtStep Target birth)
+    exact global
+  exact Sum.inl.inj (oldSpec.symm.trans globalOld)
 
 /-- The previous-depth transport reconstructed from the latest old/fresh split. -/
 def previousTransport
@@ -484,25 +461,21 @@ theorem reconstruct_forward
               (previousTransport transport preserves)
               (previousTransport_preservesGenesis transport preserves)
               prior
-          calc
+          change
             transport.forward (Sum.inl prior) =
-                Sum.inl
-                  ((previousTransport transport preserves).forward prior) :=
-              oldSpec
-            _ = Sum.inl
-                  ((liftToDepth
-                    (reconstructInitial
-                      (previousTransport transport preserves)
-                      (previousTransport_preservesGenesis transport preserves))
-                    depth).forward prior) :=
-              congrArg
+              (Sum.inl
+                ((liftToDepth
+                  (reconstructInitial
+                    (previousTransport transport preserves)
+                    (previousTransport_preservesGenesis transport preserves))
+                  depth).forward prior) :
+                IteratedCarrier Target (depth + 1))
+          exact
+            oldSpec.trans
+              (congrArg
                 (fun value =>
                   (Sum.inl value : IteratedCarrier Target (depth + 1)))
-                recursive
-            _ = (liftToDepth
-                  (reconstructInitial transport preserves)
-                  (depth + 1)).forward (Sum.inl prior) := by
-              rfl
+                recursive)
       | inr witness =>
           cases witness
           change
