@@ -69,7 +69,7 @@ structure NoDirectionalMatchingCertificate
   refutesExact : CompatibleExactAlignment context → False
 
 /-- Construct the fully negative directional certificate from two failed checks. -/
-def noDirectionalMatchingCertificateOfChecks
+theorem noDirectionalMatchingCertificateOfChecks
     {Source : Type uSource}
     {Target : Type uTarget}
     {Anchor : Type uAnchor}
