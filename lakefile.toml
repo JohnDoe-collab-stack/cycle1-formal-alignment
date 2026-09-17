@@ -13,6 +13,7 @@ roots = [
   "StrongPerimetralTurning",
   "Alignment.Constitutive",
   "Alignment.FinitePersistence",
+  "Alignment.GenesisReconstruction",
   "Alignment.ReadoutPersistence",
   "StrongPerimetralTurning.ConstitutivePersistence",
   "StrongPerimetralTurning.IteratedConstitutivePersistence",
@@ -32,6 +33,7 @@ name = "AuditRegression"
 roots = [
   "Tests.ResidualAuditRegression",
   "Tests.DynamicAlignmentRegression",
+  "Tests.GenesisReconstructionRegression",
   "Tests.MediatedTransitionCoherenceRegression",
   "Tests.MediatedTransitionPastingRegression"
 ]
