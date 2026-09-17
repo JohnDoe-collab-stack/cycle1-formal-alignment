@@ -56,6 +56,14 @@ def trans
           (left.map continuation)
           (left.preservesAccept continuation accepted) }
 
+/-- Forget only the acceptance proof and retain the total structural map. -/
+def toStructuralTransport
+    {system : SearchSystem}
+    {source target : system.State}
+    (transport : AcceptingContinuationTransport system source target) :
+    ContinuationTransport system.Continuation source target :=
+  { map := transport.map }
+
 /-- A transport preserves viability in its directional sense. -/
 theorem preservesViable
     {system : SearchSystem}
@@ -94,6 +102,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.AcceptingContinuationTransport
 #print axioms ConstitutiveSearch.AcceptingContinuationTransport.identity
 #print axioms ConstitutiveSearch.AcceptingContinuationTransport.trans
+#print axioms ConstitutiveSearch.AcceptingContinuationTransport.toStructuralTransport
 #print axioms ConstitutiveSearch.AcceptingContinuationTransport.preservesViable
 #print axioms ConstitutiveSearch.AcceptingContinuationTransport.toAcceptedTransport
 /- AXIOM_AUDIT_END -/
