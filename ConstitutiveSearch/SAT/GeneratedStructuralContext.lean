@@ -218,10 +218,26 @@ def generatedStructuralSplit
     merge := splitter.merge
     splitMerge := splitter.splitMerge
     mergeSplit := splitter.mergeSplit
-    splitPreservesAccept :=
-      splitter.splitPreservesAccept
-    mergePreservesAccept :=
-      splitter.mergePreservesAccept }
+    splitPreservesAccept := by
+      intro continuation accepted
+      simpa only [
+        BinaryAccept,
+        generatedStructuralBranchSystem,
+        GeneratedStructuralBranchContinuation,
+        GeneratedStructuralBranchAccept,
+        GeneratedStructuralBranchContext.child
+      ] using
+        splitter.splitPreservesAccept continuation accepted
+    mergePreservesAccept := by
+      intro branch accepted
+      simpa only [
+        BinaryAccept,
+        generatedStructuralBranchSystem,
+        GeneratedStructuralBranchContinuation,
+        GeneratedStructuralBranchAccept,
+        GeneratedStructuralBranchContext.child
+      ] using
+        splitter.mergePreservesAccept branch accepted }
 
 /-- Fresh generated expansion preserves frontier viability exactly. -/
 def generatedStructuralExpansion
