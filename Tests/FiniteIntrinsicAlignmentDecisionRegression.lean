@@ -64,32 +64,20 @@ needed.
 -/
 theorem incompatibleContext_no_alignment_direct
     (alignment : IntrinsicCompatibleExactAlignment incompatibleContext) : False := by
-  have diagonal :
-      incompatibleContext.targetRelation
-          (alignment.transport.forward false)
-          (alignment.transport.forward false) =
-        incompatibleContext.sourceRelation false false :=
-    alignment.preservesRelation false false
+  have diagonal := alignment.preservesRelation false false
+  change
+    directedRelation
+        (alignment.transport.forward false)
+        (alignment.transport.forward false) =
+      symmetricRelation false false at diagonal
   have targetDiagonal :
-      incompatibleContext.targetRelation
-          (alignment.transport.forward false)
-          (alignment.transport.forward false) = false := by
-    change
       directedRelation
           (alignment.transport.forward false)
-          (alignment.transport.forward false) = false
-    exact directedRelation_diagonal_false (alignment.transport.forward false)
-  have sourceDiagonal :
-      incompatibleContext.sourceRelation false false = true := by
-    rfl
-  have impossible : false = true := by
-    calc
-      false =
-          incompatibleContext.targetRelation
-            (alignment.transport.forward false)
-            (alignment.transport.forward false) := targetDiagonal.symm
-      _ = incompatibleContext.sourceRelation false false := diagonal
-      _ = true := sourceDiagonal
+          (alignment.transport.forward false) = false :=
+    directedRelation_diagonal_false (alignment.transport.forward false)
+  have sourceDiagonal : symmetricRelation false false = true := rfl
+  have impossible : false = true :=
+    targetDiagonal.symm.trans (diagonal.trans sourceDiagonal)
   cases impossible
 
 /--
@@ -102,23 +90,27 @@ theorem incompatible_generatedFinder_returns_none :
         boolListing
         boolListing
         (generatedPairs boolListing boolListing) = none := by
-  cases found :
+  generalize resultEquation :
       findPassingCandidate
         incompatibleContext
         boolListing
         boolListing
-        (generatedPairs boolListing boolListing) with
-  | none => exact found
+        (generatedPairs boolListing boolListing) = result
+  cases result with
+  | none =>
+      exact resultEquation
   | some candidate =>
-      have checked :=
+      have checked :
+          candidatePasses
+              incompatibleContext boolListing boolListing candidate = true :=
         findPassingCandidate_sound
           incompatibleContext
           boolListing
           boolListing
           (generatedPairs boolListing boolListing)
           candidate
-          found
-      have alignment :=
+          resultEquation
+      have alignment : IntrinsicCompatibleExactAlignment incompatibleContext :=
         alignmentOfPassingCandidate
           incompatibleContext
           boolListing
