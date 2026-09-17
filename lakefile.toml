@@ -51,6 +51,7 @@ roots = [
   "Tests.AnchoredMatchReconstructionRegression",
   "Tests.AnchoredMatchStrictnessRegression",
   "Tests.FiniteAnchoredMatchSearchRegression",
+  "Tests.FiniteAlignmentClassificationRegression",
   "Tests.MediatedTransitionCoherenceRegression",
   "Tests.MediatedTransitionPastingRegression"
 ]
