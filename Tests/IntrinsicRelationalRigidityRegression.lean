@@ -25,7 +25,7 @@ theorem targetRelation_rigid :
       automorphism.forward TargetNode.origin = TargetNode.origin := by
     cases originImage : automorphism.forward TargetNode.origin with
     | origin =>
-        exact originImage
+        rfl
     | successor =>
         have edge := preserves TargetNode.origin TargetNode.successor
         rw [originImage] at edge
@@ -50,7 +50,7 @@ theorem targetRelation_rigid :
             forward_injective automorphism sameImage
           cases impossible
       | successor =>
-          exact successorImage
+          rfl
 
 /-! ## Rigidity forces independently constructed compatible alignments to agree -/
 
