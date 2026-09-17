@@ -8,13 +8,13 @@ intrinsic alignment layer.
 
 Starting only from complete finite listings of the source and target carriers,
 `FiniteIntrinsicFunctionEnumeration` generates extensionally complete families
-of forward and backward functions.  This module pairs those local functions,
-checks both round trips on the complete local carriers, and only then constructs
-an `ExactTypeTransport`.  The existing full-relation checker is applied after
-exactness has been reconstructed.
+of forward and backward functions. This module pairs those local functions,
+checks both round trips on the complete local carriers, checks the intrinsic
+relation directly on the raw forward map, and only then constructs an
+`ExactTypeTransport`.
 
 Thus no common anchor, mediator, cross-system pairing, exact transport, or list
-of candidate transports is supplied to the search.  If the generated search
+of candidate transports is supplied to the search. If the generated raw search
 returns `none`, completeness of the local function enumerations constructively
 refutes every intrinsic compatible exact alignment.
 -/
@@ -24,7 +24,6 @@ namespace GenesisReconstruction
 namespace FiniteIntrinsicAlignmentDecision
 
 open FiniteAnchoredMatchSearch
-open FiniteIntrinsicRelationalSearch
 open FiniteIntrinsicFunctionEnumeration
 
 universe uSource uTarget uValue
@@ -59,24 +58,19 @@ theorem fixed_of_mem_of_allFixedOn_true
     (checked : allFixedOn function values = true) :
     function identity = identity := by
   induction values with
-  | nil =>
-      cases member
+  | nil => cases member
   | cons head tail ih =>
       by_cases headFixed : function head = head
       · change
-          (if function head = head then
-            allFixedOn function tail
-          else
-            false) = true at checked
+          (if function head = head then allFixedOn function tail else false) = true
+          at checked
         rw [if_pos headFixed] at checked
         cases member with
         | head => exact headFixed
         | tail _ tailMember => exact ih tailMember checked
       · change
-          (if function head = head then
-            allFixedOn function tail
-          else
-            false) = true at checked
+          (if function head = head then allFixedOn function tail else false) = true
+          at checked
         rw [if_neg headFixed] at checked
         cases checked
 
@@ -92,10 +86,7 @@ theorem allFixedOn_true_of_fixed
   | nil => rfl
   | cons identity rest ih =>
       change
-        (if function identity = identity then
-          allFixedOn function rest
-        else
-          false) = true
+        (if function identity = identity then allFixedOn function rest else false) = true
       rw [if_pos (fixed identity)]
       exact ih
 
@@ -121,53 +112,221 @@ def targetRoundTripCheck
     (fun target => candidate.forward (candidate.backward target))
     targets.values
 
-/--
-Construct exact transport only after both complete local round-trip checks pass.
-The proofs are reconstructed from the Boolean certificates and listing
-completeness; no inverse law is stored in the raw candidate.
--/
-def exactTransport?
+/-- Check one row of the intrinsic relation matrix using only a raw forward map. -/
+def rowPreservesForwardOn
     {Source : Type uSource}
     {Target : Type uTarget}
-    [DecidableEq Source]
-    [DecidableEq Target]
-    (sources : FiniteListing Source)
-    (targets : FiniteListing Target)
-    (candidate : FunctionPair Source Target) :
-    Option (ExactTypeTransport Source Target) :=
-  match sourceChecked : sourceRoundTripCheck sources candidate with
-  | false => none
-  | true =>
-      match targetChecked : targetRoundTripCheck targets candidate with
-      | false => none
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (first : Source) : List Source → Bool
+  | [] => true
+  | second :: rest =>
+      if context.targetRelation (forward first) (forward second) =
+          context.sourceRelation first second then
+        rowPreservesForwardOn context forward first rest
+      else
+        false
+
+/-- A successful raw row check proves every checked relation entry. -/
+theorem rowEquality_of_mem_of_forwardRow_true
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (first second : Source)
+    (sources : List Source)
+    (member : second ∈ sources)
+    (checked : rowPreservesForwardOn context forward first sources = true) :
+    context.targetRelation (forward first) (forward second) =
+      context.sourceRelation first second := by
+  induction sources with
+  | nil => cases member
+  | cons head tail ih =>
+      by_cases headExact :
+          context.targetRelation (forward first) (forward head) =
+            context.sourceRelation first head
+      · change
+          (if context.targetRelation (forward first) (forward head) =
+              context.sourceRelation first head then
+            rowPreservesForwardOn context forward first tail
+          else false) = true at checked
+        rw [if_pos headExact] at checked
+        cases member with
+        | head => exact headExact
+        | tail _ tailMember => exact ih tailMember checked
+      · change
+          (if context.targetRelation (forward first) (forward head) =
+              context.sourceRelation first head then
+            rowPreservesForwardOn context forward first tail
+          else false) = true at checked
+        rw [if_neg headExact] at checked
+        cases checked
+
+/-- Check all requested rows against one fixed column list. -/
+def rowsPreserveForwardOn
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (allSources : List Source) : List Source → Bool
+  | [] => true
+  | first :: rest =>
+      match rowPreservesForwardOn context forward first allSources with
+      | true => rowsPreserveForwardOn context forward allSources rest
+      | false => false
+
+/-- Successful raw matrix checking proves any listed row/column entry. -/
+theorem relationEquality_of_mem_of_mem_of_forwardRows_true
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (allSources rows : List Source)
+    (first second : Source)
+    (firstMember : first ∈ rows)
+    (secondMember : second ∈ allSources)
+    (checked : rowsPreserveForwardOn context forward allSources rows = true) :
+    context.targetRelation (forward first) (forward second) =
+      context.sourceRelation first second := by
+  induction rows with
+  | nil => cases firstMember
+  | cons current rest ih =>
+      cases rowCheck : rowPreservesForwardOn context forward current allSources with
+      | false =>
+          change
+            (match rowPreservesForwardOn context forward current allSources with
+            | true => rowsPreserveForwardOn context forward allSources rest
+            | false => false) = true at checked
+          rw [rowCheck] at checked
+          cases checked
       | true =>
-          some
-            { forward := candidate.forward
-              backward := candidate.backward
-              forwardBackward := by
-                intro source
-                exact
-                  fixed_of_mem_of_allFixedOn_true
-                    (fun identity =>
-                      candidate.backward (candidate.forward identity))
-                    source
-                    sources.values
-                    (sources.complete source)
-                    sourceChecked
-              backwardForward := by
-                intro target
-                exact
-                  fixed_of_mem_of_allFixedOn_true
-                    (fun identity =>
-                      candidate.forward (candidate.backward identity))
-                    target
-                    targets.values
-                    (targets.complete target)
-                    targetChecked }
+          have tailChecked :
+              rowsPreserveForwardOn context forward allSources rest = true := by
+            change
+              (match rowPreservesForwardOn context forward current allSources with
+              | true => rowsPreserveForwardOn context forward allSources rest
+              | false => false) = true at checked
+            rw [rowCheck] at checked
+            exact checked
+          cases firstMember with
+          | head =>
+              exact
+                rowEquality_of_mem_of_forwardRow_true
+                  context forward first second allSources secondMember rowCheck
+          | tail _ tailMember =>
+              exact ih tailMember tailChecked
+
+/-- Boolean preservation test for the complete raw forward relation matrix. -/
+def preservesForwardRelationOn
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (sources : List Source)
+    (forward : Source → Target) : Bool :=
+  rowsPreserveForwardOn context forward sources sources
+
+/-- Complete source enumeration upgrades raw matrix success to full preservation. -/
+theorem preservesForwardRelation_of_true
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (sources : FiniteListing Source)
+    (forward : Source → Target)
+    (checked : preservesForwardRelationOn context sources.values forward = true) :
+    (first second : Source) →
+      context.targetRelation (forward first) (forward second) =
+        context.sourceRelation first second := by
+  intro first second
+  exact
+    relationEquality_of_mem_of_mem_of_forwardRows_true
+      context forward sources.values sources.values first second
+      (sources.complete first) (sources.complete second) checked
+
+/-- A genuinely relation-preserving raw forward map passes every matrix check. -/
+theorem rowPreservesForwardOn_true_of_preserves
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (preserves :
+      (first second : Source) →
+        context.targetRelation (forward first) (forward second) =
+          context.sourceRelation first second)
+    (first : Source)
+    (sources : List Source) :
+    rowPreservesForwardOn context forward first sources = true := by
+  induction sources with
+  | nil => rfl
+  | cons second rest ih =>
+      change
+        (if context.targetRelation (forward first) (forward second) =
+            context.sourceRelation first second then
+          rowPreservesForwardOn context forward first rest
+        else false) = true
+      rw [if_pos (preserves first second)]
+      exact ih
+
+/-- Full raw relation preservation passes every finite matrix check. -/
+theorem rowsPreserveForwardOn_true_of_preserves
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (preserves :
+      (first second : Source) →
+        context.targetRelation (forward first) (forward second) =
+          context.sourceRelation first second)
+    (allSources rows : List Source) :
+    rowsPreserveForwardOn context forward allSources rows = true := by
+  induction rows with
+  | nil => rfl
+  | cons first rest ih =>
+      have rowChecked :=
+        rowPreservesForwardOn_true_of_preserves
+          context forward preserves first allSources
+      change
+        (match rowPreservesForwardOn context forward first allSources with
+        | true => rowsPreserveForwardOn context forward allSources rest
+        | false => false) = true
+      rw [rowChecked]
+      exact ih
+
+/-- A preserving raw forward map passes the complete listed relation matrix. -/
+theorem preservesForwardRelationOn_true_of_preserves
+    {Source : Type uSource}
+    {Target : Type uTarget}
+    {Value : Type uValue}
+    [DecidableEq Value]
+    (context : IntrinsicRelationalContext Source Target Value)
+    (forward : Source → Target)
+    (preserves :
+      (first second : Source) →
+        context.targetRelation (forward first) (forward second) =
+          context.sourceRelation first second)
+    (sources : List Source) :
+    preservesForwardRelationOn context sources forward = true :=
+  rowsPreserveForwardOn_true_of_preserves
+    context forward preserves sources sources
 
 /--
-A candidate passes iff it first reconstructs an exact transport and that exact
-transport preserves the complete intrinsic relation matrix.
+A candidate passes exactly when both local round trips and the raw forward
+relation matrix pass. No proof-bearing transport is needed to compute this Bool.
 -/
 def candidatePasses
     {Source : Type uSource}
@@ -180,10 +339,13 @@ def candidatePasses
     (sources : FiniteListing Source)
     (targets : FiniteListing Target)
     (candidate : FunctionPair Source Target) : Bool :=
-  match exactTransport? sources targets candidate with
-  | none => false
-  | some transport =>
-      preservesRelationOn context sources.values transport
+  match sourceRoundTripCheck sources candidate with
+  | false => false
+  | true =>
+      match targetRoundTripCheck targets candidate with
+      | false => false
+      | true =>
+          preservesForwardRelationOn context sources.values candidate.forward
 
 /-- A passing raw candidate reconstructs a certified intrinsic exact alignment. -/
 def alignmentOfPassingCandidate
@@ -199,18 +361,51 @@ def alignmentOfPassingCandidate
     (candidate : FunctionPair Source Target)
     (checked : candidatePasses context sources targets candidate = true) :
     IntrinsicCompatibleExactAlignment context := by
-  unfold candidatePasses at checked
-  cases found : exactTransport? sources targets candidate with
-  | none =>
-      rw [found] at checked
+  cases sourceChecked : sourceRoundTripCheck sources candidate with
+  | false =>
+      unfold candidatePasses at checked
+      rw [sourceChecked] at checked
       cases checked
-  | some transport =>
-      rw [found] at checked
-      exact alignmentOfFoundTransport context sources transport checked
+  | true =>
+      cases targetChecked : targetRoundTripCheck targets candidate with
+      | false =>
+          unfold candidatePasses at checked
+          rw [sourceChecked, targetChecked] at checked
+          cases checked
+      | true =>
+          have relationChecked :
+              preservesForwardRelationOn
+                  context sources.values candidate.forward = true := by
+            unfold candidatePasses at checked
+            rw [sourceChecked, targetChecked] at checked
+            exact checked
+          exact
+            { transport :=
+                { forward := candidate.forward
+                  backward := candidate.backward
+                  forwardBackward := by
+                    intro source
+                    exact
+                      fixed_of_mem_of_allFixedOn_true
+                        (fun identity =>
+                          candidate.backward (candidate.forward identity))
+                        source sources.values (sources.complete source)
+                        sourceChecked
+                  backwardForward := by
+                    intro target
+                    exact
+                      fixed_of_mem_of_allFixedOn_true
+                        (fun identity =>
+                          candidate.forward (candidate.backward identity))
+                        target targets.values (targets.complete target)
+                        targetChecked }
+              preservesRelation :=
+                preservesForwardRelation_of_true
+                  context sources candidate.forward relationChecked }
 
 /--
-Every exact alignment makes any extensionally agreeing raw pair pass the two
-round trips and the full intrinsic relation check.
+Every exact alignment makes any extensionally agreeing raw pair pass both round
+trips and the full intrinsic relation check.
 -/
 theorem candidatePasses_true_of_alignmentAgreement
     {Source : Type uSource}
@@ -255,23 +450,37 @@ theorem candidatePasses_true_of_alignmentAgreement
             (alignment.transport.backward target) :=
         congrArg alignment.transport.forward (backwardAgreement target)
       _ = target := alignment.transport.backwardForward target
-  have sourceChecked : sourceRoundTripCheck sources candidate = true := by
-    exact
-      allFixedOn_true_of_fixed
-        (fun source => candidate.backward (candidate.forward source))
-        sourceFixed
-        sources.values
-  have targetChecked : targetRoundTripCheck targets candidate = true := by
-    exact
-      allFixedOn_true_of_fixed
-        (fun target => candidate.forward (candidate.backward target))
-        targetFixed
-        targets.values
-  unfold candidatePasses exactTransport?
+  have sourceChecked : sourceRoundTripCheck sources candidate = true :=
+    allFixedOn_true_of_fixed
+      (fun source => candidate.backward (candidate.forward source))
+      sourceFixed sources.values
+  have targetChecked : targetRoundTripCheck targets candidate = true :=
+    allFixedOn_true_of_fixed
+      (fun target => candidate.forward (candidate.backward target))
+      targetFixed targets.values
+  have relationPreserved :
+      (first second : Source) →
+        context.targetRelation
+            (candidate.forward first) (candidate.forward second) =
+          context.sourceRelation first second := by
+    intro first second
+    calc
+      context.targetRelation
+          (candidate.forward first) (candidate.forward second) =
+        context.targetRelation
+          (alignment.transport.forward first)
+          (alignment.transport.forward second) := by
+            rw [forwardAgreement first, forwardAgreement second]
+      _ = context.sourceRelation first second :=
+        alignment.preservesRelation first second
+  have relationChecked :
+      preservesForwardRelationOn
+          context sources.values candidate.forward = true :=
+    preservesForwardRelationOn_true_of_preserves
+      context candidate.forward relationPreserved sources.values
+  unfold candidatePasses
   rw [sourceChecked, targetChecked]
-  apply preservesRelationOn_true_of_forwardAgreement
-  intro source
-  exact forwardAgreement source
+  exact relationChecked
 
 /--
 All raw function pairs generated independently from the two complete local
@@ -291,10 +500,10 @@ def generatedPairs
         backward := backward }
 
 /--
-Every exact transport has a generated raw representative agreeing with both of
-its maps pointwise.
+Every exact transport has a generated raw representative agreeing pointwise
+with both of its maps.
 -/
-theorem generatedPair_of_exactTransport
+def generatedPairOfExactTransport
     {Source : Type uSource}
     {Target : Type uTarget}
     [DecidableEq Source]
@@ -308,27 +517,27 @@ theorem generatedPair_of_exactTransport
           candidate.forward source = transport.forward source) ∧
         ((target : Target) →
           candidate.backward target = transport.backward target) } := by
-  let forwardListing := enumerateFunctions sources targets
-  let backwardListing := enumerateFunctions targets sources
-  let forwardWitness := forwardListing.complete transport.forward
-  let backwardWitness := backwardListing.complete transport.backward
-  let candidate : FunctionPair Source Target :=
-    { forward := forwardWitness.1
-      backward := backwardWitness.1 }
-  refine ⟨candidate, ?_, forwardWitness.2.2, backwardWitness.2.2⟩
+  let forwardWitness :=
+    (enumerateFunctions sources targets).complete transport.forward
+  let backwardWitness :=
+    (enumerateFunctions targets sources).complete transport.backward
+  refine
+    ⟨{ forward := forwardWitness.1
+       backward := backwardWitness.1 }, ?_,
+      forwardWitness.2.2, backwardWitness.2.2⟩
   unfold generatedPairs
-  apply mem_flatMap_of_mem_of_mem
-    (fun forward =>
-      (enumerateFunctions targets sources).values.map fun backward =>
-        { forward := forward
-          backward := backward })
-  · exact forwardWitness.2.1
-  · exact
-      mem_map_of_mem
+  exact
+    mem_flatMap_of_mem_of_mem
+      (fun forward =>
+        (enumerateFunctions targets sources).values.map fun backward =>
+          { forward := forward
+            backward := backward })
+      forwardWitness.2.1
+      (mem_map_of_mem
         (fun backward =>
           { forward := forwardWitness.1
             backward := backward })
-        backwardWitness.2.1
+        backwardWitness.2.1)
 
 /-- Search raw generated candidates for the first one passing all intrinsic checks. -/
 def findPassingCandidate
@@ -449,9 +658,8 @@ theorem generatedFinder_ne_none_of_alignment
     findPassingCandidate
         context sources targets (generatedPairs sources targets) ≠ none := by
   let witness :=
-    generatedPair_of_exactTransport sources targets alignment.transport
-  have checked :
-      candidatePasses context sources targets witness.1 = true :=
+    generatedPairOfExactTransport sources targets alignment.transport
+  have checked : candidatePasses context sources targets witness.1 = true :=
     candidatePasses_true_of_alignmentAgreement
       context sources targets alignment witness.1
       witness.2.2.1 witness.2.2.2
@@ -460,7 +668,7 @@ theorem generatedFinder_ne_none_of_alignment
       context sources targets (generatedPairs sources targets)
       witness.1 witness.2.1 checked
 
-/-- A computed `none` constructively refutes every intrinsic compatible exact alignment. -/
+/-- A computed raw `none` constructively refutes every intrinsic exact alignment. -/
 theorem noAlignment_of_generatedFinder_none
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -478,10 +686,7 @@ theorem noAlignment_of_generatedFinder_none
   (generatedFinder_ne_none_of_alignment
     context sources targets alignment) noneFound
 
-/--
-End-to-end executable intrinsic exact alignment search from the two local finite
-carrier listings alone.
--/
+/-- End-to-end positive wrapper from local listings alone. -/
 def searchAlignmentFromListings?
     {Source : Type uSource}
     {Target : Type uTarget}
@@ -505,46 +710,6 @@ def searchAlignmentFromListings?
             context sources targets (generatedPairs sources targets)
             candidate found))
 
-/-- Existence of an intrinsic exact alignment makes the end-to-end search succeed. -/
-theorem searchAlignmentFromListings_ne_none_of_alignment
-    {Source : Type uSource}
-    {Target : Type uTarget}
-    {Value : Type uValue}
-    [DecidableEq Source]
-    [DecidableEq Target]
-    [DecidableEq Value]
-    (context : IntrinsicRelationalContext Source Target Value)
-    (sources : FiniteListing Source)
-    (targets : FiniteListing Target)
-    (alignment : IntrinsicCompatibleExactAlignment context) :
-    searchAlignmentFromListings? context sources targets ≠ none := by
-  have rawNonempty :=
-    generatedFinder_ne_none_of_alignment context sources targets alignment
-  unfold searchAlignmentFromListings?
-  cases found :
-      findPassingCandidate context sources targets (generatedPairs sources targets) with
-  | none =>
-      exact (rawNonempty found).elim
-  | some candidate =>
-      intro impossible
-      cases impossible
-
-/-- A `none` result from the end-to-end search refutes exact intrinsic alignment. -/
-theorem noAlignment_of_searchAlignmentFromListings_none
-    {Source : Type uSource}
-    {Target : Type uTarget}
-    {Value : Type uValue}
-    [DecidableEq Source]
-    [DecidableEq Target]
-    [DecidableEq Value]
-    (context : IntrinsicRelationalContext Source Target Value)
-    (sources : FiniteListing Source)
-    (targets : FiniteListing Target)
-    (noneFound : searchAlignmentFromListings? context sources targets = none)
-    (alignment : IntrinsicCompatibleExactAlignment context) : False :=
-  (searchAlignmentFromListings_ne_none_of_alignment
-    context sources targets alignment) noneFound
-
 end FiniteIntrinsicAlignmentDecision
 end GenesisReconstruction
 end Alignment
@@ -556,18 +721,24 @@ end Alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.allFixedOn_true_of_fixed
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.sourceRoundTripCheck
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.targetRoundTripCheck
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.exactTransport?
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.rowPreservesForwardOn
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.rowEquality_of_mem_of_forwardRow_true
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.rowsPreserveForwardOn
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.relationEquality_of_mem_of_mem_of_forwardRows_true
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.preservesForwardRelationOn
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.preservesForwardRelation_of_true
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.rowPreservesForwardOn_true_of_preserves
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.rowsPreserveForwardOn_true_of_preserves
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.preservesForwardRelationOn_true_of_preserves
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.candidatePasses
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.alignmentOfPassingCandidate
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.candidatePasses_true_of_alignmentAgreement
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.generatedPairs
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.generatedPair_of_exactTransport
+#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.generatedPairOfExactTransport
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.findPassingCandidate
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.findPassingCandidate_ne_none_of_mem_of_true
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.findPassingCandidate_sound
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.generatedFinder_ne_none_of_alignment
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.noAlignment_of_generatedFinder_none
 #print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.searchAlignmentFromListings?
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.searchAlignmentFromListings_ne_none_of_alignment
-#print axioms Alignment.GenesisReconstruction.FiniteIntrinsicAlignmentDecision.noAlignment_of_searchAlignmentFromListings_none
 /- AXIOM_AUDIT_END -/
