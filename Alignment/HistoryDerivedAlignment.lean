@@ -164,21 +164,37 @@ theorem historyRelation_separates
       at booleanEquality
     cases booleanEquality
 
-/-- Constructive decidable equality of occurrences from structural trichotomy. -/
+/--
+Constructive decidable equality of occurrences, computed directly from the
+finite history constructors. No elimination from proposition-valued
+trichotomy is used.
+-/
 def occurrenceDecidableEq
     {State : Type uState}
-    {Step : State → State → Type uStep}
-    {source target : State}
-    {history : History Step source target} :
-    DecidableEq (History.Occurrence history) :=
-  fun first second =>
-    match History.OccurrencePrecedes.trichotomy first second with
-    | Or.inl equality =>
-        isTrue equality
-    | Or.inr (Or.inl precedes) =>
-        isFalse precedes.ne
-    | Or.inr (Or.inr precedes) =>
-        isFalse (fun equality => precedes.ne equality.symm)
+    {Step : State → State → Type uStep} :
+    {source target : State} →
+      (history : History Step source target) →
+      DecidableEq (History.Occurrence history)
+  | _, _, .root =>
+      fun first => nomatch first
+  | _, _, .extend previous step =>
+      let previousDecidable := occurrenceDecidableEq previous
+      fun first second =>
+        match first, second with
+        | .last, .last =>
+            isTrue rfl
+        | .last, .earlier _ =>
+            isFalse (fun equality => nomatch equality)
+        | .earlier _, .last =>
+            isFalse (fun equality => nomatch equality)
+        | .earlier firstPrevious, .earlier secondPrevious =>
+            match previousDecidable firstPrevious secondPrevious with
+            | isTrue equality =>
+                isTrue (congrArg History.Occurrence.earlier equality)
+            | isFalse distinct =>
+                isFalse
+                  (fun equality =>
+                    distinct (History.Occurrence.earlier.inj equality))
 
 /--
 Complete finite listing of the occurrence carrier, derived recursively from the
