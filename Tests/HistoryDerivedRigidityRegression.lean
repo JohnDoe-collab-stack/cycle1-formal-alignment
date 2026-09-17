@@ -29,8 +29,8 @@ theorem sourceTwo_any_alignment_is_identity
     (occurrence : History.Occurrence sourceTwo) :
     candidate.initial.transport.forward occurrence = occurrence := by
   exact
-    candidate.constitutiveAlignment_forward_unique
-      sourceTwo sourceTwo sourceTwoIdentityAlignment occurrence
+    constitutiveAlignment_forward_unique
+      sourceTwo sourceTwo candidate sourceTwoIdentityAlignment occurrence
 
 end Alignment.Tests.HistoryDerivedRigidityRegression
 
