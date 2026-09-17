@@ -5,7 +5,7 @@ import Alignment.FinitePersistence
 
 Readout values are attached only after the finite constitutive carriers and
 their exact realizations have been built.  The results below show that a
-readout constructed by finite extension retains its earlier values.  They do
+readout constructed by extension to an arbitrary natural-number depth retains its earlier values.  They do
 not require arbitrary readouts to be injective and do not identify readouts
 that were supplied independently.
 -/
@@ -81,7 +81,7 @@ theorem take_trans
 
 end FiniteFreshValues
 
-/-- A readout assembled from initial values and one value per finite extension. -/
+/-- A readout assembled from initial values and one value per natural-depth extension. -/
 def iteratedReadout
     {Initial : Type uInitial}
     {Value : Type uValue}
@@ -217,7 +217,7 @@ theorem take_witness_independent
 
 end FiniteFreshValues
 
-/-- A distinction already made by a readout persists through finite extension. -/
+/-- A distinction already made by a readout persists through extension to an arbitrary natural-number depth. -/
 theorem iteratedReadout_distinction
     {Initial : Type uInitial}
     {Value : Type uValue}

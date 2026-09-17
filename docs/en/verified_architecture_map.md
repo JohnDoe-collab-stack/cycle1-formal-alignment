@@ -148,7 +148,7 @@ therefore distinguish:
 - the **current Lean dependency**: the abstract module no longer depends on the
   circular instance.
 
-`Alignment.FinitePersistence` adds finite depth, extensions, and transports
+`Alignment.FinitePersistence` adds an arbitrary `n : Nat` depth, extensions, and transports
 through a constitutive index. `Alignment.ReadoutPersistence` attaches readouts
 only after constitution and realization.
 
@@ -158,7 +158,7 @@ only after constitution and realization.
 independent constructive kernel for mediator-level commutation, sequential
 realization, and pasting of adjacent squares.
 
-Its current application to finite alignment is:
+Its current application to alignment at arbitrary natural-number depth is:
 
 ```text
 MediatedTransitionCoherence
@@ -178,6 +178,44 @@ on the circular instance of `StrongPerimetralTurning`.
 
 Their location under `Alignment/` now matches their generic mathematical
 role rather than a circular specialization.
+
+### Reconstruction of constitutive alignability
+
+A new generic chain starts from `Alignment.FinitePersistence` and does not depend on the circular instance:
+
+```text
+Alignment.FinitePersistence
+        ↓
+Alignment.GenesisReconstruction
+        ↓
+Alignment.GenesisCharacterization
+        ↓
+Alignment.GenesisRigidity
+        ↓
+Alignment.ConstitutiveProfileRigidity
+        ↓
+Alignment.ConstitutiveProfileReconstruction
+        ↓
+Alignment.AnchoredRelationReconstruction
+        ↓
+Alignment.AnchoredMatchReconstruction
+        ↓
+Alignment.AnchoredMatchStrictness
+        ↓
+Alignment.FiniteAnchoredMatchSearch
+        ↓
+Alignment.FiniteAnchoredMatchDecision
+        ↓
+Alignment.FiniteAlignmentClassification
+        ↓
+Alignment.DirectionalGenesisPersistence
+```
+
+This branch first reconstructs initial transport from genesis preservation, localizes remaining ambiguity at the base, then constrains it through anchored relational profiles. In the enumerable case it searches for and decides directional matchings, distinguishes four regimes, and canonically propagates justified injections to every `n : Nat`.
+
+It assumes no common initial identity carrier. It still assumes corresponding anchors and local relations sufficient to separate identities.
+
+See [Reconstruction of constitutive alignment](constitutive_alignment_reconstruction.md).
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -236,12 +274,12 @@ StrongPerimetralTurning ---------+
 Alignment.Constitutive ----------+
 ```
 
-## 4. Finite persistence of the circular instance
+## 4. Persistence of the circular instance uniform in natural-number depth
 
 `StrongPerimetralTurning/IteratedConstitutivePersistence.lean` imports
 `Alignment.ReadoutPersistence` and `StrongPerimetralTurning.ConstitutivePersistence`.
 
-It actually constructs the finite histories of the instance:
+It actually constructs `iteratedHistory n` for an arbitrary `n : Nat`:
 
 ```text
 iteratedHistory 0
@@ -265,7 +303,7 @@ ConstitutivePersistence + Alignment.ReadoutPersistence
            IteratedConstitutivePersistence
 ```
 
-The correct reading is “finite persistence of the circular instance”, not “a
+The correct reading is “persistence of the circular instance uniform for every `n : Nat`”, not “a
 second constitution of circularity”.
 
 ## 5. Representation branch

@@ -477,12 +477,13 @@ the generality.  The current development proves that this interface is
 sufficient, but does not claim a strict minimality theorem for all of its
 fields.
 
-### 6.2 Finite constitutive persistence
+### 6.2 Constitutive persistence at arbitrary natural depth
 
-The one-step split is iterated without an ω-chain. `DepthExtension k n` is a
-positive finite witness that depth `n` was reached from depth `k`, and
-`IteratedCarrier I n` retains the initial carrier while adding one fresh
-identity at every step. Exact spokes induce both vertical extension `E` and
+The one-step split is iterated without an ω-chain. The depths `k` and `n` are
+arbitrary natural numbers. `DepthExtension k n` is a positive witness that
+depth `n` was reached from depth `k`, and `IteratedCarrier I n` retains the
+initial carrier while adding one fresh identity at every step. These laws are
+uniform in `n : Nat` and impose no maximum depth. Exact spokes induce both vertical extension `E` and
 horizontal change of realization `T`; neither is stored as independent
 matching data. Lean proves, pointwise,
 
@@ -500,26 +501,36 @@ invariant under every extension.  The induced concrete extension, the retained
 finite value package, and every retained readout value are therefore
 witness-independent.  Concrete extension remains witness-independent when its
 source and target use different supplied realizations.  At depth one, both
-directions of the finite index spoke and both directions of finite horizontal
-transport agree pointwise with the established one-step interfaces.  The
-realized finite fresh identity is the one-step `fresh` identity, and the depth
+directions of the index spoke at that depth and both directions of horizontal
+transport at that depth agree pointwise with the established one-step interfaces.  The
+fresh identity realized at depth one is the one-step `fresh` identity, and the depth
 `0 → 1` extension is the one-step `old` map.
 
 `StrongPerimetralTurning.IteratedConstitutivePersistence` instantiates these laws with the
 actual histories built recursively by `generate` and `appendGenerated`. At
 each successor stage, prior occurrences are the native `.earlier` occurrences
 and the new identity is the native `.last` occurrence. The result covers an
-identity from its own finite birth depth, not only identities already present
+identity from its own natural-number birth depth, whatever that depth is, not only identities already present
 at the perimeter.
 
 Readouts are attached afterward. Their arbitrary value type plays no role in
-the commuting square. Under finite readout extension, a distinction already
-present at depth `k` persists at every supplied later depth. The closed
+the commuting square. Under readout extension to an arbitrary later natural-number depth, a distinction already
+present at depth `k` persists at that depth. The closed
 three-step example computes
 the perimeter values `7` and `11` and the successive fresh values `10`, `20`,
 and `30` in both the free and logged realizations. This establishes executable
 scope, not a transformer instantiation or semantic agreement between
 independently supplied readouts.
+### 6.3 Reconstruction of constitutive alignment between distinct carriers
+
+The persistence layer above starts from a shared constitutive index. A separate formal branch now studies the reverse problem between two different initial carriers.
+
+It reconstructs an initial transport from a terminal transport preserving the whole genesis stratification, then constrains the initial correspondence through anchored relational profiles. In the enumerable case it searches for counterparts, decides directional totality, and classifies the context into four regimes: `exact`, `forwardOnly`, `backwardOnly`, or `noDirectionalMatching`.
+
+This reconstruction remains distinct from the norm/regime adequacy studied in the present document.
+
+See [Reconstruction of constitutive alignment](constitutive_alignment_reconstruction.md) for the complete development and its exact limits.
+
 
 ---
 

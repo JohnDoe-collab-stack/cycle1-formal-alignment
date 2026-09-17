@@ -2,9 +2,9 @@
 
 **English** | [Français](README_fr.md)
 
-> **This repository develops and machine-checks in Lean a constructive framework for constitutive determination, structural reconstruction, finite persistence, and coherent transport across distinct realizations.**
+> **This repository develops and machine-checks in Lean a constructive framework for constitutive determination, structural reconstruction, persistence at arbitrary natural-number depth, and coherent transport across distinct realizations.**
 
-Objects are individuated before they are read. Their structural roles are established before representation, numerical measurement, admission status, or readout values are used. In the circular instance, exact local agreement reconstructs a canonical perimeter as an initial structural factor; a strict continuation can then be generated beyond it, its residual occurrence can be determined uniquely, and that occurrence is identified with the fresh constitutive identity whose persistence is tracked through later finite extensions.
+Objects are individuated before they are read. Their structural roles are established before representation, numerical measurement, admission status, or readout values are used. In the circular instance, exact local agreement reconstructs a canonical perimeter as an initial structural factor; a strict continuation can then be generated beyond it, its residual occurrence can be determined uniquely, and that occurrence is identified with the fresh constitutive identity whose persistence is tracked through extensions to arbitrary later natural-number depths.
 
 A separate representation-boundary branch proves a constructive diagonal non-representability result. It is formally distinct from the operational exit and is not used to establish constitutive persistence.
 
@@ -37,7 +37,7 @@ constitution
 → exact regime classification
 → derived structural length
 → identity and indexing
-→ finite persistence
+→ persistence for every `n : Nat`
 → alignment
 ```
 
@@ -95,7 +95,7 @@ fresh constitutive identity
         ↓
 shared constitutive indexing
         ↓
-finite extension
+extension to an arbitrary natural-number depth
         ↓
 transport between exact realizations
         ↓
@@ -136,10 +136,15 @@ These sentences organize the verified results; they are not names of additional 
 | generic exact bidirectional transport | [`ExactTypeTransport.lean`](ExactTypeTransport.lean) |
 | circular construction, local-to-global reconstruction, regime and specification | [`StrongPerimetralTurning.lean`](StrongPerimetralTurning.lean) |
 | generic one-step constitutive alignment | [`Alignment/Constitutive.lean`](Alignment/Constitutive.lean) |
-| finite indexing, extension, transport, composition and naturality | [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) |
+| natural-depth indexing, extension, transport, composition and naturality | [`Alignment/FinitePersistence.lean`](Alignment/FinitePersistence.lean) |
+| reconstruction from genesis | [`Alignment/GenesisReconstruction.lean`](Alignment/GenesisReconstruction.lean), [`Alignment/GenesisCharacterization.lean`](Alignment/GenesisCharacterization.lean) |
+| rigidity and separating constitutive profiles | [`Alignment/GenesisRigidity.lean`](Alignment/GenesisRigidity.lean), [`Alignment/ConstitutiveProfileRigidity.lean`](Alignment/ConstitutiveProfileRigidity.lean) |
+| reconstruction from anchored relations and matching | [`Alignment/AnchoredRelationReconstruction.lean`](Alignment/AnchoredRelationReconstruction.lean), [`Alignment/AnchoredMatchReconstruction.lean`](Alignment/AnchoredMatchReconstruction.lean) |
+| executable search, decision, and four-regime classification | [`Alignment/FiniteAnchoredMatchSearch.lean`](Alignment/FiniteAnchoredMatchSearch.lean), [`Alignment/FiniteAnchoredMatchDecision.lean`](Alignment/FiniteAnchoredMatchDecision.lean), [`Alignment/FiniteAlignmentClassification.lean`](Alignment/FiniteAlignmentClassification.lean) |
+| directional genesis persistence | [`Alignment/DirectionalGenesisPersistence.lean`](Alignment/DirectionalGenesisPersistence.lean) |
 | readouts after constitution | [`Alignment/ReadoutPersistence.lean`](Alignment/ReadoutPersistence.lean) |
 | circular one-step persistence instance | [`StrongPerimetralTurning/ConstitutivePersistence.lean`](StrongPerimetralTurning/ConstitutivePersistence.lean) |
-| circular finite-depth persistence instance | [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean) |
+| circular persistence instance at arbitrary natural-number depth | [`StrongPerimetralTurning/IteratedConstitutivePersistence.lean`](StrongPerimetralTurning/IteratedConstitutivePersistence.lean) |
 | public structural façade | [`StructuralEntrypoint.lean`](StructuralEntrypoint.lean) |
 | representation-boundary kernel | [`RepresentationBoundary/DiagonalizationKernel.lean`](RepresentationBoundary/DiagonalizationKernel.lean) |
 | circular status representation | [`RepresentationBoundary/CircularStatusRepresentation.lean`](RepresentationBoundary/CircularStatusRepresentation.lean) |
@@ -165,7 +170,7 @@ For a supplied `CircularPresentation P`:
 6. the circular regime is classified exactly by equality with `perimeterDeployment P`;
 7. length inequalities/equalities are derived only after the structural prefix and classification results;
 8. the one-step residual is the fresh identity of the constitutive-alignment instance;
-9. that identity persists through arbitrary later finite depths and naturally across supplied exact concrete realizations.
+9. that identity persists through arbitrary later natural-number depths and naturally across supplied exact concrete realizations.
 
 The construction can therefore continue beyond the perimeter even though the same circular regime cannot continue with it:
 
@@ -181,7 +186,9 @@ admissible continuation in the same regime
 
 The verified scientific instance in this repository is circular/perimetral. The methodology extracted from it is not claimed as a universal metatheorem for every possible domain.
 
-The persistence results are uniform over arbitrary **finite** depth. The repository does not construct an infinite history object or an ω-stage concrete carrier.
+The alignment-reconstruction branch no longer assumes a common initial identity carrier. It remains relative to a supplied anchored relational context. Its executable decision layer additionally assumes complete finite enumerations of the carriers and anchors. Automatic reconstruction of the anchor family itself remains open.
+
+The persistence results are uniform for every `n : Nat` and impose no fixed maximum depth. The repository does not construct an infinite history object or an `ω`-stage concrete carrier.
 
 The project does **not** infer identity from equal readout values, equal cardinalities, numerical similarity, or arbitrary exact bijections.
 
@@ -233,7 +240,9 @@ Method:
 Alignment and architecture:
 
 - [Relative alignment](docs/en/relative_alignment.md)
+- [Constitutive alignment reconstruction](docs/en/constitutive_alignment_reconstruction.md)
 - [Alignement relatif](docs/fr/alignement_relatif.md)
+- [Reconstruction de l'alignement constitutif](docs/fr/reconstruction_alignement_constitutif.md)
 - [Verified architecture map](docs/en/verified_architecture_map.md)
 - [Cartographie architecturale vérifiée](docs/fr/cartographie_architecturale_verifiee.md)
 

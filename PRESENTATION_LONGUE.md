@@ -712,9 +712,9 @@ Ainsi, lorsque la théorie passe à la persistance, elle ne commence pas avec un
 
 Elle suit une occurrence dont la constitution, le rôle résiduel, l’unicité et la relation à la frontière ont déjà été établis.
 
-### 6.4 Provenance structurelle des identités finies
+### 6.4 Provenance structurelle à profondeur naturelle arbitraire
 
-L’itération finie ne se contente pas de conserver des éléments dans des carriers successifs. Elle conserve une information structurelle sur leur provenance.
+L'itération indexée par un naturel arbitraire ne se contente pas de conserver des éléments dans des carriers successifs. Elle conserve une information structurelle sur leur provenance.
 
 Le carrier canonique à profondeur `n` a la forme récursive :
 
@@ -734,7 +734,7 @@ Le développement construit un code structurel :
 
 ```text
 identityCode :
-identité à une profondeur finie
+identité à une profondeur `n : Nat`
 → identité initiale + profondeur de genèse
 ```
 
@@ -760,7 +760,7 @@ m ≠ n
 identités toujours distinctes
 ```
 
-La profondeur joue ici le rôle d’un index de genèse dans la construction finie. Elle n’est pas une horloge extérieure ajoutée aux occurrences.
+La profondeur joue ici le rôle d'un index de genèse dans une construction indexée par un naturel arbitraire. Elle n’est pas une horloge extérieure ajoutée aux occurrences.
 
 Cette structure donne à la persistance une propriété plus forte que la simple survie d’un élément : **l’identité persiste avec la trace structurelle de son origine constitutive dans la chaîne d’extensions.**
 
@@ -882,7 +882,7 @@ Une identité antérieure ne fusionne pas avec une identité fraîche et deux id
 
 ### 7.4 Indépendance vis-à-vis du témoin d’extension
 
-Une extension finie `DepthExtension source target` est proof-relevant : plusieurs témoins peuvent décrire un passage entre les mêmes profondeurs.
+Une extension `DepthExtension source target` entre profondeurs naturelles est proof-relevant : plusieurs témoins peuvent décrire un passage entre les mêmes profondeurs.
 
 Le développement ne prétend pas que ces témoins de preuve sont eux-mêmes égaux.
 
@@ -899,7 +899,7 @@ embedFrom d₂(x)
 
 La même indépendance est démontrée pour les extensions concrètes induites entre réalisations.
 
-La persistance est donc indépendante du chemin proof-relevant choisi pour certifier une même extension finie, sans effacer pour autant la structure de ces témoins.
+La persistance est donc indépendante du chemin proof-relevant choisi pour certifier une même extension entre profondeurs naturelles, sans effacer pour autant la structure de ces témoins.
 
 ### 7.5 Persistance de l’occurrence résiduelle réelle
 
@@ -907,14 +907,14 @@ L’instance circulaire raccorde cette théorie générique aux histoires effect
 
 À la profondeur un, l’identité fraîche est exactement l’occurrence résiduelle opérationnelle.
 
-Cette identité est ensuite prolongée à toute profondeur finie ultérieure fournie.
+Cette identité est ensuite prolongée à toute profondeur naturelle ultérieure arbitrairement choisie.
 
 ```text
 résiduel à la première frontière
         =
 identité fraîche à la profondeur 1
         ↓
-extension finie
+extension vers une profondeur naturelle arbitraire
         ↓
 même identité à une profondeur ultérieure
 ```
@@ -1086,11 +1086,11 @@ Initial + Unit
 Extended
 ```
 
-À profondeur finie, l’index est `IteratedCarrier` et conserve les identités initiales ainsi que la profondeur de genèse de chaque identité fraîche.
+Pour tout `n : Nat`, l’index `IteratedCarrier Initial n` conserve les identités initiales ainsi que la profondeur de genèse de chaque identité fraîche.
 
 Cette architecture donne à l’alignement un caractère relationnel de second ordre : **deux réalisations sont coordonnées parce qu’elles réalisent exactement une même détermination constitutive, et non parce qu’un matching indépendant a été choisi entre elles.**
 
-Dans l’état actuel de la théorie, cet index commun est fourni ou extrait d’une construction commune. La théorie ne prétend pas encore reconstruire automatiquement un tel médiateur entre deux systèmes initialement présentés comme indépendants.
+Cette architecture reste la description correcte du transport entre plusieurs réalisations d'une détermination déjà indexée. La branche de reconstruction ajoute désormais une direction inverse pour deux carriers initiaux distincts : elle ne suppose pas un carrier initial commun d'identités, mais reconstruit une correspondance compatible à partir de la genèse et de profils relationnels ancrés. Elle ne reconstruit toutefois pas encore la famille d'ancres elle-même depuis deux systèmes dépourvus de tout médiateur relationnel fourni.
 
 ### 8.4 Décomposition ancien / nouveau et unicité relative du transport
 
@@ -1200,7 +1200,7 @@ L’insuffisance de l’exactitude seule n’est pas seulement déclarative.
 
 Le développement contient un séparateur constructif.
 
-À profondeur finie, on peut construire une permutation exacte et bijective qui échange deux identités fraîches tout en conservant des aller-retour parfaits.
+À la profondeur 3, le développement construit une permutation exacte et bijective qui échange deux identités fraîches tout en conservant des aller-retour parfaits.
 
 ```text
 transport exact
@@ -1275,7 +1275,7 @@ commutation littérale
 
 L’injectivité globale de l’observation terminale est une condition suffisante plus forte qui fournit cette réflexion.
 
-Dans l’alignement constitutif fini, le médiateur est précisément `IteratedCarrier`. Les raccords exacts rendent l’observation terminale suffisamment fidèle pour récupérer la naturalité littérale déjà établie.
+Dans l'alignement constitutif indexé par une profondeur naturelle arbitraire, le médiateur est précisément `IteratedCarrier`. Les raccords exacts rendent l’observation terminale suffisamment fidèle pour récupérer la naturalité littérale déjà établie.
 
 Cette factorisation est conceptuellement importante : **la cohérence provient d’abord du fait que les deux chemins réalisent la même transition constitutive médiée. L’égalité concrète est ensuite récupérée lorsque l’observation terminale permet de réfléchir cette égalité.**
 
@@ -1315,7 +1315,7 @@ identité fraîche commune
 
 L’alignement du nouveau est ainsi une **co-réalisation d’une même genèse constitutive**, et non un matching postérieur entre deux sorties nouvelles.
 
-Cette propriété est ensuite stable sous extension finie : l’identité née à la première frontière reste suivie aux profondeurs ultérieures et cette persistance commute avec le changement de réalisation.
+Cette propriété est ensuite stable sous extension vers toute profondeur naturelle ultérieure : l’identité née à la première frontière reste suivie aux profondeurs ultérieures et cette persistance commute avec le changement de réalisation.
 
 ### 8.10 Définition théorique de l’alignement constitutif
 
@@ -1351,29 +1351,269 @@ L’alignement ne constitue donc pas l’identité.
 
 **Il établit la cohérence des transformations par lesquelles une identité dont la genèse est déjà déterminée reste la même à travers des réalisations et des extensions distinctes.**
 
-### 8.11 Ce que l’alignement actuel n’établit pas encore
+### 8.11 Reconstruction du transport depuis la genèse
 
-La théorie actuelle fournit un noyau précis d’alignement constitutif, mais sa frontière doit rester explicite.
+La branche de reconstruction étudie maintenant deux carriers initiaux distincts :
 
-Elle ne démontre pas encore qu’un index constitutif commun peut être reconstruit entre deux systèmes arbitraires initialement donnés sans médiateur commun.
+```text
+Source
+Target
+```
 
-Elle ne démontre pas que l’interface actuelle de l’alignement soit minimale parmi toutes les formalisations possibles.
+Aucun carrier initial commun d'identités n'est supposé.
 
-Elle ne transporte pas automatiquement les rôles, les lectures, les valeurs, les statuts, les normes ou les propriétés sémantiques attachées aux identités.
+A une profondeur naturelle arbitraire `n`, on peut considérer un transport exact terminal :
 
-Elle est actuellement uniforme sur toute profondeur **finie** fournie. Elle ne construit pas un carrier concret à l’étape `ω`.
+```text
+T : IteratedCarrier Source n
+      <->
+    IteratedCarrier Target n
+```
 
-Enfin, elle ne constitue pas par elle-même une théorie de l’alignement comportemental ou normatif de systèmes d’intelligence artificielle entraînés.
+La propriété `PreservesGenesis T` exige que chaque identité fraîche soit transportée vers l'identité née à la même profondeur du côté cible.
 
-Le problème théorique qui reste ouvert à la frontière de cette couche peut être formulé ainsi :
+Le développement prouve alors deux directions.
 
-> **Sous quelles conditions relationnelles peut-on reconstruire un index constitutif commun entre des constructions initialement présentées comme distinctes, au lieu de supposer ou d’extraire cet index d’une construction déjà commune ?**
+Un transport exact initial se relève canoniquement par `liftToDepth`, et ce relevement préserve toute la genèse.
 
-Cette question prolonge directement la méthode générale du projet : affaiblir, séparer et reconstruire, mais appliquée cette fois à l’alignabilité elle-même.
+Inversement, un transport terminal exact qui préserve toute la genèse peut être restreint récursivement à sa partie ancienne jusqu'aux carriers initiaux par `reconstructInitial`.
 
-### 8.12 Chaîne théorique complète
+La caractérisation centrale est :
 
-La chaîne complète peut désormais être formulée plus précisément :
+```text
+PreservesGenesis T
+        <->
+T est le relevement canonique
+ d'un transport exact Source <-> Target
+```
+
+formalisée par :
+
+```lean
+preservesGenesis_iff_reconstructible
+```
+
+La genèse ne rajoute donc pas de degrés de liberté d'alignement aux profondeurs ultérieures. Toute ambiguïté compatible avec la genèse provient de la correspondance initiale.
+
+### 8.12 Rigidité et localisation de l'ambiguïté
+
+Cette dernière affirmation est elle-même formalisée.
+
+`InitialForwardRigid Source Target` exprime l'unicité ponctuelle de l'application avant parmi les transports exacts initiaux.
+
+`GenesisForwardRigid Source Target n` exprime l'unicité correspondante parmi les transports exacts de profondeur `n` qui préservent la genèse.
+
+La rigidité initiale et la rigidité à profondeur naturelle sont équivalentes.
+
+```text
+genèse
+        ->
+fixe les couches nouvelles
+
+mais
+
+genèse seule
+        -/->
+brise une symétrie initiale
+```
+
+Les séparateurs sur `Bool` montrent effectivement que deux transports initiaux distincts peuvent être relevés tout en préservant tous les deux la genèse.
+
+La question se déplace donc vers la structure capable d'individuer les identités initiales.
+
+### 8.13 Profils constitutifs et relations ancrées
+
+La couche suivante introduit des observations structurelles sans réintroduire un index commun d'identités.
+
+Un profil :
+
+```text
+Carrier -> Probe -> Value
+```
+
+est séparant lorsque l'égalité de toutes ses observations force l'égalité des identités.
+
+Cette propriété est formalisée par `ProfileSeparates`.
+
+Deux fonctions qui préservent un même profil séparant sont alors ponctuellement déterminées.
+
+Le développement dérive ensuite ces profils depuis des relations locales à une famille d'ancres correspondantes :
+
+```text
+sourceRelation : Source -> Source -> Value
+targetRelation : Target -> Target -> Value
+
+sourceAnchor : Anchor -> Source
+targetAnchor : Anchor -> Target
+```
+
+`AnchoredRelationContext.Matches s t` signifie que `s` et `t` possèdent les mêmes observations relativement à toutes les ancres correspondantes.
+
+Les ancres ne codent pas la correspondance complète. Elles servent de références relationnelles communes.
+
+La séparation prouve seulement l'unicité :
+
+```text
+une source a au plus une cible compatible
+une cible a au plus une source compatible
+```
+
+L'existence reste une obligation distincte.
+
+Lorsque cette existence est donnée constructivement dans les deux directions par `TotalAnchoredMatching`, les applications `forward` et `backward` sont projetées des témoins positifs et leurs round-trips sont dérivés de l'unicité de `Matches`.
+
+On reconstruit alors :
+
+```lean
+TotalAnchoredMatching.toExactTransport
+```
+
+puis son relevement canonique à tout `n : Nat` demandé.
+
+Le transport exact initial n'est donc plus, dans cette couche, un choix libre posé avant la structure relationnelle.
+
+### 8.14 Recherche executable et classification de l'alignabilité
+
+La totalité peut elle-même être fermée constructivement dans le cas enumerable.
+
+`FiniteAnchoredMatchSearch` suppose des listes finies complètes des ancres, de `Source` et de `Target`, ainsi qu'une égalité décidable sur les valeurs d'observation.
+
+Il calcule :
+
+```text
+forwardTotalCheck
+backwardTotalCheck
+```
+
+Un check avant réussi construit un `ForwardAnchoredMatching`.
+
+Un check retour réussi construit un `BackwardAnchoredMatching`.
+
+Les deux checks réussis construisent un `TotalAnchoredMatching`, puis un transport exact.
+
+La couche de décision prouve aussi la réciproque : si le matching correspondant existe, le check doit réussir sur les listes complètes. Un résultat `false` devient ainsi un certificat constructif de non-existence relativement au contexte ancré fourni.
+
+Les deux directions produisent une classification executable en quatre régimes :
+
+```text
+exact
+forwardOnly
+backwardOnly
+noDirectionalMatching
+```
+
+Le cas `exact` fournit un transport exact.
+
+Le cas `forwardOnly` fournit une injection structurelle source vers cible et réfute un alignement exact compatible.
+
+Le cas `backwardOnly` est symétrique.
+
+Le cas `noDirectionalMatching` réfute les deux totalités directionnelles relativement au contexte considéré.
+
+Cette classification ne doit pas être surinterprétée. `noDirectionalMatching` ne signifie pas que les deux systèmes sont absolument sans relation. Il signifie qu'aucun matching total défini par les observations ancrées choisies n'existe.
+
+La finitude est ici une hypothèse réelle de la recherche exhaustive. Elle ne borne pas la profondeur de genèse, qui reste paramétrée par un `n : Nat` arbitraire.
+
+### 8.15 Persistance directionnelle
+
+L'alignement exact n'est pas nécessaire pour propager une inclusion structurelle justifiée.
+
+Un matching avant fournit une application injective initiale. Cette application est relevée récursivement à tout `depth : Nat` en conservant les anciennes identités et en envoyant chaque nouvelle identité vers le `fresh` de même profondeur.
+
+Le relevement :
+
+```text
+reste injectif
+préserve toutes les strates de genèse
+commute avec les extensions canoniques
+```
+
+sans fabriquer d'inverse.
+
+Le cas `backwardOnly` possède la construction symétrique.
+
+La séparation des profils rend en outre le matching directionnel ponctuellement unique, et cette canonicité se propage à tout relevement naturel.
+
+Dans le cas `exact`, les deux plongements directionnels coïncident point par point avec les directions avant et arrière du transport exact reconstruit.
+
+Ainsi, la classification n'est pas seulement statique. Chaque régime transporte exactement la structure dynamique qu'il justifie.
+
+### 8.16 De l'alignement donné à l'alignabilité reconstruite
+
+La théorie possède maintenant deux mouvements complémentaires.
+
+Le premier est le mouvement historique :
+
+```text
+index constitutif commun déjà donné
+        ↓
+réalisations exactes
+        ↓
+transports induits
+        ↓
+composition et naturalité
+```
+
+Le second est une reconstruction partielle en sens inverse :
+
+```text
+relations locales
+        ↓
+profils ancrés séparants
+        ↓
+Matches
+        ↓
+matching initial reconstruit, directionnel ou réfuté
+        ↓
+transport exact lorsque les deux directions sont justifiées
+        ↓
+relevement canonique de la genèse
+```
+
+L'alignement constitutif ne se limite donc plus au suivi cohérent d'une identité à partir d'un index commun déjà disponible.
+
+Dans le cadre relationnel formalisé, le développement commence aussi à caractériser **l'alignabilité elle-même** : il peut reconstruire, classifier ou réfuter la correspondance compatible relativement à une famille d'observations ancrées.
+
+Cette extension ne modifie pas l'ordre de dépendance fondamental. L'identité n'est toujours pas fabriquée par le matching. Les profils ancrés doivent distinguer des identités déjà constituées dans chacun des deux systèmes.
+
+### 8.17 Frontière actuelle de la reconstruction
+
+La nouvelle couche réduit fortement l'hypothèse d'un index commun déjà disponible, mais elle ne supprime pas toute structure partagée.
+
+Restent fournis :
+
+```text
+le type Anchor
+les applications sourceAnchor et targetAnchor
+le type Value
+les deux relations locales
+la séparation des profils ancrés
+```
+
+Et, pour la couche de décision executable :
+
+```text
+des listes finies complètes
+de Source, Target et Anchor
++
+une égalité décidable sur Value
+```
+
+La prochaine frontière théorique devient donc :
+
+> **Sous quelles conditions la famille d'ancres communes, ou une structure d'observation équivalente, peut-elle elle-même être reconstruite depuis deux systèmes présentés sans ce médiateur relationnel fourni ?**
+
+La théorie actuelle ne démontre pas non plus que son interface soit minimale parmi toutes les formalisations possibles.
+
+Elle ne transporte pas automatiquement les rôles, lectures, valeurs, statuts, normes ou propriétés sémantiques attachés aux identités.
+
+Elle est uniforme pour tout `n : Nat` et n'impose aucune profondeur maximale. Elle ne construit pas pour autant un carrier concret à l'étape `omega`.
+
+Enfin, cette couche ne constitue pas par elle-même une théorie de l'alignement comportemental ou normatif de systèmes d'intelligence artificielle entraînés.
+
+### 8.18 Chaîne théorique complète
+
+La chaîne complète peut désormais être formulée ainsi :
 
 ```text
 relations constitutives
@@ -1400,27 +1640,29 @@ identité fraîche
         ↓
 indexation et provenance structurelle
         ↓
-persistance finie
+persistance pour tout n : Nat
         ↓
 transports induits entre réalisations
         ↓
-extensions injectives
-        ↓
-composition des deux axes
-        ↓
-naturalité et cohérence médiée
+composition, naturalité et cohérence médiée
         ↓
 alignement constitutif
+        ↓
+reconstruction par genèse entre carriers distincts
+        ↓
+profils relationnels ancrés
+        ↓
+reconstruction ou réfutation du matching initial
+        ↓
+classification de l'alignabilité
+        ↓
+persistance exacte ou directionnelle selon le régime
 ```
 
-Le mouvement théorique est donc continu.
+Le mouvement théorique possède donc maintenant deux sens.
 
-Le tout constitutif permet de déterminer le nouveau.
+Depuis la constitution, il détermine une identité puis établit comment elle persiste et se transporte.
 
-Le nouveau déterminé devient une identité.
+Depuis deux carriers déjà constitués, il peut aussi remonter depuis la compatibilité de genèse et la structure relationnelle vers la correspondance initiale qui rend leur transport légitime.
 
-L’identité reçoit une provenance structurelle et persiste sous extension.
-
-Plusieurs réalisations de cette même détermination sont coordonnées par un index commun.
-
-Enfin, l’alignement exprime la cohérence des chemins par lesquels cette identité constituée traverse ces réalisations et ces extensions.
+La frontière ouverte n'est plus simplement l'absence d'un index commun. Elle est la reconstruction du médiateur relationnel qui permet de définir les observations ancrées elles-mêmes.

@@ -152,7 +152,7 @@ distinguer :
 - la **dépendance Lean actuelle** : le module abstrait ne dépend plus de
   l'instance circulaire.
 
-`Alignment.FinitePersistence` ajoute la profondeur finie, les extensions et les
+`Alignment.FinitePersistence` ajoute une profondeur `n : Nat` arbitraire, les extensions et les
 transports par indice constitutif. `Alignment.ReadoutPersistence` attache les
 lectures seulement après constitution et réalisation.
 
@@ -162,7 +162,7 @@ lectures seulement après constitution et réalisation.
 noyau constructif autonome de commutation par médiateur, de composition des
 réalisations et de collage de carrés adjacents.
 
-L'application actuelle à l'alignement fini est :
+L'application actuelle à l'alignement indexé par une profondeur naturelle arbitraire est :
 
 ```text
 MediatedTransitionCoherence
@@ -182,6 +182,44 @@ ni de l'instance circulaire de `StrongPerimetralTurning`.
 
 Leur emplacement sous `Alignment/` correspond désormais à leur propriété
 mathématique générique et non à une spécialisation circulaire.
+
+### Reconstruction de l'alignabilité constitutive
+
+Une nouvelle chaîne générique part de `Alignment.FinitePersistence` et ne dépend pas de l'instance circulaire :
+
+```text
+Alignment.FinitePersistence
+        ↓
+Alignment.GenesisReconstruction
+        ↓
+Alignment.GenesisCharacterization
+        ↓
+Alignment.GenesisRigidity
+        ↓
+Alignment.ConstitutiveProfileRigidity
+        ↓
+Alignment.ConstitutiveProfileReconstruction
+        ↓
+Alignment.AnchoredRelationReconstruction
+        ↓
+Alignment.AnchoredMatchReconstruction
+        ↓
+Alignment.AnchoredMatchStrictness
+        ↓
+Alignment.FiniteAnchoredMatchSearch
+        ↓
+Alignment.FiniteAnchoredMatchDecision
+        ↓
+Alignment.FiniteAlignmentClassification
+        ↓
+Alignment.DirectionalGenesisPersistence
+```
+
+Cette branche reconstruit d'abord le transport initial depuis la préservation de la genèse, localise l'ambiguïté restante à la base, puis la contraint par des profils relationnels ancrés. Dans le cas enumerable, elle recherche et décide les matchings directionnels, distingue quatre régimes et propage canoniquement les injections justifiées à tout `n : Nat`.
+
+Elle ne suppose pas de carrier initial commun d'identités. Elle suppose encore une famille d'ancres correspondantes et des relations locales permettant de séparer les identités.
+
+Voir [Reconstruction de l'alignement constitutif](reconstruction_alignement_constitutif.md).
 
 ### `RepresentationBoundary.DiagonalizationKernel`
 
@@ -241,12 +279,12 @@ StrongPerimetralTurning ---------+
 Alignment.Constitutive ----------+
 ```
 
-## 4. Persistance finie de l'instance circulaire
+## 4. Persistance uniforme en profondeur naturelle de l'instance circulaire
 
 `StrongPerimetralTurning/IteratedConstitutivePersistence.lean` importe
 `Alignment.ReadoutPersistence` et `StrongPerimetralTurning.ConstitutivePersistence`.
 
-Il construit réellement les histoires finies de l'instance :
+Il construit réellement les histoires `iteratedHistory n` pour un `n : Nat` arbitraire :
 
 ```text
 iteratedHistory 0
@@ -270,7 +308,7 @@ ConstitutivePersistence + Alignment.ReadoutPersistence
            IteratedConstitutivePersistence
 ```
 
-La lecture est « persistance finie de l'instance circulaire », et non
+La lecture est « persistance uniforme pour tout `n : Nat` de l'instance circulaire », et non
 « deuxième constitution de la circularité ».
 
 ## 5. Branche représentationnelle

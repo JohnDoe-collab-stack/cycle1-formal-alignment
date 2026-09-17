@@ -835,123 +835,356 @@ An occurrence can change realization or status without losing the constitutive i
 
 ---
 
-## 8. Alignment
+## 8. Constitutive alignment
 
-Alignment is not the starting point of the theory.
+Alignment is not the starting point of the theory. It is a coherence layer obtained after constitution, identity genesis, indexing, and persistence.
 
-It appears only after constitution, indexing, and persistence.
+The question is not whether two realizations look similar. It is whether the legitimate transformations between realizations and depths track the same already constituted identities coherently.
 
-For identity transports to constitute an alignment, they must be coherent.
+### 8.1 Constitutive alignment and normative adequacy
 
-### 8.1 Composition of changes of realization
-
-A composed passage must agree with the direct passage:
+Two relations must remain distinct:
 
 ```text
-A → B → C
+constitutive alignment
 =
-A → C
-```
+coherence and reconstruction of transported identities
 
-Introducing an intermediate realization must not change the identity obtained at the destination.
-
-### 8.2 Composition of extensions
-
-Two successive extensions must agree with their composition:
-
-```text
-depth n
-→ depth m
-→ depth p
-
+normative adequacy
 =
-
-depth n
-→ depth p
+relation between a regime and an independent specification
 ```
 
-Introducing an intermediate depth must not change the transported identity.
+Neither relation defines the other.
 
-### 8.3 Naturality between extension and realization
+### 8.2 Dependency order of alignment
 
-The two axes must commute:
-
-```text
-extension
-then change of realization
-
-=
-
-change of realization
-then extension
-```
-
-In other words:
+The forward alignment architecture has the order:
 
 ```text
-realization A at depth s
-        ───── extension ─────→
-realization A at depth t
-        │                         │
-        │ transport               │ transport
-        ↓                         ↓
-realization B at depth s
-        ───── extension ─────→
-realization B at depth t
-```
-
-This condition is essential.
-
-An arbitrary exact bijection can preserve round trips while permuting fresh identities and making this square fail.
-
-Coherence is therefore not an automatic consequence of exactness.
-
-It expresses compatibility of transports with constitutive indexing.
-
-### 8.4 Definition of alignment
-
-Within this framework:
-
-> **alignment is the coherence of identity transports induced by a shared constitutive indexing, through which an already constituted identity is tracked across extensions and distinct realizations.**
-
-The complete chain is therefore:
-
-```text
-constitution
+already constituted identities
         ↓
-relational constitutive role
+shared constitutive indexing
         ↓
-dependencies
+exact realizations of that index
+        ↓
+induced horizontal transports
+        +
+induced vertical extensions
+        ↓
+composition
+        ↓
+naturality
+        ↓
+constitutive alignment
+```
+
+An exact carrier correspondence is not yet alignment, and similarity of readouts cannot replace constitutive indexing.
+
+### 8.3 Shared index as constitutive mediator
+
+Two realizations of one constituted system are connected to a common canonical carrier:
+
+```text
+              shared constitutive index
+                /                \
+               v                  v
+        realization A      realization B
+```
+
+Transport between realizations is induced through this common index rather than stored as independent pairwise matching.
+
+For every `n : Nat`, `IteratedCarrier Initial n` retains initial identities and the genesis depth of every fresh identity.
+
+This remains the correct architecture for changing realization once a determination is already indexed. The reconstruction branch now adds a reverse direction for two distinct initial carriers. It assumes no common initial identity carrier, but reconstructs compatible correspondence from genesis and anchored relational profiles. It does not yet reconstruct the anchor family itself from two systems supplied without any common relational mediator.
+
+### 8.4 Old / fresh decomposition and relative uniqueness
+
+At one step, every extended identity is constructively old or fresh. A candidate extended transport that agrees on every old identity and maps fresh to fresh is pointwise forced on the complete extended carrier.
+
+This is relative uniqueness under the constitutive split, not absolute uniqueness of every exact bijection.
+
+### 8.5 Horizontal and vertical composition
+
+Changes of realization compose:
+
+```text
+A -> B -> C
+=
+A -> C
+```
+
+Extensions compose:
+
+```text
+depth n -> depth m -> depth p
+=
+depth n -> depth p
+```
+
+Extension images are also independent of the particular proof-relevant `DepthExtension` witness chosen between fixed source and target depths.
+
+### 8.6 Naturality
+
+The two axes commute:
+
+```text
+extend then change realization
+=
+change realization then extend
+```
+
+This expresses bidimensional coherence of persistence. It does not identify the realizations. It states that legitimate paths for tracking the same constituted identity agree.
+
+### 8.7 Exactness alone is insufficient
+
+The development constructs exact bijections with perfect round trips that permute fresh identities and break the extension / transport square.
+
+Therefore:
+
+```text
+exact transport
+-/->
+constitutive naturality
+```
+
+and an arbitrary exact bijection is not constitutive alignment.
+
+### 8.8 Mediated coherence
+
+Concrete paths can first be shown to realize the same transition in a common mediator. This yields observed commutation without global faithfulness.
+
+A local reflection property at the terminal observation is sufficient to lift observed equality to literal equality. Global terminal injectivity is a stronger sufficient condition.
+
+Adjacent mediated squares paste at the observed level without requiring a faithful intermediate boundary. Reflection at the outer terminal is sufficient to recover literal commutation of the pasted rectangle.
+
+### 8.9 Alignment of constituted novelty
+
+In the circular instance:
+
+```text
+unique residual occurrence
+=
+fresh constitutive identity
+```
+
+Two exact realizations of the continuation therefore do not independently create two novelties that are later matched by similarity. They co-realize the same new occurrence already determined in the constitutive carrier.
+
+That identity persists to arbitrary later natural depths and its persistence is natural under change of realization.
+
+### 8.10 Theoretical definition
+
+Within the present architecture, a constitutive alignment is the coherence of identity transports induced by constitutive indexing, under change of realization and extension, such that already constituted identities and identities newly determined by the construction remain tracked without confusion and the relevant transport paths compose and commute.
+
+This is an architectural reading of explicit Lean structures and equations, not a replacement primitive predicate.
+
+### 8.11 Reconstruction from genesis
+
+The reconstruction branch considers distinct initial carriers `Source` and `Target` without assuming a common initial identity carrier.
+
+At an arbitrary natural depth `n`, let:
+
+```text
+T : IteratedCarrier Source n
+      <->
+    IteratedCarrier Target n
+```
+
+be an exact terminal transport.
+
+`PreservesGenesis T` requires every fresh identity to be transported to the identity born at the same depth on the target side.
+
+An initial exact transport lifts canonically through `liftToDepth`, and the lift preserves genesis. Conversely, a terminal exact transport preserving all genesis strata can be recursively restricted to its old component until the initial carriers are reached by `reconstructInitial`.
+
+The central characterization is:
+
+```text
+PreservesGenesis T
+        <->
+T is the canonical lift
+ of an exact transport Source <-> Target
+```
+
+formalized by `preservesGenesis_iff_reconstructible`.
+
+Genesis therefore introduces no new alignment freedom at later depths. Every remaining ambiguity comes from the initial correspondence.
+
+### 8.12 Rigidity of the remaining ambiguity
+
+`InitialForwardRigid Source Target` expresses pointwise uniqueness of the forward map among exact initial transports.
+
+`GenesisForwardRigid Source Target n` expresses the corresponding uniqueness among exact genesis-preserving transports at depth `n`.
+
+These forms of rigidity are equivalent for every supplied natural depth.
+
+Genesis fixes generated strata, but it cannot break a symmetry already present at the initial layer. Regression models on `Bool` exhibit this separation constructively.
+
+### 8.13 Separating profiles and anchored relations
+
+The next layer constrains initial correspondence by structural observations without reintroducing a common identity carrier.
+
+A profile `Carrier -> Probe -> Value` is separating when equality of all observations forces identity equality. `ProfileSeparates` formalizes this property.
+
+The development then derives profiles from two local relations observed relative to corresponding anchors:
+
+```text
+sourceRelation : Source -> Source -> Value
+targetRelation : Target -> Target -> Value
+
+sourceAnchor : Anchor -> Source
+targetAnchor : Anchor -> Target
+```
+
+`AnchoredRelationContext.Matches s t` states that all anchored observations of `s` and `t` agree.
+
+Anchors are not a complete common identity index. They provide shared relational reference points.
+
+Profile separation gives uniqueness of any counterpart satisfying `Matches`. When positive matching witnesses exist in both directions, `TotalAnchoredMatching` projects the forward and backward maps, derives their round trips from uniqueness, and constructs `ExactTypeTransport`.
+
+### 8.14 Executable search and classification of alignability
+
+In the enumerable case, the totality obligation is itself closed constructively.
+
+`FiniteAnchoredMatchSearch` takes complete finite listings of anchors, `Source`, and `Target`, together with decidable equality on observation values.
+
+It computes:
+
+```text
+forwardTotalCheck
+backwardTotalCheck
+```
+
+A successful one-sided check constructs the corresponding directional matching. Two successful checks construct total matching and exact transport.
+
+The decision layer proves completeness as well as soundness. If a compatible directional matching exists, the corresponding check must return `true`. A `false` result therefore gives a constructive non-existence certificate relative to the supplied anchored context and complete listings.
+
+The two checks produce an executable four-way classification:
+
+```text
+exact
+forwardOnly
+backwardOnly
+noDirectionalMatching
+```
+
+`forwardOnly` and `backwardOnly` retain the justified structural injection while constructively refuting compatible exact alignment. `noDirectionalMatching` means that neither total anchored matching exists in the chosen interface. It does not claim that the systems are unrelated in every possible sense.
+
+Finiteness is a genuine hypothesis of this exhaustive search layer. It does not bound genesis depth, which remains arbitrary in `Nat`.
+
+### 8.15 Directional persistence
+
+Exact alignment is not required to propagate a justified structural inclusion.
+
+A one-sided injective initial matching lifts recursively to every `depth : Nat`, preserves all fresh-generation strata, and commutes with canonical extensions without manufacturing an inverse.
+
+Profile separation also makes the one-sided matching pointwise unique. This canonicity propagates to all natural-depth lifts.
+
+In the exact regime, the directional lifts agree pointwise with the forward and backward maps of the reconstructed exact transport.
+
+### 8.16 From given alignment to reconstructed alignability
+
+The theory now has two complementary movements.
+
+Forward:
+
+```text
+shared constitutive index already given
+        ↓
+exact realizations
+        ↓
+induced transports
+        ↓
+composition and naturality
+```
+
+Partial reverse reconstruction:
+
+```text
+local relations
+        ↓
+separating anchored profiles
+        ↓
+Matches
+        ↓
+initial matching reconstructed, directional, or refuted
+        ↓
+exact transport when both directions are justified
+        ↓
+canonical genesis lift
+```
+
+Constitutive alignment therefore now includes a formal layer of **reconstruction of alignability** relative to explicit relational observations.
+
+This does not invert the constitutive dependency order. Anchored profiles must distinguish identities already constituted within each system. Matching still does not manufacture identity.
+
+### 8.17 Current reconstruction boundary
+
+The new layer substantially weakens the assumption that a shared identity index is already available, but it does not remove every shared structure.
+
+The following remain supplied:
+
+```text
+the Anchor type
+sourceAnchor and targetAnchor
+the Value type
+the two local relations
+separation of anchored profiles
+```
+
+Executable decision additionally requires complete finite listings and decidable equality on `Value`.
+
+The next structural problem is therefore:
+
+> **Under what conditions can the shared anchor family, or an equivalent observation structure, itself be reconstructed from two systems presented without that relational mediator?**
+
+The theory does not claim that its interface is globally minimal. It does not automatically transport roles, readouts, values, statuses, norms, or semantic properties. It is uniform for every `n : Nat` and imposes no maximum depth, but it does not construct a concrete carrier at an `omega` stage. It is not by itself a theory of behavioral or normative alignment for trained AI systems.
+
+### 8.18 Complete theoretical chain
+
+```text
+constitutive relations
+        ↓
+individuation
+        ↓
+relational constitutive roles
+        ↓
+dependency analysis
         ↓
 separation and reconstruction
         ↓
 circular instance
         ↓
-perimeter reconstruction
-        ↓
-delimitation of the internal
+reconstruction of the constitutive whole
         ↓
 continuation
         ↓
-residual and uniqueness
+unique residual
         ↓
-exact regime classification
+constitutive regime boundary
         ↓
-constitutive boundary
+fresh identity
         ↓
-derived length
+indexing and structural provenance
         ↓
-identity
+persistence for every n : Nat
         ↓
-indexing
+induced transports between realizations
         ↓
-persistence
+composition, naturality, and mediated coherence
         ↓
-coherence
+constitutive alignment
         ↓
-alignment
+genesis reconstruction between distinct carriers
+        ↓
+anchored relational profiles
+        ↓
+reconstruction or refutation of initial matching
+        ↓
+classification of alignability
+        ↓
+exact or directional persistence according to the regime
 ```
 
-Alignment therefore does not constitute identity.
+The theoretical movement now has two directions. Constitution determines an identity and then establishes how it persists and transports. Given two already constituted carriers, the theory can also move from genesis compatibility and relational structure back toward the initial correspondence that makes transport legitimate.
 
-**It establishes the coherence of the transports through which an already constituted identity is tracked across realizations and extensions.**
+The open boundary is no longer merely the absence of a shared identity index. It is the reconstruction of the relational mediator from which the anchored observations themselves can be defined.

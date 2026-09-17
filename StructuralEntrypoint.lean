@@ -55,7 +55,7 @@ exposes the following articulated results and introduces no new assumption:
   induced transports are pointwise independent of intermediate realizations;
 * the same constitution extends to every finite number of real circular generation steps:
   earlier identities persist, each step contributes one fresh identity, and
-  finite extension is independent of its proof-relevant depth witness and
+  natural-depth extension is independent of its proof-relevant depth witness and
   commutes with change of exact concrete realization; this independence also
   holds when source and target use different supplied realizations; at depth
   one both directions of horizontal transport, the fresh identity, and the
@@ -200,7 +200,7 @@ actual circular generations.  Each stage is produced by `generate` and
 
 Every determination, once constituted, persists through every later stage of
 any finite prefix of this generated chain, and that persistence commutes with
-change of exact realization.  A readout assembled afterward by finite extension
+change of exact realization.  A readout assembled afterward by extension to an arbitrary natural-number depth
 therefore preserves every distinction it already makes on those determinations.
 This does not yet instantiate a transformer and does not identify independently
 supplied readouts.
@@ -223,7 +223,7 @@ def finiteConstitutivePersistenceRealization
   IteratedConstitutivePersistence.iteratedRealization P A n
 
 /--
-Finite extension and change of realization commute on the actual circular instance
+Natural-depth extension and change of realization commute on the actual circular instance
 occurrences, including identities first constituted after the perimeter.
 -/
 theorem finiteExtensionRealizationNaturality
@@ -248,7 +248,7 @@ theorem finiteExtensionRealizationNaturality
     P A B depth occurrence
 
 /--
-Finite extension on actual circular realizations depends only on its source and
+Natural-depth extension on actual circular realizations depends only on its source and
 target depths, not on the proof-relevant `DepthExtension` witness supplied.
 -/
 theorem finiteExtensionWitnessIndependent
@@ -270,7 +270,7 @@ theorem finiteExtensionWitnessIndependent
     first second occurrence
 
 /--
-Finite extension remains witness-independent when its source and target are
+Natural-depth extension remains witness-independent when its source and target are
 two different supplied concrete realizations.
 -/
 theorem finiteExtensionWitnessIndependentAcrossRealizations
@@ -392,7 +392,7 @@ theorem finiteOperationalResidualNaturality
     (IteratedConstitutivePersistence.iteratedResidualOccurrence_extension_transport_natural
       P A B depth)
 
-/-- The finite depth `0 → 1` extension is pointwise the one-step old map. -/
+/-- The depth `0 → 1` extension is pointwise the one-step old map. -/
 theorem finiteDepthZeroOneExtensionMatchesOneStep
     (P : CircularPresentation)
     (A : ConcreteContinuationAlgebra P)

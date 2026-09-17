@@ -6,7 +6,7 @@ open Alignment
 /-!
 # A non-constant readout across several circular instance extensions
 
-This closed example instantiates the finite persistence laws at three generated
+This closed example instantiates the persistence laws at three generated
 steps beyond the perimeter.  The first, second, and third fresh identities
 receive distinct natural-number values.  The same indexed values are then read
 in both the free example algebra and the non-identity logged algebra.
