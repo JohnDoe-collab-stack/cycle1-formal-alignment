@@ -31,6 +31,14 @@ sha256sum \
   Tests/GenesisRigidityRegression.lean
 echo 'ALIGNMENT_MANIFEST_HASHES_END'
 
+echo 'FORBIDDEN_LEAN_KEYWORD_SCAN_BEGIN'
+if grep -R -n --include='*.lean' -E '(^|[^[:alnum:]_])(noncomputable|axiom|sorry|Classical|propext)([^[:alnum:]_]|$)|Quot\.sound' . --exclude-dir=.lake; then
+  echo 'Forbidden Lean keyword found.' >&2
+  exit 1
+fi
+echo 'FORBIDDEN_LEAN_KEYWORD_SCAN_OK'
+echo 'FORBIDDEN_LEAN_KEYWORD_SCAN_END'
+
 if command -v sha256sum >/dev/null 2>&1; then
   sha256sum --check --strict MANIFEST.sha256
 elif command -v shasum >/dev/null 2>&1; then
