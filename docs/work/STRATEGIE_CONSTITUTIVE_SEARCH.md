@@ -1345,11 +1345,21 @@ taille 2, effectue 3 requetes primitives et teste 1 candidat de composition.
 Le moteur borne peut ensuite etre injecte dans normalizeWithTransportClosure et
 reduire la paire a largeur 1.
 
+Les compteurs possedent maintenant des bornes recursives generales :
+
+~~~text
+closurePrimitiveQueryBudget candidateCount fuel
+closureCompositionCandidateBudget candidateCount fuel
+~~~
+
+et les theoremes correspondants prouvent que les compteurs reels du moteur
+borne restent sous ces budgets pour toute source, toute cible, toute liste
+finie de candidats et tout fuel. Ces bornes suivent explicitement l'arbre de
+recherche et n'imposent aucune forme polynomiale a priori.
+
 Cette recherche reste volontairement incomplete relativement a une fermeture
 mathematique non bornee : none signifie uniquement absence de code dans le fuel
-et la liste de candidats annonces. La prochaine couche doit borner
-symboliquement ses compteurs en fonction du fuel et de la taille de la liste de
-candidats.
+et la liste de candidats annonces.
 
 ## 23. Statut des phases
 
@@ -1400,8 +1410,12 @@ candidats.
 [FAIT P4b-a] code compose retrouve puis utilise par le normaliseur
 [QUALIFICATION P4b-a] none reste relatif au budget de recherche
 
-[P4b-b] bornes generales des compteurs en fonction du fuel et des candidats
-[P4b-b] cout de recherche dans la fermeture pour les familles SAT explicites
+[FAIT P4b-b] budgets recursifs primitiveQueries / compositionCandidates
+[FAIT P4b-b] bornes generales pour tout fuel et toute liste finie de candidats
+[FAIT P4b-b] regression candidateCount=1, fuel=1/2
+[QUALIFICATION P4b-b] les budgets exposent la croissance de l'arbre de recherche, sans promesse polynomiale
+
+[OUVERT P4b-c] instanciation de la recherche compositionnelle sur une famille SAT parametrique non triviale
 
 [FAIT P5] historique de variables sans repetition
 [FAIT P5] decision liee a une occurrence de ressource syntaxique finie
@@ -1450,10 +1464,14 @@ candidats.
 [FAIT P7b] total des atomes de transport = n
 [FAIT P7b] surface de verification relationnelle bornee sur F(n)
 
-[OUVERT P7b] cout executable de RelationSearch.find
-[OUVERT P7b] cout de normalisation avec recherche effective
+[FAIT P7b] generatedStructuralFlipAtSearch retrouve le witness sibling certifie
+[FAIT P7b] strategie fermee : exactement 2n appels find pour les classifications bidirectionnelles
+[FAIT P7b] surface de verification des deux directions bornee sur F(n)
+[QUALIFICATION P7b] ce comptage de controle-flow ne vaut pas cout bit-machine
+
+[OUVERT P7b] cout complet du normaliseur generique sur frontieres arbitraires
 [OUVERT P7b] cout binaire des representations et egalites
-[OUVERT P7b] cout de recherche dans TransportClosure
+[OUVERT P7b] instanciation du cout de fermeture compositionnelle sur une famille SAT
 [P7c] theorem conditionnel de complexite
 
 [P8] audit externe de nouveaute et de comparaison
