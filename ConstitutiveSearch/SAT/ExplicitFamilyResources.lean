@@ -50,6 +50,22 @@ theorem stackedDecisionResource_length
       exact
         congrArg Nat.succ inductionHypothesis
 
+/-- List append length proved by direct structural recursion for axiom audit. -/
+theorem listLengthAppend
+    {α : Type}
+    (left right : List α) :
+    (left ++ right).length =
+      left.length + right.length := by
+  induction left with
+  | nil =>
+      rfl
+  | cons head tail inductionHypothesis =>
+      change
+        Nat.succ ((tail ++ right).length) =
+          Nat.succ (tail.length + right.length)
+      exact
+        congrArg Nat.succ inductionHypothesis
+
 namespace Clause
 
 /-- Recording variable occurrences preserves the literal count of one clause. -/
@@ -105,7 +121,9 @@ theorem variableOccurrences_length_eq_literalCount :
         _ =
           (Clause.variableOccurrences clause).length +
             (variableOccurrences rest).length :=
-              List.length_append
+              listLengthAppend
+                (Clause.variableOccurrences clause)
+                (variableOccurrences rest)
         _ =
           clause.length +
             (variableOccurrences rest).length :=
@@ -552,6 +570,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_succ
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_length
+#print axioms ConstitutiveSearch.SAT.listLengthAppend
 #print axioms ConstitutiveSearch.SAT.Clause.variableOccurrences_length_eq_length
 #print axioms ConstitutiveSearch.SAT.Cnf.literalCount
 #print axioms ConstitutiveSearch.SAT.Cnf.variableOccurrences_length_eq_literalCount
