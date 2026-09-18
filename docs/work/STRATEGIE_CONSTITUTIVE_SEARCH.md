@@ -4,13 +4,15 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique auditee avant cette revision :
+Base scientifique auditee actuelle :
 
 ~~~text
-44f1bfc1d134b7e40b7ec4cd91eaed15f2f521cc
+b138cfecfbee024d112af4ee252895f3e69335da
 ~~~
 
-Ce commit a passe les gates Linux et Windows du projet, y compris le build Lean, AuditRegression et les controles de manifeste.
+Ce head a passe les gates Linux et Windows du projet, y compris le build Lean, AuditRegression et les controles de manifeste (workflow 35288940636).
+
+La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
 Le document est un document de chantier. Il ne constitue aucune revendication sur P = NP. Sa fonction est de distinguer exactement :
 
@@ -120,10 +122,16 @@ sans theorem de completude explicite.
 
 ### 3.1 Noyau generique formalise
 
-Les modules suivants sont integres au build :
+Les couches suivantes sont maintenant integrees au build :
 
 ~~~text
 ConstitutiveSearch/ContinuationTransport.lean
+ConstitutiveSearch/SearchSystem.lean
+ConstitutiveSearch/AcceptingTransport.lean
+ConstitutiveSearch/AcceptedSplit.lean
+ConstitutiveSearch/AcceptedFrontier.lean
+ConstitutiveSearch/AcceptedFrontierPreservation.lean
+
 ConstitutiveSearch/FrontierReduction.lean
 ConstitutiveSearch/RelationalTransport.lean
 ConstitutiveSearch/IrreducibleFrontier.lean
@@ -132,34 +140,51 @@ ConstitutiveSearch/FiniteFrontierNormalization.lean
 ConstitutiveSearch/FrontierPreservation.lean
 ~~~
 
-Ils fournissent actuellement :
+Le projet possede maintenant deux niveaux clairement distingues :
 
 ~~~text
-transport directionnel de Completion
-composition de transports
-split binaire exact
-frontiere proof-relevant
-absorption gauche et droite
-recherche executable de relations
-classification directionnelle
-irreductibilite relative a une recherche
-reduction certifiee de paire
-largeur derivee
-normalisation constructive d'une frontiere finie
-preservation de frontiere dans les deux sens
-equivalence constructive de Nonempty entre source et retenue
+ancien noyau
+= reduction et normalisation sur espaces de Completion
+
+noyau durci
+= Continuation structurelle + Accept + Viable
+  + transports totaux preservant Accept
+  + splits exacts preservant Accept
+  + frontieres et preservation de Viable
 ~~~
 
-FrontierPreservation est maintenant formalise.
+Le noyau durci etablit notamment :
 
-Le retour de la frontiere retenue vers la source n'est pas un inverse du transport d'absorption. Dans une absorption, il s'agit seulement de l'inclusion structurelle du survivant dans la frontiere d'origine.
+~~~text
+SearchSystem.State
+SearchSystem.Continuation
+SearchSystem.Accept
+SearchSystem.Viable
+AcceptedContinuation derive
+AcceptingContinuationTransport total
+preservesAccept separe de map
+composition constructive
+AcceptingExactBinarySplit
+FrontierContinuation
+FrontierAccept
+FrontierViable
+AcceptedFrontierPreservation
+Viable source <-> Viable target
+~~~
 
-### 3.2 Instance SAT formalisee
+Le separateur anti-triche existe en regression : une fonction brute entre continuations peut exister sans fournir de transport preservant l'acceptation. Le fait de savoir transporter uniquement des temoins deja acceptes ne suffit pas non plus a reconstruire un transport structurel total.
 
-Les modules SAT suivants sont integres au build :
+### 3.2 Instance SAT durcie
+
+Les modules SAT suivants sont maintenant integres au build :
 
 ~~~text
 ConstitutiveSearch/SAT/ConstraintTransport.lean
+ConstitutiveSearch/SAT/AcceptedSAT.lean
+ConstitutiveSearch/SAT/AcceptedBinaryBranch.lean
+ConstitutiveSearch/SAT/StructuralBranchContext.lean
+ConstitutiveSearch/SAT/GeneratedStructuralContext.lean
+
 ConstitutiveSearch/SAT/BinaryBranch.lean
 ConstitutiveSearch/SAT/RestrictionTransport.lean
 ConstitutiveSearch/SAT/ResidualFlipTransport.lean
@@ -170,43 +195,42 @@ ConstitutiveSearch/SAT/GeneratedContext.lean
 ConstitutiveSearch/SAT/GlobalContextRelation.lean
 ~~~
 
-Ils fournissent actuellement :
+Dans la semantique durcie :
 
 ~~~text
-syntaxe CNF minimale
-satisfaction constructive
-affaiblissement de CNF
-split booleen exact
-residuel faible de branche
-reconstruction parent/residuel
-flip de polarite
-transport entre residuels
-trajectoire residuelle lineaire
-historique explicite de decisions
-contexte de branche recursif
-reconstruction positive des carriers
-transport entre enfants avec preservation de provenance
-etat uniforme GeneratedBranchContext
-provenance inductive depuis la racine
-reconstruction derivee de cette provenance
-frontieres heterogenes de contextes generes
-relation globale de flip entre contextes de parents differents
-normalisation de frontiere heterogene par ce moteur de flip
+Continuation SAT = Assignment
+Accept formula assignment = Satisfies assignment formula
 ~~~
 
-La regression globale actuelle verifie notamment qu'un transport entre deux etats de profondeur deux provenant de parents immediats differents peut :
+Les affectations rejetees appartiennent donc bien a l'espace structurel. La satisfaction n'est plus enfouie dans le carrier.
+
+Le split SAT durci est exact sur toutes les affectations. Les enfants ajoutent seulement la decision booleenne correspondante. La preservation de satisfaction est prouvee separement.
+
+StructuralBranchContext contient :
 
 ~~~text
-modifier la decision x0
-preserver la decision x1
-reconstruire un vrai carrier cible
-reduire la paire heterogene
-preserver l'existence de completion dans les deux sens
+formule residuelle
++
+historique de decisions constituees
 ~~~
 
-Cette couche est formalisee et auditee sans axiome interdit.
+StructuralBranchContinuation contient :
 
----
+~~~text
+affectation totale
++
+preuve qu'elle realise l'historique
+~~~
+
+StructuralBranchAccept contient uniquement :
+
+~~~text
+satisfaction de la formule residuelle
+~~~
+
+GeneratedStructuralContext ajoute une provenance inductive depuis une formule racine, impose la fraicheur des variables de branchement et donne un type uniforme pour des contextes produits a des profondeurs et par des parents differents.
+
+Le split genere structurel est compile, audite et teste sur Linux et Windows.
 
 ## 4. Ce que les resultats actuels etablissent, et ce qu'ils n'etablissent pas
 
@@ -244,30 +268,11 @@ Il ne faut donc tirer aucune conclusion sur P = NP.
 
 ---
 
-## 5. Verrou semantique prioritaire P0 : separer continuation et acceptation
+## 5. P0 ferme : continuation structurelle et acceptation sont separees
 
-C'est maintenant le probleme scientifique le plus important du noyau actuel.
+Le verrou semantique principal identifie dans la revision precedente est maintenant ferme dans le nouveau noyau.
 
-Dans ConstraintTransport.lean, la definition actuelle est :
-
-~~~lean
-abbrev Completion (formula : Cnf) : Type :=
-  { assignment : Assignment // Satisfies assignment formula }
-~~~
-
-Le type Completion formula ne represente donc pas toutes les continuations structurellement possibles.
-
-Il represente deja les affectations acceptees.
-
-Les transports generiques actuels sont par consequent des transformations entre espaces de temoins acceptants.
-
-Les transports concrets deja construits, comme le weakening ou le flip, restent des constructions legitimes. Le probleme est plus general : l'interface generique n'impose pas qu'un transport soit defini sur les continuations rejetees.
-
-Cela empeche encore d'interpreter le noyau comme un modele complet de calcul de recherche.
-
-### 5.1 Architecture cible
-
-Introduire une separation explicite :
+La structure centrale est :
 
 ~~~lean
 structure SearchSystem where
@@ -276,159 +281,180 @@ structure SearchSystem where
   Accept : (state : State) -> Continuation state -> Prop
 ~~~
 
-Puis :
+La viabilite est derivee :
 
 ~~~lean
-def Viable
-    (system : SearchSystem)
-    (state : system.State) : Prop :=
+Viable state :=
   Exists fun continuation =>
-    system.Accept state continuation
+    Accept state continuation
 ~~~
 
-Le transport semantiquement sur doit avoir la forme conceptuelle :
+Le transport durci est total sur l'espace structurel :
 
 ~~~lean
-structure AcceptingContinuationTransport
-    (system : SearchSystem)
-    (source target : system.State) where
-  map :
-    system.Continuation source ->
-    system.Continuation target
+structure AcceptingContinuationTransport ... where
+  map : Continuation source -> Continuation target
   preservesAccept :
     forall continuation,
-      system.Accept source continuation ->
-      system.Accept target (map continuation)
+      Accept source continuation ->
+      Accept target (map continuation)
 ~~~
 
-Le point essentiel est que map est total sur toutes les continuations structurelles, pas uniquement sur les temoins deja acceptes.
+Le point fondamental est maintenant impose par les types :
 
-### 5.2 Specialisation SAT cible
+~~~text
+map
+!=
+preuve qu'une continuation est acceptee
 
-Pour SAT, une cible naturelle est :
+Continuation
+!=
+temoin deja accepte
+~~~
+
+### 5.1 SAT
+
+L'instance SAT utilise :
 
 ~~~text
 Continuation formula = Assignment
 Accept formula assignment = Satisfies assignment formula
 ~~~
 
-Pour un contexte de branche, une version plus structurelle est possible :
+Les regressions contiennent explicitement des continuations rejetees. Elles montrent qu'elles restent des objets structurels valides sans devenir artificiellement des witnesses SAT.
 
-~~~text
-Continuation context
-= affectation portant la preuve qu'elle respecte les decisions constituees
+### 5.2 Provenance
 
-Accept context continuation
-= cette affectation satisfait la formule residuelle
-~~~
+Dans StructuralBranchContext, la provenance n'est pas une preuve de satisfaction.
 
-Ainsi :
+Elle specifie seulement les decisions que la continuation doit realiser.
+
+Donc :
 
 ~~~text
 provenance structurelle
 !=
-acceptation SAT
+acceptation
 ~~~
 
-La reconstruction d'un contexte genere devrait alors dependre de la provenance structurelle, et non d'une preuve de satisfaction necessaire pour fabriquer le carrier.
+Cette separation est maintenant realisee dans Lean, et non seulement posee comme objectif.
 
-### 5.3 Separateur obligatoire
+### 5.3 Separateurs deja formalises
 
-Construire un separateur minimal :
+Les regressions etablissent les distinctions suivantes :
 
 ~~~text
-Continuation source = Unit
-Continuation target = Unit
-Accept source _ = True
-Accept target _ = False
+fonction brute
+!=
+transport preservant Accept
+
+transport entre accepted witnesses
+!=
+transport total sur continuations structurelles
+
+continuation structurelle
+!=
+continuation acceptee
 ~~~
 
-Une fonction brute Unit -> Unit existe.
+Ces separateurs sont des garde-fous permanents pour la suite.
 
-Mais aucun transport correct ne peut prouver preservesAccept.
+## 6. Preservation de frontiere : ancien noyau et noyau durci
 
-Ce separateur doit montrer formellement pourquoi :
+L'ancien FrontierPreservation reste utile comme couche historique et comme oracle de comportement.
+
+Le nouveau AcceptedFrontierPreservation porte la propriete pertinente dans la semantique separee :
 
 ~~~text
-fonction entre continuations
+FrontierViable source <-> FrontierViable target
 ~~~
 
-et :
-
-~~~text
-transport preservant l'acceptation
-~~~
-
-sont deux notions distinctes.
-
-### 5.4 Gate P0
-
-Aucune revendication forte sur la largeur, une procedure de decision ou la complexite ne doit utiliser l'ancien Completion comme s'il s'agissait deja d'un espace neutre de continuations.
-
-La migration peut etre faite en parallele du noyau actuel afin de conserver les regressions comme oracle de comportement.
-
----
-
-## 6. Preservation de frontiere : statut ferme dans l'ancien noyau
-
-FrontierPreservation.lean fournit deja deux transports independants :
+Il combine deux transports independants :
 
 ~~~text
 source -> target
 target -> source
 ~~~
 
-sans loi d'inversion.
+sans exiger qu'ils soient inverses.
 
-Il en derive :
+Les expansions par split exact et les absorptions par transport preservant Accept disposent maintenant d'une preservation constructive de viabilite.
 
-~~~text
-Nonempty source <-> Nonempty target
-~~~
+Le prochain moteur automatique doit utiliser cette couche durcie plutot que reconstruire une trajectoire globale sur les anciens Completion.
 
-dans la semantique actuelle des Completion.
+## 7. Etat SAT global, provenance et constitution dynamique
 
-Apres la separation Continuation/Accept, la cible devra devenir :
+Le projet dispose maintenant de deux generations de contexte SAT :
 
 ~~~text
-Viable source <-> Viable target
+GeneratedContext
+= premiere couche globale proof-relevant sur l'ancien noyau
+
+GeneratedStructuralContext
+= couche globale durcie sur Continuation / Accept separes
 ~~~
 
-pour les frontieres.
+GeneratedStructuralContext est maintenant la base semantique a privilegier pour la suite.
 
-Cette migration est prioritaire avant FrontierTrajectory, afin que la trajectoire soit construite directement sur la semantique correcte.
+Un etat genere contient une provenance inductive depuis la racine. Chaque enfant ajoute une decision sur une variable fraiche. La profondeur est derivee du witness de generation.
 
----
-
-## 7. Etat SAT global et provenance : statut actuel
-
-GeneratedContext.lean ferme le verrou d'homogeneisation des branches recursives.
-
-Un GeneratedBranchContext rootFormula peut representer des etats provenant de parents differents tout en conservant une provenance inductive depuis la racine.
-
-La reconstruction est derivee de cette provenance.
-
-Elle n'est pas ajoutee comme hypothese arbitraire.
-
-GlobalContextRelation.lean ferme ensuite le premier verrou relationnel global.
-
-Le witness actuel GeneratedFlipAtRelation exige :
+Cette couche fournit deja :
 
 ~~~text
-formule cible
-= flip de la formule source
-
-historique cible
-= flip de tout l'historique source
+racine generee
+enfants frais
+historique structurel
+continuations respectant l'historique
+acceptation SAT separee
+split genere exact
+preservation de viabilite
+frontieres heterogenes de contextes issus de profondeurs differentes
 ~~~
 
-Il peut agir entre deux etats generes de la meme racine sans parent immediat commun.
+La relation globale de flip entre parents differents existe encore dans l'ancien noyau. Elle n'est pas encore migree dans le systeme durci.
 
-Limite importante :
+### 7.1 Point conceptuel central
 
-> il s'agit encore d'une famille precise de relations globales, le flip exact. Ce n'est pas encore un calcul general de dominance entre contextes.
+La reduction de frontiere n'est pas le centre de la methode.
 
----
+Le centre est :
+
+> le calcul constitue progressivement des determinations qui modifient les relations reconstructibles entre continuations.
+
+La cible dynamique est donc :
+
+~~~text
+H_k
+-> nouvelle determination
+-> H_(k+1)
+-> nouvel espace de relations reconstructibles
+-> nouveaux transports possibles
+-> eventuelle reduction de frontiere
+~~~
+
+La reduction est une consequence locale de cette constitution.
+
+La provenance n'est donc pas seulement une memoire ou un journal. Elle doit pouvoir intervenir dans la definition meme de ce qui devient calculable ensuite.
+
+La cible formelle future doit permettre :
+
+~~~text
+RelationSearch H_k A B = none
+~~~
+
+puis, apres constitution d'une nouvelle determination :
+
+~~~text
+RelationSearch H_(k+1) A' B' = some transport
+~~~
+
+sans interpreter cela comme la simple exploration plus longue d'un graphe relationnel fixe.
+
+C'est le test direct de la proposition :
+
+~~~text
+le chemin est le calcul
+~~~
 
 ## 8. Largeur : hierarchie a conserver
 
@@ -932,6 +958,8 @@ Il ne fait qu'assembler des bornes deja prouvees.
 
 ## 20. Audit de litterature et de nouveaute
 
+Cette section est un audit externe, pas une definition du programme. Une ressemblance locale avec une notion connue ne justifie ni reduction conceptuelle ni identification de l'architecture. Le programme doit d'abord etre caracterise par ses propres invariants constitutifs, puis compare aux cadres existants.
+
 Le programme a plusieurs voisins conceptuels serieux.
 
 ### 20.1 P-selectivity et self-reducibility
@@ -1078,6 +1106,11 @@ La verification terminale ne peut pas etre utilisee pour construire retroactivem
 ~~~text
 ConstitutiveSearch/
   ContinuationTransport.lean
+  SearchSystem.lean
+  AcceptingTransport.lean
+  AcceptedSplit.lean
+  AcceptedFrontier.lean
+  AcceptedFrontierPreservation.lean
   FrontierReduction.lean
   RelationalTransport.lean
   IrreducibleFrontier.lean
@@ -1087,6 +1120,10 @@ ConstitutiveSearch/
 
 ConstitutiveSearch/SAT/
   ConstraintTransport.lean
+  AcceptedSAT.lean
+  AcceptedBinaryBranch.lean
+  StructuralBranchContext.lean
+  GeneratedStructuralContext.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1099,26 +1136,25 @@ ConstitutiveSearch/SAT/
 
 ### 22.2 Prochains modules prioritaires
 
-Les noms sont provisoires.
+Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  SearchSystem.lean
-  AcceptingTransport.lean
-  AcceptedFrontier.lean
-  AcceptedFrontierPreservation.lean
+  AcceptedRelationalTransport.lean
+  AcceptedFrontierNormalization.lean
+  ConstitutiveState.lean
   FrontierTrajectory.lean
   TransportCode.lean
   TransportClosure.lean
+  DynamicRelationSearch.lean
   DynamicAnchors.lean
   StructuralProgress.lean
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
-  AcceptedSAT.lean
-  AcceptedGeneratedContext.lean
-  AcceptedGlobalContextRelation.lean
-  ContextTrajectory.lean
+  GeneratedStructuralRelation.lean
+  StructuralGlobalContextRelation.lean
+  StructuralContextTrajectory.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
@@ -1127,92 +1163,97 @@ ConstitutiveSearch/SAT/
   WidthSeparators.lean
 ~~~
 
-Il est preferable d'introduire d'abord la semantique sure en parallele de l'ancien noyau, puis de migrer les regressions une par une.
+Le prochain objectif n'est plus de creer SearchSystem ou de separer Accept : cette couche existe.
 
----
+Le prochain objectif est de remonter le moteur relationnel automatique sur la semantique durcie, puis de rendre la disponibilite des relations dependante de l'etat constitue.
 
 ## 23. Statut des phases
 
 ~~~text
-[FAIT] noyau directionnel sur espaces de Completion actuels
-[FAIT] frontieres proof-relevant
-[FAIT] recherche relationnelle directe
-[FAIT] normalisation finie
-[FAIT] preservation de frontiere dans les deux sens
-[FAIT] SAT minimal
-[FAIT] provenance recursive SAT
-[FAIT] GeneratedBranchContext
-[FAIT] relation globale de flip entre parents differents
+[FAIT] noyau directionnel historique sur Completion
+[FAIT] frontieres proof-relevant historiques
+[FAIT] recherche relationnelle directe historique
+[FAIT] normalisation finie historique
+[FAIT] preservation historique dans les deux sens
+[FAIT] relation globale de flip entre parents differents dans l'ancien noyau
 
-[P0] separation Continuation / Accept
-[P0] migration de la preservation vers Viable
-[P0] separateur fonction brute vs preservation d'acceptation
+[FAIT] SearchSystem
+[FAIT] separation Continuation / Accept
+[FAIT] Viable derive
+[FAIT] transport total preservant Accept
+[FAIT] separateur fonction brute vs transport semantique
+[FAIT] split exact durci
+[FAIT] frontier semantics durcie
+[FAIT] preservation de FrontierViable
+[FAIT] SAT sur Assignment brut + Satisfies separe
+[FAIT] StructuralBranchContext
+[FAIT] GeneratedStructuralContext
+[FAIT] fraicheur executable et provenance depuis la racine
+[FAIT] consolidation GitHub sur une seule branche NP AND/OR P
 
-[P1] FrontierTrajectory
-[P1] trajectoire SAT multi-niveaux
+[P1] moteur relationnel automatique dans le noyau durci
+[P1] migration du flip global vers GeneratedStructuralContext
+[P1] regression heterogene durcie avec absorption automatique
 
-[P2] TransportCode
-[P2] fermeture de transports
-[P2] separateur direct vs compose
+[P2] ConstitutiveState et FrontierTrajectory
+[P2] trajectoire SAT multi-niveaux
+[P2] preservation de Viable de bout en bout
 
-[P3] ancres dynamiques
+[P3] relations dynamiques dependantes de l'histoire
+[P3] exemple ou une determination nouvelle rend un transport disponible
 
-[P4] progression structurelle et terminalite
+[P4] TransportCode
+[P4] fermeture de transports
+[P4] separateur direct vs compose
 
-[P5] familles parametriques positives
-[P5] familles separatrices
+[P5] progression structurelle et terminalite
 
-[P6] tailles et couts
-[P6] theorem conditionnel de complexite
+[P6] familles parametriques positives
+[P6] familles separatrices et bornes de largeur
 
-[P7] audit de nouveaute approfondi
-[P7] comparaison formelle avec notions voisines
+[P7] tailles et couts
+[P7] theorem conditionnel de complexite
 
-[FERME] toute revendication P/NP avant fermeture de P0-P7
+[P8] audit externe de nouveaute et de comparaison
+
+[FERME] toute revendication P/NP avant fermeture des phases restantes
 ~~~
-
----
 
 ## 24. Sequence d'implementation immediate
 
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. creer le noyau SearchSystem avec Continuation et Accept
-2. definir Viable
-3. definir le transport total preservant Accept
-4. construire le separateur Unit / True -> Unit / False
-5. reconstruire le split exact au niveau des continuations
-6. reconstruire la frontiere et sa viabilite
-7. migrer FrontierPreservation vers Viable
-8. instancier SAT avec Assignment comme continuation brute
-9. reconstruire les contextes generes sans cacher satisfaction dans le carrier
-10. migrer le flip global vers cette semantique
-11. reproduire la regression heterogene actuelle dans le nouveau noyau
-12. construire FrontierTrajectory
-13. construire une trajectoire SAT a plusieurs niveaux avec reduction a chaque niveau
-14. introduire TransportCode
-15. introduire TransportClosure
-16. construire le separateur direct vs compose
-17. tester la sensibilite a l'ordre du normaliseur
-18. construire le premier exemple d'ancre dynamique effective
-19. prouver une famille SAT symetrique parametrique
-20. construire les separateurs de largeur
-21. prouver progression et borne de profondeur
-22. seulement ensuite introduire tailles et couts
+1. definir une recherche relationnelle durcie produisant des AcceptingContinuationTransport
+2. reconstruire la normalisation automatique de frontiere sur FrontierViable
+3. migrer le flip global vers GeneratedStructuralContext
+4. reproduire la regression heterogene entre parents differents dans le noyau durci
+5. verifier que l'absorption automatique preserve Viable sans requete SAT cachee
+6. introduire ConstitutiveState : frontiere + histoire/ancres/determinations disponibles
+7. indexer RelationSearch par ConstitutiveState
+8. construire FrontierTrajectory comme suite d'expansions, constitutions et reductions
+9. prouver Viable F0 <-> Viable Fn pour toute trajectoire certifiee
+10. construire un cas ou une relation est absente a k et devient reconstructible a k+1
+11. seulement ensuite introduire TransportCode et TransportClosure
+12. construire le separateur direct vs compose
+13. construire une famille SAT parametrique avec largeur operationnelle controlee
+14. construire en parallele des familles ou cette largeur croit
+15. prouver progression, fraicheur et borne de profondeur
+16. formaliser taille d'etat, taille de provenance, taille de certificat et cout de recherche
+17. assembler un theorem conditionnel de complexite
 ~~~
 
-Le point 1 remplace maintenant FrontierTrajectory comme prochain verrou.
+Le prochain verrou n'est donc plus semantique.
 
-La raison est semantique : une trajectoire globale construite sur des carriers contenant deja l'acceptation serait formellement correcte dans l'ancien modele, mais scientifiquement trop faible pour porter ensuite une interpretation de complexite.
+Il est dynamique :
 
----
+> montrer que le moteur automatique de relations et de reduction peut etre reconstruit dans le noyau durci, puis montrer que les relations disponibles peuvent changer parce que le chemin a constitue de nouvelles informations.
 
-## 25. Premier theorem global vise apres P0
+## 25. Prochain theorem global vise
 
 Forme cible :
 
-> Pour toute trajectoire finie construite par splits structurels exacts et absorptions certifiees par des transports preservant l'acceptation, la viabilite de la frontiere initiale est equivalente a la viabilite de la frontiere finale.
+> Pour toute trajectoire finie construite par splits structurels exacts, constitutions d'etat et absorptions certifiees par des transports preservant l'acceptation, la viabilite de la frontiere initiale est equivalente a la viabilite de la frontiere finale.
 
 Forme conceptuelle :
 
@@ -1222,7 +1263,7 @@ ViableFrontier F0 <-> ViableFrontier Fn
 
 sans exiger que les transports d'absorption soient inversibles.
 
----
+La trajectoire doit egalement enregistrer assez de provenance pour permettre de calculer quelles relations sont disponibles a chaque etape.
 
 ## 26. Premier theorem SAT parametrique vise
 
@@ -1349,42 +1390,80 @@ nettoyer les branches ou fichiers temporaires
 Etat actuel :
 
 ~~~text
-transport de witnesses acceptants
--> frontieres
--> absorption
--> normalisation
--> preservation bidirectionnelle de Nonempty
--> provenance SAT recursive
--> etat SAT global heterogene
--> relation globale entre parents differents
+ancien noyau :
+  transports
+  -> reduction
+  -> normalisation
+  -> largeur operationnelle
+
+noyau durci :
+  SearchSystem
+  -> Continuation structurelle
+  -> Accept separe
+  -> Viable
+  -> transport total preservant Accept
+  -> split exact
+  -> frontiere viable
+  -> contexte SAT structurel
+  -> provenance generee depuis la racine
 ~~~
 
-Correction scientifique prioritaire :
+Le verrou semantique principal est ferme.
+
+Le prochain chantier est :
 
 ~~~text
-separer continuations structurelles et acceptation
-~~~
-
-Puis :
-
-~~~text
-transport total preservant Accept
--> preservation de Viable
--> trajectoire de frontieres
--> codes et fermeture des transports
+moteur relationnel durci
+-> normalisation automatique durcie
+-> relation globale entre contextes generes
+-> ConstitutiveState
+-> trajectoire complete
+-> relations dont la disponibilite depend du chemin
+-> composition explicite
 -> ancres dynamiques
--> progression
+-> familles parametriques
 -> largeur le long de la trajectoire
--> familles positives et separatrices
 -> tailles et couts
--> audit de necessite et de nouveaute
--> seulement ensuite audit de complexite forte
 ~~~
 
-Le point central reste intact :
+Le point central n'est pas :
 
-> le chemin n'est pas seulement la trace d'un calcul. Les determinations constituees pendant ce chemin peuvent changer les relations disponibles et donc changer le calcul lui-meme.
+~~~text
+reduire une frontiere deja donnee sous une relation deja donnee
+~~~
 
-Le prochain travail ne consiste donc pas a ajouter encore un exemple de reduction locale.
+mais :
 
-Il consiste a durcir la semantique du noyau pour que cette idee puisse etre testee sans que l'acceptation soit deja enfouie dans le type des continuations.
+~~~text
+constituer pendant le calcul
+les conditions sous lesquelles
+de nouvelles relations deviennent reconstructibles
+~~~
+
+La reduction eventuelle de frontiere est une consequence de cette constitution.
+
+Le programme doit donc tester formellement :
+
+~~~text
+meme observation residuelle
++
+histoires constituees differentes
+->
+relations futures potentiellement differentes
+~~~
+
+et surtout :
+
+~~~text
+aucun transport reconstructible a l'etape k
++
+nouvelle determination constituee
+->
+transport reconstructible a l'etape k+1
+~~~
+
+C'est la cible la plus directe de la proposition :
+
+> le chemin est le calcul.
+
+Les comparaisons avec selectivite, antichaines, CSP, BDD ou autres cadres etablis restent des audits externes indispensables, mais elles ne doivent pas etre utilisees comme definition ou reduction a priori de cette architecture.
