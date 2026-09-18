@@ -1,4 +1,4 @@
-import ConstitutiveSearch.ConstitutiveComplexityProfile
+import ConstitutiveSearch.ConstitutiveComplexityComposition
 import ConstitutiveSearch.SAT.ExplicitFamilyInputComplexity
 import ConstitutiveSearch.SAT.ParametricComposedPolynomialCosts
 
@@ -125,6 +125,41 @@ def explicitFamilyWithCompositionProfile
       explicitFamilyRepresentationChargedCost count +
         composedClosurePhaseRepresentationChargedCost count }
 
+/-- The hand-written SAT total profile is exactly generic sequential composition. -/
+theorem explicitFamilyWithCompositionProfile_eq_compose
+    (count : Nat) :
+    explicitFamilyWithCompositionProfile count =
+      ConstitutiveComplexityProfile.compose
+        (explicitFamilyConstitutiveProfile count)
+        (composedClosureConstitutivePhaseProfile count) := by
+  unfold explicitFamilyWithCompositionProfile
+  unfold ConstitutiveComplexityProfile.compose
+  unfold explicitFamilyConstitutiveProfile
+  unfold composedClosureConstitutivePhaseProfile
+  rw [Nat.max_self]
+
+/-- The local F(n) profile is pointwise bounded by the complete execution profile. -/
+theorem explicitFamilyConstitutiveProfile_boundedBy_withComposition
+    (count : Nat) :
+    (explicitFamilyConstitutiveProfile count).BoundedBy
+      (explicitFamilyWithCompositionProfile count) := by
+  rw [explicitFamilyWithCompositionProfile_eq_compose]
+  exact
+    ConstitutiveComplexityProfile.left_boundedBy_compose
+      (explicitFamilyConstitutiveProfile count)
+      (composedClosureConstitutivePhaseProfile count)
+
+/-- The added composition phase is pointwise bounded by the complete execution profile. -/
+theorem composedClosureConstitutivePhaseProfile_boundedBy_withComposition
+    (count : Nat) :
+    (composedClosureConstitutivePhaseProfile count).BoundedBy
+      (explicitFamilyWithCompositionProfile count) := by
+  rw [explicitFamilyWithCompositionProfile_eq_compose]
+  exact
+    ConstitutiveComplexityProfile.right_boundedBy_compose
+      (explicitFamilyConstitutiveProfile count)
+      (composedClosureConstitutivePhaseProfile count)
+
 /-- Input-indexed polynomial budget for the combined representation charge. -/
 def explicitFamilyWithCompositionInputPolynomialBudget
     (count : Nat) : Nat :=
@@ -189,6 +224,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.composedClosureConstitutivePhaseProfile_events
 #print axioms ConstitutiveSearch.SAT.composedClosureConstitutivePhaseProfile_charge_le_inputPolynomial
 #print axioms ConstitutiveSearch.SAT.explicitFamilyWithCompositionProfile
+#print axioms ConstitutiveSearch.SAT.explicitFamilyWithCompositionProfile_eq_compose
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutiveProfile_boundedBy_withComposition
+#print axioms ConstitutiveSearch.SAT.composedClosureConstitutivePhaseProfile_boundedBy_withComposition
 #print axioms ConstitutiveSearch.SAT.explicitFamilyWithCompositionInputPolynomialBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyWithCompositionProfile_charge_le_inputPolynomial
 #print axioms ConstitutiveSearch.SAT.explicitFamilyWithCompositionProfile_certificateAtoms

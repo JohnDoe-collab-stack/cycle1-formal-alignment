@@ -13,6 +13,23 @@ theorem combinedDepth3 :
     (explicitFamilyWithCompositionProfile 3).depth = 5 := by
   rfl
 
+theorem combinedIsGenericCompose3 :
+    explicitFamilyWithCompositionProfile 3 =
+      ConstitutiveComplexityProfile.compose
+        (explicitFamilyConstitutiveProfile 3)
+        (composedClosureConstitutivePhaseProfile 3) :=
+  explicitFamilyWithCompositionProfile_eq_compose 3
+
+theorem localBoundedByCombined3 :
+    (explicitFamilyConstitutiveProfile 3).BoundedBy
+      (explicitFamilyWithCompositionProfile 3) :=
+  explicitFamilyConstitutiveProfile_boundedBy_withComposition 3
+
+theorem compositionBoundedByCombined3 :
+    (composedClosureConstitutivePhaseProfile 3).BoundedBy
+      (explicitFamilyWithCompositionProfile 3) :=
+  composedClosureConstitutivePhaseProfile_boundedBy_withComposition 3
+
 theorem combinedCertificates3 :
     (explicitFamilyWithCompositionProfile 3).events.certificateAtoms = 5 :=
   explicitFamilyWithCompositionProfile_certificateAtoms 3
@@ -39,6 +56,9 @@ end ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.localDepth3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.combinedDepth3
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.combinedIsGenericCompose3
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.localBoundedByCombined3
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.compositionBoundedByCombined3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.combinedCertificates3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.combinedClosureQueries3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyConstitutiveProfileRegression.combinedClosureCandidates3
