@@ -100,6 +100,48 @@ theorem explicitFamily_localStrategy_noClosureCharge
       0 := by
   simp [explicitFamilyComplexityCounts]
 
+/--
+Closed aggregate representation budget for the announced local strategy on F(n).
+
+This expression charges exactly the event classes that occur in the certified
+profile.  Closure-search terms are absent because both closure counters are
+proved to be zero for this strategy.
+-/
+def explicitFamilyRepresentationBudget
+    (count : Nat) : Nat :=
+  4 * count +
+    ((3 * count + 1) *
+        explicitFamilyStateBinaryBudget count +
+      (count *
+          explicitFamilyProvenanceUnitBinaryBudget count +
+        (count *
+            explicitFamilyCertificateAtomBinaryBudget count +
+          ((2 * count) *
+              explicitFamilyRelationEqualityChargeBudget count +
+            StructuralDecisionHistory.binaryBudget
+              count
+              count))))
+
+/--
+The representation-charged execution cost is exactly the closed budget above.
+
+Unlike the earlier conditional uniform envelope, this theorem has no external
+atomic-cost hypothesis: every charged atomic cost is instantiated by the
+concrete binary representation model.
+-/
+theorem explicitFamilyRepresentationChargedCost_eq_budget
+    (count : Nat) :
+    explicitFamilyRepresentationChargedCost count =
+      explicitFamilyRepresentationBudget count := by
+  simp [
+    explicitFamilyRepresentationChargedCost,
+    explicitFamilyChargedCost,
+    chargedCost,
+    explicitFamilyComplexityCounts,
+    explicitFamilyRepresentationAtomicCosts,
+    explicitFamilyRepresentationBudget
+  ]
+
 end SAT
 end ConstitutiveSearch
 
@@ -112,4 +154,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitFamily_relationFind_atomicCost
 #print axioms ConstitutiveSearch.SAT.explicitFamily_closurePrimitive_atomicCost
 #print axioms ConstitutiveSearch.SAT.explicitFamily_localStrategy_noClosureCharge
+#print axioms ConstitutiveSearch.SAT.explicitFamilyRepresentationBudget
+#print axioms ConstitutiveSearch.SAT.explicitFamilyRepresentationChargedCost_eq_budget
 /- AXIOM_AUDIT_END -/
