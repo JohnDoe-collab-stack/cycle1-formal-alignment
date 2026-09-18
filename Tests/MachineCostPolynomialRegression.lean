@@ -70,10 +70,101 @@ theorem calibratedBounded :
     2
     1
 
+
+def profile
+    (n : Nat) :
+    ConstitutiveComplexityProfile :=
+  { inputBits := inputBits n
+    depth := n
+    maxFrontierWidth := n
+    events := counts n
+    representationCharge :=
+      chargedCost
+        (counts n)
+        (representation n) }
+
+theorem profileBounded :
+    ConstitutiveProfileFamilyInputPolynomiallyBounded
+      profile :=
+  { depth :=
+      InputPolynomiallyBounded.self inputBits
+    width :=
+      InputPolynomiallyBounded.self inputBits
+    syntaxUnits :=
+      countsBounded.syntaxUnits
+    frontierSlots :=
+      countsBounded.frontierSlots
+    provenance :=
+      countsBounded.provenanceUnits
+    certificates :=
+      countsBounded.certificateAtoms
+    relationFind :=
+      countsBounded.relationFindCalls
+    closurePrimitive :=
+      countsBounded.closurePrimitiveQueries
+    closureCandidates :=
+      countsBounded.closureCompositionCandidates
+    terminal :=
+      countsBounded.terminalChecks
+    representationCharge := by
+      change
+        InputPolynomiallyBounded
+          inputBits
+          (fun n =>
+            chargedCost
+              (counts n)
+              (representation n))
+      exact
+        chargedCost_inputPolynomiallyBounded
+          countsBounded
+          representationBounded }
+
+def machine
+    (n : Nat) :
+    MachineCostModel :=
+  { atomic :=
+      affineAtomicEnvelope
+        (representation n)
+        2
+        1 }
+
+theorem bridge
+    (n : Nat) :
+    RepresentationMachineBridge
+      (representation n)
+      (machine n)
+      2
+      1 := by
+  constructor
+  exact
+    atomicCostPointwiseLe_refl
+      (affineAtomicEnvelope
+        (representation n)
+        2
+        1)
+
+theorem profileMachineBounded :
+    InputPolynomiallyBounded
+      (fun n =>
+        (profile n).inputBits)
+      (fun n =>
+        machineChargedCost
+          (profile n).events
+          (machine n)) :=
+  constitutiveProfileMachineCost_inputPolynomiallyBounded
+    profileBounded
+    representationBounded
+    2
+    1
+    bridge
+
 end ConstitutiveSearch.Tests.MachineCostPolynomialRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.countsBounded
 #print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.representationBounded
 #print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.calibratedBounded
+#print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.profileBounded
+#print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.bridge
+#print axioms ConstitutiveSearch.Tests.MachineCostPolynomialRegression.profileMachineBounded
 /- AXIOM_AUDIT_END -/
