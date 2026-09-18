@@ -29,7 +29,9 @@ def explicitFamilyConstitutiveProfile
     depth :=
       count
     maxFrontierWidth :=
-      (explicitFamilyResourceTrajectory count).trajectory.maxWidth
+      (explicitFamilyResourceTrajectory count).trajectory.widthTrace.foldl
+        Nat.max
+        0
     events :=
       explicitFamilyComplexityCounts count
     representationCharge :=
