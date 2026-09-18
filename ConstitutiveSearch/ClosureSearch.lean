@@ -101,8 +101,10 @@ def searchClosureViaCandidates
               target
           { code? := later.code?
             stats :=
-              (first.stats.add later.stats)
-                .addCompositionCandidate }
+              ClosureSearchStats.addCompositionCandidate
+                (ClosureSearchStats.add
+                  first.stats
+                  later.stats) }
       | some firstCode =>
           let second := recurse middle target
           match second.code? with
@@ -113,8 +115,10 @@ def searchClosureViaCandidates
                       firstCode
                       secondCode)
                 stats :=
-                  (first.stats.add second.stats)
-                    .addCompositionCandidate }
+                  ClosureSearchStats.addCompositionCandidate
+                    (ClosureSearchStats.add
+                      first.stats
+                      second.stats) }
           | none =>
               let later :=
                 searchClosureViaCandidates
@@ -124,9 +128,12 @@ def searchClosureViaCandidates
                   target
               { code? := later.code?
                 stats :=
-                  ((first.stats.add second.stats)
-                    .add later.stats)
-                    .addCompositionCandidate }
+                  ClosureSearchStats.addCompositionCandidate
+                    (ClosureSearchStats.add
+                      (ClosureSearchStats.add
+                        first.stats
+                        second.stats)
+                      later.stats) }
 
 def searchTransportClosureBounded
     {State : Type}
@@ -145,8 +152,8 @@ def searchTransportClosureBounded
               some
                 (TransportClosure.ofGenerator witness)
             stats :=
-              ClosureSearchStats.zero
-                .addPrimitiveQuery }
+              ClosureSearchStats.addPrimitiveQuery
+                ClosureSearchStats.zero }
       | none =>
           let via :=
             searchClosureViaCandidates
@@ -162,7 +169,8 @@ def searchTransportClosureBounded
               target
           { code? := via.code?
             stats :=
-              via.stats.addPrimitiveQuery }
+              ClosureSearchStats.addPrimitiveQuery
+                via.stats }
 
 def boundedTransportClosureSearch
     {State : Type}
