@@ -81,6 +81,7 @@ theorem branchResidual_append
               hit,
             inductionHypothesis
           ]
+          rfl
       | true =>
           rw [
             branchResidual_cons_hit
