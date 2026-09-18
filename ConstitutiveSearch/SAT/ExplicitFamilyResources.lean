@@ -58,6 +58,8 @@ theorem symmetricBlockFamily_variableOccurrences_length
       (symmetricBlockFamily var anchor background)).length =
       4 +
         (Cnf.variableOccurrences background).length := by
+  unfold symmetricBlockFamily
+  unfold symmetricPositiveClause symmetricNegativeClause
   rfl
 
 /-- Each explicit stacked level contributes four literal occurrences. -/
