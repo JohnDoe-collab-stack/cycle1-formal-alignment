@@ -196,6 +196,154 @@ theorem closureCompositionFixedFuel_le_inputPolynomial
           (closureCompositionFixedFuelPolynomial fuel)
           candidateLe
 
+/--
+If candidateCount itself is polynomially bounded in the concrete input size,
+then every fixed-fuel primitive-query budget is input-polynomially bounded.
+-/
+theorem closurePrimitiveFixedFuel_of_candidateInputPolynomial
+    (fuel : Nat)
+    {inputBits candidateCount : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        candidateCount) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        closurePrimitiveQueryBudget
+          (candidateCount n)
+          fuel) := by
+  have evaluated :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (closurePrimitiveFixedFuelPolynomial fuel).eval
+            (candidateCount n)) :=
+    InputPolynomiallyBounded.apply_polynomial
+      candidateBounded
+      (closurePrimitiveFixedFuelPolynomial fuel)
+  simpa only [
+    closurePrimitiveFixedFuelPolynomial_eval
+  ] using evaluated
+
+/--
+The same closure property holds for fixed-fuel composition-candidate budgets.
+-/
+theorem closureCompositionFixedFuel_of_candidateInputPolynomial
+    (fuel : Nat)
+    {inputBits candidateCount : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        candidateCount) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        closureCompositionCandidateBudget
+          (candidateCount n)
+          fuel) := by
+  have evaluated :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (closureCompositionFixedFuelPolynomial fuel).eval
+            (candidateCount n)) :=
+    InputPolynomiallyBounded.apply_polynomial
+      candidateBounded
+      (closureCompositionFixedFuelPolynomial fuel)
+  simpa only [
+    closureCompositionFixedFuelPolynomial_eval
+  ] using evaluated
+
+/--
+For a family of candidate lists whose lengths are input-polynomially bounded,
+the actual executable primitive-query count is input-polynomially bounded at
+every fixed fuel.
+-/
+theorem searchTransportClosureFixedFuel_primitiveQueries_of_candidateInputPolynomial
+    {State : Type}
+    {Generator : State → State → Type}
+    (primitive : RelationSearch Generator)
+    (candidates : Nat → List State)
+    (fuel : Nat)
+    {inputBits : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (candidates n).length))
+    (source target : Nat → State) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        (searchTransportClosureBounded
+          primitive
+          (candidates n)
+          fuel
+          (source n)
+          (target n)).stats.primitiveQueries) := by
+  rcases
+      closurePrimitiveFixedFuel_of_candidateInputPolynomial
+        fuel
+        candidateBounded with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_primitiveQueries_le
+        primitive
+        (candidates n)
+        fuel
+        (source n)
+        (target n))
+      (budgetLe n)
+
+/--
+For the same candidate-list family, the actual executable composition-candidate
+count is input-polynomially bounded at every fixed fuel.
+-/
+theorem searchTransportClosureFixedFuel_compositionCandidates_of_candidateInputPolynomial
+    {State : Type}
+    {Generator : State → State → Type}
+    (primitive : RelationSearch Generator)
+    (candidates : Nat → List State)
+    (fuel : Nat)
+    {inputBits : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (candidates n).length))
+    (source target : Nat → State) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        (searchTransportClosureBounded
+          primitive
+          (candidates n)
+          fuel
+          (source n)
+          (target n)).stats.compositionCandidates) := by
+  rcases
+      closureCompositionFixedFuel_of_candidateInputPolynomial
+        fuel
+        candidateBounded with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_compositionCandidates_le
+        primitive
+        (candidates n)
+        fuel
+        (source n)
+        (target n))
+      (budgetLe n)
+
 /-- Actual executable primitive-query count inherits the fixed-fuel polynomial envelope. -/
 theorem searchTransportClosureFixedFuel_primitiveQueries_le_inputPolynomial
     {State : Type}
@@ -269,6 +417,10 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.closureCompositionFixedFuel_polynomiallyBounded
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuel_le_inputPolynomial
 #print axioms ConstitutiveSearch.closureCompositionFixedFuel_le_inputPolynomial
+#print axioms ConstitutiveSearch.closurePrimitiveFixedFuel_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.closureCompositionFixedFuel_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_primitiveQueries_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_compositionCandidates_of_candidateInputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_primitiveQueries_le_inputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_compositionCandidates_le_inputPolynomial
 /- AXIOM_AUDIT_END -/
