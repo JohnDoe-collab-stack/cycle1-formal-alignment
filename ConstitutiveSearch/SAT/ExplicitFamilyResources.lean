@@ -50,6 +50,16 @@ theorem stackedDecisionResource_length
       exact
         congrArg Nat.succ inductionHypothesis
 
+/-- One symmetric block contributes exactly four literal occurrences. -/
+theorem symmetricBlockFamily_variableOccurrences_length
+    (var anchor : Var)
+    (background : Cnf) :
+    (Cnf.variableOccurrences
+      (symmetricBlockFamily var anchor background)).length =
+      4 +
+        (Cnf.variableOccurrences background).length := by
+  rfl
+
 /-- Each explicit stacked level contributes four literal occurrences. -/
 theorem stackedSymmetricBlocks_variableOccurrences_length
     (count : Nat)
@@ -61,14 +71,34 @@ theorem stackedSymmetricBlocks_variableOccurrences_length
   | zero =>
       rfl
   | succ count inductionHypothesis =>
+      have stackStep :
+          stackedSymmetricBlocks (count + 1) anchor =
+            symmetricBlockFamily
+              count
+              anchor
+              (stackedSymmetricBlocks count anchor) :=
+        rfl
       calc
         (Cnf.variableOccurrences
           (stackedSymmetricBlocks (count + 1) anchor)).length
             =
+          (Cnf.variableOccurrences
+            (symmetricBlockFamily
+              count
+              anchor
+              (stackedSymmetricBlocks count anchor))).length :=
+              congrArg
+                (fun formula =>
+                  (Cnf.variableOccurrences formula).length)
+                stackStep
+        _ =
           4 +
             (Cnf.variableOccurrences
-              (stackedSymmetricBlocks count anchor)).length := by
-                rfl
+              (stackedSymmetricBlocks count anchor)).length :=
+            symmetricBlockFamily_variableOccurrences_length
+              count
+              anchor
+              (stackedSymmetricBlocks count anchor)
         _ = 4 + (4 * count) :=
               congrArg
                 (Nat.add 4)
@@ -378,6 +408,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_succ
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_length
+#print axioms ConstitutiveSearch.SAT.symmetricBlockFamily_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.ResourceAlignedStackedTrajectoryResult
