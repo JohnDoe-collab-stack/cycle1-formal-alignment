@@ -68,12 +68,47 @@ theorem composedProvenanceUnitCostPolynomial_eval
 theorem explicitFamilyComplexityCounts_inputPolynomiallyBounded :
     ComplexityCountsFamilyInputPolynomiallyBounded
       explicitFamilyInputBitSize
-      explicitFamilyComplexityCounts := by
-  simpa only [
-    explicitFamilyConstitutiveProfile
-  ] using
-    ComplexityCountsFamilyInputPolynomiallyBounded.ofProfile
-      explicitFamilyConstitutiveProfile_inputPolynomiallyBounded
+      explicitFamilyComplexityCounts :=
+  { syntaxUnits := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.syntaxUnits
+    frontierSlots := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.frontierSlots
+    provenanceUnits := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.provenance
+    certificateAtoms := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.certificates
+    relationFindCalls := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.relationFind
+    closurePrimitiveQueries := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.closurePrimitive
+    closureCompositionCandidates := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.closureCandidates
+    terminalChecks := by
+      simpa only [
+        explicitFamilyConstitutiveProfile
+      ] using
+        explicitFamilyConstitutiveProfile_inputPolynomiallyBounded.terminal }
 
 /-- Event counts of the added composition phase are input-polynomially bounded. -/
 theorem composedClosurePhaseCounts_inputPolynomiallyBounded :
