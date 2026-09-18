@@ -134,12 +134,12 @@ end StructuralDecisionHistory
 
 /-- Pure additive identity for one stacked serialization level. -/
 theorem doubleBlockStep
-    (block prefix : Nat) :
+    (block previous : Nat) :
     Nat.succ
         (block +
           Nat.succ
-            (block + (prefix + 1))) =
-      prefix +
+            (block + (previous + 1))) =
+      previous +
           (block + block + 1 + 1) +
         1 := by
   have pair :
@@ -185,56 +185,56 @@ theorem doubleBlockStep
     Nat.succ
         (block +
           Nat.succ
-            (block + (prefix + 1)))
+            (block + (previous + 1)))
         =
       Nat.succ block +
         Nat.succ
-          (block + (prefix + 1)) :=
+          (block + (previous + 1)) :=
         (Nat.succ_add
           block
           (Nat.succ
-            (block + (prefix + 1)))).symm
+            (block + (previous + 1)))).symm
     _ =
       Nat.succ block +
-        (Nat.succ block + (prefix + 1)) :=
+        (Nat.succ block + (previous + 1)) :=
         congrArg
           (Nat.add (Nat.succ block))
           (Nat.succ_add
             block
-            (prefix + 1)).symm
+            (previous + 1)).symm
     _ =
       (block + 1) +
-        ((block + 1) + (prefix + 1)) := by
+        ((block + 1) + (previous + 1)) := by
         rfl
     _ =
       ((block + 1) + (block + 1)) +
-        (prefix + 1) :=
+        (previous + 1) :=
         (Nat.add_assoc
           (block + 1)
           (block + 1)
-          (prefix + 1)).symm
+          (previous + 1)).symm
     _ =
       (block + block + 1 + 1) +
-        (prefix + 1) :=
+        (previous + 1) :=
         congrArg
           (fun value =>
-            value + (prefix + 1))
+            value + (previous + 1))
           pair
     _ =
       ((block + block + 1 + 1) +
-        prefix) + 1 :=
+        previous) + 1 :=
         (Nat.add_assoc
           (block + block + 1 + 1)
-          prefix
+          previous
           1).symm
     _ =
-      (prefix +
+      (previous +
         (block + block + 1 + 1)) + 1 :=
         congrArg
           (fun value => value + 1)
           (Nat.add_comm
             (block + block + 1 + 1)
-            prefix)
+            previous)
 
 /-- Closed form of the stacked CNF serialization budget. -/
 theorem stackedSymmetricBinaryBudget_closed
