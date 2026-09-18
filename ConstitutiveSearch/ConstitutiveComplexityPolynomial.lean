@@ -42,7 +42,8 @@ theorem polynomiallyBounded_max
         rightEnvelope,
       ?_⟩
   intro inputBits
-  apply Nat.max_le
+  rw [Nat.max_le]
+  constructor
   · exact
       Nat.le_trans
         (leftLe inputBits)
@@ -73,7 +74,7 @@ structure ConstitutiveProfileFamilyPolynomiallyBounded
     PolynomiallyBounded
       (fun n =>
         (profile n).maxFrontierWidth)
-  syntax :
+  syntaxUnits :
     PolynomiallyBounded
       (fun n =>
         (profile n).events.syntaxUnits)
@@ -162,7 +163,7 @@ theorem compose
         polynomiallyBounded_max
           firstBounded.width
           secondBounded.width
-    syntax := by
+    syntaxUnits := by
       change
         PolynomiallyBounded
           (fun n =>
@@ -170,8 +171,8 @@ theorem compose
               (second n).events.syntaxUnits)
       exact
         PolynomiallyBounded.add
-          firstBounded.syntax
-          secondBounded.syntax
+          firstBounded.syntaxUnits
+          secondBounded.syntaxUnits
     frontierSlots := by
       change
         PolynomiallyBounded

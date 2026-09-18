@@ -44,7 +44,7 @@ theorem variableBounded :
   { inputBits := PolynomiallyBounded.input
     depth := PolynomiallyBounded.input
     width := PolynomiallyBounded.input
-    syntax := PolynomiallyBounded.input
+    syntaxUnits := PolynomiallyBounded.input
     frontierSlots := PolynomiallyBounded.input
     provenance := PolynomiallyBounded.input
     certificates := PolynomiallyBounded.input
@@ -60,7 +60,7 @@ theorem constantBounded :
   { inputBits := PolynomiallyBounded.constant 1
     depth := PolynomiallyBounded.constant 1
     width := PolynomiallyBounded.constant 1
-    syntax := PolynomiallyBounded.constant 1
+    syntaxUnits := PolynomiallyBounded.constant 1
     frontierSlots := PolynomiallyBounded.constant 1
     provenance := PolynomiallyBounded.constant 1
     certificates := PolynomiallyBounded.constant 1
