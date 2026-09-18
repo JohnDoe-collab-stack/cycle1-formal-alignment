@@ -25,14 +25,14 @@ for the current closure engine.
 
 namespace ConstitutiveSearch
 
-universe uState uGenerator
+universe uGenerator
 
 /--
 One family of closure-search invocations controlled pointwise by the
 constitutive width coordinate of an announced profile family.
 -/
 structure WidthControlledClosureSchedule
-    (State : Nat → Type uState)
+    (State : Nat → Type)
     (profile : Nat → ConstitutiveComplexityProfile) where
   candidates :
     (n : Nat) →
@@ -69,7 +69,7 @@ A width-controlled candidate family is input-polynomial whenever the profile
 width has one uniform cap: the constant polynomial widthCap is an envelope.
 -/
 theorem candidateLength_inputPolynomiallyBounded
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {profile : Nat → ConstitutiveComplexityProfile}
     (schedule :
       WidthControlledClosureSchedule
@@ -97,7 +97,7 @@ theorem candidateLength_inputPolynomiallyBounded
 
 /-- The same uniform width cap bounds the schedule fuel. -/
 theorem fuel_uniformlyBounded
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {profile : Nat → ConstitutiveComplexityProfile}
     (schedule :
       WidthControlledClosureSchedule
@@ -120,7 +120,7 @@ Actual primitive-query counts are input-polynomial for every width-controlled
 schedule over a uniformly bounded-width profile family.
 -/
 theorem primitiveQueries_inputPolynomiallyBounded
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {Generator :
       (n : Nat) →
         State n → State n → Type uGenerator}
@@ -174,7 +174,7 @@ theorem primitiveQueries_inputPolynomiallyBounded
 Actual composition-candidate counts satisfy the same input-polynomial regime.
 -/
 theorem compositionCandidates_inputPolynomiallyBounded
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {Generator :
       (n : Nat) →
         State n → State n → Type uGenerator}
@@ -226,7 +226,7 @@ theorem compositionCandidates_inputPolynomiallyBounded
 
 /-- Packaged polynomial control-flow evidence for one width-controlled schedule. -/
 structure InputPolynomialCounters
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {Generator :
       (n : Nat) →
         State n → State n → Type uGenerator}
@@ -267,7 +267,7 @@ certificate for polynomial closure control-flow whenever the schedule stays
 inside that width.
 -/
 theorem inputPolynomialCounters_of_uniformWidth
-    {State : Nat → Type uState}
+    {State : Nat → Type}
     {Generator :
       (n : Nat) →
         State n → State n → Type uGenerator}
