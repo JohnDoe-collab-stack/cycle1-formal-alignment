@@ -40,6 +40,16 @@ theorem noClosureCharge3 :
       0 :=
   explicitFamily_localStrategy_noClosureCharge 3
 
+theorem representationBudget3 :
+    explicitFamilyRepresentationBudget 3 =
+      2349 := by
+  rfl
+
+theorem representationCostEqBudget3 :
+    explicitFamilyRepresentationChargedCost 3 =
+      explicitFamilyRepresentationBudget 3 :=
+  explicitFamilyRepresentationChargedCost_eq_budget 3
+
 end ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -49,4 +59,6 @@ end ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression.representationChargedCost3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression.relationAtomic3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression.noClosureCharge3
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression.representationBudget3
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyBitComplexityRegression.representationCostEqBudget3
 /- AXIOM_AUDIT_END -/
