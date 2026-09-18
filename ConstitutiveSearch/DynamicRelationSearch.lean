@@ -53,7 +53,7 @@ structure ConstitutiveRelationSearch
 namespace ConstitutiveRelationalAction
 
 /-- Freeze a dynamic action at one current constituted state. -/
-def at
+def freeze
     {system : SearchSystem}
     {Constitution : Type uConstitution}
     {Relation :
@@ -76,7 +76,7 @@ end ConstitutiveRelationalAction
 namespace ConstitutiveRelationSearch
 
 /-- Freeze dynamic relation search at one constituted state. -/
-def at
+def freeze
     {system : SearchSystem}
     {Constitution : Type uConstitution}
     {Relation :
@@ -115,8 +115,8 @@ def findAcceptedTransport
     (current : ConstitutiveState system Constitution)
     (source target : system.State) :
     Option (AcceptingContinuationTransport system source target) :=
-  (search.at current).findAcceptedTransport
-    (action.at current)
+  (search.freeze current).findAcceptedTransport
+    (action.freeze current)
     source
     target
 
@@ -143,11 +143,11 @@ def normalizeAt
     (current : ConstitutiveState system Constitution)
     (frontier : List system.State) :
     AcceptedIrreducibleFrontierReduction
-      (search.at current)
+      (search.freeze current)
       frontier :=
   normalizeAcceptedFrontier
-    (search.at current)
-    (action.at current)
+    (search.freeze current)
+    (action.freeze current)
     frontier
 
 end ConstitutiveRelationSearch
@@ -157,8 +157,8 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.ConstitutiveRelationalAction
 #print axioms ConstitutiveSearch.ConstitutiveRelationSearch
-#print axioms ConstitutiveSearch.ConstitutiveRelationalAction.at
-#print axioms ConstitutiveSearch.ConstitutiveRelationSearch.at
+#print axioms ConstitutiveSearch.ConstitutiveRelationalAction.freeze
+#print axioms ConstitutiveSearch.ConstitutiveRelationSearch.freeze
 #print axioms ConstitutiveSearch.ConstitutiveRelationSearch.findAcceptedTransport
 #print axioms ConstitutiveSearch.ConstitutiveRelationSearch.normalizeAt
 /- AXIOM_AUDIT_END -/
