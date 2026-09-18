@@ -344,6 +344,303 @@ theorem searchTransportClosureFixedFuel_compositionCandidates_of_candidateInputP
         (target n))
       (budgetLe n)
 
+/-- Candidate scanning is monotone in the recursive primitive-query budget. -/
+theorem viaPrimitiveQueryBudget_mono_recursive
+    {small large : Nat}
+    (recursiveLe : small ≤ large)
+    (candidateCount : Nat) :
+    viaPrimitiveQueryBudget small candidateCount ≤
+      viaPrimitiveQueryBudget large candidateCount := by
+  rw [
+    viaPrimitiveQueryBudget_closed,
+    viaPrimitiveQueryBudget_closed
+  ]
+  exact
+    Nat.mul_le_mul_left
+      candidateCount
+      (Nat.add_le_add
+        recursiveLe
+        recursiveLe)
+
+/-- Candidate scanning is monotone in the recursive composition budget. -/
+theorem viaCompositionCandidateBudget_mono_recursive
+    {small large : Nat}
+    (recursiveLe : small ≤ large)
+    (candidateCount : Nat) :
+    viaCompositionCandidateBudget small candidateCount ≤
+      viaCompositionCandidateBudget large candidateCount := by
+  rw [
+    viaCompositionCandidateBudget_closed,
+    viaCompositionCandidateBudget_closed
+  ]
+  exact
+    Nat.mul_le_mul_left
+      candidateCount
+      (Nat.add_le_add_right
+        (Nat.add_le_add
+          recursiveLe
+          recursiveLe)
+        1)
+
+/-- Primitive-query closure budget is monotone in fuel. -/
+theorem closurePrimitiveQueryBudget_mono_fuel
+    (candidateCount : Nat) :
+    ∀ {smallFuel largeFuel : Nat},
+      smallFuel ≤ largeFuel →
+        closurePrimitiveQueryBudget candidateCount smallFuel ≤
+          closurePrimitiveQueryBudget candidateCount largeFuel := by
+  intro smallFuel largeFuel fuelLe
+  induction largeFuel generalizing smallFuel with
+  | zero =>
+      cases smallFuel with
+      | zero =>
+          exact Nat.le_refl 0
+      | succ smallFuel =>
+          cases fuelLe
+  | succ largeFuel inductionHypothesis =>
+      cases smallFuel with
+      | zero =>
+          exact Nat.zero_le _
+      | succ smallFuel =>
+          have smallerFuelLe :
+              smallFuel ≤ largeFuel :=
+            Nat.le_of_succ_le_succ fuelLe
+          have recursiveLe :
+              closurePrimitiveQueryBudget candidateCount smallFuel ≤
+                closurePrimitiveQueryBudget candidateCount largeFuel :=
+            inductionHypothesis smallerFuelLe
+          change
+            viaPrimitiveQueryBudget
+                  (closurePrimitiveQueryBudget
+                    candidateCount
+                    smallFuel)
+                  candidateCount +
+                1 ≤
+              viaPrimitiveQueryBudget
+                  (closurePrimitiveQueryBudget
+                    candidateCount
+                    largeFuel)
+                  candidateCount +
+                1
+          exact
+            Nat.add_le_add_right
+              (viaPrimitiveQueryBudget_mono_recursive
+                recursiveLe
+                candidateCount)
+              1
+
+/-- Composition-candidate closure budget is monotone in fuel. -/
+theorem closureCompositionCandidateBudget_mono_fuel
+    (candidateCount : Nat) :
+    ∀ {smallFuel largeFuel : Nat},
+      smallFuel ≤ largeFuel →
+        closureCompositionCandidateBudget candidateCount smallFuel ≤
+          closureCompositionCandidateBudget candidateCount largeFuel := by
+  intro smallFuel largeFuel fuelLe
+  induction largeFuel generalizing smallFuel with
+  | zero =>
+      cases smallFuel with
+      | zero =>
+          exact Nat.le_refl 0
+      | succ smallFuel =>
+          cases fuelLe
+  | succ largeFuel inductionHypothesis =>
+      cases smallFuel with
+      | zero =>
+          exact Nat.zero_le _
+      | succ smallFuel =>
+          have smallerFuelLe :
+              smallFuel ≤ largeFuel :=
+            Nat.le_of_succ_le_succ fuelLe
+          have recursiveLe :
+              closureCompositionCandidateBudget candidateCount smallFuel ≤
+                closureCompositionCandidateBudget candidateCount largeFuel :=
+            inductionHypothesis smallerFuelLe
+          change
+            viaCompositionCandidateBudget
+                (closureCompositionCandidateBudget
+                  candidateCount
+                  smallFuel)
+                candidateCount ≤
+              viaCompositionCandidateBudget
+                (closureCompositionCandidateBudget
+                  candidateCount
+                  largeFuel)
+                candidateCount
+          exact
+            viaCompositionCandidateBudget_mono_recursive
+              recursiveLe
+              candidateCount
+
+/--
+A variable fuel uniformly bounded by one fixed cap preserves primitive-query
+input-polynomiality whenever candidate growth is input-polynomial.
+-/
+theorem closurePrimitiveBoundedFuel_of_candidateInputPolynomial
+    (fuelCap : Nat)
+    {inputBits candidateCount fuel : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        candidateCount)
+    (fuelBounded :
+      ∀ n : Nat,
+        fuel n ≤ fuelCap) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        closurePrimitiveQueryBudget
+          (candidateCount n)
+          (fuel n)) := by
+  rcases
+      closurePrimitiveFixedFuel_of_candidateInputPolynomial
+        fuelCap
+        candidateBounded with
+    ⟨envelope, capLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (closurePrimitiveQueryBudget_mono_fuel
+        (candidateCount n)
+        (fuelBounded n))
+      (capLe n)
+
+/--
+The analogous uniformly bounded variable-fuel regime preserves polynomiality of
+composition-candidate budgets.
+-/
+theorem closureCompositionBoundedFuel_of_candidateInputPolynomial
+    (fuelCap : Nat)
+    {inputBits candidateCount fuel : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        candidateCount)
+    (fuelBounded :
+      ∀ n : Nat,
+        fuel n ≤ fuelCap) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        closureCompositionCandidateBudget
+          (candidateCount n)
+          (fuel n)) := by
+  rcases
+      closureCompositionFixedFuel_of_candidateInputPolynomial
+        fuelCap
+        candidateBounded with
+    ⟨envelope, capLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (closureCompositionCandidateBudget_mono_fuel
+        (candidateCount n)
+        (fuelBounded n))
+      (capLe n)
+
+/--
+Actual executable primitive-query counts remain input-polynomial when the
+candidate-list lengths are input-polynomial and the varying fuel is uniformly
+bounded by one fixed cap.
+-/
+theorem searchTransportClosureBoundedFuel_primitiveQueries_of_candidateInputPolynomial
+    {State : Type}
+    {Generator : State → State → Type}
+    (primitive : RelationSearch Generator)
+    (candidates : Nat → List State)
+    (fuel : Nat → Nat)
+    (fuelCap : Nat)
+    {inputBits : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (candidates n).length))
+    (fuelBounded :
+      ∀ n : Nat,
+        fuel n ≤ fuelCap)
+    (source target : Nat → State) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        (searchTransportClosureBounded
+          primitive
+          (candidates n)
+          (fuel n)
+          (source n)
+          (target n)).stats.primitiveQueries) := by
+  rcases
+      closurePrimitiveBoundedFuel_of_candidateInputPolynomial
+        fuelCap
+        candidateBounded
+        fuelBounded with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_primitiveQueries_le
+        primitive
+        (candidates n)
+        (fuel n)
+        (source n)
+        (target n))
+      (budgetLe n)
+
+/--
+Actual executable composition-candidate counts satisfy the same bounded-fuel
+input-polynomial regime.
+-/
+theorem searchTransportClosureBoundedFuel_compositionCandidates_of_candidateInputPolynomial
+    {State : Type}
+    {Generator : State → State → Type}
+    (primitive : RelationSearch Generator)
+    (candidates : Nat → List State)
+    (fuel : Nat → Nat)
+    (fuelCap : Nat)
+    {inputBits : Nat → Nat}
+    (candidateBounded :
+      InputPolynomiallyBounded
+        inputBits
+        (fun n =>
+          (candidates n).length))
+    (fuelBounded :
+      ∀ n : Nat,
+        fuel n ≤ fuelCap)
+    (source target : Nat → State) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        (searchTransportClosureBounded
+          primitive
+          (candidates n)
+          (fuel n)
+          (source n)
+          (target n)).stats.compositionCandidates) := by
+  rcases
+      closureCompositionBoundedFuel_of_candidateInputPolynomial
+        fuelCap
+        candidateBounded
+        fuelBounded with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_compositionCandidates_le
+        primitive
+        (candidates n)
+        (fuel n)
+        (source n)
+        (target n))
+      (budgetLe n)
+
 /-- Actual executable primitive-query count inherits the fixed-fuel polynomial envelope. -/
 theorem searchTransportClosureFixedFuel_primitiveQueries_le_inputPolynomial
     {State : Type}
@@ -421,6 +718,14 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.closureCompositionFixedFuel_of_candidateInputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_primitiveQueries_of_candidateInputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_compositionCandidates_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.viaPrimitiveQueryBudget_mono_recursive
+#print axioms ConstitutiveSearch.viaCompositionCandidateBudget_mono_recursive
+#print axioms ConstitutiveSearch.closurePrimitiveQueryBudget_mono_fuel
+#print axioms ConstitutiveSearch.closureCompositionCandidateBudget_mono_fuel
+#print axioms ConstitutiveSearch.closurePrimitiveBoundedFuel_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.closureCompositionBoundedFuel_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.searchTransportClosureBoundedFuel_primitiveQueries_of_candidateInputPolynomial
+#print axioms ConstitutiveSearch.searchTransportClosureBoundedFuel_compositionCandidates_of_candidateInputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_primitiveQueries_le_inputPolynomial
 #print axioms ConstitutiveSearch.searchTransportClosureFixedFuel_compositionCandidates_le_inputPolynomial
 /- AXIOM_AUDIT_END -/
