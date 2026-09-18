@@ -145,6 +145,8 @@ ConstitutiveSearch/ClosureSearchGrowth.lean
 ConstitutiveSearch/ClosureSearchPolynomialRegimes.lean
 ConstitutiveSearch/ClosureSearchPolynomialComplexity.lean
 ConstitutiveSearch/ClosureSearchFixedFuelPolynomial.lean
+ConstitutiveSearch/ClosureSearchGrowingFuelSeparator.lean
+ConstitutiveSearch/ClosureSearchWidthControlled.lean
 
 ConstitutiveSearch/ComplexityInterface.lean
 ConstitutiveSearch/RepresentationCost.lean
@@ -239,6 +241,7 @@ ConstitutiveSearch/SAT/ParametricComposedWidth.lean
 ConstitutiveSearch/SAT/ParametricComposedComplexity.lean
 ConstitutiveSearch/SAT/ParametricComposedBitComplexity.lean
 ConstitutiveSearch/SAT/ParametricComposedPolynomialCosts.lean
+ConstitutiveSearch/SAT/ParametricComposedWidthControlled.lean
 ConstitutiveSearch/SAT/WidthSeparators.lean
 ConstitutiveSearch/SAT/WidthSeparatorConstitutiveProfile.lean
 
@@ -1660,7 +1663,12 @@ et la liste de candidats annonces.
 [FAIT P7d-d] pour tout fuel fixe, les budgets ClosureSearch sont des polynomes exacts en candidateCount
 [FAIT P7d-d] candidateCount input-polynomial + fuel fixe => compteurs executables input-polynomiaux
 [FAIT P7d-d] fuel variable uniformement borne par une constante + candidats input-polynomiaux => compteurs executables input-polynomiaux
-[QUALIFICATION P7d-d] aucun theorem n'est affirme pour une borne de fuel qui croit avec l'entree
+[FAIT P7d-d] fuel(input)=input avec un candidat suit exactement une echelle binaire de doublement
+[FAIT P7d-d] cette famille exacte n'admet aucune borne uniforme de degre polynomial
+[FAIT P7d-d] schedule de closure controle par maxFrontierWidth, avec types d'etats dependants de l'instance
+[FAIT P7d-d] largeur uniformement bornee + candidats/fuel sous cette largeur => compteurs executables input-polynomiaux
+[FAIT P7d-d] instance SAT composee : [middle], fuel=2, tous deux certifies sous la largeur constitutive 2
+[QUALIFICATION P7d-d] le separateur fuel(input)=input expose une croissance binaire et un degre exact non uniformement borne; il ne constitue pas encore un theorem general de non-polynomialite
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1684,9 +1692,9 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. caracteriser les regimes ou la borne de fuel croit avec la taille d'entree
-2. produire soit des hypotheses suffisantes de polynomialite, soit un separateur de croissance pour le moteur actuel
-3. verifier quelles formes de generation endogene du fuel/candidat satisfont ces hypotheses
+1. renforcer le separateur fuel croissant vers une caracterisation en valeur, pas seulement en degre
+2. distinguer les croissances de fuel compatibles avec une enveloppe polynomiale des croissances incompatibles
+3. tester d'autres generations endogenes du fuel/candidat lorsque la largeur elle-meme croit
 4. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
 5. consolider l'audit de non-factorisation/provenance si necessaire
 6. effectuer P8 : audit externe de nouveaute et comparaison
@@ -1697,8 +1705,13 @@ Ordre recommande a partir du head actuel :
 Le verrou quantitatif courant est donc maintenant tres precis :
 
 > les candidats peuvent croitre polynomialement avec l'entree et le fuel peut
-> varier tant qu'il reste uniformement borne par une constante. Le cas non ferme
-> est celui ou la borne de fuel elle-meme croit avec la taille d'entree.
+> varier tant qu'il reste uniformement borne par une constante. Une politique
+> dont candidats et fuel restent sous une largeur constitutive uniformement
+> bornee est maintenant fermee, y compris sur l'instance SAT composee. Pour
+> fuel(input)=input avec un seul candidat, le moteur expose une recurrence
+> binaire exacte et aucune borne uniforme de degre sur ses polynomes exacts.
+> Le cas non ferme est la caracterisation en valeur des fuels croissants :
+> lesquels conservent ou excluent une enveloppe polynomiale unique en inputBits.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1708,9 +1721,10 @@ B(0) = 0
 B(f+1) = 2 * B(f) + 1
 ~~~
 
-Le prochain travail doit donc caracteriser mathematiquement les regimes de fuel
-croissant compatibles ou incompatibles avec une enveloppe polynomiale, sans
-postuler leur benignite.
+Le prochain travail doit donc passer du separateur de degre et de recurrence
+binaire a une caracterisation de croissance en valeur : identifier
+constructivement les fuels croissants compatibles avec une enveloppe
+polynomiale et ceux qui ne le sont pas, sans postuler leur benignite.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
