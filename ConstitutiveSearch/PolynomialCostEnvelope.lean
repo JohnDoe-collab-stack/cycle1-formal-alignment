@@ -56,10 +56,9 @@ def degree : CostPolynomial → Nat
 end CostPolynomial
 
 /-- Pointwise domination of a cost function by one finite cost polynomial. -/
-structure PolynomiallyBounded
-    (cost : Nat → Nat) : Prop where
-  envelope : CostPolynomial
-  bound :
+def PolynomiallyBounded
+    (cost : Nat → Nat) : Prop :=
+  ∃ envelope : CostPolynomial,
     ∀ inputBits : Nat,
       cost inputBits ≤
         envelope.eval inputBits
@@ -72,28 +71,26 @@ theorem exact
     PolynomiallyBounded
       (fun inputBits =>
         polynomial.eval inputBits) :=
-  { envelope := polynomial
-    bound := fun _ =>
-      Nat.le_refl _ }
+  ⟨polynomial,
+    fun _ =>
+      Nat.le_refl _⟩
 
 /-- Constant cost functions are polynomially bounded. -/
 theorem constant
     (value : Nat) :
     PolynomiallyBounded
       (fun _inputBits => value) :=
-  { envelope :=
-      CostPolynomial.constant value
-    bound := fun _ =>
-      Nat.le_refl _ }
+  ⟨CostPolynomial.constant value,
+    fun _ =>
+      Nat.le_refl _⟩
 
 /-- The identity input-size cost is polynomially bounded. -/
 theorem input :
     PolynomiallyBounded
       (fun inputBits => inputBits) :=
-  { envelope :=
-      CostPolynomial.input
-    bound := fun _ =>
-      Nat.le_refl _ }
+  ⟨CostPolynomial.input,
+    fun _ =>
+      Nat.le_refl _⟩
 
 /-- Generic natural-product monotonicity used by multiplicative envelopes. -/
 theorem natMulLeMul
@@ -149,14 +146,13 @@ theorem add
   rcases rightBounded with
     ⟨rightEnvelope, rightLe⟩
   exact
-    { envelope :=
-        CostPolynomial.add
-          leftEnvelope
-          rightEnvelope
-      bound := fun inputBits =>
+    ⟨CostPolynomial.add
+        leftEnvelope
+        rightEnvelope,
+      fun inputBits =>
         Nat.add_le_add
           (leftLe inputBits)
-          (rightLe inputBits) }
+          (rightLe inputBits)⟩
 
 /-- Polynomial domination is closed under pointwise multiplication. -/
 theorem mul
@@ -174,14 +170,13 @@ theorem mul
   rcases rightBounded with
     ⟨rightEnvelope, rightLe⟩
   exact
-    { envelope :=
-        CostPolynomial.mul
-          leftEnvelope
-          rightEnvelope
-      bound := fun inputBits =>
+    ⟨CostPolynomial.mul
+        leftEnvelope
+        rightEnvelope,
+      fun inputBits =>
         natMulLeMul
           (leftLe inputBits)
-          (rightLe inputBits) }
+          (rightLe inputBits)⟩
 
 end PolynomiallyBounded
 

@@ -21,9 +21,9 @@ theorem linearEval
 
 theorem linearBounded :
     PolynomiallyBounded linearCost :=
-  { envelope := linearPolynomial
-    bound := fun _ =>
-      Nat.le_refl _ }
+  ⟨linearPolynomial,
+    fun _ =>
+      Nat.le_refl _⟩
 
 def doubledCost
     (inputBits : Nat) : Nat :=
