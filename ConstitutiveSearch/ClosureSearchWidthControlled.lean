@@ -12,8 +12,11 @@ by every complexity profile: maximal frontier width.
 
 A width-controlled closure schedule is explicit data whose candidate-list
 length and fuel never exceed the announced constitutive maxFrontierWidth.
-Whenever that width itself has one uniform finite cap across the family, both
-actual executable closure counters inherit input-polynomial bounds.
+The state type may depend on the family index, which is required by concrete
+families such as SAT contexts generated from F(n).
+
+Whenever width itself has one uniform finite cap across the family, both actual
+executable closure counters inherit input-polynomial bounds.
 
 This is a sufficient regime.  It does not claim that every useful closure
 schedule must be width-controlled, nor that polynomially growing width suffices
@@ -22,17 +25,25 @@ for the current closure engine.
 
 namespace ConstitutiveSearch
 
+universe uState uGenerator
+
 /--
 One family of closure-search invocations controlled pointwise by the
 constitutive width coordinate of an announced profile family.
 -/
 structure WidthControlledClosureSchedule
-    (State : Type)
+    (State : Nat → Type uState)
     (profile : Nat → ConstitutiveComplexityProfile) where
-  candidates : Nat → List State
+  candidates :
+    (n : Nat) →
+      List (State n)
   fuel : Nat → Nat
-  source : Nat → State
-  target : Nat → State
+  source :
+    (n : Nat) →
+      State n
+  target :
+    (n : Nat) →
+      State n
   candidateLeWidth :
     ∀ n : Nat,
       (candidates n).length ≤
@@ -58,7 +69,7 @@ A width-controlled candidate family is input-polynomial whenever the profile
 width has one uniform cap: the constant polynomial widthCap is an envelope.
 -/
 theorem candidateLength_inputPolynomiallyBounded
-    {State : Type}
+    {State : Nat → Type uState}
     {profile : Nat → ConstitutiveComplexityProfile}
     (schedule :
       WidthControlledClosureSchedule
@@ -86,7 +97,7 @@ theorem candidateLength_inputPolynomiallyBounded
 
 /-- The same uniform width cap bounds the schedule fuel. -/
 theorem fuel_uniformlyBounded
-    {State : Type}
+    {State : Nat → Type uState}
     {profile : Nat → ConstitutiveComplexityProfile}
     (schedule :
       WidthControlledClosureSchedule
@@ -109,10 +120,14 @@ Actual primitive-query counts are input-polynomial for every width-controlled
 schedule over a uniformly bounded-width profile family.
 -/
 theorem primitiveQueries_inputPolynomiallyBounded
-    {State : Type}
-    {Generator : State → State → Type}
+    {State : Nat → Type uState}
+    {Generator :
+      (n : Nat) →
+        State n → State n → Type uGenerator}
     {profile : Nat → ConstitutiveComplexityProfile}
-    (primitive : RelationSearch Generator)
+    (primitive :
+      (n : Nat) →
+        RelationSearch (Generator n))
     (schedule :
       WidthControlledClosureSchedule
         State
@@ -127,33 +142,46 @@ theorem primitiveQueries_inputPolynomiallyBounded
         (profile n).inputBits)
       (fun n =>
         (searchTransportClosureBounded
-          primitive
+          (primitive n)
           (schedule.candidates n)
           (schedule.fuel n)
           (schedule.source n)
-          (schedule.target n)).stats.primitiveQueries) :=
-  searchTransportClosureBoundedFuel_primitiveQueries_of_candidateInputPolynomial
-    primitive
-    schedule.candidates
-    schedule.fuel
-    widthCap
-    (schedule.candidateLength_inputPolynomiallyBounded
-      widthCap
-      bounded)
-    (schedule.fuel_uniformlyBounded
-      widthCap
-      bounded)
-    schedule.source
-    schedule.target
+          (schedule.target n)).stats.primitiveQueries) := by
+  rcases
+      closurePrimitiveBoundedFuel_of_candidateInputPolynomial
+        widthCap
+        (schedule.candidateLength_inputPolynomiallyBounded
+          widthCap
+          bounded)
+        (schedule.fuel_uniformlyBounded
+          widthCap
+          bounded) with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_primitiveQueries_le
+        (primitive n)
+        (schedule.candidates n)
+        (schedule.fuel n)
+        (schedule.source n)
+        (schedule.target n))
+      (budgetLe n)
 
 /--
 Actual composition-candidate counts satisfy the same input-polynomial regime.
 -/
 theorem compositionCandidates_inputPolynomiallyBounded
-    {State : Type}
-    {Generator : State → State → Type}
+    {State : Nat → Type uState}
+    {Generator :
+      (n : Nat) →
+        State n → State n → Type uGenerator}
     {profile : Nat → ConstitutiveComplexityProfile}
-    (primitive : RelationSearch Generator)
+    (primitive :
+      (n : Nat) →
+        RelationSearch (Generator n))
     (schedule :
       WidthControlledClosureSchedule
         State
@@ -168,31 +196,44 @@ theorem compositionCandidates_inputPolynomiallyBounded
         (profile n).inputBits)
       (fun n =>
         (searchTransportClosureBounded
-          primitive
+          (primitive n)
           (schedule.candidates n)
           (schedule.fuel n)
           (schedule.source n)
-          (schedule.target n)).stats.compositionCandidates) :=
-  searchTransportClosureBoundedFuel_compositionCandidates_of_candidateInputPolynomial
-    primitive
-    schedule.candidates
-    schedule.fuel
-    widthCap
-    (schedule.candidateLength_inputPolynomiallyBounded
-      widthCap
-      bounded)
-    (schedule.fuel_uniformlyBounded
-      widthCap
-      bounded)
-    schedule.source
-    schedule.target
+          (schedule.target n)).stats.compositionCandidates) := by
+  rcases
+      closureCompositionBoundedFuel_of_candidateInputPolynomial
+        widthCap
+        (schedule.candidateLength_inputPolynomiallyBounded
+          widthCap
+          bounded)
+        (schedule.fuel_uniformlyBounded
+          widthCap
+          bounded) with
+    ⟨envelope, budgetLe⟩
+  refine
+    ⟨envelope, ?_⟩
+  intro n
+  exact
+    Nat.le_trans
+      (searchTransportClosureBounded_compositionCandidates_le
+        (primitive n)
+        (schedule.candidates n)
+        (schedule.fuel n)
+        (schedule.source n)
+        (schedule.target n))
+      (budgetLe n)
 
 /-- Packaged polynomial control-flow evidence for one width-controlled schedule. -/
 structure InputPolynomialCounters
-    {State : Type}
-    {Generator : State → State → Type}
+    {State : Nat → Type uState}
+    {Generator :
+      (n : Nat) →
+        State n → State n → Type uGenerator}
     {profile : Nat → ConstitutiveComplexityProfile}
-    (primitive : RelationSearch Generator)
+    (primitive :
+      (n : Nat) →
+        RelationSearch (Generator n))
     (schedule :
       WidthControlledClosureSchedule
         State
@@ -203,7 +244,7 @@ structure InputPolynomialCounters
         (profile n).inputBits)
       (fun n =>
         (searchTransportClosureBounded
-          primitive
+          (primitive n)
           (schedule.candidates n)
           (schedule.fuel n)
           (schedule.source n)
@@ -214,7 +255,7 @@ structure InputPolynomialCounters
         (profile n).inputBits)
       (fun n =>
         (searchTransportClosureBounded
-          primitive
+          (primitive n)
           (schedule.candidates n)
           (schedule.fuel n)
           (schedule.source n)
@@ -226,10 +267,14 @@ certificate for polynomial closure control-flow whenever the schedule stays
 inside that width.
 -/
 theorem inputPolynomialCounters_of_uniformWidth
-    {State : Type}
-    {Generator : State → State → Type}
+    {State : Nat → Type uState}
+    {Generator :
+      (n : Nat) →
+        State n → State n → Type uGenerator}
     {profile : Nat → ConstitutiveComplexityProfile}
-    (primitive : RelationSearch Generator)
+    (primitive :
+      (n : Nat) →
+        RelationSearch (Generator n))
     (schedule :
       WidthControlledClosureSchedule
         State
