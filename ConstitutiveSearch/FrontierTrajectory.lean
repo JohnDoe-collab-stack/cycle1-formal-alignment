@@ -48,17 +48,15 @@ def preservation
     AcceptedFrontierPreservation
       system
       start.frontier
-      finish.frontier := by
-  induction trajectory with
-  | refl state =>
-      exact
-        AcceptedFrontierPreservation.identity
-          system
-          state.frontier
-  | snoc previous step inductionHypothesis =>
-      exact
-        inductionHypothesis.trans
-          step.preservation
+      finish.frontier :=
+  match trajectory with
+  | .refl =>
+      AcceptedFrontierPreservation.identity
+        system
+        start.frontier
+  | .snoc previous step =>
+      (preservation previous).trans
+        step.preservation
 
 /-- Initial and final frontiers of a trajectory are viability-equivalent. -/
 theorem viable_iff
@@ -90,14 +88,13 @@ def widthTrace
     {start finish : ConstitutiveState system Constitution}
     (trajectory :
       FrontierTrajectory system Constitutes start finish) :
-    List Nat := by
-  induction trajectory with
-  | refl state =>
-      exact [state.frontier.length]
-  | @snoc start current next previous step inductionHypothesis =>
-      exact
-        inductionHypothesis ++
-          [next.frontier.length]
+    List Nat :=
+  match trajectory with
+  | .refl =>
+      [start.frontier.length]
+  | .snoc previous _step =>
+      widthTrace previous ++
+        [finish.frontier.length]
 
 /-- Maximum frontier width observed along the concrete trajectory. -/
 def maxWidth
