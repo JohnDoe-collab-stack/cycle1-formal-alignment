@@ -29,15 +29,26 @@ theorem root3FlipSymmetric :
       (PrefixAvoidsBelow.nil 3)
       (Nat.le_refl 3)
 
-theorem genericRootSiblingWidthOne :
-    (normalizeGeneratedStructuralFrontierByFlip
-      formula3
+theorem genericRootSiblingSearchFound :
+    (generatedStructuralFlipAtSearch formula3 2).find
+        (GeneratedStructuralBranchContext.child
+          root3 2 false root3Var2Fresh)
+        (GeneratedStructuralBranchContext.child
+          root3 2 true root3Var2Fresh) ≠
+      none :=
+  generatedStructuralFlipAtSearch_sibling_found
+    root3
+    2
+    root3Var2Fresh
+    root3FlipSymmetric
+
+theorem directRootSiblingWidthOne :
+    (reduceFlipSymmetricSiblings
+      root3
       2
-      [GeneratedStructuralBranchContext.child
-          root3 2 false root3Var2Fresh,
-       GeneratedStructuralBranchContext.child
-          root3 2 true root3Var2Fresh]).width = 1 :=
-  normalizeFlipSymmetricSiblings_width
+      root3Var2Fresh
+      root3FlipSymmetric).width = 1 :=
+  reduceFlipSymmetricSiblings_width
     root3
     2
     root3Var2Fresh
@@ -59,7 +70,8 @@ end ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.root3FlipSymmetric
-#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.genericRootSiblingWidthOne
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.genericRootSiblingSearchFound
+#print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.directRootSiblingWidthOne
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.genericFindCalls3
 #print axioms ConstitutiveSearch.Tests.SATExplicitFamilyNormalizationCostsRegression.genericVerificationSurface3
 /- AXIOM_AUDIT_END -/
