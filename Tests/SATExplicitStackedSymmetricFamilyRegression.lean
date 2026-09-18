@@ -38,8 +38,13 @@ def allTrue : Assignment :=
   fun _ => true
 
 theorem allTrueSatisfies :
-    Satisfies allTrue formula3 := by
-  repeat' constructor <;> rfl
+    Satisfies allTrue formula3 :=
+  .cons rfl
+    (.cons rfl
+      (.cons rfl
+        (.cons rfl
+          (.cons rfl
+            (.cons rfl .nil)))))
 
 def rootContinuation :
     GeneratedStructuralBranchContinuation root3 :=
