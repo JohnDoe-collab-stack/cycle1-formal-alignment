@@ -157,6 +157,70 @@ theorem closureCompositionFixedFuelPolynomial_degree_unbounded
       rw [closureCompositionFixedFuelPolynomial_degree]
       exact capLt⟩
 
+/--
+Uniformly bounded fuel is equivalent to a uniform structural-degree bound on
+the exact primitive-query polynomial family.
+-/
+theorem closurePrimitiveFixedFuelPolynomial_degree_bounded_iff
+    (fuel : Nat → Nat) :
+    (∃ fuelCap : Nat,
+      ∀ n : Nat,
+        fuel n ≤ fuelCap) ↔
+    (∃ degreeCap : Nat,
+      ∀ n : Nat,
+        (closurePrimitiveFixedFuelPolynomial
+          (fuel n)).degree ≤ degreeCap) := by
+  constructor
+  · intro bounded
+    rcases bounded with
+      ⟨fuelCap, fuelLe⟩
+    exact
+      ⟨fuelCap,
+        fun n => by
+          rw [closurePrimitiveFixedFuelPolynomial_degree]
+          exact fuelLe n⟩
+  · intro bounded
+    rcases bounded with
+      ⟨degreeCap, degreeLe⟩
+    exact
+      ⟨degreeCap,
+        fun n => by
+          rw [← closurePrimitiveFixedFuelPolynomial_degree
+            (fuel n)]
+          exact degreeLe n⟩
+
+/--
+The analogous uniform-degree characterization holds for the exact
+composition-candidate polynomial family.
+-/
+theorem closureCompositionFixedFuelPolynomial_degree_bounded_iff
+    (fuel : Nat → Nat) :
+    (∃ fuelCap : Nat,
+      ∀ n : Nat,
+        fuel n ≤ fuelCap) ↔
+    (∃ degreeCap : Nat,
+      ∀ n : Nat,
+        (closureCompositionFixedFuelPolynomial
+          (fuel n)).degree ≤ degreeCap) := by
+  constructor
+  · intro bounded
+    rcases bounded with
+      ⟨fuelCap, fuelLe⟩
+    exact
+      ⟨fuelCap,
+        fun n => by
+          rw [closureCompositionFixedFuelPolynomial_degree]
+          exact fuelLe n⟩
+  · intro bounded
+    rcases bounded with
+      ⟨degreeCap, degreeLe⟩
+    exact
+      ⟨degreeCap,
+        fun n => by
+          rw [← closureCompositionFixedFuelPolynomial_degree
+            (fuel n)]
+          exact degreeLe n⟩
+
 /-- Primitive-query polynomial evaluates exactly to the recursive closure budget. -/
 theorem closurePrimitiveFixedFuelPolynomial_eval :
     ∀ (fuel candidateCount : Nat),
@@ -821,6 +885,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_degree
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_degree_unbounded
 #print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_degree_unbounded
+#print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_degree_bounded_iff
+#print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_degree_bounded_iff
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_eval
 #print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_eval
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuel_polynomiallyBounded
