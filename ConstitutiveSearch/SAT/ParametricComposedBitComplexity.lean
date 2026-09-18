@@ -131,7 +131,6 @@ theorem composedState_decisions_length
     exact
       explicitFamilyEndpoint_decisions_length count
   rw [parentLength]
-  rfl
 
 /-- Every square-state decision variable is bounded by n+2. -/
 theorem composedState_decisions_bounded
