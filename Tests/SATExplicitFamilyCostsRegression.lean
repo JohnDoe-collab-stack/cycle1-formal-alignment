@@ -24,15 +24,15 @@ theorem stepCount3 :
     (explicitFamilyResourceTrajectory 3).trajectory.stepCount =
       3 := by
   exact
-    (explicitFamilyResourceTrajectory 3)
-      .trajectory.stepCount_eq_index
+    FlipSymmetricTrajectory.stepCount_eq_index
+      (explicitFamilyResourceTrajectory 3).trajectory
 
 theorem frontierSlots3 :
     (explicitFamilyResourceTrajectory 3).trajectory.frontierSlotCount =
       10 := by
   exact
-    (explicitFamilyResourceTrajectory 3)
-      .trajectory.frontierSlotCount_eq
+    FlipSymmetricTrajectory.frontierSlotCount_eq
+      (explicitFamilyResourceTrajectory 3).trajectory
 
 end ConstitutiveSearch.Tests.SATExplicitFamilyCostsRegression
 
