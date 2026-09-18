@@ -26,7 +26,7 @@ theorem charged_exact :
     chargedCost counts costs = 17 := by
   rfl
 
-def bounded :
+theorem bounded :
     UniformAtomicBound costs 4 :=
   { syntaxLe := by decide
     frontierLe := by decide
