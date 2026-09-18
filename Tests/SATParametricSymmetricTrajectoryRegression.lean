@@ -98,7 +98,8 @@ theorem twoLevel_width_bound :
 
 theorem twoLevel_attains_two :
     2 ∈ twoLevel.widthTrace := by
-  rfl
+  rw [twoLevel_widthTrace]
+  exact List.mem_cons_of_mem 1 List.mem_cons_self
 
 def allTrue : Assignment :=
   fun _ => true
