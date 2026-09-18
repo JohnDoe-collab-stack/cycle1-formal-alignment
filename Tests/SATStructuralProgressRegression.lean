@@ -107,7 +107,7 @@ theorem second_history :
 
 /-- No external iteration count: exact budget is derived from the consumed syntax. -/
 theorem exact_budget :
-    second.depth + [].length =
+    second.depth + ([] : List Var).length =
       formula.variableOccurrences.length :=
   generatedSecond.budget_exact
 
