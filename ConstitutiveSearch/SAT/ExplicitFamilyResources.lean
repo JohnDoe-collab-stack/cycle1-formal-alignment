@@ -112,8 +112,6 @@ theorem variableOccurrences_length_eq_literalCount
           (Clause.variableOccurrences clause).length +
             (variableOccurrences rest).length :=
               List.length_append
-                (Clause.variableOccurrences clause)
-                (variableOccurrences rest)
         _ =
           clause.length +
             (variableOccurrences rest).length :=
@@ -193,6 +191,8 @@ theorem symmetricBlockFamily_literalCount
             (fun value =>
               value + Cnf.literalCount background)
             (symmetricNegativeClause_length var anchor))
+    _ = (2 + 2) + Cnf.literalCount background :=
+        (Nat.add_assoc 2 2 (Cnf.literalCount background)).symm
     _ = 4 + Cnf.literalCount background :=
         rfl
 
