@@ -123,18 +123,14 @@ theorem structuralWorkArithmetic
     count + (3 * count + 1)
         = (count + 3 * count) + 1 :=
           (Nat.add_assoc count (3 * count) 1).symm
-    _ = (1 * count + 3 * count) + 1 :=
+    _ = (3 * count + count) + 1 :=
           congrArg
             (fun value => value + 1)
-            (congrArg
-              (fun value => value + 3 * count)
-              (Nat.one_mul count).symm)
-    _ = ((1 + 3) * count) + 1 :=
-          congrArg
-            (fun value => value + 1)
-            (Nat.add_mul 1 3 count).symm
+            (Nat.add_comm count (3 * count))
     _ = 4 * count + 1 :=
-          rfl
+          congrArg
+            (fun value => value + 1)
+            (Nat.succ_mul 3 count).symm
 
 /-- Exact generic work count for every certified flip-symmetric trajectory. -/
 theorem structuralWorkUnits_eq
@@ -273,8 +269,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits
 #print axioms Nat.add_assoc
-#print axioms Nat.one_mul
-#print axioms Nat.add_mul
+#print axioms Nat.add_comm
+#print axioms Nat.succ_mul
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkArithmetic
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits_eq
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
