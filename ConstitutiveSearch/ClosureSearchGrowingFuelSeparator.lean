@@ -28,6 +28,26 @@ def binaryFuelScale : Nat → Nat
       binaryFuelScale fuel +
         binaryFuelScale fuel
 
+/-- The internal doubling scale is exactly the natural power 2^fuel. -/
+theorem binaryFuelScale_eq_two_pow :
+    ∀ fuel : Nat,
+      binaryFuelScale fuel =
+        2 ^ fuel := by
+  intro fuel
+  induction fuel with
+  | zero =>
+      rfl
+  | succ fuel inductionHypothesis =>
+      change
+        binaryFuelScale fuel +
+            binaryFuelScale fuel =
+          2 ^ (fuel + 1)
+      rw [
+        inductionHypothesis,
+        Nat.pow_add_one,
+        Nat.mul_two
+      ]
+
 /--
 The one-candidate closure budget is exactly one below the doubling scale.
 Writing the identity without subtraction keeps it purely in Nat arithmetic.
@@ -79,6 +99,16 @@ theorem closurePrimitiveOneCandidateGrowingFuel_exact
     binaryClosureBudget_add_one_eq_binaryFuelScale
       inputBits
 
+/-- Closed form: one-candidate primitive-query budget plus one is 2^inputBits. -/
+theorem closurePrimitiveOneCandidateGrowingFuel_eq_two_pow
+    (inputBits : Nat) :
+    closurePrimitiveQueryBudget 1 inputBits + 1 =
+      2 ^ inputBits :=
+  Eq.trans
+    (closurePrimitiveOneCandidateGrowingFuel_exact
+      inputBits)
+    (binaryFuelScale_eq_two_pow inputBits)
+
 /--
 The composition-candidate budget has the same exact growing-fuel behavior.
 -/
@@ -90,6 +120,16 @@ theorem closureCompositionOneCandidateGrowingFuel_exact
   exact
     binaryClosureBudget_add_one_eq_binaryFuelScale
       inputBits
+
+/-- Closed form: one-candidate composition budget plus one is 2^inputBits. -/
+theorem closureCompositionOneCandidateGrowingFuel_eq_two_pow
+    (inputBits : Nat) :
+    closureCompositionCandidateBudget 1 inputBits + 1 =
+      2 ^ inputBits :=
+  Eq.trans
+    (closureCompositionOneCandidateGrowingFuel_exact
+      inputBits)
+    (binaryFuelScale_eq_two_pow inputBits)
 
 /-- Identity fuel is unbounded. -/
 theorem identityFuel_unbounded :
@@ -184,9 +224,12 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.binaryFuelScale
+#print axioms ConstitutiveSearch.binaryFuelScale_eq_two_pow
 #print axioms ConstitutiveSearch.binaryClosureBudget_add_one_eq_binaryFuelScale
 #print axioms ConstitutiveSearch.closurePrimitiveOneCandidateGrowingFuel_exact
+#print axioms ConstitutiveSearch.closurePrimitiveOneCandidateGrowingFuel_eq_two_pow
 #print axioms ConstitutiveSearch.closureCompositionOneCandidateGrowingFuel_exact
+#print axioms ConstitutiveSearch.closureCompositionOneCandidateGrowingFuel_eq_two_pow
 #print axioms ConstitutiveSearch.identityFuel_unbounded
 #print axioms ConstitutiveSearch.closurePrimitiveIdentityFuel_degree_unbounded
 #print axioms ConstitutiveSearch.closureCompositionIdentityFuel_degree_unbounded
