@@ -40,13 +40,11 @@ theorem stepCount_eq_index
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      change
-        tail.stepCount + 1 =
-          length + 1
-      exact
-        congrArg
-          (fun value => value + 1)
-          inductionHypothesis
+      rw [show
+        (FlipSymmetricTrajectory.step
+          var fresh symmetric tail).stepCount =
+            tail.stepCount + 1 from rfl]
+      rw [inductionHypothesis]
 
 /--
 Number of frontier-state slots explicitly encountered by the announced
@@ -66,6 +64,22 @@ def frontierSlotCount
   | .step _var _fresh _symmetric tail =>
       3 + tail.frontierSlotCount
 
+/-- One nonterminal level contributes exactly three frontier slots. -/
+theorem frontierSlotCount_succ
+    (length : Nat) :
+    3 + (3 * length + 1) =
+      3 * (length + 1) + 1 := by
+  calc
+    3 + (3 * length + 1)
+        = (3 + 3 * length) + 1 :=
+          (Nat.add_assoc 3 (3 * length) 1).symm
+    _ = (3 * length + 3) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (Nat.add_comm 3 (3 * length))
+    _ = 3 * (length + 1) + 1 := by
+          rw [Nat.mul_succ]
+
 /-- Exact closed form for the structural frontier-slot count. -/
 theorem frontierSlotCount_eq
     {rootFormula : Cnf}
@@ -79,23 +93,12 @@ theorem frontierSlotCount_eq
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      change
-        3 + tail.frontierSlotCount =
-          3 * (length + 1) + 1
-      calc
-        3 + tail.frontierSlotCount
-            = 3 + (3 * length + 1) :=
-              congrArg
-                (Nat.add 3)
-                inductionHypothesis
-        _ = (3 + 3 * length) + 1 :=
-              (Nat.add_assoc 3 (3 * length) 1).symm
-        _ = (3 * length + 3) + 1 :=
-              congrArg
-                (fun value => value + 1)
-                (Nat.add_comm 3 (3 * length))
-        _ = 3 * (length + 1) + 1 := by
-              rw [Nat.mul_succ]
+      rw [show
+        (FlipSymmetricTrajectory.step
+          var fresh symmetric tail).frontierSlotCount =
+            3 + tail.frontierSlotCount from rfl]
+      rw [inductionHypothesis]
+      exact frontierSlotCount_succ _
 
 end FlipSymmetricTrajectory
 
@@ -153,14 +156,14 @@ theorem explicitFamilyCertifiedCounts
   · exact
       explicitFamilyDecisionResource_length count
   · exact
-      (explicitFamilyResourceTrajectory count)
-        .trajectory.stepCount_eq_index
+      FlipSymmetricTrajectory.stepCount_eq_index
+        (explicitFamilyResourceTrajectory count).trajectory
   · exact
-      (explicitFamilyResourceTrajectory count)
-        .trajectory.widthTrace_length
+      FlipSymmetricTrajectory.widthTrace_length
+        (explicitFamilyResourceTrajectory count).trajectory
   · exact
-      (explicitFamilyResourceTrajectory count)
-        .trajectory.frontierSlotCount_eq
+      FlipSymmetricTrajectory.frontierSlotCount_eq
+        (explicitFamilyResourceTrajectory count).trajectory
   · intro width member
     exact
       explicitFamilyResourceTrajectory_width_le_two
@@ -191,10 +194,10 @@ theorem explicitFamilyStructuralWorkUnits_eq
       4 * count + 1 := by
   unfold explicitFamilyStructuralWorkUnits
   rw [
-    (explicitFamilyResourceTrajectory count)
-      .trajectory.stepCount_eq_index,
-    (explicitFamilyResourceTrajectory count)
-      .trajectory.frontierSlotCount_eq
+    FlipSymmetricTrajectory.stepCount_eq_index
+      (explicitFamilyResourceTrajectory count).trajectory,
+    FlipSymmetricTrajectory.frontierSlotCount_eq
+      (explicitFamilyResourceTrajectory count).trajectory
   ]
   calc
     count + (3 * count + 1)
@@ -214,6 +217,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.stepCount
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.stepCount_eq_index
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_succ
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyCertifiedCounts
