@@ -23,20 +23,20 @@ theorem representationChargedCost3 :
   rfl
 
 theorem relationAtomic3 :
-    (explicitFamilyRepresentationAtomicCosts 3)
-        .relationFindCall =
+    AtomicCosts.relationFindCall
+        (explicitFamilyRepresentationAtomicCosts 3) =
       208 :=
   explicitFamily_relationFind_atomicCost 3
 
 theorem noClosureCharge3 :
-    (explicitFamilyComplexityCounts 3)
-          .closurePrimitiveQueries *
-          (explicitFamilyRepresentationAtomicCosts 3)
-            .closurePrimitiveQuery +
-        (explicitFamilyComplexityCounts 3)
-          .closureCompositionCandidates *
-          (explicitFamilyRepresentationAtomicCosts 3)
-            .closureCompositionCandidate =
+    ComplexityCounts.closurePrimitiveQueries
+          (explicitFamilyComplexityCounts 3) *
+          AtomicCosts.closurePrimitiveQuery
+            (explicitFamilyRepresentationAtomicCosts 3) +
+        ComplexityCounts.closureCompositionCandidates
+          (explicitFamilyComplexityCounts 3) *
+          AtomicCosts.closureCompositionCandidate
+            (explicitFamilyRepresentationAtomicCosts 3) =
       0 :=
   explicitFamily_localStrategy_noClosureCharge 3
 
