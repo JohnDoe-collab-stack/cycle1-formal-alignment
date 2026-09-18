@@ -76,16 +76,14 @@ def explicitFamilyRepresentationChargedCost
 /-- Relation calls are charged by the proved four-operand binary equality budget. -/
 theorem explicitFamily_relationFind_atomicCost
     (count : Nat) :
-    (explicitFamilyRepresentationAtomicCosts count)
-        .relationFindCall =
+    (explicitFamilyRepresentationAtomicCosts count).relationFindCall =
       explicitFamilyRelationEqualityChargeBudget count := by
   rfl
 
 /-- Closure primitive queries use the same equality charge when later enabled. -/
 theorem explicitFamily_closurePrimitive_atomicCost
     (count : Nat) :
-    (explicitFamilyRepresentationAtomicCosts count)
-        .closurePrimitiveQuery =
+    (explicitFamilyRepresentationAtomicCosts count).closurePrimitiveQuery =
       explicitFamilyRelationEqualityChargeBudget count := by
   rfl
 
@@ -95,14 +93,10 @@ event profile contains no closure search.
 -/
 theorem explicitFamily_localStrategy_noClosureCharge
     (count : Nat) :
-    (explicitFamilyComplexityCounts count)
-          .closurePrimitiveQueries *
-          (explicitFamilyRepresentationAtomicCosts count)
-            .closurePrimitiveQuery +
-        (explicitFamilyComplexityCounts count)
-          .closureCompositionCandidates *
-          (explicitFamilyRepresentationAtomicCosts count)
-            .closureCompositionCandidate =
+    (explicitFamilyComplexityCounts count).closurePrimitiveQueries *
+          (explicitFamilyRepresentationAtomicCosts count).closurePrimitiveQuery +
+        (explicitFamilyComplexityCounts count).closureCompositionCandidates *
+          (explicitFamilyRepresentationAtomicCosts count).closureCompositionCandidate =
       0 := by
   rfl
 
