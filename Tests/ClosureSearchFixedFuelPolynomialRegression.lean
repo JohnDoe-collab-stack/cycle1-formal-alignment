@@ -43,6 +43,57 @@ theorem primitiveInputBound :
           (Nat.le_succ 3)
           (Nat.le_succ 4))
 
+
+def quadraticCandidateCount
+    (inputBits : Nat) : Nat :=
+  inputBits * inputBits
+
+theorem quadraticCandidateCount_inputPolynomial :
+    InputPolynomiallyBounded
+      (fun n => n)
+      quadraticCandidateCount :=
+  ⟨CostPolynomial.mul
+      CostPolynomial.input
+      CostPolynomial.input,
+    fun _ =>
+      Nat.le_refl _⟩
+
+theorem primitiveFuel4_quadraticCandidates :
+    InputPolynomiallyBounded
+      (fun n => n)
+      (fun n =>
+        closurePrimitiveQueryBudget
+          (quadraticCandidateCount n)
+          4) :=
+  closurePrimitiveFixedFuel_of_candidateInputPolynomial
+    4
+    quadraticCandidateCount_inputPolynomial
+
+def boundedFuel : Nat → Nat
+  | 0 => 0
+  | _ + 1 => 2
+
+theorem boundedFuel_le_two
+    (n : Nat) :
+    boundedFuel n ≤ 2 := by
+  cases n with
+  | zero =>
+      exact Nat.zero_le 2
+  | succ n =>
+      exact Nat.le_refl 2
+
+theorem compositionBoundedFuel_quadraticCandidates :
+    InputPolynomiallyBounded
+      (fun n => n)
+      (fun n =>
+        closureCompositionCandidateBudget
+          (quadraticCandidateCount n)
+          (boundedFuel n)) :=
+  closureCompositionBoundedFuel_of_candidateInputPolynomial
+    2
+    quadraticCandidateCount_inputPolynomial
+    boundedFuel_le_two
+
 end ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -51,4 +102,8 @@ end ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveFuel4Polynomial
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.compositionFuel4Polynomial
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveInputBound
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.quadraticCandidateCount_inputPolynomial
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveFuel4_quadraticCandidates
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.boundedFuel_le_two
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.compositionBoundedFuel_quadraticCandidates
 /- AXIOM_AUDIT_END -/
