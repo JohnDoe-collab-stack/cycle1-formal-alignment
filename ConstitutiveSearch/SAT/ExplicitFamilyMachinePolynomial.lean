@@ -105,10 +105,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyStatePolynomialBudget count :=
                 explicitFamilyStateBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyStateCostPolynomial.eval count :=
-                (explicitFamilyStateCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (explicitFamilyStateCostPolynomial_eval
+                    count).symm)
     provenanceUnit :=
       inputPolynomialBounded_of_indexEnvelope
         explicitFamilyProvenanceCostPolynomial
@@ -119,10 +120,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyProvenancePolynomialBudget count :=
                 explicitFamilyProvenanceUnitBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyProvenanceCostPolynomial.eval count :=
-                (explicitFamilyProvenanceCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (explicitFamilyProvenanceCostPolynomial_eval
+                    count).symm)
     certificateAtom :=
       inputPolynomialBounded_of_indexEnvelope
         explicitFamilyCertificateCostPolynomial
@@ -143,10 +145,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyRelationPolynomialBudget count :=
                 explicitFamilyRelationEqualityChargeBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyRelationCostPolynomial.eval count :=
-                (explicitFamilyRelationCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (explicitFamilyRelationCostPolynomial_eval
+                    count).symm)
     closurePrimitiveQuery :=
       inputPolynomialBounded_of_indexEnvelope
         explicitFamilyRelationCostPolynomial
@@ -157,10 +160,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyRelationPolynomialBudget count :=
                 explicitFamilyRelationEqualityChargeBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyRelationCostPolynomial.eval count :=
-                (explicitFamilyRelationCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (explicitFamilyRelationCostPolynomial_eval
+                    count).symm)
     closureCompositionCandidate :=
       inputPolynomialBounded_of_indexEnvelope
         explicitFamilyStateCostPolynomial
@@ -171,10 +175,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyStatePolynomialBudget count :=
                 explicitFamilyStateBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyStateCostPolynomial.eval count :=
-                (explicitFamilyStateCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (explicitFamilyStateCostPolynomial_eval
+                    count).symm)
     terminalCheck :=
       inputPolynomialBounded_of_indexEnvelope
         explicitFamilyHistoryCostPolynomial
@@ -187,10 +192,11 @@ theorem explicitFamilyRepresentationAtomicCosts_inputPolynomiallyBounded :
               explicitFamilyHistoryPolynomialBudget count :=
                 explicitFamilyHistoryBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               explicitFamilyHistoryCostPolynomial.eval count :=
-                (explicitFamilyHistoryCostPolynomial_eval
-                  count).symm) }
+                Nat.le_of_eq
+                  (explicitFamilyHistoryCostPolynomial_eval
+                    count).symm) }
 
 /-- Every representation-level atomic cost of the composition phase is polynomial. -/
 theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
@@ -211,10 +217,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedStatePolynomialBudget count :=
                 composedStateBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedStateCostPolynomial.eval count :=
-                (composedStateCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (composedStateCostPolynomial_eval
+                    count).symm)
     provenanceUnit :=
       inputPolynomialBounded_of_indexEnvelope
         composedProvenanceUnitCostPolynomial
@@ -232,10 +239,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedCertificateAtomPolynomialBudget count :=
                 composedCertificateAtomBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedCertificateAtomCostPolynomial.eval count :=
-                (composedCertificateAtomCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (composedCertificateAtomCostPolynomial_eval
+                    count).symm)
     relationFindCall :=
       inputPolynomialBounded_of_indexEnvelope
         composedSingleFlipEqualityCostPolynomial
@@ -246,10 +254,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedSingleFlipEqualityPolynomialBudget count :=
                 composedSingleFlipEqualityBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedSingleFlipEqualityCostPolynomial.eval count :=
-                (composedSingleFlipEqualityCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (composedSingleFlipEqualityCostPolynomial_eval
+                    count).symm)
     closurePrimitiveQuery :=
       inputPolynomialBounded_of_indexEnvelope
         composedPrimitiveQueryCostPolynomial
@@ -260,10 +269,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedPrimitiveQueryPolynomialBudget count :=
                 composedPrimitiveQueryBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedPrimitiveQueryCostPolynomial.eval count :=
-                (composedPrimitiveQueryCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (composedPrimitiveQueryCostPolynomial_eval
+                    count).symm)
     closureCompositionCandidate :=
       inputPolynomialBounded_of_indexEnvelope
         composedStateCostPolynomial
@@ -274,10 +284,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedStatePolynomialBudget count :=
                 composedStateBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedStateCostPolynomial.eval count :=
-                (composedStateCostPolynomial_eval
-                  count).symm)
+                Nat.le_of_eq
+                  (composedStateCostPolynomial_eval
+                    count).symm)
     terminalCheck :=
       inputPolynomialBounded_of_indexEnvelope
         composedHistoryCostPolynomial
@@ -288,10 +299,11 @@ theorem composedClosurePhaseRepresentationAtomicCosts_inputPolynomiallyBounded :
               composedHistoryPolynomialBudget count :=
                 composedHistoryBinaryBudget_eq_polynomial
                   count
-            _ =
+            _ ≤
               composedHistoryCostPolynomial.eval count :=
-                (composedHistoryCostPolynomial_eval
-                  count).symm) }
+                Nat.le_of_eq
+                  (composedHistoryCostPolynomial_eval
+                    count).symm) }
 
 /--
 Local machine charge is polynomial in inputBits under one fixed calibration and
