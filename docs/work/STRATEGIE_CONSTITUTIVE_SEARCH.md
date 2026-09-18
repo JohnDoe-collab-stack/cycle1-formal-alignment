@@ -7,10 +7,10 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-1a7e07572546dd39d617b85bab559b401529c514
+3555068f8736c62b29d0a624f37c48a3e908e017
 ~~~
 
-P1 a P5, P6a, P6b, le constructeur ferme P6b-explicit et une premiere couche quantitative P7a sont maintenant formalises. Les nouvelles couches de ressources et de comptages structurels sont auditees sans axiome sur Linux. Le CI final du head documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows apres synchronisation du plan.
+P1 a P5, P6a, P6b, le constructeur ferme P6b-explicit, le separateur P6c et les couches quantitatives P7a/P7b actuellement annoncees sont formalises. Le head code ci-dessus a passe Linux et Windows ; provenance, certificats, surface de verification relationnelle et separateur de largeur sont audites sans axiome. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1139,6 +1139,10 @@ ConstitutiveSearch/SAT/
   ExplicitStackedSymmetricFamily.lean
   ExplicitFamilyResources.lean
   ExplicitFamilyCosts.lean
+  ExplicitFamilyProvenance.lean
+  ExplicitFamilyTransportCosts.lean
+  ExplicitFamilyRelationCosts.lean
+  WidthSeparators.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1168,6 +1172,10 @@ ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement long
 ExplicitStackedSymmetricFamily -> F(n) ferme, 2n clauses, trajectoire automatique de longueur n
 ExplicitFamilyResources -> ressource exacte n, endpoint depth n et terminalite
 ExplicitFamilyCosts -> comptages structurels exacts et proxy de travail etroit 4n+1
+ExplicitFamilyProvenance -> taille de provenance exactement egale a la profondeur
+ExplicitFamilyTransportCosts -> un atome TransportCode par absorption locale
+ExplicitFamilyRelationCosts -> surface de verification relationnelle explicitement bornee
+WidthSeparators -> frontieres viables de largeur arbitraire irreductibles pour un flip fixe
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1181,13 +1189,11 @@ ConstitutiveSearch/
 
 ConstitutiveSearch/SAT/
   StructuralContextTrajectory.lean
-  ExplicitFamilyProvenance.lean
-  ExplicitFamilyTransportCosts.lean
+  ExplicitFamilyNormalizationCosts.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
   PropagationTransport.lean
-  WidthSeparators.lean
 ~~~
 
 La progression structurelle de base est maintenant fermee :
@@ -1281,8 +1287,36 @@ recherche de relations, la construction/verifications des witnesses, la taille
 des representations, la recherche dans la fermeture compositionnelle ni les
 couts machine.
 
-Le prochain verrou porte donc sur les tailles de provenance et de certificats,
-puis sur les vrais couts de recherche et de normalisation.
+Les tailles de provenance et de certificats de la strategie fermee sont
+maintenant explicites :
+
+~~~text
+provenanceSize(endpoint) = n
+context.decisions.length(endpoint) = n
+taille de chaque code local de flip = 1 atome
+nombre total d'atomes de transport sur la trajectoire = n
+~~~
+
+Une surface de verification relationnelle est egalement definie. Pour une paire
+sibling, elle compte les positions de litteraux des deux residuels, les decisions
+des deux historiques et la variable de flip. Sur F(n), la somme est bornee par :
+
+~~~text
+n * uniformRelationVerificationUnit (4n) n
+~~~
+
+Cette borne est une surface de representation a verifier. Elle ne facture pas le
+cout binaire des egalites sur Nat, le proof checking Lean, ni une recherche
+generale de witness.
+
+Point important : le constructeur actuel de F(n) produit directement le witness
+de flip depuis la symetrie certifiee. Il n'appelle pas le moteur generique
+RelationSearch.find pour construire ces absorptions. Le cout executable d'une
+recherche relationnelle generale reste donc ouvert.
+
+Le prochain verrou porte sur le cout de normalisation/search lorsque le moteur
+generique est effectivement utilise, puis sur la recherche dans la fermeture
+compositionnelle.
 
 La recherche exhaustive dans TransportClosure reste egalement ouverte. La
 fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
@@ -1358,7 +1392,12 @@ mais aucun oracle de recherche de code n'est suppose.
 [FAIT P6b-explicit] preservation de Viable racine <-> endpoint
 [FAIT P6b-explicit] accumulation du residuel faible suivie explicitement
 
-[P6c] familles separatrices ou la largeur croit
+[FAIT P6c] isolatedFrontier n de largeur n
+[FAIT P6c] meme residuel vide mais provenances de variables distinctes
+[FAIT P6c] aucun flip fixe ne relie deux enfants distincts
+[FAIT P6c] SearchIrreducible pour toute largeur n sous le moteur annonce
+[FAIT P6c] frontieres separatrices non vides viables
+[QUALIFICATION P6c] separateur relatif au moteur de flip, pas durete intrinseque
 
 [FAIT P7a] Cnf.literalCount(F(n)) = 4n
 [FAIT P7a] ressource exacte de decision de taille n
@@ -1369,10 +1408,16 @@ mais aucun oracle de recherche de code n'est suppose.
 [FAIT P7a] bundle ExplicitFamilyCertifiedCounts
 [FAIT P7a] proxy structurel etroit = 4n + 1
 
-[P7b] taille de provenance et des witnesses/codes
-[P7b] cout executable de recherche relationnelle
-[P7b] cout de normalisation
-[P7b] cout de recherche dans TransportClosure
+[FAIT P7b] provenanceSize(endpoint) = n
+[FAIT P7b] decisions.length(endpoint) = n
+[FAIT P7b] code local de flip = 1 atome
+[FAIT P7b] total des atomes de transport = n
+[FAIT P7b] surface de verification relationnelle bornee sur F(n)
+
+[OUVERT P7b] cout executable de RelationSearch.find
+[OUVERT P7b] cout de normalisation avec recherche effective
+[OUVERT P7b] cout binaire des representations et egalites
+[OUVERT P7b] cout de recherche dans TransportClosure
 [P7c] theorem conditionnel de complexite
 
 [P8] audit externe de nouveaute et de comparaison
@@ -1385,24 +1430,23 @@ mais aucun oracle de recherche de code n'est suppose.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. borner exactement la taille de l'historique/provenance le long de la trajectoire
-2. borner la taille des witnesses et codes de transport utilises a chaque niveau
-3. instrumenter le moteur relationnel avec un cout executable explicite
-4. mesurer le cout de normalisation pour F(n)
-5. construire une famille separatrice ou la largeur croit
-6. definir une recherche bornee de TransportCode sans en faire un oracle
-7. mesurer le cout de recherche dans la fermeture
+1. instrumenter RelationSearch.find et classifyPairCertified avec un cout executable explicite
+2. mesurer le cout de normalisation lorsque le moteur generique est effectivement utilise
+3. distinguer cout de verification d'un witness fourni et cout de recherche d'un witness
+4. definir une recherche bornee de TransportCode sans en faire un oracle
+5. mesurer le cout de recherche dans la fermeture
+6. borner la taille binaire des variables/representations
+7. relier ces couts au constructeur explicite F(n)
 8. assembler le theorem conditionnel de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> passer des comptages structurels exacts maintenant disponibles a une
-> comptabilite des objets effectivement manipules : provenance, certificats,
-> recherche relationnelle, normalisation et fermeture compositionnelle.
+> passer de tailles de provenance/certificats et d'une surface de verification
+> a un cout executable instrumente pour la recherche et la normalisation.
 
-Le proxy 4n+1 ne doit jamais etre utilise comme substitut de ces couts encore
-ouverts.
+Le proxy 4n+1 et la surface relationnelle ne doivent jamais etre utilises comme
+substituts du cout de RelationSearch.find ou de la recherche dans TransportClosure.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
@@ -1478,42 +1522,78 @@ Viable racine <-> Viable endpoint
 
 Toutes ces nouvelles declarations sont auditees sans axiome.
 
-### 26.3 Ce qui reste avant l'interpretation de complexite
+### 26.3 Tailles de certificats et verification : statut
 
-Les tailles structurelles de base ne suffisent toujours pas. Il reste a fermer :
+Les tailles suivantes sont maintenant fermees :
 
 ~~~text
-taille de la provenance a chaque profondeur
-taille des witnesses/codes de transport
-cout de construction et verification de ces witnesses
-cout de recherche relationnelle
-cout de normalisation
+provenance endpoint = n decisions
+un code local de flip = 1 atome TransportCode
+total des atomes utilises = n
+~~~
+
+La surface de verification directe des relations est bornee par :
+
+~~~text
+n * uniformRelationVerificationUnit (4n) n
+~~~
+
+Elle mesure les positions structurelles de formule/histoire a verifier. Elle
+n'est pas un theorem de temps machine.
+
+Le constructeur de F(n) obtient actuellement le witness local directement depuis
+la symetrie certifiee. Il ne fait donc pas appel a une recherche generale
+RelationSearch.find pour chaque absorption.
+
+Restent ouverts avant toute interpretation forte de complexite :
+
+~~~text
+cout executable de RelationSearch.find
+cout de classifyPairCertified
+cout de normalisation avec recherche effective
+cout binaire des egalites/representations
 cout de recherche dans TransportClosure
 ~~~
 
 Le proxy structurel 4n+1 compte seulement les niveaux certifies et les slots de
-frontiere explicitement visites. Il ne constitue pas un resultat de complexite
-temporelle.
+frontiere explicitement visites.
 
 ---
 
-## 27. Premiers theoremes separateurs vises
+## 27. Theoremes separateurs : statut
 
-Deux separateurs sont prioritaires.
+Trois separateurs sont maintenant formalises.
 
-Premier separateur :
+Premier separateur semantique :
 
 > une fonction totale entre continuations peut exister sans transport preservant l'acceptation.
 
-Deuxieme separateur :
+Deuxieme separateur de fermeture :
 
 > sous un moteur relationnel R annonce, une frontiere peut etre directement irreductible alors qu'un chemin de transports elementaires permet une reduction apres fermeture.
 
-Ces deux resultats testent respectivement :
+Troisieme separateur de largeur :
+
+~~~text
+isolatedFrontier n
+largeur = n
+meme residuel syntaxique vide pour tous les etats
+provenances sur variables distinctes
+SearchIrreducible sous generatedStructuralFlipAtSearch pour tout flip fixe
+frontiere viable si n > 0
+~~~
+
+Le troisieme resultat est deliberement relatif au moteur annonce. Il montre que
+le flip seul n'impose pas une largeur bornee, meme quand tous les residuels
+syntaxiques sont identiques. Il ne constitue pas une preuve de durete
+intrinseque de cette famille.
+
+Ces resultats testent respectivement :
 
 ~~~text
 la semantique du transport
-la semantique de l'irreductibilite
+la distinction direct / fermeture
+la sensibilite de la largeur a la classe de relations disponible
 ~~~
 
 ---
@@ -1676,14 +1756,26 @@ longueur n avec trace de longueur 2n+1 et largeur maximale au plus 2. Une
 ressource exacte [n-1,...,0] de taille n est consommee jusqu'a l'endpoint,
 qui a profondeur n et est structurellement terminal.
 
-Une premiere comptabilite structurelle est egalement fermee :
-stepCount = n, frontierSlotCount = 3n+1 et un proxy etroit
-stepCount + frontierSlotCount = 4n+1.
+Une premiere comptabilite structurelle et certificate-level est fermee :
 
-Le prochain obstacle est quantitatif au sens algorithmique : taille de
-provenance, certificats, cout de recherche relationnelle, normalisation et
-fermeture compositionnelle, puis une famille ou la largeur croit. Ces gates
-restent obligatoires avant toute analyse de complexite forte.
+~~~text
+stepCount = n
+frontierSlotCount = 3n+1
+structuralWorkUnits = 4n+1
+provenance endpoint = n decisions
+transport-code atoms = n
+surface de verification relationnelle explicitement bornee
+~~~
+
+Un separateur negatif est aussi ferme : sous tout flip fixe annonce,
+isolatedFrontier n est une frontiere viable de largeur n, search-irreductible,
+bien que tous ses residuels soient syntaxiquement vides. La provenance suffit a
+les distinguer pour ce moteur.
+
+Le prochain obstacle est quantitatif au sens executable : cout de
+RelationSearch.find, normalisation avec recherche effective, taille binaire des
+representations et recherche dans TransportClosure. Ces gates restent
+obligatoires avant toute analyse de complexite forte.
 
 Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
 pas le mecanisme constitutif.
