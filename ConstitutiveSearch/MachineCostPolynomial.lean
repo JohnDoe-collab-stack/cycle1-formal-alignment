@@ -466,6 +466,136 @@ theorem machineChargedCost_inputPolynomiallyBounded
       overhead
       (bridges n)
 
+/--
+Abstract constitutive machine-cost theorem.
+
+A polynomial constitutive profile supplies polynomial event counts.  If the
+representation-level atomic costs are polynomial in the same concrete input
+size and a fixed-calibration representation-to-machine bridge is supplied for
+every family member, then the machine charge of the profile is polynomial in
+that input size.
+-/
+theorem constitutiveProfileMachineCost_inputPolynomiallyBounded
+    {profile : Nat → ConstitutiveComplexityProfile}
+    {representation : Nat → AtomicCosts}
+    {machine : Nat → MachineCostModel}
+    (profileBounded :
+      ConstitutiveProfileFamilyInputPolynomiallyBounded
+        profile)
+    (representationBounded :
+      AtomicCostsFamilyInputPolynomiallyBounded
+        (fun n =>
+          (profile n).inputBits)
+        representation)
+    (factor overhead : Nat)
+    (bridges :
+      ∀ n : Nat,
+        RepresentationMachineBridge
+          (representation n)
+          (machine n)
+          factor
+          overhead) :
+    InputPolynomiallyBounded
+      (fun n =>
+        (profile n).inputBits)
+      (fun n =>
+        machineChargedCost
+          (profile n).events
+          (machine n)) :=
+  machineChargedCost_inputPolynomiallyBounded
+    (ComplexityCountsFamilyInputPolynomiallyBounded.ofProfile
+      profileBounded)
+    representationBounded
+    factor
+    overhead
+    bridges
+
+/--
+Sequentially composed constitutive phases retain polynomial total machine
+charge when each phase independently satisfies the abstract profile theorem.
+
+The two phases may use different representation models, machine models and
+fixed affine calibration constants.  Their concrete input-size coordinates are
+combined by the same maximum used by profile composition.
+-/
+theorem composedConstitutiveProfilesMachineCost_inputPolynomiallyBounded
+    {first second : Nat → ConstitutiveComplexityProfile}
+    {firstRepresentation secondRepresentation :
+      Nat → AtomicCosts}
+    {firstMachine secondMachine :
+      Nat → MachineCostModel}
+    (firstProfileBounded :
+      ConstitutiveProfileFamilyInputPolynomiallyBounded
+        first)
+    (secondProfileBounded :
+      ConstitutiveProfileFamilyInputPolynomiallyBounded
+        second)
+    (firstRepresentationBounded :
+      AtomicCostsFamilyInputPolynomiallyBounded
+        (fun n =>
+          (first n).inputBits)
+        firstRepresentation)
+    (secondRepresentationBounded :
+      AtomicCostsFamilyInputPolynomiallyBounded
+        (fun n =>
+          (second n).inputBits)
+        secondRepresentation)
+    (firstFactor firstOverhead : Nat)
+    (secondFactor secondOverhead : Nat)
+    (firstBridges :
+      ∀ n : Nat,
+        RepresentationMachineBridge
+          (firstRepresentation n)
+          (firstMachine n)
+          firstFactor
+          firstOverhead)
+    (secondBridges :
+      ∀ n : Nat,
+        RepresentationMachineBridge
+          (secondRepresentation n)
+          (secondMachine n)
+          secondFactor
+          secondOverhead) :
+    InputPolynomiallyBounded
+      (fun n =>
+        (ConstitutiveComplexityProfile.compose
+          (first n)
+          (second n)).inputBits)
+      (fun n =>
+        machineChargedCost
+            (first n).events
+            (firstMachine n) +
+          machineChargedCost
+            (second n).events
+            (secondMachine n)) := by
+  change
+    InputPolynomiallyBounded
+      (fun n =>
+        Nat.max
+          (first n).inputBits
+          (second n).inputBits)
+      (fun n =>
+        machineChargedCost
+            (first n).events
+            (firstMachine n) +
+          machineChargedCost
+            (second n).events
+            (secondMachine n))
+  exact
+    InputPolynomiallyBounded.add_under_max
+      (constitutiveProfileMachineCost_inputPolynomiallyBounded
+        firstProfileBounded
+        firstRepresentationBounded
+        firstFactor
+        firstOverhead
+        firstBridges)
+      (constitutiveProfileMachineCost_inputPolynomiallyBounded
+        secondProfileBounded
+        secondRepresentationBounded
+        secondFactor
+        secondOverhead
+        secondBridges)
+
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -479,4 +609,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.chargedCost_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.representationCalibratedMachineBudget_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.machineChargedCost_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.constitutiveProfileMachineCost_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.composedConstitutiveProfilesMachineCost_inputPolynomiallyBounded
 /- AXIOM_AUDIT_END -/
