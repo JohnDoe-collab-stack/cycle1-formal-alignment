@@ -58,15 +58,41 @@ theorem insertPairClassificationCount_le_length
       cases classification :
           search.classifyPairCertified state current with
       | bidirectional forward backward forwardFound backwardFound =>
-          change 1 ≤ Nat.succ tail.length
+          have countExact :
+              insertPairClassificationCount
+                  search
+                  state
+                  (current :: tail) =
+                1 := by
+            unfold insertPairClassificationCount
+            rw [classification]
+          rw [countExact]
           exact Nat.succ_le_succ (Nat.zero_le _)
       | forwardOnly forward forwardFound backwardNotFound =>
-          change 1 ≤ Nat.succ tail.length
+          have countExact :
+              insertPairClassificationCount
+                  search
+                  state
+                  (current :: tail) =
+                1 := by
+            unfold insertPairClassificationCount
+            rw [classification]
+          rw [countExact]
           exact Nat.succ_le_succ (Nat.zero_le _)
       | backwardOnly backward forwardNotFound backwardFound =>
-          change
-            1 + insertPairClassificationCount search state tail ≤
-              Nat.succ tail.length
+          have countExact :
+              insertPairClassificationCount
+                  search
+                  state
+                  (current :: tail) =
+                1 +
+                  insertPairClassificationCount
+                    search
+                    state
+                    tail := by
+            unfold insertPairClassificationCount
+            rw [classification]
+          rw [countExact]
           rw [Nat.succ_eq_add_one]
           rw [Nat.add_comm 1 (insertPairClassificationCount search state tail)]
           exact
@@ -74,9 +100,19 @@ theorem insertPairClassificationCount_le_length
               inductionHypothesis
               1
       | unresolved forwardNotFound backwardNotFound =>
-          change
-            1 + insertPairClassificationCount search state tail ≤
-              Nat.succ tail.length
+          have countExact :
+              insertPairClassificationCount
+                  search
+                  state
+                  (current :: tail) =
+                1 +
+                  insertPairClassificationCount
+                    search
+                    state
+                    tail := by
+            unfold insertPairClassificationCount
+            rw [classification]
+          rw [countExact]
           rw [Nat.succ_eq_add_one]
           rw [Nat.add_comm 1 (insertPairClassificationCount search state tail)]
           exact
@@ -114,17 +150,33 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
       cases classification :
           search.classifyPairCertified state current with
       | bidirectional forward backward forwardFound backwardFound =>
-          change
-            (current :: tail).length ≤
-              (current :: tail).length + 1
+          have retainedExact :
+              (insertAcceptedIntoIrreducible
+                search
+                action
+                state
+                (current :: tail)
+                restIrreducible).retained =
+              current :: tail := by
+            unfold insertAcceptedIntoIrreducible
+            rw [classification]
+          rw [retainedExact]
           exact
             Nat.le_add_right
               (current :: tail).length
               1
       | forwardOnly forward forwardFound backwardNotFound =>
-          change
-            (current :: tail).length ≤
-              (current :: tail).length + 1
+          have retainedExact :
+              (insertAcceptedIntoIrreducible
+                search
+                action
+                state
+                (current :: tail)
+                restIrreducible).retained =
+              current :: tail := by
+            unfold insertAcceptedIntoIrreducible
+            rw [classification]
+          rw [retainedExact]
           exact
             Nat.le_add_right
               (current :: tail).length
@@ -132,14 +184,22 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
       | backwardOnly backward forwardNotFound backwardFound =>
           have recursiveLe :=
             inductionHypothesis tailIrreducible
-          change
-            (insertAcceptedIntoIrreducible
-              search
-              action
-              state
-              tail
-              tailIrreducible).retained.length ≤
-                (current :: tail).length + 1
+          have retainedExact :
+              (insertAcceptedIntoIrreducible
+                search
+                action
+                state
+                (current :: tail)
+                restIrreducible).retained =
+              (insertAcceptedIntoIrreducible
+                search
+                action
+                state
+                tail
+                tailIrreducible).retained := by
+            unfold insertAcceptedIntoIrreducible
+            rw [classification]
+          rw [retainedExact]
           exact
             Nat.le_trans
               recursiveLe
@@ -149,15 +209,23 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
       | unresolved forwardNotFound backwardNotFound =>
           have recursiveLe :=
             inductionHypothesis tailIrreducible
-          change
-            Nat.succ
+          have retainedExact :
+              (insertAcceptedIntoIrreducible
+                search
+                action
+                state
+                (current :: tail)
+                restIrreducible).retained =
+              current ::
                 (insertAcceptedIntoIrreducible
                   search
                   action
                   state
                   tail
-                  tailIrreducible).retained.length ≤
-              (current :: tail).length + 1
+                  tailIrreducible).retained := by
+            unfold insertAcceptedIntoIrreducible
+            rw [classification]
+          rw [retainedExact]
           exact
             Nat.succ_le_succ
               recursiveLe
@@ -321,7 +389,6 @@ theorem normalizationPairClassificationCount_le_quadratic
                 Nat.succ tail.length := by
         rw [Nat.succ_mul]
         rw [Nat.mul_succ]
-        rw [Nat.add_assoc]
       rw [squareExpand]
       exact
         Nat.le_trans
