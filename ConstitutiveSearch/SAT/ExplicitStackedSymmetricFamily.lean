@@ -411,25 +411,32 @@ theorem stackedStage_flipSymmetric
 The true branch of one explicit stacked stage appends exactly one retained
 negative clause to the accumulated prefix.
 -/
-theorem stackedStage_trueResidual
+theorem append_singleton_cons
+    (accumulated : Cnf)
+    (clause : Clause)
+    (tail : Cnf) :
+    accumulated ++ (clause :: tail) =
+      (accumulated ++ [clause]) ++ tail :=
+  (List.append_assoc accumulated [clause] tail).symm
+
+/--
+Before reassociation, the true residual is the accumulated prefix followed by
+one retained negative clause and the remaining stack.
+-/
+theorem stackedStage_trueResidual_preAssoc
     {count anchor : Nat}
     {accumulated : Cnf}
-    (accumulatedSafe :
-      PrefixAvoidsBelow (count + 1) accumulated)
+    (accumulatedAvoidsCurrent :
+      Cnf.AvoidsVar count accumulated)
     (countSuccLeAnchor : count + 1 ≤ anchor) :
     branchResidual
         (accumulated ++
           stackedSymmetricBlocks (count + 1) anchor)
         count
         true =
-      (accumulated ++
-        [symmetricNegativeClause count anchor]) ++
-          stackedSymmetricBlocks count anchor := by
-  have accumulatedAvoidsCurrent :
-      Cnf.AvoidsVar count accumulated :=
-    accumulatedSafe
-      count
-      (Nat.lt_succ_self count)
+      accumulated ++
+        (symmetricNegativeClause count anchor ::
+          stackedSymmetricBlocks count anchor) := by
   exact
     calc
       branchResidual
@@ -471,14 +478,36 @@ theorem stackedStage_trueResidual
           (fun right => accumulated ++ right)
           (stackedSymmetricBlocks_trueResidual
             countSuccLeAnchor)
-      _ =
+
+/-- Exact next-stage residual in the accumulated-prefix representation. -/
+theorem stackedStage_trueResidual
+    {count anchor : Nat}
+    {accumulated : Cnf}
+    (accumulatedSafe :
+      PrefixAvoidsBelow (count + 1) accumulated)
+    (countSuccLeAnchor : count + 1 ≤ anchor) :
+    branchResidual
         (accumulated ++
-          [symmetricNegativeClause count anchor]) ++
-            stackedSymmetricBlocks count anchor :=
-        (List.append_assoc
-          accumulated
-          [symmetricNegativeClause count anchor]
-          (stackedSymmetricBlocks count anchor)).symm
+          stackedSymmetricBlocks (count + 1) anchor)
+        count
+        true =
+      (accumulated ++
+        [symmetricNegativeClause count anchor]) ++
+          stackedSymmetricBlocks count anchor := by
+  have accumulatedAvoidsCurrent :
+      Cnf.AvoidsVar count accumulated :=
+    accumulatedSafe
+      count
+      (Nat.lt_succ_self count)
+  exact
+    Eq.trans
+      (stackedStage_trueResidual_preAssoc
+        accumulatedAvoidsCurrent
+        countSuccLeAnchor)
+      (append_singleton_cons
+        accumulated
+        (symmetricNegativeClause count anchor)
+        (stackedSymmetricBlocks count anchor))
 
 namespace PrefixAvoidsBelow
 
@@ -785,6 +814,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_avoids_of_le
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_trueResidual
 #print axioms ConstitutiveSearch.SAT.stackedStage_flipSymmetric
+#print axioms ConstitutiveSearch.SAT.append_singleton_cons
+#print axioms ConstitutiveSearch.SAT.stackedStage_trueResidual_preAssoc
 #print axioms ConstitutiveSearch.SAT.stackedStage_trueResidual
 #print axioms ConstitutiveSearch.SAT.PrefixAvoidsBelow
 #print axioms ConstitutiveSearch.SAT.DecisionsAvoidBelow
