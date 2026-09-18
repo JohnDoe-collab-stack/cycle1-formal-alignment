@@ -84,6 +84,7 @@ theorem eval_le_majorant :
         Nat.pow_zero,
         Nat.mul_one
       ]
+      exact Nat.le_refl value
   | .input, inputBits, _ => by
       simp only [
         eval,
@@ -92,6 +93,7 @@ theorem eval_le_majorant :
         Nat.pow_one,
         Nat.one_mul
       ]
+      exact Nat.le_refl inputBits
   | .add left right, inputBits, inputPositive => by
       have inputNonzero :
           0 < inputBits :=
