@@ -1422,6 +1422,13 @@ et la liste de candidats annonces.
 [FAIT P4b-b] bornes generales pour tout fuel et toute liste finie de candidats
 [FAIT P4b-b] regression candidateCount=1, fuel=1/2
 [QUALIFICATION P4b-b] les budgets exposent la croissance de l'arbre de recherche, sans promesse polynomiale
+[FAIT P4b-b] viaPrimitiveQueryBudget r m = m * (r + r)
+[FAIT P4b-b] viaCompositionCandidateBudget r m = m * (r + r + 1)
+[FAIT P4b-b] candidateCount=1 : primitive et composition suivent B(0)=0, B(f+1)=2B(f)+1
+[FAIT P4b-b] regression fuel=4 : budgets = 15
+[FAIT P4b-b] fuel=2 : primitiveQueriesBudget = 2m+1
+[FAIT P4b-b] fuel=2 : compositionCandidatesBudget = m(2m+1)
+[QUALIFICATION P4b-b] la recurrence binaire caracterise le budget du moteur; elle n'est pas une borne inferieure de temps machine
 
 [FAIT P4b-c] famille SAT parametrique construite au-dessus de l'endpoint de F(n)
 [FAIT P4b-c] source -> target absent de la recherche primitive annoncee
@@ -1544,23 +1551,23 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. formaliser les regimes de croissance de candidateCount et fuel dans ClosureSearch
-2. distinguer formellement charge de representation et cout machine effectif des egalites
-3. assembler les profils locaux, normalisation et composition dans une interface commune
-4. comparer les enveloppes locale, compositionnelle et separatrice
+1. distinguer formellement charge de representation et cout machine effectif des egalites
+2. assembler les profils locaux, normalisation et composition dans une interface commune
+3. comparer les enveloppes locale, compositionnelle et separatrice
+4. isoler des regimes de fuel/candidats bornes polynomialement par la taille d'entree
 5. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
 6. separer les hypotheses de representation des hypotheses de machine
 7. tester l'interface abstraite sur une deuxieme famille parametrique
-8. isoler les conditions sous lesquelles la fermeture compositionnelle reste polynomiale
+8. caracteriser les conditions de fermeture sous lesquelles le cout total reste polynomial
 ~~~
 
 Le verrou courant est donc :
 
-> caracteriser la croissance de ClosureSearch lorsque candidateCount et fuel
-> ne sont plus constants. La couche locale, la phase compositionnelle et le
-> normaliseur generique ont maintenant des bornes explicites; il faut maintenant
-> isoler exactement quand la recherche de fermeture reste polynomiale et quand
-> son arbre de recherche devient combinatoire.
+> relier proprement les charges de representation deja prouvees a un modele de
+> cout machine explicite, sans les identifier. La croissance interne de
+> ClosureSearch est maintenant exposee : meme avec un candidat, le budget
+> double-plus-un avec le fuel; les futures hypotheses de polynomialite devront
+> donc controler explicitement fuel, candidats et cout atomique.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
