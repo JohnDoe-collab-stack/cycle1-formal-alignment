@@ -100,6 +100,71 @@ theorem frontierSlotCount_eq
       rw [inductionHypothesis]
       exact frontierSlotCount_succ _
 
+/--
+Combined structural work count for any flip-symmetric trajectory.
+This still excludes relation-search and representation costs.
+-/
+def FlipSymmetricTrajectory.structuralWorkUnits
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    Nat :=
+  trajectory.stepCount +
+    trajectory.frontierSlotCount
+
+/-- Pure arithmetic identity used by the structural work count. -/
+theorem structuralWorkArithmetic
+    (count : Nat) :
+    count + (3 * count + 1) =
+      4 * count + 1 := by
+  calc
+    count + (3 * count + 1)
+        = (count + 3 * count) + 1 :=
+          (Nat.add_assoc count (3 * count) 1).symm
+    _ = (1 * count + 3 * count) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (congrArg
+              (fun value => value + 3 * count)
+              (Nat.one_mul count).symm)
+    _ = ((1 + 3) * count) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (Nat.add_mul 1 3 count).symm
+    _ = 4 * count + 1 :=
+          rfl
+
+/-- Exact generic work count for every certified flip-symmetric trajectory. -/
+theorem FlipSymmetricTrajectory.structuralWorkUnits_eq
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    trajectory.structuralWorkUnits =
+      4 * length + 1 := by
+  unfold FlipSymmetricTrajectory.structuralWorkUnits
+  calc
+    trajectory.stepCount +
+          trajectory.frontierSlotCount
+        =
+      length + trajectory.frontierSlotCount :=
+        congrArg
+          (fun value =>
+            value + trajectory.frontierSlotCount)
+          (FlipSymmetricTrajectory.stepCount_eq_index
+            trajectory)
+    _ =
+      length + (3 * length + 1) :=
+        congrArg
+          (Nat.add length)
+          (FlipSymmetricTrajectory.frontierSlotCount_eq
+            trajectory)
+    _ = 4 * length + 1 :=
+        structuralWorkArithmetic length
+
 end FlipSymmetricTrajectory
 
 /--
@@ -184,49 +249,15 @@ search, and machine-level execution cost.
 -/
 def explicitFamilyStructuralWorkUnits
     (count : Nat) : Nat :=
-  (explicitFamilyResourceTrajectory count).trajectory.stepCount +
-    (explicitFamilyResourceTrajectory count).trajectory.frontierSlotCount
+  (explicitFamilyResourceTrajectory count).trajectory.structuralWorkUnits
 
 /-- Exact value of the narrow structural work proxy. -/
 theorem explicitFamilyStructuralWorkUnits_eq
     (count : Nat) :
     explicitFamilyStructuralWorkUnits count =
       4 * count + 1 :=
-  let trajectory :=
+  FlipSymmetricTrajectory.structuralWorkUnits_eq
     (explicitFamilyResourceTrajectory count).trajectory
-  calc
-    explicitFamilyStructuralWorkUnits count
-        =
-      trajectory.stepCount +
-        trajectory.frontierSlotCount :=
-          rfl
-    _ =
-      count + trajectory.frontierSlotCount :=
-        congrArg
-          (fun value =>
-            value + trajectory.frontierSlotCount)
-          (FlipSymmetricTrajectory.stepCount_eq_index
-            trajectory)
-    _ =
-      count + (3 * count + 1) :=
-        congrArg
-          (Nat.add count)
-          (FlipSymmetricTrajectory.frontierSlotCount_eq
-            trajectory)
-    _ = (count + 3 * count) + 1 :=
-        (Nat.add_assoc count (3 * count) 1).symm
-    _ = (1 * count + 3 * count) + 1 :=
-        congrArg
-          (fun value => value + 1)
-          (congrArg
-            (fun value => value + 3 * count)
-            (Nat.one_mul count).symm)
-    _ = ((1 + 3) * count) + 1 :=
-        congrArg
-          (fun value => value + 1)
-          (Nat.add_mul 1 3 count).symm
-    _ = 4 * count + 1 :=
-        rfl
 
 end SAT
 end ConstitutiveSearch
@@ -237,6 +268,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_succ
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits
+#print axioms ConstitutiveSearch.SAT.structuralWorkArithmetic
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits_eq
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyCertifiedCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyStructuralWorkUnits
