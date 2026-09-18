@@ -291,6 +291,121 @@ theorem stackedSymmetricBlocks_avoids_of_le
             tailAvoids⟩
 
 /--
+One explicit stacked stage is flip-symmetric at its current decision variable.
+-/
+theorem stackedStage_flipSymmetric
+    {count anchor : Nat}
+    {accumulated : Cnf}
+    (accumulatedSafe :
+      PrefixAvoidsBelow (count + 1) accumulated)
+    (countSuccLeAnchor : count + 1 ≤ anchor) :
+    FlipSymmetricAt
+      (accumulated ++
+        stackedSymmetricBlocks (count + 1) anchor)
+      count := by
+  have currentLtAnchor : count < anchor :=
+    Nat.lt_of_lt_of_le
+      (Nat.lt_succ_self count)
+      countSuccLeAnchor
+  have anchorDifferentCurrent : anchor ≠ count :=
+    (Nat.ne_of_lt currentLtAnchor).symm
+  have tailAvoidsCurrent :
+      Cnf.AvoidsVar
+        count
+        (stackedSymmetricBlocks count anchor) :=
+    stackedSymmetricBlocks_avoids_of_le
+      (Nat.le_refl count)
+      (Nat.ne_of_lt currentLtAnchor)
+  have bodySymmetric :
+      FlipSymmetricAt
+        (symmetricBlockFamily
+          count
+          anchor
+          (stackedSymmetricBlocks count anchor))
+        count :=
+    symmetricBlockFamily_flipSymmetric
+      anchorDifferentCurrent
+      tailAvoidsCurrent
+  have accumulatedAvoidsCurrent :
+      Cnf.AvoidsVar count accumulated :=
+    accumulatedSafe
+      count
+      (Nat.lt_succ_self count)
+  change
+    FlipSymmetricAt
+      (accumulated ++
+        symmetricBlockFamily
+          count
+          anchor
+          (stackedSymmetricBlocks count anchor))
+      count
+  exact
+    FlipSymmetricAt.prepend_avoiding
+      accumulatedAvoidsCurrent
+      bodySymmetric
+
+/--
+The true branch of one explicit stacked stage appends exactly one retained
+negative clause to the accumulated prefix.
+-/
+theorem stackedStage_trueResidual
+    {count anchor : Nat}
+    {accumulated : Cnf}
+    (accumulatedSafe :
+      PrefixAvoidsBelow (count + 1) accumulated)
+    (countSuccLeAnchor : count + 1 ≤ anchor) :
+    branchResidual
+        (accumulated ++
+          stackedSymmetricBlocks (count + 1) anchor)
+        count
+        true =
+      (accumulated ++
+        [symmetricNegativeClause count anchor]) ++
+          stackedSymmetricBlocks count anchor := by
+  have currentLtAnchor : count < anchor :=
+    Nat.lt_of_lt_of_le
+      (Nat.lt_succ_self count)
+      countSuccLeAnchor
+  have anchorDifferentCurrent : anchor ≠ count :=
+    (Nat.ne_of_lt currentLtAnchor).symm
+  have tailAvoidsCurrent :
+      Cnf.AvoidsVar
+        count
+        (stackedSymmetricBlocks count anchor) :=
+    stackedSymmetricBlocks_avoids_of_le
+      (Nat.le_refl count)
+      (Nat.ne_of_lt currentLtAnchor)
+  have accumulatedAvoidsCurrent :
+      Cnf.AvoidsVar count accumulated :=
+    accumulatedSafe
+      count
+      (Nat.lt_succ_self count)
+  change
+    branchResidual
+        (accumulated ++
+          symmetricBlockFamily
+            count
+            anchor
+            (stackedSymmetricBlocks count anchor))
+        count
+        true =
+      (accumulated ++
+        [symmetricNegativeClause count anchor]) ++
+          stackedSymmetricBlocks count anchor
+  rw [Cnf.branchResidual_append]
+  rw [
+    Cnf.branchResidual_eq_self
+      accumulatedAvoidsCurrent
+      true
+  ]
+  rw [
+    symmetricBlockFamily_trueResidual
+      anchorDifferentCurrent
+      tailAvoidsCurrent
+  ]
+  rw [List.append_assoc]
+
+/--
 An accumulated prefix is safe for the remaining `count` levels when it avoids every
 decision variable strictly below `count`.
 -/
