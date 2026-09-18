@@ -43,6 +43,34 @@ def isolatedChild
     true
     (isolatedRootFresh var)
 
+/-- Every isolated child has the same empty residual syntax. -/
+theorem isolatedChild_formula_empty
+    (var : Var) :
+    (isolatedChild var).context.formula =
+      ([] : Cnf) := by
+  rfl
+
+/-- Empty residual syntax is invariant under every polarity flip. -/
+theorem isolatedChild_formula_flip_exact
+    (anchor sourceVar targetVar : Var) :
+    (isolatedChild targetVar).context.formula =
+      Cnf.flipAt
+        anchor
+        (isolatedChild sourceVar).context.formula := by
+  calc
+    (isolatedChild targetVar).context.formula
+        = ([] : Cnf) :=
+          isolatedChild_formula_empty targetVar
+    _ = Cnf.flipAt anchor ([] : Cnf) := by
+          rfl
+    _ =
+      Cnf.flipAt
+        anchor
+        (isolatedChild sourceVar).context.formula :=
+          congrArg
+            (Cnf.flipAt anchor)
+            (isolatedChild_formula_empty sourceVar).symm
+
 /-- Distinct isolated children record distinct structural histories. -/
 theorem isolatedChild_decisions_ne
     {leftVar rightVar : Var}
@@ -125,7 +153,16 @@ theorem isolatedChild_flipSearch_none
     else
       none) =
     none
-  rw [dif_pos rfl]
+  have formulaExact :
+      (isolatedChild targetVar).context.formula =
+        Cnf.flipAt
+          anchor
+          (isolatedChild sourceVar).context.formula :=
+    isolatedChild_formula_flip_exact
+      anchor
+      sourceVar
+      targetVar
+  rw [dif_pos formulaExact]
   rw [
     dif_neg
       (isolatedChild_decisions_ne_flipped
@@ -276,6 +313,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.isolatedRoot
 #print axioms ConstitutiveSearch.SAT.isolatedRootFresh
 #print axioms ConstitutiveSearch.SAT.isolatedChild
+#print axioms ConstitutiveSearch.SAT.isolatedChild_formula_empty
+#print axioms ConstitutiveSearch.SAT.isolatedChild_formula_flip_exact
 #print axioms ConstitutiveSearch.SAT.isolatedChild_decisions_ne
 #print axioms ConstitutiveSearch.SAT.isolatedChild_decisions_ne_flipped
 #print axioms ConstitutiveSearch.SAT.isolatedChild_flipSearch_none
