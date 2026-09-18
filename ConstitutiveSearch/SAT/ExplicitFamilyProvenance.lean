@@ -114,32 +114,32 @@ theorem finish_provenanceSize_eq
   | done state =>
       exact
         (Nat.add_zero state.provenanceSize).symm
-  | step var fresh symmetric tail inductionHypothesis =>
+  | @step parent finish length var fresh symmetric tail inductionHypothesis =>
       have childSize :
           (GeneratedStructuralBranchContext.child
-            _ var true fresh).provenanceSize =
-          _parent.provenanceSize + 1 :=
+            parent var true fresh).provenanceSize =
+          parent.provenanceSize + 1 :=
         GeneratedStructuralBranchContext.child_provenanceSize
-          _parent var true fresh
+          parent var true fresh
       calc
         finish.provenanceSize
             =
           (GeneratedStructuralBranchContext.child
-            _parent var true fresh).provenanceSize +
+            parent var true fresh).provenanceSize +
               length :=
             inductionHypothesis
         _ =
-          (_parent.provenanceSize + 1) + length :=
+          (parent.provenanceSize + 1) + length :=
             congrArg
               (fun value => value + length)
               childSize
         _ =
-          _parent.provenanceSize + (1 + length) :=
-            Nat.add_assoc _parent.provenanceSize 1 length
+          parent.provenanceSize + (1 + length) :=
+            Nat.add_assoc parent.provenanceSize 1 length
         _ =
-          _parent.provenanceSize + (length + 1) :=
+          parent.provenanceSize + (length + 1) :=
             congrArg
-              (Nat.add _parent.provenanceSize)
+              (Nat.add parent.provenanceSize)
               (Nat.add_comm 1 length)
 
 end FlipSymmetricTrajectory
@@ -161,10 +161,9 @@ theorem explicitFamilyEndpoint_provenanceSize
 /-- Equivalent statement directly on the stored decision list. -/
 theorem explicitFamilyEndpoint_decisions_length
     (count : Nat) :
-    (explicitFamilyResourceTrajectory count)
-        .finish.context.decisions.length =
-      count :=
-  explicitFamilyEndpoint_provenanceSize count
+    (explicitFamilyResourceTrajectory count).finish.context.decisions.length =
+      count := by
+  exact explicitFamilyEndpoint_provenanceSize count
 
 end SAT
 end ConstitutiveSearch
