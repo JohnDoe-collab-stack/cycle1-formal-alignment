@@ -294,9 +294,11 @@ theorem explicitFamilyEndpoint_depth
     (count : Nat) :
     (explicitFamilyResourceTrajectory count).finish.depth =
       count := by
-  have exactDepth :=
-    (explicitFamilyResourceTrajectory count).generated
-      .depth_eq_initial_of_exhausted
+  have exactDepth :
+      (explicitFamilyResourceTrajectory count).finish.depth =
+        (explicitFamilyDecisionResource count).length :=
+    ResourceGeneratedFrom.depth_eq_initial_of_exhausted
+      (explicitFamilyResourceTrajectory count).generated
   exact
     Eq.trans
       exactDepth
@@ -308,8 +310,8 @@ theorem explicitFamilyEndpoint_terminal
     ResourceTerminal
       (explicitFamilyResourceTrajectory count).finish
       [] :=
-  (explicitFamilyResourceTrajectory count).generated
-    .terminal_of_exhausted
+  ResourceGeneratedFrom.terminal_of_exhausted
+    (explicitFamilyResourceTrajectory count).generated
 
 /-- No further resource-consuming decision exists at the final endpoint. -/
 theorem explicitFamilyEndpoint_no_next_decision
