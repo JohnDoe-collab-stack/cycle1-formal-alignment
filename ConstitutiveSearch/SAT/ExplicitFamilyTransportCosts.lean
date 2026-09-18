@@ -196,8 +196,7 @@ end FlipSymmetricTrajectory
 /-- The closed family uses exactly n primitive flip-certificate atoms. -/
 theorem explicitFamilyTransportCertificateAtomCount
     (count : Nat) :
-    (explicitFamilyResourceTrajectory count)
-        .trajectory.transportCertificateAtomCount =
+    (explicitFamilyResourceTrajectory count).trajectory.transportCertificateAtomCount =
       count :=
   FlipSymmetricTrajectory.transportCertificateAtomCount_eq_index
     (explicitFamilyResourceTrajectory count).trajectory
@@ -209,12 +208,10 @@ provenance decisions and primitive transport-code atoms.
 structure ExplicitFamilyCertificateSizes
     (count : Nat) : Prop where
   provenanceDecisions :
-    (explicitFamilyResourceTrajectory count)
-        .finish.context.decisions.length =
+    (explicitFamilyResourceTrajectory count).finish.context.decisions.length =
       count
   transportAtoms :
-    (explicitFamilyResourceTrajectory count)
-        .trajectory.transportCertificateAtomCount =
+    (explicitFamilyResourceTrajectory count).trajectory.transportCertificateAtomCount =
       count
 
 /-- Exact certificate-size bundle for F(n). -/
