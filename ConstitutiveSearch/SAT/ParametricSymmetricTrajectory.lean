@@ -146,7 +146,7 @@ theorem widthTrace_value
           | head =>
               exact Or.inr rfl
           | tail _ tailMember =>
-              exact inductionHypothesis width tailMember
+              exact inductionHypothesis tailMember
 
 /-- Uniform operational bound W(n) <= 2 for every trajectory length n. -/
 theorem width_le_two
@@ -164,6 +164,7 @@ theorem width_le_two
       decide
   | inr widthTwo =>
       rw [widthTwo]
+      exact Nat.le_refl 2
 
 /-- A nonempty trajectory actually attains width two at its first split. -/
 theorem step_width_two
