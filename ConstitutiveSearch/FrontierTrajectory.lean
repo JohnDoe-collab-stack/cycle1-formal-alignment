@@ -50,10 +50,10 @@ def preservation
       start.frontier
       finish.frontier :=
   match trajectory with
-  | .refl =>
+  | .refl state =>
       AcceptedFrontierPreservation.identity
         system
-        start.frontier
+        state.frontier
   | .snoc previous step =>
       (preservation previous).trans
         step.preservation
@@ -90,8 +90,8 @@ def widthTrace
       FrontierTrajectory system Constitutes start finish) :
     List Nat :=
   match trajectory with
-  | .refl =>
-      [start.frontier.length]
+  | .refl state =>
+      [state.frontier.length]
   | .snoc previous _step =>
       widthTrace previous ++
         [finish.frontier.length]
