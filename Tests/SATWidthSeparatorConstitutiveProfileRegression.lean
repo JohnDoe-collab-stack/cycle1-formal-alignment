@@ -19,6 +19,16 @@ theorem representationConsistent3 :
       (isolatedSeparatorRepresentationAtomicCosts 3) :=
   isolatedSeparatorEnvelopeProfile_representationConsistent 3
 
+
+theorem index3_le_serializedInput :
+    3 ≤ isolatedFrontierInputBitSize 3 :=
+  isolatedSeparatorIndex_le_inputBitSize 3
+
+theorem separatorFamily_inputPolynomial :
+    ConstitutiveProfileFamilyInputPolynomiallyBounded
+      isolatedSeparatorEnvelopeProfile :=
+  isolatedSeparatorEnvelopeProfile_inputPolynomiallyBounded
+
 theorem normalizationBound3 :
     normalizationFindCallCount
         (generatedStructuralFlipAtSearch ([] : Cnf) 0)
@@ -45,6 +55,8 @@ end ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.width3
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.depth3
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.representationConsistent3
+#print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.index3_le_serializedInput
+#print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.separatorFamily_inputPolynomial
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.normalizationBound3
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.separatorNotBelowComposition3
 #print axioms ConstitutiveSearch.Tests.SATWidthSeparatorConstitutiveProfileRegression.compositionNotBelowSeparator3
