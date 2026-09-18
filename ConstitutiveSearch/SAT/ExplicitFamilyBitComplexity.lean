@@ -98,6 +98,7 @@ theorem explicitFamily_localStrategy_noClosureCharge
         (explicitFamilyComplexityCounts count).closureCompositionCandidates *
           (explicitFamilyRepresentationAtomicCosts count).closureCompositionCandidate =
       0 := by
+  unfold explicitFamilyComplexityCounts
   rfl
 
 end SAT
