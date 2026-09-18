@@ -1487,7 +1487,11 @@ et la liste de candidats annonces.
 [FAIT P7b] surface de verification des deux directions bornee sur F(n)
 [QUALIFICATION P7b] ce comptage de controle-flow ne vaut pas cout bit-machine
 
-[OUVERT P7b] cout complet du normaliseur generique sur frontieres arbitraires
+[FAIT P7b] normaliseur generique : retained.length <= source.length
+[FAIT P7b] insertion : au plus rest.length classifications de paires
+[FAIT P7b] normalisation arbitraire : pairClassifications <= width^2
+[FAIT P7b] deux find par classification, donc findCalls <= 2 * width^2
+[QUALIFICATION P7b] borne de controle-flow du normaliseur, pas cout machine d'un find
 [FAIT P7b] ClosureSearchCosts instancie sur une famille SAT parametrique
 [FAIT P7b] fermeture composee SAT : 3 requetes primitives et 1 candidat pour le chemin a deux atomes
 [FAIT P7b] charge de representation de cette fermeture instanciee et bornee polynomialement en taille d'entree
@@ -1540,23 +1544,23 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
+1. formaliser les regimes de croissance de candidateCount et fuel dans ClosureSearch
 2. distinguer formellement charge de representation et cout machine effectif des egalites
-3. assembler les profils locaux et compositionnels dans une interface commune
+3. assembler les profils locaux, normalisation et composition dans une interface commune
 4. comparer les enveloppes locale, compositionnelle et separatrice
-5. formaliser les regimes de croissance de candidateCount et fuel dans ClosureSearch
-6. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
-7. separer les hypotheses de representation des hypotheses de machine
-8. tester l'interface abstraite sur une deuxieme famille parametrique
+5. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
+6. separer les hypotheses de representation des hypotheses de machine
+7. tester l'interface abstraite sur une deuxieme famille parametrique
+8. isoler les conditions sous lesquelles la fermeture compositionnelle reste polynomiale
 ~~~
 
 Le verrou courant est donc :
 
-> generaliser la comptabilite au normaliseur et aux recherches dont la largeur,
-> candidateCount ou fuel croissent avec l'entree. Les couches locale F(n) et
-> compositionnelle ont maintenant toutes deux une charge de representation
-> explicite, une enveloppe polynomiale et une indexation par la taille binaire
-> concrete de l'entree.
+> caracteriser la croissance de ClosureSearch lorsque candidateCount et fuel
+> ne sont plus constants. La couche locale, la phase compositionnelle et le
+> normaliseur generique ont maintenant des bornes explicites; il faut maintenant
+> isoler exactement quand la recherche de fermeture reste polynomiale et quand
+> son arbre de recherche devient combinatoire.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
