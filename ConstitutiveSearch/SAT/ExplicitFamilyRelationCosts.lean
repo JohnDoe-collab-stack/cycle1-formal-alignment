@@ -247,6 +247,7 @@ theorem relationVerificationSurface_le_uniform
   induction trajectory with
   | done state =>
       intro formulaBound provenanceBound _formulaLe _provenanceLe
+      change 0 ≤ 0
       exact Nat.le_refl 0
   | @step parent finish length var fresh symmetric tail inductionHypothesis =>
       intro formulaBound provenanceBound parentFormulaLe finishProvenanceLe
@@ -347,8 +348,7 @@ representation-surface budget.
 -/
 theorem explicitFamilyRelationVerificationSurface_le
     (count : Nat) :
-    (explicitFamilyResourceTrajectory count)
-        .trajectory.relationVerificationSurface ≤
+    (explicitFamilyResourceTrajectory count).trajectory.relationVerificationSurface ≤
       explicitFamilyRelationVerificationBudget count := by
   apply
     FlipSymmetricTrajectory.relationVerificationSurface_le_uniform
