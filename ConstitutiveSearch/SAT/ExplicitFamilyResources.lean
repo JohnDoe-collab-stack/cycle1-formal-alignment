@@ -61,24 +61,22 @@ theorem stackedSymmetricBlocks_variableOccurrences_length
   | zero =>
       rfl
   | succ count inductionHypothesis =>
-      dsimp [
-        stackedSymmetricBlocks,
-        symmetricBlockFamily,
-        Cnf.variableOccurrences,
-        Clause.variableOccurrences,
-        Literal.varOf
-      ]
-      rw [List.length_append, List.length_append]
-      change
-        2 +
-          (2 +
+      calc
+        (Cnf.variableOccurrences
+          (stackedSymmetricBlocks (count + 1) anchor)).length
+            =
+          4 +
             (Cnf.variableOccurrences
-              (stackedSymmetricBlocks count anchor)).length) =
-        4 * (count + 1)
-      rw [inductionHypothesis]
-      rw [Nat.mul_succ]
-      rw [← Nat.add_assoc]
-      exact Nat.add_comm 4 (4 * count)
+              (stackedSymmetricBlocks count anchor)).length := by
+                rfl
+        _ = 4 + (4 * count) :=
+              congrArg
+                (Nat.add 4)
+                inductionHypothesis
+        _ = 4 * count + 4 :=
+              Nat.add_comm 4 (4 * count)
+        _ = 4 * (count + 1) :=
+              (Nat.mul_succ 4 count).symm
 
 /-- The closed family has exactly four literal occurrences per level. -/
 theorem explicitStackedSymmetricFamily_variableOccurrences_length
