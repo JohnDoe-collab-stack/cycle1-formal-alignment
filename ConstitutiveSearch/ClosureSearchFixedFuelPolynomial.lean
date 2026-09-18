@@ -65,12 +65,20 @@ theorem closurePrimitiveFixedFuelPolynomial_degree :
             0 =
           fuel + 1
       rw [
-        closurePrimitiveFixedFuelPolynomial_degree fuel,
-        Nat.max_self
+        closurePrimitiveFixedFuelPolynomial_degree fuel
       ]
-      rw [Nat.max_eq_left]
-      · exact Nat.add_comm 1 fuel
-      · exact Nat.zero_le _
+      have selfMax :
+          Nat.max fuel fuel = fuel :=
+        Nat.max_eq_left
+          (Nat.le_refl fuel)
+      rw [selfMax]
+      have outerMax :
+          Nat.max (1 + fuel) 0 =
+            1 + fuel :=
+        Nat.max_eq_left
+          (Nat.zero_le _)
+      rw [outerMax]
+      exact Nat.add_comm 1 fuel
 
 /-- Structural degree of the exact composition-candidate polynomial is the fuel. -/
 theorem closureCompositionFixedFuelPolynomial_degree :
@@ -89,12 +97,19 @@ theorem closureCompositionFixedFuelPolynomial_degree :
               0 =
           fuel + 1
       rw [
-        closureCompositionFixedFuelPolynomial_degree fuel,
-        Nat.max_self
+        closureCompositionFixedFuelPolynomial_degree fuel
       ]
-      rw [Nat.max_eq_left]
-      · exact Nat.add_comm 1 fuel
-      · exact Nat.zero_le _
+      have selfMax :
+          Nat.max fuel fuel = fuel :=
+        Nat.max_eq_left
+          (Nat.le_refl fuel)
+      rw [selfMax]
+      have outerMax :
+          Nat.max fuel 0 = fuel :=
+        Nat.max_eq_left
+          (Nat.zero_le _)
+      rw [outerMax]
+      exact Nat.add_comm 1 fuel
 
 /--
 An unbounded fuel family therefore produces canonical exact closure polynomials
