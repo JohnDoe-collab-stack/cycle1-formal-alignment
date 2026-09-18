@@ -19,10 +19,6 @@ namespace ConstitutiveSearch
 
 universe uRelation
 
-/--
-If forward relation search succeeds on a two-state frontier, the generic
-hardened normalizer retains exactly one state.
--/
 namespace SAT
 
 /--
@@ -225,9 +221,15 @@ theorem normalizationRelationVerificationSurface_le_uniform
         Nat.add_le_add
           localOne
           (Nat.add_le_add localOne tailLe)
+      change
+        siblingRelationVerificationSurface parent var fresh +
+            (siblingRelationVerificationSurface parent var fresh +
+              tail.normalizationRelationVerificationSurface) ≤
+          (length + 1) * (unit + unit)
       calc
-        (FlipSymmetricTrajectory.step
-          var fresh symmetric tail).normalizationRelationVerificationSurface
+        siblingRelationVerificationSurface parent var fresh +
+              (siblingRelationVerificationSurface parent var fresh +
+                tail.normalizationRelationVerificationSurface)
             ≤
           unit +
             (unit +
