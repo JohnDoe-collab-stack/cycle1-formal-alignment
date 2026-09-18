@@ -68,6 +68,7 @@ theorem composedClosureFuelOne_not_found
     (count : Nat) :
     (composedClosureFuelOne count).code? = none := by
   unfold composedClosureFuelOne
+  simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
   rfl
 
@@ -79,7 +80,10 @@ theorem composedClosureFuelTwo_found
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
   unfold composedClosureFuelTwo
+  simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
+  simp only [searchClosureViaCandidates]
+  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   intro impossible
@@ -95,7 +99,10 @@ theorem composedClosureFuelTwo_code_size
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
   unfold composedClosureFuelTwo
+  simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
+  simp only [searchClosureViaCandidates]
+  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
@@ -108,7 +115,10 @@ theorem composedClosureFuelTwo_primitiveQueries
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
   unfold composedClosureFuelTwo
+  simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
+  simp only [searchClosureViaCandidates]
+  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
@@ -121,7 +131,10 @@ theorem composedClosureFuelTwo_compositionCandidates
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
   unfold composedClosureFuelTwo
+  simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
+  simp only [searchClosureViaCandidates]
+  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
