@@ -42,18 +42,23 @@ def preservation
     {system : SearchSystem}
     {Constitution : Type uConstitution}
     {Constitutes : Constitution → Constitution → Type uStep}
-    {start finish : ConstitutiveState system Constitution} :
-    FrontierTrajectory system Constitutes start finish →
-      AcceptedFrontierPreservation
-        system
-        start.frontier
-        finish.frontier
-  | .refl state =>
-      AcceptedFrontierPreservation.identity
-        system
-        state.frontier
-  | .snoc previous step =>
-      previous.preservation.trans step.preservation
+    {start finish : ConstitutiveState system Constitution}
+    (trajectory :
+      FrontierTrajectory system Constitutes start finish) :
+    AcceptedFrontierPreservation
+      system
+      start.frontier
+      finish.frontier := by
+  induction trajectory with
+  | refl state =>
+      exact
+        AcceptedFrontierPreservation.identity
+          system
+          state.frontier
+  | snoc previous step inductionHypothesis =>
+      exact
+        inductionHypothesis.trans
+          step.preservation
 
 /-- Initial and final frontiers of a trajectory are viability-equivalent. -/
 theorem viable_iff
@@ -81,14 +86,18 @@ def length
 def widthTrace
     {system : SearchSystem}
     {Constitution : Type uConstitution}
-    {Constitutes : Constitution → Constitution → Type uStep} :
-    {start finish : ConstitutiveState system Constitution} →
-      FrontierTrajectory system Constitutes start finish →
-        List Nat
-  | start, _, .refl _ =>
-      [start.frontier.length]
-  | _, finish, .snoc previous _ =>
-      previous.widthTrace ++ [finish.frontier.length]
+    {Constitutes : Constitution → Constitution → Type uStep}
+    {start finish : ConstitutiveState system Constitution}
+    (trajectory :
+      FrontierTrajectory system Constitutes start finish) :
+    List Nat := by
+  induction trajectory with
+  | refl state =>
+      exact [state.frontier.length]
+  | @snoc start current next previous step inductionHypothesis =>
+      exact
+        inductionHypothesis ++
+          [next.frontier.length]
 
 /-- Maximum frontier width observed along the concrete trajectory. -/
 def maxWidth
