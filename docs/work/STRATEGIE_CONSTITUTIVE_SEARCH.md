@@ -7,10 +7,10 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique auditee actuelle avant cette mise a jour documentaire :
 
 ~~~text
-1bfa6849ac92729276e2febb8b14c1d67f4213e1
+ba693c16fe375eecef67db951a9c456da06c264f
 ~~~
 
-P1 a P5 et le premier theorem parametrique P6a sont maintenant formalises. Les couches P5 et P6a sont axiom-free dans l'audit Linux. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
+P1 a P5, P6a et le theorem multi-niveaux P6b sont maintenant formalises. Le workflow 35344429455 a valide ce head sur Linux et Windows, et les nouvelles preuves P5/P6a/P6b sont axiom-free dans l'audit. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1135,6 +1135,7 @@ ConstitutiveSearch/SAT/
   StructuralDynamicRelation.lean
   StructuralProgress.lean
   ParametricSymmetricFamily.lean
+  ParametricSymmetricTrajectory.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1159,7 +1160,8 @@ GeneratedSplitAnchor -> information dynamique issue d'un split SAT certifie
 TransportCode -> syntaxe finie des transports primitifs et de leur composition
 TransportClosure -> fermeture compositionnelle explicite, distincte de sa recherche
 StructuralProgress -> ressource syntaxique finie, histoire sans repetition et terminalite
-ParametricSymmetricFamily -> famille SAT de taille arbitraire avec reduction sibling a largeur 1
+ParametricSymmetricFamily -> famille SAT locale de taille arbitraire avec reduction sibling a largeur 1
+ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement longue avec W(n) <= 2
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1172,7 +1174,7 @@ ConstitutiveSearch/
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
-  ParametricSymmetricTrajectory.lean
+  ExplicitStackedSymmetricFamily.lean
   StructuralContextTrajectory.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
@@ -1196,9 +1198,22 @@ La ressource actuelle compte des occurrences syntaxiques. Elle fournit donc une
 borne constructive correcte mais pas encore une mesure minimale du nombre de
 variables distinctes.
 
-Le prochain verrou principal est parametrique : iterer la reduction sibling sur
-une famille de taille n et obtenir une borne explicite W(n) sur toute la
-trajectoire, pas seulement sur un split.
+Le theorem parametrique multi-niveaux est maintenant disponible sous la forme
+correctement qualifiee suivante :
+
+~~~text
+pour toute FlipSymmetricTrajectory de longueur n
+chaque split est certifie frais et flip-symetrique
+chaque paire sibling est reduite a un singleton
+la viabilite des singletons initial/final est equivalente
+toute largeur observee vaut 1 ou 2
+donc W(n) <= 2 independamment de n
+~~~
+
+Ce theorem est conditionnel a la donnee d'une telle trajectoire certifiee. Il ne
+construit pas encore, pour chaque n, une CNF fermee explicite dont la generation
+produit automatiquement cette trajectoire. Ce constructeur de famille explicite
+est le prochain verrou parametrique.
 
 La recherche exhaustive dans TransportClosure reste egalement ouverte. La
 fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
@@ -1260,8 +1275,13 @@ mais aucun oracle de recherche de code n'est suppose.
 [FAIT P6a] reduction certifiee sibling width = 1
 [FAIT P6a] preservation de Viable sans requete SAT
 
-[P6b] trajectoire parametrique multi-niveaux de taille n
-[P6b] borne explicite W(n) sur la largeur maximale
+[FAIT P6b] FlipSymmetricTrajectory de longueur arbitraire n
+[FAIT P6b] composition expansion -> reduction -> tail
+[FAIT P6b] preservation de Viable entre singleton initial et final
+[FAIT P6b] toute largeur de la trace appartient a {1,2}
+[FAIT P6b] borne uniforme W(n) <= 2
+
+[P6b-explicit] constructeur ferme de CNF pour chaque n realisant la trajectoire
 [P6c] familles separatrices ou la largeur croit
 
 [P7] tailles et couts
@@ -1277,22 +1297,21 @@ mais aucun oracle de recherche de code n'est suppose.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. construire la trajectoire parametrique multi-niveaux de la famille symetrique
-2. prouver une borne explicite sur la largeur maximale W(n)
-3. relier la longueur de cette trajectoire a la ressource structurelle P5
+1. construire une famille fermee de CNF indexee par n qui realise FlipSymmetricTrajectory
+2. relier explicitement la longueur n de cette trajectoire a la ressource structurelle P5
+3. prouver les tailles de formule, provenance et certificats pour cette famille
 4. construire une famille separatrice ou la largeur croit
 5. distinguer borne par occurrences et borne par variables distinctes
 6. definir une recherche bornee de TransportCode sans en faire un oracle
-7. mesurer taille des codes, cout de recherche, cout de normalisation et taille d'etat
-8. mesurer la taille de provenance et des certificats le long de la famille
-9. assembler le theorem conditionnel de complexite
+7. mesurer cout de recherche, cout de normalisation et taille d'etat
+8. assembler le theorem conditionnel de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> passer du theorem local parametrique "chaque sibling symetrique se reduit a
-> largeur 1" a une trajectoire de n decisions dont la largeur maximale est
-> bornee uniformement par un theorem explicite.
+> passer du theorem conditionnel sur toute trajectoire flip-symetrique certifiee
+> a un constructeur explicite de CNF de taille n qui engendre une telle
+> trajectoire, avec tailles et ressources calculees depuis l'instance elle-meme.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
@@ -1313,15 +1332,50 @@ sans exiger que les transports d'absorption soient inversibles.
 
 La trajectoire doit egalement enregistrer assez de provenance pour permettre de calculer quelles relations sont disponibles a chaque etape.
 
-## 26. Premier theorem SAT parametrique vise
+## 26. Premier theorem SAT parametrique : statut
 
-Apres le theorem de trajectoire :
+Deux niveaux sont maintenant distingues.
 
-> Une famille parametrique de CNF a symetries locales explicites admet une trajectoire de contextes dans laquelle chaque split sur une variable fraiche est suivi d'une absorption certifiee, et la largeur operationnelle reste bornee par une constante explicite sous la strategie annoncee.
+### 26.1 Theorem obtenu
 
-Le theorem doit porter sur une famille de taille arbitraire.
+Pour toute `FlipSymmetricTrajectory` certifiee de longueur arbitraire `n` :
 
-Une regression fermee ne suffit pas.
+~~~text
+chaque etape porte une variable fraiche
+le residuel sibling est flip-symetrique
+le split exact est suivi d'une absorption acceptance-preserving
+Viable singleton_initial <-> Viable singleton_final
+toute largeur de widthTrace vaut 1 ou 2
+W(n) <= 2
+~~~
+
+La borne ne depend pas de `n`.
+
+Ce resultat est un vrai theorem parametrique sur la longueur du chemin, pas une
+regression fermee.
+
+### 26.2 Ce qui reste a construire
+
+Le theorem precedent recoit la trajectoire certifiee comme donnee. Il reste a
+construire une famille fermee explicite :
+
+~~~text
+F : Nat -> Cnf
+~~~
+
+avec, pour tout `n`, un constructeur executable/proof-relevant produisant une
+`FlipSymmetricTrajectory` de longueur controlee depuis `F n`, ainsi que les
+bornes sur :
+
+~~~text
+taille(F n)
+ressource initiale
+longueur de trajectoire
+taille de provenance
+taille des certificats de transport
+~~~
+
+Cette distinction est obligatoire avant toute interpretation de complexite.
 
 ---
 
@@ -1490,14 +1544,20 @@ depth + remaining = initial
 epuisement => terminalite
 ~~~
 
-Le premier resultat parametrique positif est egalement formalise : pour un bloc
-SAT symetrique devant un background arbitrairement grand qui evite la variable
-de split, les deux enfants possedent un transport structurel certifie et se
-reduisent a une frontiere de largeur 1.
+Deux resultats parametriques positifs sont maintenant formalises.
 
-Le prochain obstacle est plus fort : composer ce mecanisme sur n niveaux et
-borner la largeur maximale W(n) de la trajectoire complete. Ensuite seulement
-viendront les familles separatrices et le calcul de complexite totale.
+Premier niveau : pour un bloc SAT symetrique devant un background arbitrairement
+grand qui evite la variable de split, les deux enfants possedent un transport
+structurel certifie et se reduisent a une frontiere de largeur 1.
+
+Deuxieme niveau : toute trajectoire flip-symetrique certifiee de longueur
+arbitraire n preserve la viabilite de bout en bout et satisfait la borne
+uniforme W(n) <= 2.
+
+Le prochain obstacle est de ne plus prendre cette trajectoire comme donnee :
+il faut construire explicitement une CNF F(n) qui l'engendre, puis borner la
+taille de F(n), de la provenance, des certificats et des recherches. Les familles
+separatrices restent egalement obligatoires avant l'analyse de complexite.
 
 Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
 pas le mecanisme constitutif.
