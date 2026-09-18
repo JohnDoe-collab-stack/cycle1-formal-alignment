@@ -365,7 +365,7 @@ theorem terminal_of_exhausted
     {rootFormula : Cnf}
     {initial : List Var}
     {state : GeneratedStructuralBranchContext rootFormula}
-    (generated :
+    (_generated :
       ResourceGeneratedFrom
         rootFormula
         initial
