@@ -89,25 +89,19 @@ def literalCount : Cnf → Nat
       clause.length + literalCount rest
 
 /-- The variable-occurrence list has exactly one entry per CNF literal. -/
-theorem variableOccurrences_length_eq_literalCount
-    (formula : Cnf) :
-    (variableOccurrences formula).length =
-      literalCount formula := by
-  induction formula with
-  | nil =>
+theorem variableOccurrences_length_eq_literalCount :
+    (formula : Cnf) →
+      (variableOccurrences formula).length =
+        literalCount formula
+  | [] =>
       rfl
-  | cons clause rest inductionHypothesis =>
-      have step :
-          variableOccurrences (clause :: rest) =
-            Clause.variableOccurrences clause ++
-              variableOccurrences rest :=
-        rfl
+  | clause :: rest =>
       calc
         (variableOccurrences (clause :: rest)).length
             =
           (Clause.variableOccurrences clause ++
             variableOccurrences rest).length :=
-              congrArg List.length step
+              rfl
         _ =
           (Clause.variableOccurrences clause).length +
             (variableOccurrences rest).length :=
@@ -124,7 +118,8 @@ theorem variableOccurrences_length_eq_literalCount
           clause.length + literalCount rest :=
               congrArg
                 (Nat.add clause.length)
-                inductionHypothesis
+                (variableOccurrences_length_eq_literalCount
+                  rest)
         _ = literalCount (clause :: rest) :=
               rfl
 
