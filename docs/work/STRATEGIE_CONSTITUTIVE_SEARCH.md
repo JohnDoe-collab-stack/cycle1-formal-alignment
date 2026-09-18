@@ -1541,6 +1541,23 @@ et la liste de candidats annonces.
 [FAIT P7c-f] cout compositionnel <= enveloppe polynomiale indexee par explicitFamilyInputBitSize
 [QUALIFICATION P7c-f] borne de representation de la phase ajoutee; pas un temps machine
 
+[FAIT P7d-a] AtomicCostPointwiseLe et monotonie de chargedCost
+[FAIT P7d-a] MachineCostModel separe des charges de representation
+[FAIT P7d-a] affineAtomicEnvelope factor/overhead
+[FAIT P7d-a] RepresentationMachineBridge comme obligation explicite
+[FAIT P7d-a] borne machine agregee seulement sous bridge prouve
+[QUALIFICATION P7d-a] aucun bridge vers un runtime concret n'est postule
+
+[FAIT P7d-b] ConstitutiveComplexityProfile multidimensionnel
+[FAIT P7d-b] dimensions : inputBits, depth, maxFrontierWidth, events, representationCharge
+[FAIT P7d-b] ordre pointwise BoundedBy reflexif/transitif
+[FAIT P7d-b] profil local F(n) instancie
+[FAIT P7d-b] profil de phase compositionnelle instancie
+[FAIT P7d-b] profil total local + composition instancie
+[FAIT P7d-b] charge totale <= somme des enveloppes polynomiales indexees par la taille d'entree
+[FAIT P7d-b] profil total : profondeur n+2, certificats n+2, 2n find directs, 3 closure queries, 1 candidat
+[QUALIFICATION P7d-b] le profil conserve les dimensions; il ne les ecrase pas en une unique notion de temps
+
 [P8] audit externe de nouveaute et de comparaison
 
 [FERME] toute revendication P/NP avant fermeture des phases restantes
@@ -1551,23 +1568,22 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. distinguer formellement charge de representation et cout machine effectif des egalites
-2. assembler les profils locaux, normalisation et composition dans une interface commune
-3. comparer les enveloppes locale, compositionnelle et separatrice
-4. isoler des regimes de fuel/candidats bornes polynomialement par la taille d'entree
-5. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
-6. separer les hypotheses de representation des hypotheses de machine
-7. tester l'interface abstraite sur une deuxieme famille parametrique
-8. caracteriser les conditions de fermeture sous lesquelles le cout total reste polynomial
+1. relier conditionnellement le profil SAT total a des MachineCostModel explicites par phase
+2. comparer les profils local, compose et separateur dans l'ordre pointwise
+3. isoler des regimes de fuel/candidats bornes polynomialement par la taille d'entree
+4. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
+5. definir les operations de composition de profils qui preservent les preuves de cout
+6. tester l'interface abstraite sur une deuxieme famille parametrique
+7. caracteriser les conditions de fermeture sous lesquelles le cout total reste polynomial
+8. seulement ensuite etudier les consequences de classe de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> relier proprement les charges de representation deja prouvees a un modele de
-> cout machine explicite, sans les identifier. La croissance interne de
-> ClosureSearch est maintenant exposee : meme avec un candidat, le budget
-> double-plus-un avec le fuel; les futures hypotheses de polynomialite devront
-> donc controler explicitement fuel, candidats et cout atomique.
+> transformer le profil multidimensionnel maintenant explicite en theoremes de
+> composition et de comparaison, puis fournir des bridges machine uniquement
+> sous hypotheses annoncees. La representation, le controle-flow et le cout
+> machine sont maintenant trois couches formellement distinctes.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
