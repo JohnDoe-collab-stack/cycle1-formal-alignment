@@ -1,4 +1,3 @@
-import Std.Tactic.Omega
 import ConstitutiveSearch.SAT.ExplicitFamilyBitComplexity
 
 /-!
@@ -37,9 +36,15 @@ theorem binaryBudget_closed
       simp only [
         binaryBudget,
         inductionHypothesis,
-        Nat.succ_mul
+        Nat.succ_mul,
+        Nat.succ_eq_add_one
       ]
-      omega
+      have step :
+          maximum + 3 =
+            (maximum + 2) + 1 := by
+        rfl
+      rw [step]
+      ac_rfl
 
 end Clause
 
@@ -57,9 +62,15 @@ theorem binaryBudget_closed
       simp only [
         binaryBudget,
         inductionHypothesis,
-        Nat.succ_mul
+        Nat.succ_mul,
+        Nat.succ_eq_add_one
       ]
-      omega
+      have step :
+          maximum + 3 =
+            (maximum + 2) + 1 := by
+        rfl
+      rw [step]
+      ac_rfl
 
 end StructuralDecisionHistory
 
@@ -76,9 +87,25 @@ theorem stackedSymmetricBinaryBudget_closed
         stackedSymmetricBinaryBudget,
         Clause.binaryBudget_closed,
         inductionHypothesis,
-        Nat.succ_mul
+        Nat.succ_mul,
+        Nat.succ_eq_add_one
       ]
-      omega
+      have twoBlock :
+          2 * (anchor + 3) + 1 =
+            2 * anchor + 7 := by
+        rw [Nat.mul_add]
+        rfl
+      have fourAnchor :
+          4 * anchor =
+            2 * anchor + 2 * anchor := by
+        simpa only using
+          (Nat.add_mul 2 2 anchor)
+      have sixteen :
+          16 =
+            7 + 7 + 1 + 1 := by
+        rfl
+      rw [twoBlock, fourAnchor, sixteen]
+      ac_rfl
 
 /-- Polynomial formula-size envelope used below. -/
 def explicitFamilyFormulaPolynomialBudget
@@ -156,7 +183,7 @@ theorem explicitFamilyProvenanceUnitBinaryBudget_eq_polynomial
   unfold explicitFamilyProvenanceUnitBinaryBudget
   unfold explicitFamilyProvenancePolynomialBudget
   rw [StructuralDecisionHistory.binaryBudget_closed]
-  omega
+  rfl
 
 /-- One tagged certificate atom costs at most n+2 bits in the coarse model. -/
 theorem explicitFamilyCertificateAtomBinaryBudget_le_polynomial
@@ -169,7 +196,8 @@ theorem explicitFamilyCertificateAtomBinaryBudget_le_polynomial
       BinaryRepresentation.natBitSize count ≤
         count + 1 :=
     BinaryRepresentation.natBitSize_le_succ count
-  omega
+  exact
+    Nat.succ_le_succ bitBound
 
 /-- The four-operand relation equality charge is exactly polynomial. -/
 theorem explicitFamilyRelationEqualityChargeBudget_eq_polynomial
