@@ -94,6 +94,48 @@ theorem compositionBoundedFuel_quadraticCandidates :
     quadraticCandidateCount_inputPolynomial
     boundedFuel_le_two
 
+
+def growingFuel
+    (inputBits : Nat) : Nat :=
+  inputBits
+
+theorem growingFuel_unbounded
+    (cap : Nat) :
+    ∃ n : Nat,
+      cap < growingFuel n :=
+  ⟨cap + 1,
+    Nat.lt_succ_self cap⟩
+
+theorem primitiveExactEnvelopeDegree4 :
+    (closurePrimitiveFixedFuelPolynomial 4).degree =
+      4 :=
+  closurePrimitiveFixedFuelPolynomial_degree 4
+
+theorem compositionExactEnvelopeDegree4 :
+    (closureCompositionFixedFuelPolynomial 4).degree =
+      4 :=
+  closureCompositionFixedFuelPolynomial_degree 4
+
+theorem primitiveGrowingFuel_unboundedDegree :
+    ∀ cap : Nat,
+      ∃ n : Nat,
+        cap <
+          (closurePrimitiveFixedFuelPolynomial
+            (growingFuel n)).degree :=
+  closurePrimitiveFixedFuelPolynomial_degree_unbounded
+    growingFuel
+    growingFuel_unbounded
+
+theorem compositionGrowingFuel_unboundedDegree :
+    ∀ cap : Nat,
+      ∃ n : Nat,
+        cap <
+          (closureCompositionFixedFuelPolynomial
+            (growingFuel n)).degree :=
+  closureCompositionFixedFuelPolynomial_degree_unbounded
+    growingFuel
+    growingFuel_unbounded
+
 end ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -106,4 +148,9 @@ end ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveFuel4_quadraticCandidates
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.boundedFuel_le_two
 #print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.compositionBoundedFuel_quadraticCandidates
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.growingFuel_unbounded
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveExactEnvelopeDegree4
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.compositionExactEnvelopeDegree4
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.primitiveGrowingFuel_unboundedDegree
+#print axioms ConstitutiveSearch.Tests.ClosureSearchFixedFuelPolynomialRegression.compositionGrowingFuel_unboundedDegree
 /- AXIOM_AUDIT_END -/
