@@ -35,19 +35,25 @@ theorem normalizeAcceptedPair_width_one_of_forward_found
       search
       action
       [left, right]).width = 1 := by
+  change
+    (insertAcceptedIntoIrreducible
+      search
+      action
+      left
+      [right]
+      (SearchIrreducible.singleton search right)).retained.length =
+        1
   cases forwardResult : search.find left right with
   | none =>
       exact False.elim (forwardFound forwardResult)
   | some forward =>
       cases backwardResult : search.find right left with
       | none =>
-          unfold normalizeAcceptedFrontier
           unfold insertAcceptedIntoIrreducible
           unfold RelationSearch.classifyPairCertified
           rw [forwardResult, backwardResult]
           rfl
       | some backward =>
-          unfold normalizeAcceptedFrontier
           unfold insertAcceptedIntoIrreducible
           unfold RelationSearch.classifyPairCertified
           rw [forwardResult, backwardResult]
@@ -288,6 +294,13 @@ theorem normalizationRelationVerificationSurface_le_uniform
         (FlipSymmetricTrajectory.step
           var fresh symmetric tail).normalizationRelationVerificationSurface
             =
+          siblingRelationVerificationSurface
+              parent var fresh +
+            (siblingRelationVerificationSurface
+                parent var fresh +
+              tail.normalizationRelationVerificationSurface) :=
+              rfl
+        _ =
           (siblingRelationVerificationSurface
               parent var fresh +
             siblingRelationVerificationSurface
