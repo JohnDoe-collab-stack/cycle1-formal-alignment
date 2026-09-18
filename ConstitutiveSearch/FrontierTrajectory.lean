@@ -35,6 +35,20 @@ inductive FrontierTrajectory
         ConstitutiveStep system Constitutes current next) :
       FrontierTrajectory system Constitutes start next
 
+namespace ConstitutiveStep
+
+/-- Width of the target frontier of one constitutive step. -/
+def targetWidth
+    {system : SearchSystem}
+    {Constitution : Type uConstitution}
+    {Constitutes : Constitution → Constitution → Type uStep}
+    {source target : ConstitutiveState system Constitution}
+    (_step : ConstitutiveStep system Constitutes source target) :
+    Nat :=
+  target.frontier.length
+
+end ConstitutiveStep
+
 namespace FrontierTrajectory
 
 /-- Initial and final frontiers of a trajectory are viability-equivalent. -/
@@ -64,16 +78,6 @@ def length
     FrontierTrajectory system Constitutes start finish → Nat
   | .refl _ => 0
   | .snoc previous _ => previous.length + 1
-
-/-- Width of the target frontier of one constitutive step. -/
-def ConstitutiveStep.targetWidth
-    {system : SearchSystem}
-    {Constitution : Type uConstitution}
-    {Constitutes : Constitution → Constitution → Type uStep}
-    {source target : ConstitutiveState system Constitution}
-    (_step : ConstitutiveStep system Constitutes source target) :
-    Nat :=
-  target.frontier.length
 
 /--
 Target widths of the trajectory in reverse chronological order.
@@ -134,7 +138,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.FrontierTrajectory
 #print axioms ConstitutiveSearch.FrontierTrajectory.viable_iff
 #print axioms ConstitutiveSearch.FrontierTrajectory.length
-#print axioms ConstitutiveSearch.FrontierTrajectory.ConstitutiveStep.targetWidth
+#print axioms ConstitutiveSearch.ConstitutiveStep.targetWidth
 #print axioms ConstitutiveSearch.FrontierTrajectory.reverseTargetWidths
 #print axioms ConstitutiveSearch.FrontierTrajectory.widthTrace
 #print axioms ConstitutiveSearch.FrontierTrajectory.maxWidth
