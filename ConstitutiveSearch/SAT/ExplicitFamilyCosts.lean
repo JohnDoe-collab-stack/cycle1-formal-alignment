@@ -176,9 +176,9 @@ structure ExplicitFamilyCertifiedCounts
   clauseCount :
     (explicitStackedSymmetricFamily count).length =
       2 * count
-  literalOccurrenceCount :
-    (Cnf.variableOccurrences
-      (explicitStackedSymmetricFamily count)).length =
+  literalCount :
+    Cnf.literalCount
+      (explicitStackedSymmetricFamily count) =
         4 * count
   decisionResourceSize :
     (explicitFamilyDecisionResource count).length =
@@ -215,9 +215,12 @@ theorem explicitFamilyCertifiedCounts
         2 * count
     exact
       stackedSymmetricBlocks_length count count
-  · exact
-      explicitStackedSymmetricFamily_variableOccurrences_length
-        count
+  · change
+      Cnf.literalCount
+        (stackedSymmetricBlocks count count) =
+          4 * count
+    exact
+      stackedSymmetricBlocks_literalCount count count
   · exact
       explicitFamilyDecisionResource_length count
   · exact
