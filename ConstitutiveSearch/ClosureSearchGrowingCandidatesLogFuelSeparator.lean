@@ -136,6 +136,7 @@ theorem closureCompositionCandidateBudget_geometric_lower
         Nat.mul_one,
         closureCompositionCandidateBudget_fuel_one
       ]
+      exact Nat.le_refl candidateCount
   | succ fuel inductionHypothesis =>
       let recursive :=
         closureCompositionCandidateBudget
@@ -305,7 +306,7 @@ theorem closurePrimitiveQueryBudget_le_compositionCandidateBudget
             (compositionRecursive +
               compositionRecursive +
               1) := by
-                rw [
+                simp only [
                   Nat.mul_add,
                   Nat.mul_one
                 ]
@@ -364,9 +365,11 @@ theorem growingCandidatesLogCandidateCount_inputPolynomiallyBounded :
     InputPolynomiallyBounded
       growingCandidatesLogInputBits
       growingCandidatesLogCandidateCount := by
-  simpa only [
-    growingCandidatesLogCandidateCount
-  ] using
+  change
+    InputPolynomiallyBounded
+      growingCandidatesLogInputBits
+      growingCandidatesLogInputBits
+  exact
     InputPolynomiallyBounded.self
       growingCandidatesLogInputBits
 
@@ -558,7 +561,6 @@ theorem growingCandidatesLogPrimitive_escapes
       _ =
         2 ^ (n + 2) := by
           congr 1
-          omega
   have lowerPowerEq :
       (input + input) ^ n =
         2 ^ ((n + 2) * n) := by
@@ -622,9 +624,9 @@ theorem growingCandidatesLogPrimitive_not_inputPolynomiallyBounded :
           (growingCandidatesLogInputBits n) <
         envelope.eval
           (growingCandidatesLogInputBits n) :=
-    Nat.lt_of_le_of_lt
-      (budgetLe n)
+    Nat.lt_of_lt_of_le
       envelopeLt
+      (budgetLe n)
   exact
     (Nat.lt_irrefl
       (envelope.eval
