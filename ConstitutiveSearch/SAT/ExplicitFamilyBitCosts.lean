@@ -464,9 +464,8 @@ theorem binarySize_le_budget
       have decisionLe :
           decision.binarySize ≤
             maximum + 2 :=
-        StructuralBranchDecision
-          .binarySize_le_of_varBoundedBy
-            decisionBounded
+        StructuralBranchDecision.binarySize_le_of_varBoundedBy
+          decisionBounded
       have restLe :
           binarySize rest ≤
             binaryBudget maximum rest.length :=
@@ -584,8 +583,7 @@ theorem explicitFamilyEndpoint_decisions_bounded
     (count : Nat) :
     StructuralDecisionsVarsBoundedBy
       count
-      (explicitFamilyResourceTrajectory count)
-        .finish.context.decisions := by
+      (explicitFamilyResourceTrajectory count).finish.context.decisions := by
   have generatedBounds :=
     ResourceGeneratedFrom.resource_and_decisions_bounded
       (explicitFamilyResourceTrajectory count).generated
@@ -596,20 +594,17 @@ theorem explicitFamilyEndpoint_decisions_bounded
 theorem explicitFamilyEndpoint_historyBinarySize_le
     (count : Nat) :
     StructuralDecisionHistory.binarySize
-        (explicitFamilyResourceTrajectory count)
-          .finish.context.decisions ≤
+        (explicitFamilyResourceTrajectory count).finish.context.decisions ≤
       StructuralDecisionHistory.binaryBudget
         count
         count := by
   calc
     StructuralDecisionHistory.binarySize
-        (explicitFamilyResourceTrajectory count)
-          .finish.context.decisions
+        (explicitFamilyResourceTrajectory count).finish.context.decisions
         ≤
       StructuralDecisionHistory.binaryBudget
         count
-        (explicitFamilyResourceTrajectory count)
-          .finish.context.decisions.length :=
+        (explicitFamilyResourceTrajectory count).finish.context.decisions.length :=
       StructuralDecisionHistory.binarySize_le_budget
         (explicitFamilyEndpoint_decisions_bounded
           count)
