@@ -142,8 +142,11 @@ theorem isolatedSeparatorStateCostPolynomial_eval
     (count : Nat) :
     isolatedSeparatorStateCostPolynomial.eval count =
       isolatedSeparatorStateBinaryBudget count := by
-  unfold isolatedSeparatorStateCostPolynomial
-  unfold isolatedSeparatorStateBinaryBudget
+  change
+    1 +
+        isolatedSeparatorHistoryCostPolynomial.eval count =
+      1 +
+        isolatedSeparatorHistoryBinaryBudget count
   rw [
     isolatedSeparatorHistoryCostPolynomial_eval
   ]
@@ -152,9 +155,13 @@ theorem isolatedSeparatorRelationCostPolynomial_eval
     (count : Nat) :
     isolatedSeparatorRelationCostPolynomial.eval count =
       isolatedSeparatorRelationEqualityBudget count := by
-  unfold isolatedSeparatorRelationCostPolynomial
-  unfold isolatedSeparatorRelationEqualityBudget
-  unfold uniformGeneratedFlipEqualityCharge
+  change
+    1 + 1 +
+          (isolatedSeparatorHistoryCostPolynomial.eval count +
+            isolatedSeparatorHistoryCostPolynomial.eval count) =
+      1 + 1 +
+          (isolatedSeparatorHistoryBinaryBudget count +
+            isolatedSeparatorHistoryBinaryBudget count)
   rw [
     isolatedSeparatorHistoryCostPolynomial_eval
   ]
