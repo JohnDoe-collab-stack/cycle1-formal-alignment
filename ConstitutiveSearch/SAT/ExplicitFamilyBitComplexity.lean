@@ -98,7 +98,12 @@ theorem explicitFamily_localStrategy_noClosureCharge
         (explicitFamilyComplexityCounts count).closureCompositionCandidates *
           (explicitFamilyRepresentationAtomicCosts count).closureCompositionCandidate =
       0 := by
-  simp [explicitFamilyComplexityCounts]
+  change
+    0 * explicitFamilyRelationEqualityChargeBudget count +
+        0 * explicitFamilyStateBinaryBudget count =
+      0
+  rw [Nat.zero_mul]
+  rw [Nat.zero_mul]
 
 /--
 Closed aggregate representation budget for the announced local strategy on F(n).
@@ -133,16 +138,41 @@ theorem explicitFamilyRepresentationChargedCost_eq_budget
     (count : Nat) :
     explicitFamilyRepresentationChargedCost count =
       explicitFamilyRepresentationBudget count := by
-  unfold explicitFamilyRepresentationChargedCost
-  unfold explicitFamilyChargedCost
-  unfold chargedCost
-  unfold explicitFamilyComplexityCounts
-  unfold explicitFamilyRepresentationAtomicCosts
-  unfold explicitFamilyRepresentationBudget
+  change
+    (4 * count) * 1 +
+        ((3 * count + 1) *
+            explicitFamilyStateBinaryBudget count +
+          (count *
+              explicitFamilyProvenanceUnitBinaryBudget count +
+            (count *
+                explicitFamilyCertificateAtomBinaryBudget count +
+              ((2 * count) *
+                  explicitFamilyRelationEqualityChargeBudget count +
+                (0 *
+                    explicitFamilyRelationEqualityChargeBudget count +
+                  (0 *
+                      explicitFamilyStateBinaryBudget count +
+                    1 *
+                      StructuralDecisionHistory.binaryBudget
+                        count
+                        count)))))) =
+      4 * count +
+        ((3 * count + 1) *
+            explicitFamilyStateBinaryBudget count +
+          (count *
+              explicitFamilyProvenanceUnitBinaryBudget count +
+            (count *
+                explicitFamilyCertificateAtomBinaryBudget count +
+              ((2 * count) *
+                  explicitFamilyRelationEqualityChargeBudget count +
+                StructuralDecisionHistory.binaryBudget
+                  count
+                  count))))
   rw [Nat.mul_one]
   rw [Nat.zero_mul]
   rw [Nat.zero_mul]
   rw [Nat.one_mul]
+  rw [Nat.zero_add]
 
 end SAT
 end ConstitutiveSearch
