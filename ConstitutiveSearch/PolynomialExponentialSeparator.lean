@@ -1,4 +1,4 @@
-import Std.Tactic.Omega
+import Init.Omega
 import ConstitutiveSearch.PolynomialCostEnvelope
 import ConstitutiveSearch.ClosureSearchGrowingFuelSeparator
 
