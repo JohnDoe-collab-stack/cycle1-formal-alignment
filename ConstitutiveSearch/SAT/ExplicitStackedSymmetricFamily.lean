@@ -553,9 +553,6 @@ def buildStackedTrajectory
         Nat.lt_of_lt_of_le
           (Nat.lt_succ_self count)
           countSuccLeAnchor
-      have anchorDifferentCurrent :
-          anchor ≠ currentVar :=
-        (Nat.ne_of_lt currentLtAnchor).symm
       have fresh :
           StructuralDecisionsAvoid
             currentVar
@@ -563,51 +560,24 @@ def buildStackedTrajectory
         decisionsSafe
           currentVar
           (Nat.lt_succ_self count)
-      have tailAvoidsCurrent :
-          Cnf.AvoidsVar
-            currentVar
-            (stackedSymmetricBlocks count anchor) :=
-        stackedSymmetricBlocks_avoids_of_le
-          (Nat.le_refl currentVar)
-          (Nat.ne_of_lt currentLtAnchor)
-      have blockSymmetric :
-          FlipSymmetricAt
-            (symmetricBlockFamily
-              currentVar
-              anchor
-              (stackedSymmetricBlocks count anchor))
-            currentVar :=
-        symmetricBlockFamily_flipSymmetric
-          anchorDifferentCurrent
-          tailAvoidsCurrent
-      have accumulatedAvoidsCurrent :
-          Cnf.AvoidsVar currentVar accumulated :=
-        accumulatedSafe
-          currentVar
-          (Nat.lt_succ_self count)
       have explicitSymmetric :
           FlipSymmetricAt
             (accumulated ++
               stackedSymmetricBlocks (count + 1) anchor)
-            currentVar := by
-        change
-          FlipSymmetricAt
-            (accumulated ++
-              symmetricBlockFamily
-                currentVar
-                anchor
-                (stackedSymmetricBlocks count anchor))
-            currentVar
-        exact
-          FlipSymmetricAt.prepend_avoiding
-            accumulatedAvoidsCurrent
-            blockSymmetric
+            currentVar :=
+        stackedStage_flipSymmetric
+          accumulatedSafe
+          countSuccLeAnchor
       have stateSymmetric :
           FlipSymmetricAt
             state.context.formula
-            currentVar := by
-        rw [formulaExact]
-        exact explicitSymmetric
+            currentVar :=
+        Eq.mp
+          (congrArg
+            (fun formula =>
+              FlipSymmetricAt formula currentVar)
+            formulaExact.symm)
+          explicitSymmetric
       let child :=
         GeneratedStructuralBranchContext.child
           state
@@ -628,32 +598,28 @@ def buildStackedTrajectory
               true =
             nextPrefix ++
               stackedSymmetricBlocks count anchor
-        rw [formulaExact]
-        rw [Cnf.branchResidual_append]
-        rw [
-          Cnf.branchResidual_eq_self
-            accumulatedAvoidsCurrent
-            true
-        ]
-        change
-          accumulated ++
-              branchResidual
-                (symmetricBlockFamily
-                  currentVar
-                  anchor
-                  (stackedSymmetricBlocks count anchor))
-                currentVar
-                true =
-            nextPrefix ++
-              stackedSymmetricBlocks count anchor
-        rw [
-          symmetricBlockFamily_trueResidual
-            anchorDifferentCurrent
-            tailAvoidsCurrent
-        ]
         unfold nextPrefix
-        rw [List.append_assoc]
-        rfl
+        calc
+          branchResidual
+              state.context.formula
+              currentVar
+              true =
+            branchResidual
+              (accumulated ++
+                stackedSymmetricBlocks (count + 1) anchor)
+              currentVar
+              true :=
+            congrArg
+              (fun formula =>
+                branchResidual formula currentVar true)
+              formulaExact
+          _ =
+            (accumulated ++
+              [symmetricNegativeClause currentVar anchor]) ++
+                stackedSymmetricBlocks count anchor :=
+            stackedStage_trueResidual
+              accumulatedSafe
+              countSuccLeAnchor
       have nextPrefixSafe :
           PrefixAvoidsBelow count nextPrefix := by
         unfold nextPrefix
@@ -764,6 +730,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_length
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_avoids_of_le
+#print axioms ConstitutiveSearch.SAT.stackedStage_flipSymmetric
+#print axioms ConstitutiveSearch.SAT.stackedStage_trueResidual
 #print axioms ConstitutiveSearch.SAT.PrefixAvoidsBelow
 #print axioms ConstitutiveSearch.SAT.DecisionsAvoidBelow
 #print axioms ConstitutiveSearch.SAT.StackedTrajectoryResult
