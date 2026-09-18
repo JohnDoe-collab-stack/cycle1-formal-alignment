@@ -229,19 +229,29 @@ theorem isolatedFrontier_searchIrreducible
             member
       · exact inductionHypothesis
 
+/-- Concrete all-true continuation for one isolated child. -/
+def isolatedChildContinuation
+    (var : Var) :
+    GeneratedStructuralBranchContinuation
+      (isolatedChild var) :=
+  ⟨fun _ => true,
+    ⟨rfl, True.intro⟩⟩
+
+/-- The concrete isolated continuation is accepted by the empty CNF. -/
+theorem isolatedChildContinuation_accept
+    (var : Var) :
+    GeneratedStructuralBranchAccept
+      (isolatedChild var)
+      (isolatedChildContinuation var) :=
+  Satisfies.nil
+
 /-- Every isolated child is structurally viable over the empty CNF. -/
 theorem isolatedChild_viable
     (var : Var) :
     (generatedStructuralBranchSystem ([] : Cnf)).Viable
-      (isolatedChild var) := by
-  let assignment : Assignment :=
-    fun _ => true
-  let continuation :
-      GeneratedStructuralBranchContinuation
-        (isolatedChild var) :=
-    ⟨assignment, ⟨rfl, True.intro⟩⟩
-  exact
-    ⟨continuation, Satisfies.nil⟩
+      (isolatedChild var) :=
+  ⟨isolatedChildContinuation var,
+    isolatedChildContinuation_accept var⟩
 
 /-- Every nonempty separator frontier is viable. -/
 theorem isolatedFrontier_viable
@@ -250,11 +260,8 @@ theorem isolatedFrontier_viable
       (generatedStructuralBranchSystem ([] : Cnf))
       (isolatedFrontier (count + 1)) := by
   exact
-    ⟨.head
-        (Classical.choice
-          (isolatedChild_viable count)),
-      (Classical.choice
-        (isolatedChild_viable count)).2⟩
+    ⟨.head (isolatedChildContinuation count),
+      isolatedChildContinuation_accept count⟩
 
 end SAT
 end ConstitutiveSearch
@@ -270,6 +277,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.isolatedFrontier_length
 #print axioms ConstitutiveSearch.SAT.isolatedChild_unresolved_with_frontier
 #print axioms ConstitutiveSearch.SAT.isolatedFrontier_searchIrreducible
+#print axioms ConstitutiveSearch.SAT.isolatedChildContinuation
+#print axioms ConstitutiveSearch.SAT.isolatedChildContinuation_accept
 #print axioms ConstitutiveSearch.SAT.isolatedChild_viable
 #print axioms ConstitutiveSearch.SAT.isolatedFrontier_viable
 /- AXIOM_AUDIT_END -/
