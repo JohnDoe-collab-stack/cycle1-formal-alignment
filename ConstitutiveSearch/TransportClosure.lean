@@ -51,7 +51,7 @@ def TransportClosure.compose
     (first : TransportClosure Generator source middle)
     (second : TransportClosure Generator middle target) :
     TransportClosure Generator source target :=
-  .compose first second
+  TransportCode.compose first second
 
 /--
 Normalize a frontier relative to one explicit executable search over finite
