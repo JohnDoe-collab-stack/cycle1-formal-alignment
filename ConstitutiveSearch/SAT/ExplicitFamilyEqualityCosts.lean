@@ -29,32 +29,30 @@ theorem flipAt_binarySize
   cases literal with
   | positive query =>
       by_cases same : query = var
-      · simp only [
-          Literal.flipAt,
-          same,
-          if_pos,
-          Literal.binarySize
-        ]
-      · simp only [
-          Literal.flipAt,
-          same,
-          if_neg,
-          Literal.binarySize
-        ]
+      · have flipped :
+            Literal.flipAt var (.positive query) =
+              .negative query := by
+          rw [Literal.flipAt, if_pos same]
+        rw [flipped]
+        rfl
+      · have flipped :
+            Literal.flipAt var (.positive query) =
+              .positive query := by
+          rw [Literal.flipAt, if_neg same]
+        rw [flipped]
   | negative query =>
       by_cases same : query = var
-      · simp only [
-          Literal.flipAt,
-          same,
-          if_pos,
-          Literal.binarySize
-        ]
-      · simp only [
-          Literal.flipAt,
-          same,
-          if_neg,
-          Literal.binarySize
-        ]
+      · have flipped :
+            Literal.flipAt var (.negative query) =
+              .positive query := by
+          rw [Literal.flipAt, if_pos same]
+        rw [flipped]
+        rfl
+      · have flipped :
+            Literal.flipAt var (.negative query) =
+              .negative query := by
+          rw [Literal.flipAt, if_neg same]
+        rw [flipped]
 
 end Literal
 
