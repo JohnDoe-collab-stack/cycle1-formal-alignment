@@ -1498,6 +1498,16 @@ et la liste de candidats annonces.
 [FAIT P7c-c] regression n=3 : cout charge = budget = 2349
 [QUALIFICATION P7c-c] il s'agit d'un cout de representation, pas d'un theorem de temps machine de DecidableEq ou du runtime Lean
 
+[FAIT P7c-d] formes polynomiales fermees des budgets formule, historique, etat et relation
+[FAIT P7c-d] explicitFamilyRepresentationChargedCost <= explicitFamilyRepresentationPolynomialBudget
+[FAIT P7c-d] theorem polynomial final sans axiome
+
+[FAIT P7c-e] explicitFamilyInputBitSize = taille binaire concrete de F(n)
+[FAIT P7c-e] n <= explicitFamilyInputBitSize n
+[FAIT P7c-e] monotonie de l'enveloppe polynomiale
+[FAIT P7c-e] cout charge <= enveloppe polynomiale indexee par la taille binaire reelle de l'entree
+[QUALIFICATION P7c-e] cette borne est une complexite de representation; le cout machine concret des egalites reste une couche distincte
+
 [P8] audit externe de nouveaute et de comparaison
 
 [FERME] toute revendication P/NP avant fermeture des phases restantes
@@ -1508,21 +1518,22 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. fermer une enveloppe polynomiale explicite de explicitFamilyRepresentationBudget en fonction de n
-2. relier ensuite cette enveloppe a la taille binaire de l'entree F(n)
-3. distinguer formellement charge de representation et cout machine effectif des egalites
-4. construire une famille SAT parametrique dont la reduction exige une composition non triviale
-5. instancier ClosureSearchCosts sur cette famille et comparer largeur directe / composee
-6. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
-7. assembler les profils locaux et compositionnels dans une interface commune
+1. construire une famille SAT parametrique dont la reduction exige une composition non triviale
+2. instancier ClosureSearchCosts sur cette famille et comparer largeur directe / composee
+3. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
+4. distinguer formellement charge de representation et cout machine effectif des egalites
+5. assembler les profils locaux et compositionnels dans une interface commune
+6. comparer les enveloppes locale, compositionnelle et separatrice
+7. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
 8. seulement ensuite formuler le theorem final avec les hypotheses de representation et d'execution clairement separees
 ~~~
 
 Le verrou courant est donc :
 
-> passer du cout de representation agrege maintenant ferme sur F(n) a une
-> enveloppe polynomiale explicite, puis tester la couche compositionnelle sur
-> une famille SAT qui l'utilise reellement.
+> sortir du cas local direct F(n) et tester la couche compositionnelle sur une
+> famille SAT parametrique qui exige reellement un transport compose. La borne
+> de representation de F(n) est maintenant polynomiale et indexee par la taille
+> binaire concrete de l'entree.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
