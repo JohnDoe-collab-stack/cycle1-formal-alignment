@@ -435,12 +435,17 @@ theorem composedState_decisions_flip_first
     composedState_decisions
   ]
   rw [flipStructuralDecisionsAt]
+  have secondDifferentFirst :
+      composedSecondVar count ≠
+        composedFirstVar count := by
+    unfold composedSecondVar composedFirstVar
+    exact
+      Nat.ne_of_gt
+        (Nat.lt_succ_self
+          (count + 1))
   rw [
     StructuralBranchDecision.flipAt,
-    if_neg
-      (Nat.ne_of_gt
-        (Nat.lt_succ_self
-          (count + 1)))
+    if_neg secondDifferentFirst
   ]
   rw [flipStructuralDecisionsAt]
   rw [
@@ -477,12 +482,17 @@ theorem composedState_decisions_flip_second
     if_pos rfl
   ]
   rw [flipStructuralDecisionsAt]
+  have firstDifferentSecond :
+      composedFirstVar count ≠
+        composedSecondVar count := by
+    unfold composedFirstVar composedSecondVar
+    exact
+      Nat.ne_of_lt
+        (Nat.lt_succ_self
+          (count + 1))
   rw [
     StructuralBranchDecision.flipAt,
-    if_neg
-      (Nat.ne_of_lt
-        (Nat.lt_succ_self
-          (count + 1)))
+    if_neg firstDifferentSecond
   ]
   rw [
     flipStructuralDecisionsAt_eq_self_of_avoids
@@ -689,6 +699,28 @@ def composedMiddleTargetRelation
     true
     false
 
+/-- Search returns a concrete witness for every supplied exact global flip relation. -/
+theorem generatedStructuralFlipAtSearch_some_of_relation
+    {rootFormula : Cnf}
+    {var : Var}
+    {source target :
+      GeneratedStructuralBranchContext rootFormula}
+    (relation :
+      GeneratedStructuralFlipAtRelation
+        var
+        source
+        target) :
+    ∃ found,
+      (generatedStructuralFlipAtSearch
+        rootFormula
+        var).find source target =
+        some found := by
+  dsimp [generatedStructuralFlipAtSearch]
+  rw [dif_pos relation.formulaExact]
+  rw [dif_pos relation.decisionsExact]
+  exact
+    ⟨_, rfl⟩
+
 /-- Search finds every explicitly supplied exact global flip relation. -/
 theorem generatedStructuralFlipAtSearch_found_of_relation
     {rootFormula : Cnf}
@@ -704,9 +736,11 @@ theorem generatedStructuralFlipAtSearch_found_of_relation
       rootFormula
       var).find source target ≠
       none := by
-  unfold generatedStructuralFlipAtSearch
-  rw [dif_pos relation.formulaExact]
-  rw [dif_pos relation.decisionsExact]
+  rcases
+      generatedStructuralFlipAtSearch_some_of_relation
+        relation with
+    ⟨found, foundExact⟩
+  rw [foundExact]
   intro impossible
   cases impossible
 
@@ -725,7 +759,7 @@ theorem generatedStructuralFlipAtSearch_none_of_decisions_ne
       rootFormula
       var).find source target =
       none := by
-  unfold generatedStructuralFlipAtSearch
+  dsimp [generatedStructuralFlipAtSearch]
   by_cases formulaExact :
       target.context.formula =
         Cnf.flipAt
@@ -838,7 +872,7 @@ theorem composedPrimitiveSearch_source_target_none
         (composedSource count)
         (composedTarget count) =
       none := by
-  unfold composedPrimitiveSearch
+  dsimp [composedPrimitiveSearch]
   rw [
     generatedStructuralFlipAtSearch_none_of_decisions_ne
       (composedSourceTarget_not_first count)
@@ -848,6 +882,48 @@ theorem composedPrimitiveSearch_source_target_none
       (composedSourceTarget_not_second count)
   ]
 
+/-- The first primitive flip from middle returns to source. -/
+def composedMiddleSourceRelation
+    (count : Nat) :
+    GeneratedStructuralFlipAtRelation
+      (composedFirstVar count)
+      (composedMiddle count)
+      (composedSource count) :=
+  composedFlipFirstRelation
+    count
+    true
+    false
+
+/-- Middle and target cannot be related by the first primitive flip. -/
+theorem composedMiddleTarget_not_first
+    (count : Nat) :
+    (composedTarget count).context.decisions ≠
+      flipStructuralDecisionsAt
+        (composedFirstVar count)
+        (composedMiddle count).context.decisions := by
+  intro exactHistory
+  have targetSource :
+      (composedTarget count).context.decisions =
+        (composedSource count).context.decisions :=
+    Eq.trans
+      exactHistory
+      (composedMiddleSourceRelation
+        count).decisionsExact.symm
+  change
+    ({ var := composedSecondVar count, value := true } ::
+      { var := composedFirstVar count, value := true } ::
+      (composedFamilyParent count).context.decisions) =
+    ({ var := composedSecondVar count, value := false } ::
+      { var := composedFirstVar count, value := false } ::
+      (composedFamilyParent count).context.decisions) at targetSource
+  injection targetSource with headEqual tailEqual
+  have valueEqual :
+      true = false :=
+    congrArg
+      StructuralBranchDecision.value
+      headEqual
+  cases valueEqual
+
 /-- The announced primitive search does find source -> middle. -/
 theorem composedPrimitiveSearch_source_middle_present
     (count : Nat) :
@@ -855,21 +931,14 @@ theorem composedPrimitiveSearch_source_middle_present
         (composedSource count)
         (composedMiddle count) ≠
       none := by
-  unfold composedPrimitiveSearch
-  have found :=
-    generatedStructuralFlipAtSearch_found_of_relation
-      (composedSourceMiddleRelation count)
-  cases result :
-      (generatedStructuralFlipAtSearch
-        (explicitStackedSymmetricFamily count)
-        (composedFirstVar count)).find
-          (composedSource count)
-          (composedMiddle count) with
-  | none =>
-      exact False.elim (found result)
-  | some relation =>
-      intro impossible
-      cases impossible
+  rcases
+      generatedStructuralFlipAtSearch_some_of_relation
+        (composedSourceMiddleRelation count) with
+    ⟨found, foundExact⟩
+  dsimp [composedPrimitiveSearch]
+  rw [foundExact]
+  intro impossible
+  cases impossible
 
 /-- The announced primitive search does find middle -> target. -/
 theorem composedPrimitiveSearch_middle_target_present
@@ -878,31 +947,24 @@ theorem composedPrimitiveSearch_middle_target_present
         (composedMiddle count)
         (composedTarget count) ≠
       none := by
-  unfold composedPrimitiveSearch
-  cases firstResult :
+  have firstNone :
       (generatedStructuralFlipAtSearch
         (explicitStackedSymmetricFamily count)
         (composedFirstVar count)).find
           (composedMiddle count)
-          (composedTarget count) with
-  | some relation =>
-      intro impossible
-      cases impossible
-  | none =>
-      have found :=
-        generatedStructuralFlipAtSearch_found_of_relation
-          (composedMiddleTargetRelation count)
-      cases secondResult :
-          (generatedStructuralFlipAtSearch
-            (explicitStackedSymmetricFamily count)
-            (composedSecondVar count)).find
-              (composedMiddle count)
-              (composedTarget count) with
-      | none =>
-          exact False.elim (found secondResult)
-      | some relation =>
-          intro impossible
-          cases impossible
+          (composedTarget count) =
+        none :=
+    generatedStructuralFlipAtSearch_none_of_decisions_ne
+      (composedMiddleTarget_not_first count)
+  rcases
+      generatedStructuralFlipAtSearch_some_of_relation
+        (composedMiddleTargetRelation count) with
+    ⟨found, foundExact⟩
+  dsimp [composedPrimitiveSearch]
+  rw [firstNone]
+  rw [foundExact]
+  intro impossible
+  cases impossible
 
 end SAT
 end ConstitutiveSearch
