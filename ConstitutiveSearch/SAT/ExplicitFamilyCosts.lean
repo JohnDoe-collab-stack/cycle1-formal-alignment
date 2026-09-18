@@ -191,47 +191,42 @@ def explicitFamilyStructuralWorkUnits
 theorem explicitFamilyStructuralWorkUnits_eq
     (count : Nat) :
     explicitFamilyStructuralWorkUnits count =
-      4 * count + 1 := by
+      4 * count + 1 :=
   let trajectory :=
     (explicitFamilyResourceTrajectory count).trajectory
-  have stepExact :
-      trajectory.stepCount = count :=
-    FlipSymmetricTrajectory.stepCount_eq_index trajectory
-  have slotExact :
-      trajectory.frontierSlotCount =
-        3 * count + 1 :=
-    FlipSymmetricTrajectory.frontierSlotCount_eq trajectory
-  change
-    trajectory.stepCount +
-        trajectory.frontierSlotCount =
-      4 * count + 1
   calc
-    trajectory.stepCount +
-          trajectory.frontierSlotCount
+    explicitFamilyStructuralWorkUnits count
         =
+      trajectory.stepCount +
+        trajectory.frontierSlotCount :=
+          rfl
+    _ =
       count + trajectory.frontierSlotCount :=
         congrArg
           (fun value =>
             value + trajectory.frontierSlotCount)
-          stepExact
-    _ = count + (3 * count + 1) :=
-          congrArg
-            (Nat.add count)
-            slotExact
+          (FlipSymmetricTrajectory.stepCount_eq_index
+            trajectory)
+    _ =
+      count + (3 * count + 1) :=
+        congrArg
+          (Nat.add count)
+          (FlipSymmetricTrajectory.frontierSlotCount_eq
+            trajectory)
     _ = (count + 3 * count) + 1 :=
-          (Nat.add_assoc count (3 * count) 1).symm
+        (Nat.add_assoc count (3 * count) 1).symm
     _ = (1 * count + 3 * count) + 1 :=
-          congrArg
-            (fun value => value + 1)
-            (congrArg
-              (fun value => value + 3 * count)
-              (Nat.one_mul count).symm)
+        congrArg
+          (fun value => value + 1)
+          (congrArg
+            (fun value => value + 3 * count)
+            (Nat.one_mul count).symm)
     _ = ((1 + 3) * count) + 1 :=
-          congrArg
-            (fun value => value + 1)
-            (Nat.add_mul 1 3 count).symm
-    _ = 4 * count + 1 := by
-          rfl
+        congrArg
+          (fun value => value + 1)
+          (Nat.add_mul 1 3 count).symm
+    _ = 4 * count + 1 :=
+        rfl
 
 end SAT
 end ConstitutiveSearch
