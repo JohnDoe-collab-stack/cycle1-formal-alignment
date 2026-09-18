@@ -90,13 +90,13 @@ def find
         (Sigma fun target =>
           VarRemoval var source target)
   | [] => none
-  | current :: tail =>
+  | current :: rest =>
       if same : current = var then
         by
           cases same
-          exact some ⟨tail, .head tail⟩
+          exact some ⟨rest, .head rest⟩
       else
-        match find var tail with
+        match find var rest with
         | none => none
         | some ⟨remaining, removed⟩ =>
             some
@@ -171,7 +171,10 @@ theorem budget_exact
       initial.length := by
   induction generated with
   | root =>
-      rfl
+      simp only [
+        GeneratedStructuralBranchContext.root_depth,
+        Nat.zero_add
+      ]
   | @child available remaining parent parentGenerated var value fresh removed inductionHypothesis =>
       calc
         (GeneratedStructuralBranchContext.child
