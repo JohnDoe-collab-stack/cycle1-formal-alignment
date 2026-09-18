@@ -35,7 +35,8 @@ theorem viaPrimitiveQueryBudget_closed
   intro candidateCount
   induction candidateCount with
   | zero =>
-      rfl
+      rw [viaPrimitiveQueryBudget]
+      rw [Nat.zero_mul]
   | succ candidateCount inductionHypothesis =>
       rw [show
         viaPrimitiveQueryBudget
@@ -83,7 +84,8 @@ theorem viaCompositionCandidateBudget_closed
   intro candidateCount
   induction candidateCount with
   | zero =>
-      rfl
+      rw [viaCompositionCandidateBudget]
+      rw [Nat.zero_mul]
   | succ candidateCount inductionHypothesis =>
       rw [show
         viaCompositionCandidateBudget
@@ -233,7 +235,6 @@ theorem closurePrimitiveQueryBudget_fuel_one
   rw [viaPrimitiveQueryBudget_closed]
   rw [Nat.zero_add]
   rw [Nat.mul_zero]
-  rfl
 
 /-- Fuel one tests exactly candidateCount composition candidates in the envelope. -/
 theorem closureCompositionCandidateBudget_fuel_one
@@ -244,7 +245,6 @@ theorem closureCompositionCandidateBudget_fuel_one
     viaCompositionCandidateBudget 0 candidateCount =
       candidateCount
   rw [viaCompositionCandidateBudget_closed]
-  rw [Nat.zero_add]
   rw [Nat.zero_add]
   rw [Nat.mul_one]
 
@@ -261,7 +261,6 @@ theorem closurePrimitiveQueryBudget_fuel_two
         candidateCount * 2 + 1
   rw [closurePrimitiveQueryBudget_fuel_one]
   rw [viaPrimitiveQueryBudget_closed]
-  rfl
 
 /-- Fuel two composition envelope is exactly m(2m+1). -/
 theorem closureCompositionCandidateBudget_fuel_two
