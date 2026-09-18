@@ -4,13 +4,13 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique auditee actuelle :
+Base scientifique auditee actuelle avant cette mise a jour documentaire :
 
 ~~~text
-b138cfecfbee024d112af4ee252895f3e69335da
+52f80c8f3657a572587a925d8c6b28748458201f
 ~~~
 
-Ce head a passe les gates Linux et Windows du projet, y compris le build Lean, AuditRegression et les controles de manifeste (workflow 35288940636).
+Les couches P1 et P2 ont passe les gates Linux et Windows, build Lean, AuditRegression et controles de manifeste. Le premier separateur P3 est axiom-free sur Linux ; le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1111,6 +1111,11 @@ ConstitutiveSearch/
   AcceptedSplit.lean
   AcceptedFrontier.lean
   AcceptedFrontierPreservation.lean
+  AcceptedRelationalTransport.lean
+  AcceptedFrontierNormalization.lean
+  ConstitutiveState.lean
+  FrontierTrajectory.lean
+  DynamicRelationSearch.lean
   FrontierReduction.lean
   RelationalTransport.lean
   IrreducibleFrontier.lean
@@ -1124,6 +1129,7 @@ ConstitutiveSearch/SAT/
   AcceptedBinaryBranch.lean
   StructuralBranchContext.lean
   GeneratedStructuralContext.lean
+  StructuralGlobalContextRelation.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1134,26 +1140,32 @@ ConstitutiveSearch/SAT/
   GlobalContextRelation.lean
 ~~~
 
+Les nouvelles couches etablissent maintenant :
+
+~~~text
+relation executable -> transport total preservant Accept
+normalisation automatique -> preservation de FrontierViable
+flip global durci -> comparaison de contextes de parents differents
+ConstitutiveState -> frontiere + information constituee distincte
+FrontierTrajectory -> composition proof-relevant des etapes
+widthTrace -> largeur derivee du chemin effectivement construit
+DynamicRelationSearch -> relation et recherche indexees par l'etat constitue
+~~~
+
 ### 22.2 Prochains modules prioritaires
 
 Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  AcceptedRelationalTransport.lean
-  AcceptedFrontierNormalization.lean
-  ConstitutiveState.lean
-  FrontierTrajectory.lean
   TransportCode.lean
   TransportClosure.lean
-  DynamicRelationSearch.lean
   DynamicAnchors.lean
   StructuralProgress.lean
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
-  GeneratedStructuralRelation.lean
-  StructuralGlobalContextRelation.lean
+  StructuralDynamicRelation.lean
   StructuralContextTrajectory.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
@@ -1163,9 +1175,12 @@ ConstitutiveSearch/SAT/
   WidthSeparators.lean
 ~~~
 
-Le prochain objectif n'est plus de creer SearchSystem ou de separer Accept : cette couche existe.
+Le prochain objectif n'est plus de montrer abstraitement qu'une constitution
+peut changer les relations disponibles : ce separateur existe.
 
-Le prochain objectif est de remonter le moteur relationnel automatique sur la semantique durcie, puis de rendre la disponibilite des relations dependante de l'etat constitue.
+Le prochain objectif est de produire le meme phenomene dans SAT a partir d'une
+determination effectivement constituee par le calcul, puis d'etudier sa
+composition sur une trajectoire parametrique.
 
 ## 23. Statut des phases
 
@@ -1191,16 +1206,25 @@ Le prochain objectif est de remonter le moteur relationnel automatique sur la se
 [FAIT] fraicheur executable et provenance depuis la racine
 [FAIT] consolidation GitHub sur une seule branche NP AND/OR P
 
-[P1] moteur relationnel automatique dans le noyau durci
-[P1] migration du flip global vers GeneratedStructuralContext
-[P1] regression heterogene durcie avec absorption automatique
+[FAIT P1] moteur relationnel automatique dans le noyau durci
+[FAIT P1] normalisation automatique preservant FrontierViable
+[FAIT P1] migration du flip global vers GeneratedStructuralContext
+[FAIT P1] regression heterogene durcie avec absorption automatique
 
-[P2] ConstitutiveState et FrontierTrajectory
-[P2] trajectoire SAT multi-niveaux
-[P2] preservation de Viable de bout en bout
+[FAIT P2] ConstitutiveState
+[FAIT P2] FrontierTrajectory proof-relevant
+[FAIT P2] trajectoire SAT a deux niveaux
+[FAIT P2] preservation de Viable de bout en bout
+[FAIT P2] trace de largeur concrete [1, 2, 1, 2, 1]
 
-[P3] relations dynamiques dependantes de l'histoire
-[P3] exemple ou une determination nouvelle rend un transport disponible
+[FAIT P3a] relation et recherche indexees par ConstitutiveState
+[FAIT P3a] meme frontiere, relation absente avant constitution
+[FAIT P3a] meme frontiere, relation presente apres constitution
+[FAIT P3a] largeur operationnelle 2 -> 1 uniquement par changement de constitution
+
+[P3b] produire ce phenomene depuis une determination SAT effectivement constituee
+[P3b] montrer que la nouvelle relation n'est pas une information ajoutee arbitrairement
+[P3b] integrer ce changement relationnel dans une trajectoire SAT
 
 [P4] TransportCode
 [P4] fermeture de transports
@@ -1224,30 +1248,31 @@ Le prochain objectif est de remonter le moteur relationnel automatique sur la se
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. definir une recherche relationnelle durcie produisant des AcceptingContinuationTransport
-2. reconstruire la normalisation automatique de frontiere sur FrontierViable
-3. migrer le flip global vers GeneratedStructuralContext
-4. reproduire la regression heterogene entre parents differents dans le noyau durci
-5. verifier que l'absorption automatique preserve Viable sans requete SAT cachee
-6. introduire ConstitutiveState : frontiere + histoire/ancres/determinations disponibles
-7. indexer RelationSearch par ConstitutiveState
-8. construire FrontierTrajectory comme suite d'expansions, constitutions et reductions
-9. prouver Viable F0 <-> Viable Fn pour toute trajectoire certifiee
-10. construire un cas ou une relation est absente a k et devient reconstructible a k+1
-11. seulement ensuite introduire TransportCode et TransportClosure
-12. construire le separateur direct vs compose
-13. construire une famille SAT parametrique avec largeur operationnelle controlee
-14. construire en parallele des familles ou cette largeur croit
-15. prouver progression, fraicheur et borne de profondeur
-16. formaliser taille d'etat, taille de provenance, taille de certificat et cout de recherche
-17. assembler un theorem conditionnel de complexite
+1. construire une relation dynamique SAT indexee par GeneratedStructuralContext
+2. faire dependre sa disponibilite d'une determination presente dans la provenance
+3. construire deux etats de calcul avec meme paire comparee mais provenance differente
+4. prouver none avant la determination et some transport apres
+5. montrer la reduction de largeur correspondante sans requete SAT cachee
+6. inserer cette apparition de relation dans une FrontierTrajectory SAT
+7. verifier que la determination causale provient d'une etape de calcul certifiee
+8. introduire TransportCode pour rendre finie la representation des transformations
+9. introduire TransportClosure et distinguer recherche directe / composee
+10. construire le separateur direct vs compose
+11. construire une famille SAT parametrique avec largeur operationnelle controlee
+12. construire en parallele des familles ou cette largeur croit
+13. prouver progression, fraicheur et borne de profondeur
+14. formaliser taille d'etat, taille de provenance, taille de certificat et cout de recherche
+15. assembler un theorem conditionnel de complexite
 ~~~
 
-Le prochain verrou n'est donc plus semantique.
+Le verrou courant est plus exigeant que le separateur abstrait deja ferme :
 
-Il est dynamique :
+> la relation nouvelle doit etre rendue reconstructible par une information
+> effectivement constituee dans une execution SAT, et non par un drapeau
+> exogene ajoute a la main.
 
-> montrer que le moteur automatique de relations et de reduction peut etre reconstruit dans le noyau durci, puis montrer que les relations disponibles peuvent changer parce que le chemin a constitue de nouvelles informations.
+C'est ce passage qui doit maintenant donner un contenu concret a la proposition
+"le chemin est le calcul".
 
 ## 25. Prochain theorem global vise
 
@@ -1390,80 +1415,55 @@ nettoyer les branches ou fichiers temporaires
 Etat actuel :
 
 ~~~text
-ancien noyau :
-  transports
-  -> reduction
-  -> normalisation
-  -> largeur operationnelle
-
-noyau durci :
-  SearchSystem
-  -> Continuation structurelle
-  -> Accept separe
-  -> Viable
-  -> transport total preservant Accept
-  -> split exact
-  -> frontiere viable
-  -> contexte SAT structurel
-  -> provenance generee depuis la racine
-~~~
-
-Le verrou semantique principal est ferme.
-
-Le prochain chantier est :
-
-~~~text
-moteur relationnel durci
--> normalisation automatique durcie
--> relation globale entre contextes generes
+SearchSystem
+-> Continuation structurelle / Accept separes
+-> transports totaux preservant Accept
+-> split exact
+-> frontieres viables
+-> normalisation relationnelle automatique durcie
+-> contextes SAT generes avec provenance
+-> flip global entre parents differents
 -> ConstitutiveState
--> trajectoire complete
--> relations dont la disponibilite depend du chemin
--> composition explicite
--> ancres dynamiques
--> familles parametriques
--> largeur le long de la trajectoire
--> tailles et couts
+-> FrontierTrajectory
+-> trace de largeur du chemin
+-> recherche relationnelle indexee par l'etat constitue
 ~~~
 
-Le point central n'est pas :
+Le projet possede maintenant un premier separateur formel direct de l'idee
+constitutive :
 
 ~~~text
-reduire une frontiere deja donnee sous une relation deja donnee
+frontiere avant = [A, B]
+frontiere apres = [A, B]
+
+constitution avant != constitution apres
+
+DynamicRelationSearch avant A B = none
+DynamicRelationSearch apres A B = some transport
+
+largeur normalisee avant = 2
+largeur normalisee apres = 1
 ~~~
 
-mais :
+La reduction n'est donc pas obtenue parce qu'on a explore plus longtemps une
+relation fixe. Le type des witnesses et la recherche sont indexes par l'etat
+constitue courant.
+
+Ce resultat reste volontairement abstrait : la nouvelle information est encore
+modelisee par une ancre minimale. Le prochain test doit faire provenir cette
+information d'une determination SAT effectivement constituee dans la trajectoire.
+
+Le point central demeure :
 
 ~~~text
-constituer pendant le calcul
-les conditions sous lesquelles
-de nouvelles relations deviennent reconstructibles
+le calcul constitue
+-> ce qui est disponible change
+-> de nouvelles relations deviennent reconstructibles
+-> certaines alternatives deviennent alors absorbables
 ~~~
 
-La reduction eventuelle de frontiere est une consequence de cette constitution.
+La reduction de frontiere est une consequence de cette dynamique.
 
-Le programme doit donc tester formellement :
-
-~~~text
-meme observation residuelle
-+
-histoires constituees differentes
-->
-relations futures potentiellement differentes
-~~~
-
-et surtout :
-
-~~~text
-aucun transport reconstructible a l'etape k
-+
-nouvelle determination constituee
-->
-transport reconstructible a l'etape k+1
-~~~
-
-C'est la cible la plus directe de la proposition :
-
-> le chemin est le calcul.
-
-Les comparaisons avec selectivite, antichaines, CSP, BDD ou autres cadres etablis restent des audits externes indispensables, mais elles ne doivent pas etre utilisees comme definition ou reduction a priori de cette architecture.
+Les comparaisons avec selectivite, antichaines, CSP, BDD ou autres cadres
+restent des audits externes. Elles ne definissent pas le mecanisme et ne doivent
+pas etre utilisees pour le reduire a une analogie locale.
