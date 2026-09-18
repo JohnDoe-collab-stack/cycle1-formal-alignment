@@ -30,8 +30,7 @@ theorem resource3_bounded :
 theorem endpoint3_decisions_bounded :
     StructuralDecisionsVarsBoundedBy
       3
-      (explicitFamilyResourceTrajectory 3)
-        .finish.context.decisions :=
+      (explicitFamilyResourceTrajectory 3).finish.context.decisions :=
   explicitFamilyEndpoint_decisions_bounded 3
 
 theorem endpoint3_history_budget :
@@ -40,8 +39,7 @@ theorem endpoint3_history_budget :
 
 theorem endpoint3_history_size_le :
     StructuralDecisionHistory.binarySize
-        (explicitFamilyResourceTrajectory 3)
-          .finish.context.decisions ≤
+        (explicitFamilyResourceTrajectory 3).finish.context.decisions ≤
       StructuralDecisionHistory.binaryBudget 3 3 :=
   explicitFamilyEndpoint_historyBinarySize_le 3
 
