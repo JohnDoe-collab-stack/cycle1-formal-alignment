@@ -145,6 +145,7 @@ def normalizeWithConstitutedSplit
     (frontier :
       List (GeneratedStructuralBranchContext rootFormula)) :
     AcceptedIrreducibleFrontierReduction
+      (system := generatedStructuralBranchSystem rootFormula)
       ((constitutedSplitFlipSearch rootFormula).freeze current)
       frontier :=
   (constitutedSplitFlipSearch rootFormula).normalizeAt
