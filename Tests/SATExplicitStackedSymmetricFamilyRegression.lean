@@ -21,7 +21,9 @@ def trajectory3 :=
 
 theorem trajectory3_trace_length :
     trajectory3.trajectory.widthTrace.length = 7 := by
-  simpa using explicitStackedTrajectory_length 3
+  change
+    (explicitStackedTrajectory 3).trajectory.widthTrace.length = 7
+  exact explicitStackedTrajectory_length 3
 
 theorem trajectory3_width_bound :
     ∀ width : Nat,
