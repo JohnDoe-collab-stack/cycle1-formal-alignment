@@ -23,7 +23,7 @@ theorem charged3 :
     explicitFamilyChargedCost 3 unitCosts = 35 := by
   rfl
 
-def unitCostsBoundedByFour :
+theorem unitCostsBoundedByFour :
     UniformAtomicBound unitCosts 4 :=
   { syntaxLe := by decide
     frontierLe := by decide
