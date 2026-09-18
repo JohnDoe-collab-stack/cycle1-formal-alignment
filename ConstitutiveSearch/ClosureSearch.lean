@@ -33,7 +33,7 @@ def zero : ClosureSearchStats :=
   { primitiveQueries := 0
     compositionCandidates := 0 }
 
-def add
+def combine
     (left right : ClosureSearchStats) :
     ClosureSearchStats :=
   { primitiveQueries :=
@@ -42,14 +42,14 @@ def add
       left.compositionCandidates +
         right.compositionCandidates }
 
-def addPrimitiveQuery
+def withPrimitiveQuery
     (stats : ClosureSearchStats) :
     ClosureSearchStats :=
   { primitiveQueries := stats.primitiveQueries + 1
     compositionCandidates :=
       stats.compositionCandidates }
 
-def addCompositionCandidate
+def withCompositionCandidate
     (stats : ClosureSearchStats) :
     ClosureSearchStats :=
   { primitiveQueries := stats.primitiveQueries
@@ -101,8 +101,8 @@ def searchClosureViaCandidates
               target
           { code? := later.code?
             stats :=
-              ClosureSearchStats.addCompositionCandidate
-                (ClosureSearchStats.add
+              ClosureSearchStats.withCompositionCandidate
+                (ClosureSearchStats.combine
                   first.stats
                   later.stats) }
       | some firstCode =>
@@ -115,8 +115,8 @@ def searchClosureViaCandidates
                       firstCode
                       secondCode)
                 stats :=
-                  ClosureSearchStats.addCompositionCandidate
-                    (ClosureSearchStats.add
+                  ClosureSearchStats.withCompositionCandidate
+                    (ClosureSearchStats.combine
                       first.stats
                       second.stats) }
           | none =>
@@ -128,9 +128,9 @@ def searchClosureViaCandidates
                   target
               { code? := later.code?
                 stats :=
-                  ClosureSearchStats.addCompositionCandidate
-                    (ClosureSearchStats.add
-                      (ClosureSearchStats.add
+                  ClosureSearchStats.withCompositionCandidate
+                    (ClosureSearchStats.combine
+                      (ClosureSearchStats.combine
                         first.stats
                         second.stats)
                       later.stats) }
@@ -152,7 +152,7 @@ def searchTransportClosureBounded
               some
                 (TransportClosure.ofGenerator witness)
             stats :=
-              ClosureSearchStats.addPrimitiveQuery
+              ClosureSearchStats.withPrimitiveQuery
                 ClosureSearchStats.zero }
       | none =>
           let via :=
@@ -169,7 +169,7 @@ def searchTransportClosureBounded
               target
           { code? := via.code?
             stats :=
-              ClosureSearchStats.addPrimitiveQuery
+              ClosureSearchStats.withPrimitiveQuery
                 via.stats }
 
 def boundedTransportClosureSearch
@@ -226,7 +226,7 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.ClosureSearchStats
-#print axioms ConstitutiveSearch.ClosureSearchStats.add
+#print axioms ConstitutiveSearch.ClosureSearchStats.combine
 #print axioms ConstitutiveSearch.ClosureSearchRun
 #print axioms ConstitutiveSearch.searchClosureViaCandidates
 #print axioms ConstitutiveSearch.searchTransportClosureBounded
