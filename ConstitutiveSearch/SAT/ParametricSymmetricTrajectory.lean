@@ -137,10 +137,8 @@ theorem widthTrace_length
         widthTrace,
         List.length_cons,
         inductionHypothesis,
-        Nat.mul_succ,
-        Nat.succ_eq_add_one
+        Nat.mul_succ
       ]
-      ac_rfl
 
 /-- Every width in the arbitrary-length trajectory is exactly 1 or 2. -/
 theorem widthTrace_value
