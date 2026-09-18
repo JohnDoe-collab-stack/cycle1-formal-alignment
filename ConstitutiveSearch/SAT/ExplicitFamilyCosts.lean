@@ -272,6 +272,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_succ
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits
+#print axioms Nat.add_assoc
+#print axioms Nat.one_mul
+#print axioms Nat.add_mul
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkArithmetic
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits_eq
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
