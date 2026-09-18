@@ -4,13 +4,13 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique auditee actuelle avant cette mise a jour documentaire :
+Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-ba693c16fe375eecef67db951a9c456da06c264f
+7e4ce9f343cf6a1e7402e5aaa720422a9c995927
 ~~~
 
-P1 a P5, P6a et le theorem multi-niveaux P6b sont maintenant formalises. Le workflow 35344429455 a valide ce head sur Linux et Windows, et les nouvelles preuves P5/P6a/P6b sont axiom-free dans l'audit. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
+P1 a P5, P6a, P6b et le constructeur ferme P6b-explicit sont maintenant formalises. Le code du constructeur explicite passe le build et l'audit Linux sans axiome ; le CI final du head documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1136,6 +1136,7 @@ ConstitutiveSearch/SAT/
   StructuralProgress.lean
   ParametricSymmetricFamily.lean
   ParametricSymmetricTrajectory.lean
+  ExplicitStackedSymmetricFamily.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1162,6 +1163,7 @@ TransportClosure -> fermeture compositionnelle explicite, distincte de sa recher
 StructuralProgress -> ressource syntaxique finie, histoire sans repetition et terminalite
 ParametricSymmetricFamily -> famille SAT locale de taille arbitraire avec reduction sibling a largeur 1
 ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement longue avec W(n) <= 2
+ExplicitStackedSymmetricFamily -> F(n) ferme, 2n clauses, trajectoire automatique de longueur n
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1174,8 +1176,9 @@ ConstitutiveSearch/
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
-  ExplicitStackedSymmetricFamily.lean
   StructuralContextTrajectory.lean
+  ExplicitFamilyResources.lean
+  ExplicitFamilyCosts.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
@@ -1198,8 +1201,9 @@ La ressource actuelle compte des occurrences syntaxiques. Elle fournit donc une
 borne constructive correcte mais pas encore une mesure minimale du nombre de
 variables distinctes.
 
-Le theorem parametrique multi-niveaux est maintenant disponible sous la forme
-correctement qualifiee suivante :
+Le theorem multi-niveaux et son instanciation fermee sont maintenant disponibles.
+
+La couche abstraite etablit :
 
 ~~~text
 pour toute FlipSymmetricTrajectory de longueur n
@@ -1210,10 +1214,35 @@ toute largeur observee vaut 1 ou 2
 donc W(n) <= 2 independamment de n
 ~~~
 
-Ce theorem est conditionnel a la donnee d'une telle trajectoire certifiee. Il ne
-construit pas encore, pour chaque n, une CNF fermee explicite dont la generation
-produit automatiquement cette trajectoire. Ce constructeur de famille explicite
-est le prochain verrou parametrique.
+La couche fermee definit ensuite :
+
+~~~text
+F(n) = explicitStackedSymmetricFamily n
+~~~
+
+avec exactement 2n clauses. Les variables de decision sont n-1, ..., 0 et la
+variable n sert d'ancre commune. Le constructeur `explicitStackedTrajectory n`
+part directement de la racine de F(n) et produit une
+`FlipSymmetricTrajectory` indexee par la longueur n.
+
+Comme le residuel SAT actuel est le residuel faible, une decision vraie conserve
+la clause negative sibling. Le constructeur ne masque pas ce fait : il maintient
+explicitement un prefixe de clauses retenues et prouve que les variables futures
+l'evitent.
+
+On obtient pour tout n :
+
+~~~text
+nombre de clauses de F(n) = 2n
+longueur de la trajectoire certifiee = n
+longueur de widthTrace = 2n + 1
+toute largeur observee <= 2
+Viable [root(F(n))] <-> Viable [endpoint(n)]
+~~~
+
+Le prochain verrou n'est donc plus l'existence d'une famille fermee. Il porte
+sur les tailles plus fines, la ressource pertinente, la taille de provenance et
+des certificats, puis leur cout de construction/recherche.
 
 La recherche exhaustive dans TransportClosure reste egalement ouverte. La
 fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
@@ -1281,7 +1310,14 @@ mais aucun oracle de recherche de code n'est suppose.
 [FAIT P6b] toute largeur de la trace appartient a {1,2}
 [FAIT P6b] borne uniforme W(n) <= 2
 
-[P6b-explicit] constructeur ferme de CNF pour chaque n realisant la trajectoire
+[FAIT P6b-explicit] F(n) = explicitStackedSymmetricFamily n
+[FAIT P6b-explicit] nombre de clauses = 2n
+[FAIT P6b-explicit] construction automatique d'une trajectoire de longueur n
+[FAIT P6b-explicit] widthTrace de longueur 2n + 1
+[FAIT P6b-explicit] borne uniforme W(n) <= 2
+[FAIT P6b-explicit] preservation de Viable racine <-> endpoint
+[FAIT P6b-explicit] accumulation du residuel faible suivie explicitement
+
 [P6c] familles separatrices ou la largeur croit
 
 [P7] tailles et couts
@@ -1297,11 +1333,11 @@ mais aucun oracle de recherche de code n'est suppose.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. construire une famille fermee de CNF indexee par n qui realise FlipSymmetricTrajectory
-2. relier explicitement la longueur n de cette trajectoire a la ressource structurelle P5
-3. prouver les tailles de formule, provenance et certificats pour cette famille
-4. construire une famille separatrice ou la largeur croit
-5. distinguer borne par occurrences et borne par variables distinctes
+1. calculer la taille litterale de F(n), pas seulement son nombre de clauses
+2. definir une ressource de variables distinctes adaptee a F(n) et la relier a la trajectoire
+3. borner exactement la taille de l'historique/provenance le long de la trajectoire
+4. borner la taille des witnesses et codes de transport utilises a chaque niveau
+5. construire une famille separatrice ou la largeur croit
 6. definir une recherche bornee de TransportCode sans en faire un oracle
 7. mesurer cout de recherche, cout de normalisation et taille d'etat
 8. assembler le theorem conditionnel de complexite
@@ -1309,9 +1345,9 @@ Ordre recommande a partir du head actuel :
 
 Le verrou courant est donc :
 
-> passer du theorem conditionnel sur toute trajectoire flip-symetrique certifiee
-> a un constructeur explicite de CNF de taille n qui engendre une telle
-> trajectoire, avec tailles et ressources calculees depuis l'instance elle-meme.
+> passer de la borne structurelle fermee F(n), trajectoire n, W(n) <= 2
+> a une comptabilite complete des ressources et des couts : taille litterale,
+> variables distinctes, provenance, certificats, recherche et normalisation.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
@@ -1354,28 +1390,50 @@ La borne ne depend pas de `n`.
 Ce resultat est un vrai theorem parametrique sur la longueur du chemin, pas une
 regression fermee.
 
-### 26.2 Ce qui reste a construire
+### 26.2 Famille fermee obtenue
 
-Le theorem precedent recoit la trajectoire certifiee comme donnee. Il reste a
-construire une famille fermee explicite :
-
-~~~text
-F : Nat -> Cnf
-~~~
-
-avec, pour tout `n`, un constructeur executable/proof-relevant produisant une
-`FlipSymmetricTrajectory` de longueur controlee depuis `F n`, ainsi que les
-bornes sur :
+La famille fermee est maintenant :
 
 ~~~text
-taille(F n)
-ressource initiale
-longueur de trajectoire
-taille de provenance
-taille des certificats de transport
+F(n) = explicitStackedSymmetricFamily n
 ~~~
 
-Cette distinction est obligatoire avant toute interpretation de complexite.
+et le constructeur :
+
+~~~text
+explicitStackedTrajectory n
+~~~
+
+produit directement une trajectoire certifiee de longueur n depuis F(n).
+
+Les bornes deja fermees sont :
+
+~~~text
+clauses(F(n)) = 2n
+length(widthTrace) = 2n + 1
+W(n) <= 2
+Viable racine <-> Viable endpoint
+~~~
+
+Toutes ces nouvelles declarations sont auditees sans axiome.
+
+### 26.3 Ce qui reste avant l'interpretation de complexite
+
+La taille en clauses ne suffit pas. Il reste a fermer :
+
+~~~text
+nombre total de litteraux / taille syntaxique
+ressource de variables distinctes
+taille de la provenance a chaque profondeur
+taille des witnesses/codes de transport
+cout de construction et verification de ces witnesses
+cout de recherche relationnelle
+cout de normalisation
+~~~
+
+La ressource P5 actuelle compte des occurrences syntaxiques et contient donc des
+doublons ; elle est une borne finie correcte mais n'est pas encore la ressource
+minimale adaptee a cette famille. Cette distinction doit rester explicite.
 
 ---
 
@@ -1544,20 +1602,23 @@ depth + remaining = initial
 epuisement => terminalite
 ~~~
 
-Deux resultats parametriques positifs sont maintenant formalises.
+Trois niveaux parametriques positifs sont maintenant formalises.
 
-Premier niveau : pour un bloc SAT symetrique devant un background arbitrairement
-grand qui evite la variable de split, les deux enfants possedent un transport
-structurel certifie et se reduisent a une frontiere de largeur 1.
+Premier niveau : un bloc SAT symetrique devant un background arbitrairement
+grand se reduit a une frontiere sibling de largeur 1.
 
 Deuxieme niveau : toute trajectoire flip-symetrique certifiee de longueur
-arbitraire n preserve la viabilite de bout en bout et satisfait la borne
-uniforme W(n) <= 2.
+arbitraire n preserve la viabilite de bout en bout et satisfait W(n) <= 2.
 
-Le prochain obstacle est de ne plus prendre cette trajectoire comme donnee :
-il faut construire explicitement une CNF F(n) qui l'engendre, puis borner la
-taille de F(n), de la provenance, des certificats et des recherches. Les familles
-separatrices restent egalement obligatoires avant l'analyse de complexite.
+Troisieme niveau : la famille fermee F(n) est construite explicitement. Elle
+contient 2n clauses et engendre automatiquement une trajectoire de longueur n
+avec trace de longueur 2n+1 et largeur maximale au plus 2. Le constructeur suit
+explicitement l'accumulation de clauses due au residuel faible.
+
+Le prochain obstacle est quantitatif et separateur : taille syntaxique fine,
+ressource de variables distinctes, provenance, certificats et couts, puis une
+famille ou la largeur croit. Ces gates restent obligatoires avant toute analyse
+de complexite forte.
 
 Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
 pas le mecanisme constitutif.
