@@ -53,6 +53,55 @@ def degree : CostPolynomial → Nat
   | .mul left right =>
       left.degree + right.degree
 
+
+/-- Substitute one cost polynomial for the input variable of another. -/
+def substitute
+    (outer inner : CostPolynomial) :
+    CostPolynomial :=
+  match outer with
+  | .constant value =>
+      .constant value
+  | .input =>
+      inner
+  | .add left right =>
+      .add
+        (substitute left inner)
+        (substitute right inner)
+  | .mul left right =>
+      .mul
+        (substitute left inner)
+        (substitute right inner)
+
+/-- Evaluation of polynomial substitution is ordinary function composition. -/
+theorem eval_substitute :
+    ∀ (outer inner : CostPolynomial) (inputBits : Nat),
+      (substitute outer inner).eval inputBits =
+        outer.eval (inner.eval inputBits)
+  | .constant _value, _inner, _inputBits =>
+      rfl
+  | .input, _inner, _inputBits =>
+      rfl
+  | .add left right, inner, inputBits => by
+      change
+        (substitute left inner).eval inputBits +
+            (substitute right inner).eval inputBits =
+          left.eval (inner.eval inputBits) +
+            right.eval (inner.eval inputBits)
+      rw [
+        eval_substitute left inner inputBits,
+        eval_substitute right inner inputBits
+      ]
+  | .mul left right, inner, inputBits => by
+      change
+        (substitute left inner).eval inputBits *
+            (substitute right inner).eval inputBits =
+          left.eval (inner.eval inputBits) *
+            right.eval (inner.eval inputBits)
+      rw [
+        eval_substitute left inner inputBits,
+        eval_substitute right inner inputBits
+      ]
+
 end CostPolynomial
 
 /-- Pointwise domination of a cost function by one finite cost polynomial. -/
@@ -186,6 +235,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.CostPolynomial
 #print axioms ConstitutiveSearch.CostPolynomial.eval
 #print axioms ConstitutiveSearch.CostPolynomial.degree
+#print axioms ConstitutiveSearch.CostPolynomial.substitute
+#print axioms ConstitutiveSearch.CostPolynomial.eval_substitute
 #print axioms ConstitutiveSearch.PolynomiallyBounded
 #print axioms ConstitutiveSearch.PolynomiallyBounded.exact
 #print axioms ConstitutiveSearch.PolynomiallyBounded.constant
