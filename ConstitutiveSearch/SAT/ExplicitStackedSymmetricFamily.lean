@@ -416,8 +416,18 @@ theorem append_singleton_cons
     (clause : Clause)
     (tail : Cnf) :
     accumulated ++ (clause :: tail) =
-      (accumulated ++ [clause]) ++ tail :=
-  (List.append_assoc accumulated [clause] tail).symm
+      (accumulated ++ [clause]) ++ tail := by
+  induction accumulated with
+  | nil =>
+      rfl
+  | cons head rest inductionHypothesis =>
+      change
+        head :: (rest ++ (clause :: tail)) =
+          head :: ((rest ++ [clause]) ++ tail)
+      exact
+        congrArg
+          (List.cons head)
+          inductionHypothesis
 
 /--
 Before reassociation, the true residual is the accumulated prefix followed by
