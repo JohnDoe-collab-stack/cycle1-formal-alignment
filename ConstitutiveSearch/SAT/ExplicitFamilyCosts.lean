@@ -1,0 +1,222 @@
+import ConstitutiveSearch.SAT.ExplicitFamilyResources
+
+/-!
+# Certified structural counts for the explicit SAT family
+
+This module records exact structural counts for the announced explicit strategy.
+
+These are not machine-runtime bounds.  In particular, they do not yet charge
+for executable relation search, transport-code closure search, representation
+costs, or proof checking.  They are certified counts of objects and operations
+already present in the constructed trajectory.
+-/
+
+namespace ConstitutiveSearch
+namespace SAT
+
+namespace FlipSymmetricTrajectory
+
+/-- Number of certified split/reduction levels in a trajectory. -/
+def stepCount
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat} :
+    FlipSymmetricTrajectory start finish length →
+      Nat
+  | .done _ =>
+      0
+  | .step _var _fresh _symmetric tail =>
+      tail.stepCount + 1
+
+/-- The executable step count agrees exactly with the trajectory index. -/
+theorem stepCount_eq_index
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    trajectory.stepCount = length := by
+  induction trajectory with
+  | done state =>
+      rfl
+  | step var fresh symmetric tail inductionHypothesis =>
+      change
+        tail.stepCount + 1 =
+          length + 1
+      exact
+        congrArg
+          (fun value => value + 1)
+          inductionHypothesis
+
+/--
+Number of frontier-state slots explicitly encountered by the announced
+singleton -> pair -> singleton strategy.
+
+A terminal trajectory contributes one singleton slot.  Each nonterminal level
+adds one singleton slot and one two-state split frontier, hence three slots.
+-/
+def frontierSlotCount
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat} :
+    FlipSymmetricTrajectory start finish length →
+      Nat
+  | .done _ =>
+      1
+  | .step _var _fresh _symmetric tail =>
+      3 + tail.frontierSlotCount
+
+/-- Exact closed form for the structural frontier-slot count. -/
+theorem frontierSlotCount_eq
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    trajectory.frontierSlotCount =
+      3 * length + 1 := by
+  induction trajectory with
+  | done state =>
+      rfl
+  | step var fresh symmetric tail inductionHypothesis =>
+      change
+        3 + tail.frontierSlotCount =
+          3 * (length + 1) + 1
+      calc
+        3 + tail.frontierSlotCount
+            = 3 + (3 * length + 1) :=
+              congrArg
+                (Nat.add 3)
+                inductionHypothesis
+        _ = (3 + 3 * length) + 1 :=
+              (Nat.add_assoc 3 (3 * length) 1).symm
+        _ = (3 * length + 3) + 1 :=
+              congrArg
+                (fun value => value + 1)
+                (Nat.add_comm 3 (3 * length))
+        _ = 3 * (length + 1) + 1 := by
+              rw [Nat.mul_succ]
+
+end FlipSymmetricTrajectory
+
+/--
+One proof object collecting the exact structural counts already established for
+the closed family `F(n)`.
+-/
+structure ExplicitFamilyCertifiedCounts
+    (count : Nat) : Prop where
+  clauseCount :
+    (explicitStackedSymmetricFamily count).length =
+      2 * count
+  literalOccurrenceCount :
+    (Cnf.variableOccurrences
+      (explicitStackedSymmetricFamily count)).length =
+        4 * count
+  decisionResourceSize :
+    (explicitFamilyDecisionResource count).length =
+      count
+  trajectoryStepCount :
+    (explicitFamilyResourceTrajectory count).trajectory.stepCount =
+      count
+  widthTraceEntries :
+    (explicitFamilyResourceTrajectory count).trajectory.widthTrace.length =
+      2 * count + 1
+  frontierSlotCount :
+    (explicitFamilyResourceTrajectory count).trajectory.frontierSlotCount =
+      3 * count + 1
+  widthBound :
+    ∀ width : Nat,
+      width ∈
+        (explicitFamilyResourceTrajectory count).trajectory.widthTrace →
+          width ≤ 2
+  endpointDepth :
+    (explicitFamilyResourceTrajectory count).finish.depth =
+      count
+  endpointTerminal :
+    ResourceTerminal
+      (explicitFamilyResourceTrajectory count).finish
+      []
+
+/-- Complete certified structural accounting for every member of the family. -/
+theorem explicitFamilyCertifiedCounts
+    (count : Nat) :
+    ExplicitFamilyCertifiedCounts count := by
+  constructor
+  · change
+      (stackedSymmetricBlocks count count).length =
+        2 * count
+    exact
+      stackedSymmetricBlocks_length count count
+  · exact
+      explicitStackedSymmetricFamily_variableOccurrences_length
+        count
+  · exact
+      explicitFamilyDecisionResource_length count
+  · exact
+      (explicitFamilyResourceTrajectory count)
+        .trajectory.stepCount_eq_index
+  · exact
+      (explicitFamilyResourceTrajectory count)
+        .trajectory.widthTrace_length
+  · exact
+      (explicitFamilyResourceTrajectory count)
+        .trajectory.frontierSlotCount_eq
+  · intro width member
+    exact
+      explicitFamilyResourceTrajectory_width_le_two
+        count
+        width
+        member
+  · exact
+      explicitFamilyEndpoint_depth count
+  · exact
+      explicitFamilyEndpoint_terminal count
+
+/--
+A deliberately narrow structural work proxy: certified trajectory levels plus
+frontier-state slots explicitly encountered.
+
+This excludes relation-search cost, certificate representation size, closure
+search, and machine-level execution cost.
+-/
+def explicitFamilyStructuralWorkUnits
+    (count : Nat) : Nat :=
+  (explicitFamilyResourceTrajectory count).trajectory.stepCount +
+    (explicitFamilyResourceTrajectory count).trajectory.frontierSlotCount
+
+/-- Exact value of the narrow structural work proxy. -/
+theorem explicitFamilyStructuralWorkUnits_eq
+    (count : Nat) :
+    explicitFamilyStructuralWorkUnits count =
+      4 * count + 1 := by
+  unfold explicitFamilyStructuralWorkUnits
+  rw [
+    (explicitFamilyResourceTrajectory count)
+      .trajectory.stepCount_eq_index,
+    (explicitFamilyResourceTrajectory count)
+      .trajectory.frontierSlotCount_eq
+  ]
+  calc
+    count + (3 * count + 1)
+        = (count + 3 * count) + 1 :=
+          (Nat.add_assoc count (3 * count) 1).symm
+    _ = (1 * count + 3 * count) + 1 := by
+          rw [Nat.one_mul]
+    _ = ((1 + 3) * count) + 1 := by
+          rw [Nat.add_mul]
+    _ = 4 * count + 1 := by
+          rfl
+
+end SAT
+end ConstitutiveSearch
+
+/- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.stepCount
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.stepCount_eq_index
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
+#print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
+#print axioms ConstitutiveSearch.SAT.explicitFamilyCertifiedCounts
+#print axioms ConstitutiveSearch.SAT.explicitFamilyStructuralWorkUnits
+#print axioms ConstitutiveSearch.SAT.explicitFamilyStructuralWorkUnits_eq
+/- AXIOM_AUDIT_END -/
