@@ -173,6 +173,7 @@ theorem explicitFamilyRepresentationChargedCost_eq_budget
   rw [Nat.zero_mul]
   rw [Nat.one_mul]
   rw [Nat.zero_add]
+  rw [Nat.zero_add]
 
 end SAT
 end ConstitutiveSearch
