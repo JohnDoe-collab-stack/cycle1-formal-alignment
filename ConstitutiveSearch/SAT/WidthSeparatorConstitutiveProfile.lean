@@ -243,6 +243,282 @@ theorem isolatedSeparatorEnvelopeProfile_representationConsistent
   rfl
 
 /--
+Lift any polynomial envelope in the separator index to the concrete serialized
+frontier input size.
+-/
+theorem isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+    {cost : Nat → Nat}
+    (envelope : CostPolynomial)
+    (costLe :
+      ∀ count : Nat,
+        cost count ≤
+          envelope.eval count) :
+    InputPolynomiallyBounded
+      isolatedFrontierInputBitSize
+      cost :=
+  ⟨envelope,
+    fun count =>
+      Nat.le_trans
+        (costLe count)
+        (envelope.eval_mono
+          (isolatedSeparatorIndex_le_inputBitSize
+            count))⟩
+
+/-- Every source-level event coordinate of the separator envelope is input-polynomial. -/
+theorem isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded :
+    ComplexityCountsFamilyInputPolynomiallyBounded
+      isolatedFrontierInputBitSize
+      isolatedSeparatorEnvelopeCounts :=
+  { syntaxUnits := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun _count => 0)
+      exact
+        InputPolynomiallyBounded.constant
+          isolatedFrontierInputBitSize
+          0
+    frontierSlots := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count => count)
+      exact
+        ⟨CostPolynomial.input,
+          isolatedSeparatorIndex_le_inputBitSize⟩
+    provenanceUnits := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count => count)
+      exact
+        ⟨CostPolynomial.input,
+          isolatedSeparatorIndex_le_inputBitSize⟩
+    certificateAtoms := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun _count => 0)
+      exact
+        InputPolynomiallyBounded.constant
+          isolatedFrontierInputBitSize
+          0
+    relationFindCalls := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          normalizationFindCallQuadraticBudget
+      exact
+        isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+          isolatedSeparatorFindCountCostPolynomial
+          (fun count =>
+            Nat.le_of_eq
+              (isolatedSeparatorFindCountCostPolynomial_eval
+                count).symm)
+    closurePrimitiveQueries := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun _count => 0)
+      exact
+        InputPolynomiallyBounded.constant
+          isolatedFrontierInputBitSize
+          0
+    closureCompositionCandidates := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun _count => 0)
+      exact
+        InputPolynomiallyBounded.constant
+          isolatedFrontierInputBitSize
+          0
+    terminalChecks := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun _count => 0)
+      exact
+        InputPolynomiallyBounded.constant
+          isolatedFrontierInputBitSize
+          0 }
+
+/-- Every representation-level atomic charge of the separator is input-polynomial. -/
+theorem isolatedSeparatorRepresentationAtomicCosts_inputPolynomiallyBounded :
+    AtomicCostsFamilyInputPolynomiallyBounded
+      isolatedFrontierInputBitSize
+      isolatedSeparatorRepresentationAtomicCosts :=
+  { syntaxUnit :=
+      InputPolynomiallyBounded.constant
+        isolatedFrontierInputBitSize
+        1
+    frontierSlot := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          isolatedSeparatorStateBinaryBudget
+      exact
+        isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+          isolatedSeparatorStateCostPolynomial
+          (fun count =>
+            Nat.le_of_eq
+              (isolatedSeparatorStateCostPolynomial_eval
+                count).symm)
+    provenanceUnit := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          isolatedSeparatorHistoryBinaryBudget
+      exact
+        isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+          isolatedSeparatorHistoryCostPolynomial
+          (fun count =>
+            Nat.le_of_eq
+              (isolatedSeparatorHistoryCostPolynomial_eval
+                count).symm)
+    certificateAtom :=
+      InputPolynomiallyBounded.constant
+        isolatedFrontierInputBitSize
+        0
+    relationFindCall := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          isolatedSeparatorRelationEqualityBudget
+      exact
+        isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+          isolatedSeparatorRelationCostPolynomial
+          (fun count =>
+            Nat.le_of_eq
+              (isolatedSeparatorRelationCostPolynomial_eval
+                count).symm)
+    closurePrimitiveQuery :=
+      InputPolynomiallyBounded.constant
+        isolatedFrontierInputBitSize
+        0
+    closureCompositionCandidate :=
+      InputPolynomiallyBounded.constant
+        isolatedFrontierInputBitSize
+        0
+    terminalCheck :=
+      InputPolynomiallyBounded.constant
+        isolatedFrontierInputBitSize
+        0 }
+
+/-- The complete separator representation charge is input-polynomial. -/
+theorem isolatedSeparatorRepresentationCharge_inputPolynomiallyBounded :
+    InputPolynomiallyBounded
+      isolatedFrontierInputBitSize
+      (fun count =>
+        (isolatedSeparatorEnvelopeProfile count).representationCharge) := by
+  change
+    InputPolynomiallyBounded
+      isolatedFrontierInputBitSize
+      (fun count =>
+        chargedCost
+          (isolatedSeparatorEnvelopeCounts count)
+          (isolatedSeparatorRepresentationAtomicCosts count))
+  exact
+    chargedCost_inputPolynomiallyBounded
+      isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded
+      isolatedSeparatorRepresentationAtomicCosts_inputPolynomiallyBounded
+
+/--
+The width-separator family is polynomially bounded in every constitutive
+coordinate relative to the concrete serialization of its full frontier.
+-/
+theorem isolatedSeparatorEnvelopeProfile_inputPolynomiallyBounded :
+    ConstitutiveProfileFamilyInputPolynomiallyBounded
+      isolatedSeparatorEnvelopeProfile :=
+  { depth := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          isolatedSeparatorDepth
+      refine
+        ⟨CostPolynomial.constant 1, ?_⟩
+      intro count
+      cases count with
+      | zero =>
+          exact Nat.zero_le 1
+      | succ count =>
+          exact Nat.le_refl 1
+    width := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count => count)
+      exact
+        ⟨CostPolynomial.input,
+          isolatedSeparatorIndex_le_inputBitSize⟩
+    syntaxUnits := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).syntaxUnits)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.syntaxUnits
+    frontierSlots := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).frontierSlots)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.frontierSlots
+    provenance := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).provenanceUnits)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.provenanceUnits
+    certificates := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).certificateAtoms)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.certificateAtoms
+    relationFind := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).relationFindCalls)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.relationFindCalls
+    closurePrimitive := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).closurePrimitiveQueries)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.closurePrimitiveQueries
+    closureCandidates := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).closureCompositionCandidates)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.closureCompositionCandidates
+    terminal := by
+      change
+        InputPolynomiallyBounded
+          isolatedFrontierInputBitSize
+          (fun count =>
+            (isolatedSeparatorEnvelopeCounts count).terminalChecks)
+      exact
+        isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded.terminalChecks
+    representationCharge :=
+      isolatedSeparatorRepresentationCharge_inputPolynomiallyBounded }
+
+/--
 The actual generic normalizer directed-find count on the isolated frontier is
 covered by the profile relationFindCalls coordinate.
 -/
@@ -334,6 +610,11 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeProfile_width
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeProfile_depth_succ
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeProfile_representationConsistent
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorInputPolynomialBounded_of_indexEnvelope
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeCounts_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorRepresentationAtomicCosts_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorRepresentationCharge_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeProfile_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.SAT.isolatedSeparator_normalizationFindCalls_le_profile
 #print axioms ConstitutiveSearch.SAT.isolatedSeparator3_not_boundedBy_compositionPhase3
 #print axioms ConstitutiveSearch.SAT.compositionPhase3_not_boundedBy_isolatedSeparator3
