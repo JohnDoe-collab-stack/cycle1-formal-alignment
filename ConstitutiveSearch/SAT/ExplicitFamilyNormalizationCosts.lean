@@ -211,6 +211,11 @@ theorem normalizationRelationVerificationSurface_le_uniform
       let unit :=
         uniformRelationVerificationUnit
           formulaBound provenanceBound
+      have localTwo :
+          siblingRelationVerificationSurface parent var fresh +
+              siblingRelationVerificationSurface parent var fresh ≤
+            unit + unit :=
+        Nat.add_le_add localOne localOne
       change
         (siblingRelationVerificationSurface parent var fresh +
           siblingRelationVerificationSurface parent var fresh) +
