@@ -166,8 +166,7 @@ theorem isolatedSeparator_normalizationFindCalls_le_profile
           anchor)
         (isolatedFrontier count) ≤
       normalizationFindCallQuadraticBudget count
-  rw [← isolatedFrontier_length count]
-  exact generic
+  simpa only [isolatedFrontier_length] using generic
 
 /--
 At count three, the separator and the two-step composition phase are not
