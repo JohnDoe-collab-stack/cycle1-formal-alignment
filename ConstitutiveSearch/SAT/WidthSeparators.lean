@@ -102,6 +102,29 @@ theorem isolatedChild_flipSearch_none
         (isolatedChild targetVar) =
       none := by
   unfold generatedStructuralFlipAtSearch
+  change
+    (if formulaExact :
+        (isolatedChild targetVar).context.formula =
+          Cnf.flipAt
+            anchor
+            (isolatedChild sourceVar).context.formula then
+      if decisionsExact :
+          (isolatedChild targetVar).context.decisions =
+            flipStructuralDecisionsAt
+              anchor
+              (isolatedChild sourceVar).context.decisions then
+        some
+          ({ formulaExact := formulaExact
+             decisionsExact := decisionsExact } :
+            GeneratedStructuralFlipAtRelation
+              anchor
+              (isolatedChild sourceVar)
+              (isolatedChild targetVar))
+      else
+        none
+    else
+      none) =
+    none
   rw [dif_pos rfl]
   rw [
     dif_neg
