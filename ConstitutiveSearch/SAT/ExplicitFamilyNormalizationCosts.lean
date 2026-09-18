@@ -211,37 +211,19 @@ theorem normalizationRelationVerificationSurface_le_uniform
       let unit :=
         uniformRelationVerificationUnit
           formulaBound provenanceBound
-      have localTailLe :
-          siblingRelationVerificationSurface parent var fresh +
-              (siblingRelationVerificationSurface parent var fresh +
-                tail.normalizationRelationVerificationSurface) ≤
-            unit +
-              (unit +
-                length * (unit + unit)) :=
-        Nat.add_le_add
-          localOne
-          (Nat.add_le_add localOne tailLe)
       change
-        siblingRelationVerificationSurface parent var fresh +
-            (siblingRelationVerificationSurface parent var fresh +
-              tail.normalizationRelationVerificationSurface) ≤
+        (siblingRelationVerificationSurface parent var fresh +
+          siblingRelationVerificationSurface parent var fresh) +
+            tail.normalizationRelationVerificationSurface ≤
           (length + 1) * (unit + unit)
       calc
-        siblingRelationVerificationSurface parent var fresh +
-              (siblingRelationVerificationSurface parent var fresh +
-                tail.normalizationRelationVerificationSurface)
+        (siblingRelationVerificationSurface parent var fresh +
+          siblingRelationVerificationSurface parent var fresh) +
+            tail.normalizationRelationVerificationSurface
             ≤
-          unit +
-            (unit +
-              length * (unit + unit)) :=
-                localTailLe
-        _ =
           (unit + unit) +
             length * (unit + unit) :=
-              (Nat.add_assoc
-                unit
-                unit
-                (length * (unit + unit))).symm
+              Nat.add_le_add localTwo tailLe
         _ =
           length * (unit + unit) +
             (unit + unit) :=
