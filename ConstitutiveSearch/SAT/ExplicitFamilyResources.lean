@@ -50,28 +50,159 @@ theorem stackedDecisionResource_length
       exact
         congrArg Nat.succ inductionHypothesis
 
-/-- One symmetric block contributes exactly four literal occurrences. -/
-theorem symmetricBlockFamily_variableOccurrences_length
-    (var anchor : Var)
-    (background : Cnf) :
-    (Cnf.variableOccurrences
-      (symmetricBlockFamily var anchor background)).length =
-      4 +
-        (Cnf.variableOccurrences background).length := by
-  unfold symmetricBlockFamily
-  unfold symmetricPositiveClause symmetricNegativeClause
-  unfold Cnf.variableOccurrences
-  unfold Clause.variableOccurrences
-  unfold Literal.varOf
+namespace Clause
+
+/-- Recording variable occurrences preserves the literal count of one clause. -/
+theorem variableOccurrences_length_eq_length
+    (clause : Clause) :
+    (variableOccurrences clause).length =
+      clause.length := by
+  induction clause with
+  | nil =>
+      rfl
+  | cons literal rest inductionHypothesis =>
+      have step :
+          variableOccurrences (literal :: rest) =
+            literal.varOf :: variableOccurrences rest :=
+        rfl
+      calc
+        (variableOccurrences (literal :: rest)).length
+            =
+          (literal.varOf :: variableOccurrences rest).length :=
+            congrArg List.length step
+        _ = Nat.succ (variableOccurrences rest).length :=
+              rfl
+        _ = Nat.succ rest.length :=
+              congrArg Nat.succ inductionHypothesis
+        _ = (literal :: rest).length :=
+              rfl
+
+end Clause
+
+namespace Cnf
+
+/-- Structural literal count of one CNF. -/
+def literalCount : Cnf → Nat
+  | [] =>
+      0
+  | clause :: rest =>
+      clause.length + literalCount rest
+
+/-- The variable-occurrence list has exactly one entry per CNF literal. -/
+theorem variableOccurrences_length_eq_literalCount
+    (formula : Cnf) :
+    (variableOccurrences formula).length =
+      literalCount formula := by
+  induction formula with
+  | nil =>
+      rfl
+  | cons clause rest inductionHypothesis =>
+      have step :
+          variableOccurrences (clause :: rest) =
+            Clause.variableOccurrences clause ++
+              variableOccurrences rest :=
+        rfl
+      calc
+        (variableOccurrences (clause :: rest)).length
+            =
+          (Clause.variableOccurrences clause ++
+            variableOccurrences rest).length :=
+              congrArg List.length step
+        _ =
+          (Clause.variableOccurrences clause).length +
+            (variableOccurrences rest).length :=
+              List.length_append
+                (Clause.variableOccurrences clause)
+                (variableOccurrences rest)
+        _ =
+          clause.length +
+            (variableOccurrences rest).length :=
+              congrArg
+                (fun value =>
+                  value + (variableOccurrences rest).length)
+                (Clause.variableOccurrences_length_eq_length
+                  clause)
+        _ =
+          clause.length + literalCount rest :=
+              congrArg
+                (Nat.add clause.length)
+                inductionHypothesis
+        _ = literalCount (clause :: rest) :=
+              rfl
+
+end Cnf
+
+/-- Positive symmetric clauses contain exactly two literals. -/
+theorem symmetricPositiveClause_length
+    (var anchor : Var) :
+    (symmetricPositiveClause var anchor).length =
+      2 := by
+  unfold symmetricPositiveClause
   rfl
 
-/-- Each explicit stacked level contributes four literal occurrences. -/
-theorem stackedSymmetricBlocks_variableOccurrences_length
+/-- Negative symmetric clauses contain exactly two literals. -/
+theorem symmetricNegativeClause_length
+    (var anchor : Var) :
+    (symmetricNegativeClause var anchor).length =
+      2 := by
+  unfold symmetricNegativeClause
+  rfl
+
+/-- One symmetric block contributes exactly four literals. -/
+theorem symmetricBlockFamily_literalCount
+    (var anchor : Var)
+    (background : Cnf) :
+    Cnf.literalCount
+      (symmetricBlockFamily var anchor background) =
+        4 + Cnf.literalCount background := by
+  have formulaStep :
+      symmetricBlockFamily var anchor background =
+        symmetricPositiveClause var anchor ::
+          symmetricNegativeClause var anchor ::
+            background :=
+    rfl
+  calc
+    Cnf.literalCount
+        (symmetricBlockFamily var anchor background)
+        =
+      Cnf.literalCount
+        (symmetricPositiveClause var anchor ::
+          symmetricNegativeClause var anchor ::
+            background) :=
+        congrArg Cnf.literalCount formulaStep
+    _ =
+      (symmetricPositiveClause var anchor).length +
+        ((symmetricNegativeClause var anchor).length +
+          Cnf.literalCount background) :=
+        rfl
+    _ =
+      2 +
+        ((symmetricNegativeClause var anchor).length +
+          Cnf.literalCount background) :=
+        congrArg
+          (fun value =>
+            value +
+              ((symmetricNegativeClause var anchor).length +
+                Cnf.literalCount background))
+          (symmetricPositiveClause_length var anchor)
+    _ =
+      2 + (2 + Cnf.literalCount background) :=
+        congrArg
+          (Nat.add 2)
+          (congrArg
+            (fun value =>
+              value + Cnf.literalCount background)
+            (symmetricNegativeClause_length var anchor))
+    _ = 4 + Cnf.literalCount background :=
+        rfl
+
+/-- The stacked family has exactly four literals per level. -/
+theorem stackedSymmetricBlocks_literalCount
     (count : Nat)
     (anchor : Var) :
-    (Cnf.variableOccurrences
-      (stackedSymmetricBlocks count anchor)).length =
-      4 * count := by
+    Cnf.literalCount
+      (stackedSymmetricBlocks count anchor) =
+        4 * count := by
   induction count with
   | zero =>
       rfl
@@ -84,42 +215,55 @@ theorem stackedSymmetricBlocks_variableOccurrences_length
               (stackedSymmetricBlocks count anchor) :=
         rfl
       calc
-        (Cnf.variableOccurrences
-          (stackedSymmetricBlocks (count + 1) anchor)).length
+        Cnf.literalCount
+            (stackedSymmetricBlocks (count + 1) anchor)
             =
-          (Cnf.variableOccurrences
+          Cnf.literalCount
             (symmetricBlockFamily
               count
               anchor
-              (stackedSymmetricBlocks count anchor))).length :=
-              congrArg
-                (fun formula =>
-                  (Cnf.variableOccurrences formula).length)
-                stackStep
+              (stackedSymmetricBlocks count anchor)) :=
+            congrArg Cnf.literalCount stackStep
         _ =
           4 +
-            (Cnf.variableOccurrences
-              (stackedSymmetricBlocks count anchor)).length :=
-            symmetricBlockFamily_variableOccurrences_length
+            Cnf.literalCount
+              (stackedSymmetricBlocks count anchor) :=
+            symmetricBlockFamily_literalCount
               count
               anchor
               (stackedSymmetricBlocks count anchor)
         _ = 4 + (4 * count) :=
-              congrArg
-                (Nat.add 4)
-                inductionHypothesis
+            congrArg
+              (Nat.add 4)
+              inductionHypothesis
         _ = 4 * count + 4 :=
-              Nat.add_comm 4 (4 * count)
+            Nat.add_comm 4 (4 * count)
         _ = 4 * (count + 1) :=
-              (Nat.mul_succ 4 count).symm
+            (Nat.mul_succ 4 count).symm
+
+/-- Each explicit stacked level contributes four literal occurrences. -/
+theorem stackedSymmetricBlocks_variableOccurrences_length
+    (count : Nat)
+    (anchor : Var) :
+    (Cnf.variableOccurrences
+      (stackedSymmetricBlocks count anchor)).length =
+      4 * count := by
+  exact
+    Eq.trans
+      (Cnf.variableOccurrences_length_eq_literalCount
+        (stackedSymmetricBlocks count anchor))
+      (stackedSymmetricBlocks_literalCount count anchor)
 
 /-- The closed family has exactly four literal occurrences per level. -/
 theorem explicitStackedSymmetricFamily_variableOccurrences_length
     (count : Nat) :
     (Cnf.variableOccurrences
       (explicitStackedSymmetricFamily count)).length =
-      4 * count :=
-  stackedSymmetricBlocks_variableOccurrences_length count count
+      4 * count := by
+  exact
+    stackedSymmetricBlocks_variableOccurrences_length
+      count
+      count
 
 /--
 Combined output: one explicit flip-symmetric trajectory and one resource
@@ -413,7 +557,13 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_succ
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_length
-#print axioms ConstitutiveSearch.SAT.symmetricBlockFamily_variableOccurrences_length
+#print axioms ConstitutiveSearch.SAT.Clause.variableOccurrences_length_eq_length
+#print axioms ConstitutiveSearch.SAT.Cnf.literalCount
+#print axioms ConstitutiveSearch.SAT.Cnf.variableOccurrences_length_eq_literalCount
+#print axioms ConstitutiveSearch.SAT.symmetricPositiveClause_length
+#print axioms ConstitutiveSearch.SAT.symmetricNegativeClause_length
+#print axioms ConstitutiveSearch.SAT.symmetricBlockFamily_literalCount
+#print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_literalCount
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.ResourceAlignedStackedTrajectoryResult
