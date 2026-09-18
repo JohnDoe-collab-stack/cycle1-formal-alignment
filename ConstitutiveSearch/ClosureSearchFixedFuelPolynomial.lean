@@ -48,6 +48,100 @@ def closureCompositionFixedFuelPolynomial : Nat → CostPolynomial
             (closureCompositionFixedFuelPolynomial fuel))
           (.constant 1))
 
+/-- Structural degree of the exact primitive-query polynomial is the fuel. -/
+theorem closurePrimitiveFixedFuelPolynomial_degree :
+    ∀ fuel : Nat,
+      (closurePrimitiveFixedFuelPolynomial fuel).degree =
+        fuel
+  | 0 =>
+      rfl
+  | fuel + 1 => by
+      change
+        Nat.max
+            (1 +
+              Nat.max
+                (closurePrimitiveFixedFuelPolynomial fuel).degree
+                (closurePrimitiveFixedFuelPolynomial fuel).degree)
+            0 =
+          fuel + 1
+      rw [
+        closurePrimitiveFixedFuelPolynomial_degree fuel,
+        Nat.max_self
+      ]
+      rw [Nat.max_eq_left]
+      · exact Nat.add_comm 1 fuel
+      · exact Nat.zero_le _
+
+/-- Structural degree of the exact composition-candidate polynomial is the fuel. -/
+theorem closureCompositionFixedFuelPolynomial_degree :
+    ∀ fuel : Nat,
+      (closureCompositionFixedFuelPolynomial fuel).degree =
+        fuel
+  | 0 =>
+      rfl
+  | fuel + 1 => by
+      change
+        1 +
+            Nat.max
+              (Nat.max
+                (closureCompositionFixedFuelPolynomial fuel).degree
+                (closureCompositionFixedFuelPolynomial fuel).degree)
+              0 =
+          fuel + 1
+      rw [
+        closureCompositionFixedFuelPolynomial_degree fuel,
+        Nat.max_self
+      ]
+      rw [Nat.max_eq_left]
+      · exact Nat.add_comm 1 fuel
+      · exact Nat.zero_le _
+
+/--
+An unbounded fuel family therefore produces canonical exact closure polynomials
+of unbounded structural degree.
+-/
+theorem closurePrimitiveFixedFuelPolynomial_degree_unbounded
+    (fuel : Nat → Nat)
+    (fuelUnbounded :
+      ∀ cap : Nat,
+        ∃ n : Nat,
+          cap < fuel n) :
+    ∀ cap : Nat,
+      ∃ n : Nat,
+        cap <
+          (closurePrimitiveFixedFuelPolynomial
+            (fuel n)).degree := by
+  intro cap
+  rcases fuelUnbounded cap with
+    ⟨n, capLt⟩
+  exact
+    ⟨n, by
+      rw [closurePrimitiveFixedFuelPolynomial_degree]
+      exact capLt⟩
+
+/--
+The same unbounded-degree boundary holds for the exact composition-candidate
+polynomials.
+-/
+theorem closureCompositionFixedFuelPolynomial_degree_unbounded
+    (fuel : Nat → Nat)
+    (fuelUnbounded :
+      ∀ cap : Nat,
+        ∃ n : Nat,
+          cap < fuel n) :
+    ∀ cap : Nat,
+      ∃ n : Nat,
+        cap <
+          (closureCompositionFixedFuelPolynomial
+            (fuel n)).degree := by
+  intro cap
+  rcases fuelUnbounded cap with
+    ⟨n, capLt⟩
+  exact
+    ⟨n, by
+      rw [closureCompositionFixedFuelPolynomial_degree]
+      exact capLt⟩
+
 /-- Primitive-query polynomial evaluates exactly to the recursive closure budget. -/
 theorem closurePrimitiveFixedFuelPolynomial_eval :
     ∀ (fuel candidateCount : Nat),
@@ -708,6 +802,10 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial
 #print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial
+#print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_degree
+#print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_degree
+#print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_degree_unbounded
+#print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_degree_unbounded
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuelPolynomial_eval
 #print axioms ConstitutiveSearch.closureCompositionFixedFuelPolynomial_eval
 #print axioms ConstitutiveSearch.closurePrimitiveFixedFuel_polynomiallyBounded
