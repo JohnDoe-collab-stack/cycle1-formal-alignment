@@ -21,7 +21,7 @@ runtime bounds.
 
 namespace ConstitutiveSearch
 
-universe uState uGenerator
+universe uGenerator
 
 structure ClosureSearchStats where
   primitiveQueries : Nat
@@ -59,7 +59,7 @@ def addCompositionCandidate
 end ClosureSearchStats
 
 structure ClosureSearchRun
-    {State : Type uState}
+    {State : Type}
     (Generator : State → State → Type uGenerator)
     (source target : State) where
   code? :
@@ -69,7 +69,7 @@ structure ClosureSearchRun
 namespace ClosureSearchRun
 
 def empty
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (source target : State) :
     ClosureSearchRun Generator source target :=
@@ -79,7 +79,7 @@ def empty
 end ClosureSearchRun
 
 def searchClosureViaCandidates
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (recurse :
       (source target : State) →
@@ -129,7 +129,7 @@ def searchClosureViaCandidates
                     .addCompositionCandidate }
 
 def searchTransportClosureBounded
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
     (candidates : List State) :
@@ -165,7 +165,7 @@ def searchTransportClosureBounded
               via.stats.addPrimitiveQuery }
 
 def boundedTransportClosureSearch
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
     (candidates : List State)
@@ -180,7 +180,7 @@ def boundedTransportClosureSearch
         target).code? }
 
 theorem boundedTransportClosureSearch_find
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
     (candidates : List State)
@@ -193,7 +193,7 @@ theorem boundedTransportClosureSearch_find
   rfl
 
 theorem boundedClosure_zero_primitiveQueries
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
     (candidates : List State)
@@ -204,7 +204,7 @@ theorem boundedClosure_zero_primitiveQueries
   rfl
 
 theorem boundedClosure_zero_compositionCandidates
-    {State : Type uState}
+    {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
     (candidates : List State)
