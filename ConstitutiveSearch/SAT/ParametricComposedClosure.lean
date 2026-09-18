@@ -83,7 +83,6 @@ theorem composedClosureFuelTwo_found
   simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
   simp only [searchClosureViaCandidates]
-  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   intro impossible
@@ -102,7 +101,6 @@ theorem composedClosureFuelTwo_code_size
   simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
   simp only [searchClosureViaCandidates]
-  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
@@ -118,7 +116,6 @@ theorem composedClosureFuelTwo_primitiveQueries
   simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
   simp only [searchClosureViaCandidates]
-  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
@@ -134,7 +131,6 @@ theorem composedClosureFuelTwo_compositionCandidates
   simp only [searchTransportClosureBounded]
   rw [composedPrimitiveSearch_source_target_none count]
   simp only [searchClosureViaCandidates]
-  simp only [searchTransportClosureBounded]
   rw [firstExact]
   rw [secondExact]
   rfl
