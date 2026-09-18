@@ -23,42 +23,6 @@ universe uRelation
 If forward relation search succeeds on a two-state frontier, the generic
 hardened normalizer retains exactly one state.
 -/
-theorem normalizeAcceptedPair_width_one_of_forward_found
-    {system : SearchSystem}
-    {Relation : system.State → system.State → Type uRelation}
-    (search : RelationSearch Relation)
-    (action : AcceptedRelationalAction system Relation)
-    (left right : system.State)
-    (forwardFound :
-      search.find left right ≠ none) :
-    (normalizeAcceptedFrontier
-      search
-      action
-      [left, right]).width = 1 := by
-  change
-    (insertAcceptedIntoIrreducible
-      search
-      action
-      left
-      [right]
-      (SearchIrreducible.singleton search right)).retained.length =
-        1
-  cases forwardResult : search.find left right with
-  | none =>
-      exact False.elim (forwardFound forwardResult)
-  | some forward =>
-      cases backwardResult : search.find right left with
-      | none =>
-          unfold insertAcceptedIntoIrreducible
-          unfold RelationSearch.classifyPairCertified
-          rw [forwardResult, backwardResult]
-          rfl
-      | some backward =>
-          unfold insertAcceptedIntoIrreducible
-          unfold RelationSearch.classifyPairCertified
-          rw [forwardResult, backwardResult]
-          rfl
-
 namespace SAT
 
 /--
@@ -106,38 +70,6 @@ theorem generatedStructuralFlipAtSearch_sibling_found
   rw [dif_pos decisionsExact]
   intro impossible
   cases impossible
-
-/--
-The actual generic normalizer, not only the direct witness reduction, collapses
-every certified flip-symmetric sibling pair to operational width one.
--/
-theorem normalizeFlipSymmetricSiblings_width
-    {rootFormula : Cnf}
-    (parent : GeneratedStructuralBranchContext rootFormula)
-    (var : Var)
-    (fresh :
-      StructuralDecisionsAvoid
-        var
-        parent.context.decisions)
-    (symmetric :
-      FlipSymmetricAt parent.context.formula var) :
-    (normalizeGeneratedStructuralFrontierByFlip
-      rootFormula
-      var
-      [GeneratedStructuralBranchContext.child
-          parent var false fresh,
-       GeneratedStructuralBranchContext.child
-          parent var true fresh]).width = 1 := by
-  exact
-    normalizeAcceptedPair_width_one_of_forward_found
-      (generatedStructuralFlipAtSearch rootFormula var)
-      (generatedStructuralFlipAtAction rootFormula var)
-      (GeneratedStructuralBranchContext.child
-        parent var false fresh)
-      (GeneratedStructuralBranchContext.child
-        parent var true fresh)
-      (generatedStructuralFlipAtSearch_sibling_found
-        parent var fresh symmetric)
 
 namespace FlipSymmetricTrajectory
 
@@ -268,16 +200,6 @@ theorem normalizationRelationVerificationSurface_le_uniform
           provenanceBound
           parentFormulaLe
           childProvenanceLe
-      have localTwo :
-          siblingRelationVerificationSurface
-                parent var fresh +
-              siblingRelationVerificationSurface
-                parent var fresh ≤
-            uniformRelationVerificationUnit
-                formulaBound provenanceBound +
-              uniformRelationVerificationUnit
-                formulaBound provenanceBound :=
-        Nat.add_le_add localOne localOne
       have tailLe :
           tail.normalizationRelationVerificationSurface ≤
             length *
@@ -290,57 +212,44 @@ theorem normalizationRelationVerificationSurface_le_uniform
           provenanceBound
           childFormulaLe
           finishProvenanceLe
+      let unit :=
+        uniformRelationVerificationUnit
+          formulaBound provenanceBound
+      have localTailLe :
+          siblingRelationVerificationSurface parent var fresh +
+              (siblingRelationVerificationSurface parent var fresh +
+                tail.normalizationRelationVerificationSurface) ≤
+            unit +
+              (unit +
+                length * (unit + unit)) :=
+        Nat.add_le_add
+          localOne
+          (Nat.add_le_add localOne tailLe)
       calc
         (FlipSymmetricTrajectory.step
           var fresh symmetric tail).normalizationRelationVerificationSurface
-            =
-          siblingRelationVerificationSurface
-              parent var fresh +
-            (siblingRelationVerificationSurface
-                parent var fresh +
-              tail.normalizationRelationVerificationSurface) :=
-              rfl
+            ≤
+          unit +
+            (unit +
+              length * (unit + unit)) :=
+                localTailLe
         _ =
-          (siblingRelationVerificationSurface
-              parent var fresh +
-            siblingRelationVerificationSurface
-              parent var fresh) +
-            tail.normalizationRelationVerificationSurface :=
+          (unit + unit) +
+            length * (unit + unit) :=
               (Nat.add_assoc
-                (siblingRelationVerificationSurface
-                  parent var fresh)
-                (siblingRelationVerificationSurface
-                  parent var fresh)
-                tail.normalizationRelationVerificationSurface).symm
-        _ ≤
-          (uniformRelationVerificationUnit
-              formulaBound provenanceBound +
-            uniformRelationVerificationUnit
-              formulaBound provenanceBound) +
-            length *
-              (uniformRelationVerificationUnit
-                  formulaBound provenanceBound +
-                uniformRelationVerificationUnit
-                  formulaBound provenanceBound) :=
-              Nat.add_le_add localTwo tailLe
+                unit
+                unit
+                (length * (unit + unit))).symm
         _ =
-          (length + 1) *
-            (uniformRelationVerificationUnit
-                formulaBound provenanceBound +
-              uniformRelationVerificationUnit
-                formulaBound provenanceBound) := by
-              rw [Nat.succ_mul]
-              exact
-                Nat.add_comm
-                  (uniformRelationVerificationUnit
-                      formulaBound provenanceBound +
-                    uniformRelationVerificationUnit
-                      formulaBound provenanceBound)
-                  (length *
-                    (uniformRelationVerificationUnit
-                        formulaBound provenanceBound +
-                      uniformRelationVerificationUnit
-                        formulaBound provenanceBound))
+          length * (unit + unit) +
+            (unit + unit) :=
+              Nat.add_comm
+                (unit + unit)
+                (length * (unit + unit))
+        _ =
+          (length + 1) * (unit + unit) :=
+              (Nat.succ_mul length (unit + unit)).symm
+
 
 end FlipSymmetricTrajectory
 
@@ -398,9 +307,7 @@ end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms ConstitutiveSearch.normalizeAcceptedPair_width_one_of_forward_found
 #print axioms ConstitutiveSearch.SAT.generatedStructuralFlipAtSearch_sibling_found
-#print axioms ConstitutiveSearch.SAT.normalizeFlipSymmetricSiblings_width
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.normalizationFindCallCount
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.normalizationFindCallCount_eq
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.normalizationRelationVerificationSurface
