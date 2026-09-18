@@ -27,7 +27,7 @@ theorem composedPrimitiveSearch_source_middle_some
       exact False.elim
         ((composedPrimitiveSearch_source_middle_present count) found)
   | some witness =>
-      exact ⟨witness, found⟩
+      exact ⟨witness, rfl⟩
 
 theorem composedPrimitiveSearch_middle_target_some
     (count : Nat) :
@@ -44,7 +44,7 @@ theorem composedPrimitiveSearch_middle_target_some
       exact False.elim
         ((composedPrimitiveSearch_middle_target_present count) found)
   | some witness =>
-      exact ⟨witness, found⟩
+      exact ⟨witness, rfl⟩
 
 def composedClosureFuelOne
     (count : Nat) :=
@@ -67,12 +67,9 @@ def composedClosureFuelTwo
 theorem composedClosureFuelOne_not_found
     (count : Nat) :
     (composedClosureFuelOne count).code? = none := by
-  simp [
-    composedClosureFuelOne,
-    searchTransportClosureBounded,
-    searchClosureViaCandidates,
-    composedPrimitiveSearch_source_target_none
-  ]
+  unfold composedClosureFuelOne
+  rw [composedPrimitiveSearch_source_target_none count]
+  rfl
 
 theorem composedClosureFuelTwo_found
     (count : Nat) :
@@ -81,14 +78,12 @@ theorem composedClosureFuelTwo_found
     ⟨firstWitness, firstExact⟩
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
-  simp [
-    composedClosureFuelTwo,
-    searchTransportClosureBounded,
-    searchClosureViaCandidates,
-    composedPrimitiveSearch_source_target_none,
-    firstExact,
-    secondExact
-  ]
+  unfold composedClosureFuelTwo
+  rw [composedPrimitiveSearch_source_target_none count]
+  rw [firstExact]
+  rw [secondExact]
+  intro impossible
+  cases impossible
 
 theorem composedClosureFuelTwo_code_size
     (count : Nat) :
@@ -99,17 +94,11 @@ theorem composedClosureFuelTwo_code_size
     ⟨firstWitness, firstExact⟩
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
-  simp [
-    composedClosureFuelTwo,
-    searchTransportClosureBounded,
-    searchClosureViaCandidates,
-    composedPrimitiveSearch_source_target_none,
-    firstExact,
-    secondExact,
-    TransportClosure.ofGenerator,
-    TransportClosure.compose,
-    TransportCode.size
-  ]
+  unfold composedClosureFuelTwo
+  rw [composedPrimitiveSearch_source_target_none count]
+  rw [firstExact]
+  rw [secondExact]
+  rfl
 
 theorem composedClosureFuelTwo_primitiveQueries
     (count : Nat) :
@@ -118,18 +107,11 @@ theorem composedClosureFuelTwo_primitiveQueries
     ⟨firstWitness, firstExact⟩
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
-  simp [
-    composedClosureFuelTwo,
-    searchTransportClosureBounded,
-    searchClosureViaCandidates,
-    composedPrimitiveSearch_source_target_none,
-    firstExact,
-    secondExact,
-    ClosureSearchStats.zero,
-    ClosureSearchStats.combine,
-    ClosureSearchStats.withPrimitiveQuery,
-    ClosureSearchStats.withCompositionCandidate
-  ]
+  unfold composedClosureFuelTwo
+  rw [composedPrimitiveSearch_source_target_none count]
+  rw [firstExact]
+  rw [secondExact]
+  rfl
 
 theorem composedClosureFuelTwo_compositionCandidates
     (count : Nat) :
@@ -138,18 +120,11 @@ theorem composedClosureFuelTwo_compositionCandidates
     ⟨firstWitness, firstExact⟩
   rcases composedPrimitiveSearch_middle_target_some count with
     ⟨secondWitness, secondExact⟩
-  simp [
-    composedClosureFuelTwo,
-    searchTransportClosureBounded,
-    searchClosureViaCandidates,
-    composedPrimitiveSearch_source_target_none,
-    firstExact,
-    secondExact,
-    ClosureSearchStats.zero,
-    ClosureSearchStats.combine,
-    ClosureSearchStats.withPrimitiveQuery,
-    ClosureSearchStats.withCompositionCandidate
-  ]
+  unfold composedClosureFuelTwo
+  rw [composedPrimitiveSearch_source_target_none count]
+  rw [firstExact]
+  rw [secondExact]
+  rfl
 
 theorem composedClosureFuelTwo_primitiveQueries_le_budget
     (count : Nat) :
