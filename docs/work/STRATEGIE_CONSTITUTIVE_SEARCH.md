@@ -7,14 +7,14 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-3555068f8736c62b29d0a624f37c48a3e908e017
+c748f6e1e69b4aca9b477d72e2d470606ece7cbe
 ~~~
 
-P1 a P5, P6a, P6b, le constructeur ferme P6b-explicit, le separateur P6c et les couches quantitatives P7a/P7b actuellement annoncees sont formalises. Le head code ci-dessus a passe Linux et Windows ; provenance, certificats, surface de verification relationnelle et separateur de largeur sont audites sans axiome. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
+P1 a P6c et les couches quantitatives P7a a P7d sont maintenant formalises au niveau annonce dans ce document. Le head code ci-dessus a passe Linux et Windows. Le normaliseur generique possede une borne de controle-flow en largeur, la fermeture compositionnelle possede des lois de croissance explicites, les profils constitutifs multidimensionnels sont instancies sur la famille SAT locale et composee, et le passage vers un cout machine est formalise uniquement sous un RepresentationMachineBridge explicite. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
-Le document est un document de chantier. Il ne constitue aucune revendication sur P = NP. Sa fonction est de distinguer exactement :
+Le document est un document de chantier. Il ne constitue aucune revendication de classe de complexite generale. Sa fonction est de distinguer exactement :
 
 ~~~text
 ce qui est formalise
@@ -131,6 +131,22 @@ ConstitutiveSearch/AcceptingTransport.lean
 ConstitutiveSearch/AcceptedSplit.lean
 ConstitutiveSearch/AcceptedFrontier.lean
 ConstitutiveSearch/AcceptedFrontierPreservation.lean
+ConstitutiveSearch/AcceptedFrontierNormalization.lean
+ConstitutiveSearch/AcceptedFrontierNormalizationCosts.lean
+
+ConstitutiveSearch/ConstitutiveState.lean
+ConstitutiveSearch/FrontierTrajectory.lean
+ConstitutiveSearch/DynamicRelationSearch.lean
+ConstitutiveSearch/TransportCode.lean
+ConstitutiveSearch/TransportClosure.lean
+ConstitutiveSearch/ClosureSearch.lean
+ConstitutiveSearch/ClosureSearchCosts.lean
+ConstitutiveSearch/ClosureSearchGrowth.lean
+
+ConstitutiveSearch/ComplexityInterface.lean
+ConstitutiveSearch/RepresentationCost.lean
+ConstitutiveSearch/MachineCostInterface.lean
+ConstitutiveSearch/ConstitutiveComplexityProfile.lean
 
 ConstitutiveSearch/FrontierReduction.lean
 ConstitutiveSearch/RelationalTransport.lean
@@ -184,6 +200,35 @@ ConstitutiveSearch/SAT/AcceptedSAT.lean
 ConstitutiveSearch/SAT/AcceptedBinaryBranch.lean
 ConstitutiveSearch/SAT/StructuralBranchContext.lean
 ConstitutiveSearch/SAT/GeneratedStructuralContext.lean
+ConstitutiveSearch/SAT/StructuralGlobalContextRelation.lean
+ConstitutiveSearch/SAT/StructuralDynamicRelation.lean
+ConstitutiveSearch/SAT/StructuralProgress.lean
+
+ConstitutiveSearch/SAT/ParametricSymmetricFamily.lean
+ConstitutiveSearch/SAT/ParametricSymmetricTrajectory.lean
+ConstitutiveSearch/SAT/ExplicitStackedSymmetricFamily.lean
+ConstitutiveSearch/SAT/ExplicitFamilyResources.lean
+ConstitutiveSearch/SAT/ExplicitFamilyCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyProvenance.lean
+ConstitutiveSearch/SAT/ExplicitFamilyTransportCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyRelationCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyNormalizationCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyComplexity.lean
+ConstitutiveSearch/SAT/ExplicitFamilyBitCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyEqualityCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyBitComplexity.lean
+ConstitutiveSearch/SAT/ExplicitFamilyPolynomialCosts.lean
+ConstitutiveSearch/SAT/ExplicitFamilyInputComplexity.lean
+ConstitutiveSearch/SAT/ExplicitFamilyConstitutiveProfile.lean
+ConstitutiveSearch/SAT/ExplicitFamilyMachineComplexity.lean
+
+ConstitutiveSearch/SAT/ParametricComposedFamily.lean
+ConstitutiveSearch/SAT/ParametricComposedClosure.lean
+ConstitutiveSearch/SAT/ParametricComposedWidth.lean
+ConstitutiveSearch/SAT/ParametricComposedComplexity.lean
+ConstitutiveSearch/SAT/ParametricComposedBitComplexity.lean
+ConstitutiveSearch/SAT/ParametricComposedPolynomialCosts.lean
+ConstitutiveSearch/SAT/WidthSeparators.lean
 
 ConstitutiveSearch/SAT/BinaryBranch.lean
 ConstitutiveSearch/SAT/RestrictionTransport.lean
@@ -236,7 +281,7 @@ Le split genere structurel est compile, audite et teste sur Linux et Windows.
 
 ### 4.1 Ce qui est etabli
 
-Le projet dispose maintenant d'une architecture constructive dans laquelle :
+Le projet dispose maintenant d'une architecture constructive et quantitative dans laquelle :
 
 ~~~text
 des espaces proof-relevant sont indexes par des etats
@@ -246,7 +291,17 @@ des branches transportables peuvent etre absorbees
 une normalisation finie construit une frontiere irreductible
 la provenance des survivants permet un retour vers la frontiere source
 des branches SAT recursives conservent leur historique
-des relations peuvent comparer des branches de parents differents
+des relations durcies comparent des branches de parents differents
+la disponibilite relationnelle peut changer avec l'etat constitue
+des transports primitifs peuvent etre fermes par composition finie
+le normaliseur generique a pairClassifications <= width^2
+et findCalls <= 2 * width^2
+la recherche de fermeture expose ses compteurs et ses lois de croissance
+F(n) et la phase SAT composee ont des charges binaires et des enveloppes
+polynomiales indexees par la taille concrete de l'entree
+un ConstitutiveComplexityProfile conserve separement entree, profondeur,
+largeur, vecteur d'evenements et charge de representation
+un cout machine ne suit qu'apres un RepresentationMachineBridge explicite
 ~~~
 
 ### 4.2 Ce qui n'est pas etabli
@@ -256,15 +311,20 @@ Le projet ne montre pas actuellement :
 ~~~text
 que SAT general a petite largeur
 que la largeur actuelle est intrinsique
-que la recherche de transports est polynomialement bornee
-que les transports disponibles sont complets
-que la composition de transports est exploree exhaustivement
-que les etats ou certificats restent petits
-que la profondeur globale est polynomialement bornee
-que les exemples de flip generalisent a SAT arbitraire
+que les transports annonces sont complets pour SAT general
+que la fermeture compositionnelle bornee explore toute la fermeture mathematique
+qu'un regime arbitraire de candidateCount et fuel reste polynomial
+que les tailles d'etats, certificats et provenances restent polynomiales
+pour toute famille SAT
+que la profondeur globale est polynomialement bornee pour SAT general
+que les exemples de flip couvrent SAT arbitraire
+qu'un RepresentationMachineBridge concret est deja prouve pour un runtime donne
+qu'une consequence generale de classe de complexite est etablie
 ~~~
 
-Il ne faut donc tirer aucune conclusion sur P = NP.
+Les bornes polynomiales actuellement obtenues sont des theoremes sur les familles
+et les regimes explicitement formalises. Elles ne doivent pas etre extrapolees
+a SAT general sans hypotheses et preuves supplementaires.
 
 ---
 
@@ -411,7 +471,7 @@ preservation de viabilite
 frontieres heterogenes de contextes issus de profondeurs differentes
 ~~~
 
-La relation globale de flip entre parents differents existe encore dans l'ancien noyau. Elle n'est pas encore migree dans le systeme durci.
+La relation globale de flip entre parents differents existe maintenant aussi dans le systeme durci via StructuralGlobalContextRelation. Elle agit sur toutes les continuations structurelles, tandis que la preservation de satisfaction est prouvee separement. StructuralDynamicRelation ajoute en outre une relation indexee par l'etat constitue, de sorte que la meme frontiere peut etre non reliee avant constitution d'un certificat puis reliee apres constitution.
 
 ### 7.1 Point conceptuel central
 
@@ -1292,10 +1352,10 @@ structuralWorkUnits
 = 4n + 1
 ~~~
 
-Cette quantite n'est pas un temps d'execution. Elle ne facture pas encore la
-recherche de relations, la construction/verifications des witnesses, la taille
-des representations, la recherche dans la fermeture compositionnelle ni les
-couts machine.
+Cette quantite n'est pas un temps d'execution. Les couches ulterieures facturent
+maintenant separement la recherche relationnelle, les certificats, la
+representation binaire et la recherche compositionnelle. Les couts machine
+restent une couche distincte, accessible uniquement sous un bridge explicite.
 
 Les tailles de provenance et de certificats de la strategie fermee sont
 maintenant explicites :
@@ -1315,18 +1375,21 @@ des deux historiques et la variable de flip. Sur F(n), la somme est bornee par :
 n * uniformRelationVerificationUnit (4n) n
 ~~~
 
-Cette borne est une surface de representation a verifier. Elle ne facture pas le
-cout binaire des egalites sur Nat, le proof checking Lean, ni une recherche
-generale de witness.
+Cette borne reste une surface structurelle de verification. Elle ne doit pas
+etre confondue avec un temps machine. La couche quantitative suivante reconnecte
+cependant F(n) au moteur generique : generatedStructuralFlipAtSearch retrouve le
+witness sibling certifie, les classifications bidirectionnelles comptent
+exactement 2n appels find sur la trajectoire explicite, et le normaliseur
+generique arbitraire possede maintenant les bornes :
 
-Point important : le constructeur actuel de F(n) produit directement le witness
-de flip depuis la symetrie certifiee. Il n'appelle pas le moteur generique
-RelationSearch.find pour construire ces absorptions. Le cout executable d'une
-recherche relationnelle generale reste donc ouvert.
+~~~text
+pairClassifications <= width^2
+findCalls <= 2 * width^2
+~~~
 
-Le prochain verrou porte sur le cout de normalisation/search lorsque le moteur
-generique est effectivement utilise, puis sur la recherche dans la fermeture
-compositionnelle.
+Ces bornes comptent le controle-flow. Les couts binaires des objets inspectes
+sont traites dans la couche de representation, et leur traduction en cout
+machine reste soumise a un RepresentationMachineBridge explicite.
 
 Une recherche executable bornee dans TransportClosure existe maintenant :
 
@@ -1362,8 +1425,23 @@ closureCompositionCandidateBudget candidateCount fuel
 
 et les theoremes correspondants prouvent que les compteurs reels du moteur
 borne restent sous ces budgets pour toute source, toute cible, toute liste
-finie de candidats et tout fuel. Ces bornes suivent explicitement l'arbre de
-recherche et n'imposent aucune forme polynomiale a priori.
+finie de candidats et tout fuel. ClosureSearchGrowth ferme en plus plusieurs
+lois exactes :
+
+~~~text
+viaPrimitiveQueryBudget r m = m * (r + r)
+viaCompositionCandidateBudget r m = m * (r + r + 1)
+candidateCount = 1 :
+  B(0) = 0
+  B(f+1) = 2 * B(f) + 1
+fuel = 2 :
+  primitiveQueriesBudget = 2m + 1
+  compositionCandidatesBudget = m(2m + 1)
+~~~
+
+Ces lois exposent explicitement les regimes ou le fuel ou le nombre de candidats
+peuvent provoquer une croissance rapide. Elles n'imposent aucune borne
+polynomiale uniforme a priori.
 
 Cette recherche reste volontairement incomplete relativement a une fermeture
 mathematique non bornee : none signifie uniquement absence de code dans le fuel
@@ -1558,9 +1636,15 @@ et la liste de candidats annonces.
 [FAIT P7d-b] profil total : profondeur n+2, certificats n+2, 2n find directs, 3 closure queries, 1 candidat
 [QUALIFICATION P7d-b] le profil conserve les dimensions; il ne les ecrase pas en une unique notion de temps
 
+[FAIT P7d-c] cout machine total SAT separe en phase locale et phase compositionnelle
+[FAIT P7d-c] budget machine calibre defini par phase
+[FAIT P7d-c] theorem total machineCost <= calibratedBudget sous deux RepresentationMachineBridge explicites
+[FAIT P7d-c] aucune conversion automatique representation -> machine
+[QUALIFICATION P7d-c] le theorem est conditionnel; aucun runtime concret n'est postule ni certifie
+
 [P8] audit externe de nouveaute et de comparaison
 
-[FERME] toute revendication P/NP avant fermeture des phases restantes
+[FERME] toute revendication generale de classe de complexite avant fermeture des phases restantes
 ~~~
 
 ## 24. Sequence d'implementation immediate
@@ -1568,22 +1652,23 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. relier conditionnellement le profil SAT total a des MachineCostModel explicites par phase
-2. comparer les profils local, compose et separateur dans l'ordre pointwise
-3. isoler des regimes de fuel/candidats bornes polynomialement par la taille d'entree
-4. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
-5. definir les operations de composition de profils qui preservent les preuves de cout
-6. tester l'interface abstraite sur une deuxieme famille parametrique
-7. caracteriser les conditions de fermeture sous lesquelles le cout total reste polynomial
-8. seulement ensuite etudier les consequences de classe de complexite
+1. comparer les profils local, compose et separateur dans l'ordre pointwise
+2. definir une composition generique de profils preservant les preuves de cout
+3. isoler des regimes de candidateCount/fuel bornes par des fonctions de la taille d'entree
+4. caracteriser les hypotheses suffisantes pour que ClosureSearch reste polynomial
+5. formuler un theorem abstrait de complexite constitutive sur les profils composes
+6. tester cette interface sur une deuxieme famille parametrique independante
+7. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
+8. seulement ensuite etudier les consequences generales de classe de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> transformer le profil multidimensionnel maintenant explicite en theoremes de
-> composition et de comparaison, puis fournir des bridges machine uniquement
-> sous hypotheses annoncees. La representation, le controle-flow et le cout
-> machine sont maintenant trois couches formellement distinctes.
+> transformer le profil multidimensionnel maintenant explicite en theoremes
+> generiques de comparaison et de composition, puis caracteriser les regimes de
+> candidateCount et fuel pour lesquels la fermeture compositionnelle conserve
+> une enveloppe polynomiale en taille d'entree. Le bridge vers un cout machine
+> existe deja comme obligation conditionnelle explicite.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
@@ -1592,9 +1677,11 @@ distinctes : structure, surface inspectee et taille chargee des representations.
 La fermeture compositionnelle est disponible comme objet mathematique fini et
 comme recherche bornee executable. Sur la famille compositionnelle actuelle,
 les compteurs, la charge binaire, l'enveloppe polynomiale et l'indexation par
-taille d'entree sont maintenant fermes. Le prochain test quantitatif porte sur
-les regimes ou la largeur, la liste de candidats ou le fuel croissent avec
-l'entree.
+taille d'entree sont fermes. ClosureSearchGrowth decrit maintenant aussi la
+croissance exacte de plusieurs budgets generiques. Le prochain test quantitatif
+consiste a relier candidateCount et fuel a la taille d'entree et a identifier
+formellement les regimes de fermeture qui preservent une croissance
+polynomiale.
 
 ## 25. Prochain theorem global vise
 
