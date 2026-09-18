@@ -116,7 +116,7 @@ end Cnf
 namespace FlipSymmetricAt
 
 /--
-A accumulated that avoids the selected variable can be placed in front of a
+An accumulated prefix that avoids the selected variable can be placed in front of a
 flip-symmetric body without destroying the symmetry.
 -/
 theorem prepend_avoiding
@@ -290,7 +290,7 @@ theorem stackedSymmetricBlocks_avoids_of_le
             tailAvoids⟩
 
 /--
-A accumulated is safe for the remaining `count` levels when it avoids every
+An accumulated prefix is safe for the remaining `count` levels when it avoids every
 decision variable strictly below `count`.
 -/
 def PrefixAvoidsBelow
