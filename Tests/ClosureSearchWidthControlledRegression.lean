@@ -4,14 +4,17 @@ namespace ConstitutiveSearch.Tests.ClosureSearchWidthControlledRegression
 
 open ConstitutiveSearch
 
-abbrev DemoState := Nat
+abbrev DemoState (_n : Nat) : Type :=
+  Nat
 
 abbrev DemoGenerator
-    (_source _target : DemoState) : Type :=
+    (n : Nat)
+    (_source _target : DemoState n) : Type :=
   Unit
 
-def demoPrimitive :
-    RelationSearch DemoGenerator :=
+def demoPrimitive
+    (n : Nat) :
+    RelationSearch (DemoGenerator n) :=
   { find := fun _source _target => none }
 
 def demoProfile
@@ -33,10 +36,12 @@ def demoSchedule :
     target := fun _ => 1
     candidateLeWidth := by
       intro n
-      rfl
+      change 2 ≤ 2
+      exact Nat.le_refl 2
     fuelLeWidth := by
       intro n
-      rfl }
+      change 2 ≤ 2
+      exact Nat.le_refl 2 }
 
 def demoWidthBound :
     UniformProfileWidthBound
@@ -44,7 +49,8 @@ def demoWidthBound :
       2 :=
   { widthLe := by
       intro n
-      rfl }
+      change 2 ≤ 2
+      exact Nat.le_refl 2 }
 
 theorem demoCandidateLengthPolynomial :
     InputPolynomiallyBounded
