@@ -28,17 +28,33 @@ theorem flipAt_binarySize
       binarySize literal := by
   cases literal with
   | positive query =>
-      unfold flipAt
       by_cases same : query = var
-      · rw [if_pos same]
-        rfl
-      · rw [if_neg same]
+      · simp only [
+          Literal.flipAt,
+          same,
+          if_pos,
+          Literal.binarySize
+        ]
+      · simp only [
+          Literal.flipAt,
+          same,
+          if_neg,
+          Literal.binarySize
+        ]
   | negative query =>
-      unfold flipAt
       by_cases same : query = var
-      · rw [if_pos same]
-        rfl
-      · rw [if_neg same]
+      · simp only [
+          Literal.flipAt,
+          same,
+          if_pos,
+          Literal.binarySize
+        ]
+      · simp only [
+          Literal.flipAt,
+          same,
+          if_neg,
+          Literal.binarySize
+        ]
 
 end Literal
 
@@ -62,12 +78,34 @@ theorem flipAt_binarySize
           Nat.succ
             (Literal.binarySize literal +
               binarySize rest)
-      exact
-        congrArg Nat.succ
-          (Nat.add_congr
-            (Literal.flipAt_binarySize
-              var literal)
-            (flipAt_binarySize var rest))
+      calc
+        Nat.succ
+            (Literal.binarySize
+                (Literal.flipAt var literal) +
+              binarySize
+                (flipAt var rest))
+            =
+          Nat.succ
+            (Literal.binarySize literal +
+              binarySize
+                (flipAt var rest)) :=
+          congrArg Nat.succ
+            (congrArg
+              (fun value =>
+                value +
+                  binarySize
+                    (flipAt var rest))
+              (Literal.flipAt_binarySize
+                var literal))
+        _ =
+          Nat.succ
+            (Literal.binarySize literal +
+              binarySize rest) :=
+          congrArg Nat.succ
+            (congrArg
+              (Nat.add
+                (Literal.binarySize literal))
+              (flipAt_binarySize var rest))
 
 end Clause
 
@@ -91,12 +129,34 @@ theorem flipAt_binarySize
           Nat.succ
             (Clause.binarySize clause +
               binarySize rest)
-      exact
-        congrArg Nat.succ
-          (Nat.add_congr
-            (Clause.flipAt_binarySize
-              var clause)
-            (flipAt_binarySize var rest))
+      calc
+        Nat.succ
+            (Clause.binarySize
+                (Clause.flipAt var clause) +
+              binarySize
+                (flipAt var rest))
+            =
+          Nat.succ
+            (Clause.binarySize clause +
+              binarySize
+                (flipAt var rest)) :=
+          congrArg Nat.succ
+            (congrArg
+              (fun value =>
+                value +
+                  binarySize
+                    (flipAt var rest))
+              (Clause.flipAt_binarySize
+                var clause))
+        _ =
+          Nat.succ
+            (Clause.binarySize clause +
+              binarySize rest) :=
+          congrArg Nat.succ
+            (congrArg
+              (Nat.add
+                (Clause.binarySize clause))
+              (flipAt_binarySize var rest))
 
 /-- Weak branch residual never increases the concrete CNF binary size. -/
 theorem branchResidual_binarySize_le
@@ -197,12 +257,41 @@ theorem flipAt_binarySize
             (StructuralBranchDecision.binarySize
                 decision +
               binarySize rest)
-      exact
-        congrArg Nat.succ
-          (Nat.add_congr
-            (StructuralBranchDecision.flipAt_binarySize
-              var decision)
-            (flipAt_binarySize var rest))
+      calc
+        Nat.succ
+            (StructuralBranchDecision.binarySize
+                (StructuralBranchDecision.flipAt
+                  var decision) +
+              binarySize
+                (flipStructuralDecisionsAt
+                  var rest))
+            =
+          Nat.succ
+            (StructuralBranchDecision.binarySize
+                decision +
+              binarySize
+                (flipStructuralDecisionsAt
+                  var rest)) :=
+          congrArg Nat.succ
+            (congrArg
+              (fun value =>
+                value +
+                  binarySize
+                    (flipStructuralDecisionsAt
+                      var rest))
+              (StructuralBranchDecision.flipAt_binarySize
+                var decision))
+        _ =
+          Nat.succ
+            (StructuralBranchDecision.binarySize
+                decision +
+              binarySize rest) :=
+          congrArg Nat.succ
+            (congrArg
+              (Nat.add
+                (StructuralBranchDecision.binarySize
+                  decision))
+              (flipAt_binarySize var rest))
 
 end StructuralDecisionHistory
 
