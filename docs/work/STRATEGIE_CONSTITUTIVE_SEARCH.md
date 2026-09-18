@@ -7,10 +7,10 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique auditee actuelle avant cette mise a jour documentaire :
 
 ~~~text
-52f80c8f3657a572587a925d8c6b28748458201f
+23ca5f946d832a2878e234b81e7ece30d5e39975
 ~~~
 
-Les couches P1 et P2 ont passe les gates Linux et Windows, build Lean, AuditRegression et controles de manifeste. Le premier separateur P3 est axiom-free sur Linux ; le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
+P1, P2, P3 et la couche P4 de codes compositionnels sont compilees et axiom-free sur Linux. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1116,6 +1116,8 @@ ConstitutiveSearch/
   ConstitutiveState.lean
   FrontierTrajectory.lean
   DynamicRelationSearch.lean
+  TransportCode.lean
+  TransportClosure.lean
   FrontierReduction.lean
   RelationalTransport.lean
   IrreducibleFrontier.lean
@@ -1130,6 +1132,7 @@ ConstitutiveSearch/SAT/
   StructuralBranchContext.lean
   GeneratedStructuralContext.lean
   StructuralGlobalContextRelation.lean
+  StructuralDynamicRelation.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1140,7 +1143,7 @@ ConstitutiveSearch/SAT/
   GlobalContextRelation.lean
 ~~~
 
-Les nouvelles couches etablissent maintenant :
+Les couches nouvelles etablissent maintenant :
 
 ~~~text
 relation executable -> transport total preservant Accept
@@ -1150,6 +1153,9 @@ ConstitutiveState -> frontiere + information constituee distincte
 FrontierTrajectory -> composition proof-relevant des etapes
 widthTrace -> largeur derivee du chemin effectivement construit
 DynamicRelationSearch -> relation et recherche indexees par l'etat constitue
+GeneratedSplitAnchor -> information dynamique issue d'un split SAT certifie
+TransportCode -> syntaxe finie des transports primitifs et de leur composition
+TransportClosure -> fermeture compositionnelle explicite, distincte de sa recherche
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1158,14 +1164,11 @@ Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  TransportCode.lean
-  TransportClosure.lean
-  DynamicAnchors.lean
   StructuralProgress.lean
+  ClosureSearch.lean
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
-  StructuralDynamicRelation.lean
   StructuralContextTrajectory.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
@@ -1175,12 +1178,21 @@ ConstitutiveSearch/SAT/
   WidthSeparators.lean
 ~~~
 
-Le prochain objectif n'est plus de montrer abstraitement qu'une constitution
-peut changer les relations disponibles : ce separateur existe.
+Le prochain verrou principal est la progression structurelle :
 
-Le prochain objectif est de produire le meme phenomene dans SAT a partir d'une
-determination effectivement constituee par le calcul, puis d'etudier sa
-composition sur une trajectoire parametrique.
+~~~text
+decision fraiche
+-> historique sans repetition
+-> variables choisies prises dans une ressource finie pertinente
+-> profondeur bornee par cette ressource
+~~~
+
+Cette borne doit etre derivee de la structure des decisions. Elle ne doit pas etre
+postulee par un compteur externe.
+
+La recherche exhaustive dans TransportClosure reste egalement ouverte. La
+fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
+mais aucun oracle de recherche de code n'est suppose.
 
 ## 23. Statut des phases
 
@@ -1196,41 +1208,41 @@ composition sur une trajectoire parametrique.
 [FAIT] separation Continuation / Accept
 [FAIT] Viable derive
 [FAIT] transport total preservant Accept
-[FAIT] separateur fonction brute vs transport semantique
 [FAIT] split exact durci
 [FAIT] frontier semantics durcie
-[FAIT] preservation de FrontierViable
-[FAIT] SAT sur Assignment brut + Satisfies separe
-[FAIT] StructuralBranchContext
-[FAIT] GeneratedStructuralContext
-[FAIT] fraicheur executable et provenance depuis la racine
-[FAIT] consolidation GitHub sur une seule branche NP AND/OR P
+[FAIT] SAT structurel et provenance generee
 
-[FAIT P1] moteur relationnel automatique dans le noyau durci
-[FAIT P1] normalisation automatique preservant FrontierViable
-[FAIT P1] migration du flip global vers GeneratedStructuralContext
-[FAIT P1] regression heterogene durcie avec absorption automatique
+[FAIT P1] moteur relationnel automatique durci
+[FAIT P1] normalisation preservant FrontierViable
+[FAIT P1] flip global durci entre parents differents
 
 [FAIT P2] ConstitutiveState
-[FAIT P2] FrontierTrajectory proof-relevant
+[FAIT P2] FrontierTrajectory
 [FAIT P2] trajectoire SAT a deux niveaux
-[FAIT P2] preservation de Viable de bout en bout
-[FAIT P2] trace de largeur concrete [1, 2, 1, 2, 1]
+[FAIT P2] trace [1, 2, 1, 2, 1] et Viable preserve
 
-[FAIT P3a] relation et recherche indexees par ConstitutiveState
-[FAIT P3a] meme frontiere, relation absente avant constitution
-[FAIT P3a] meme frontiere, relation presente apres constitution
-[FAIT P3a] largeur operationnelle 2 -> 1 uniquement par changement de constitution
+[FAIT P3a] relation indexee par ConstitutiveState
+[FAIT P3a] meme frontiere, none avant constitution, some apres
+[FAIT P3a] largeur 2 -> 1 par changement de constitution seulement
 
-[P3b] produire ce phenomene depuis une determination SAT effectivement constituee
-[P3b] montrer que la nouvelle relation n'est pas une information ajoutee arbitrairement
-[P3b] integrer ce changement relationnel dans une trajectoire SAT
+[FAIT P3b] GeneratedSplitAnchor issu d'un split SAT certifie
+[FAIT P3b] relation SAT absente avant enregistrement du split
+[FAIT P3b] relation SAT presente apres constitution du certificat
+[FAIT P3b] trajectoire [1, 2, 2, 1] avec Viable preserve
 
-[P4] TransportCode
-[P4] fermeture de transports
-[P4] separateur direct vs compose
+[FAIT P4a] TransportCode fini
+[FAIT P4a] interpretation acceptance-preserving des codes
+[FAIT P4a] fermeture compositionnelle libre
+[FAIT P4a] separateur direct width 2 / compose width 1
+[FAIT P4a] code compose explicite de taille 2
 
-[P5] progression structurelle et terminalite
+[P4b] recherche executable generale dans les codes de fermeture
+[P4b] cout et bornes de cette recherche
+
+[P5] historique de variables sans repetition
+[P5] variables de decision pertinentes
+[P5] borne de profondeur derivee de la ressource finie
+[P5] terminalite structurelle
 
 [P6] familles parametriques positives
 [P6] familles separatrices et bornes de largeur
@@ -1248,31 +1260,26 @@ composition sur une trajectoire parametrique.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. construire une relation dynamique SAT indexee par GeneratedStructuralContext
-2. faire dependre sa disponibilite d'une determination presente dans la provenance
-3. construire deux etats de calcul avec meme paire comparee mais provenance differente
-4. prouver none avant la determination et some transport apres
-5. montrer la reduction de largeur correspondante sans requete SAT cachee
-6. inserer cette apparition de relation dans une FrontierTrajectory SAT
-7. verifier que la determination causale provient d'une etape de calcul certifiee
-8. introduire TransportCode pour rendre finie la representation des transformations
-9. introduire TransportClosure et distinguer recherche directe / composee
-10. construire le separateur direct vs compose
-11. construire une famille SAT parametrique avec largeur operationnelle controlee
-12. construire en parallele des familles ou cette largeur croit
-13. prouver progression, fraicheur et borne de profondeur
-14. formaliser taille d'etat, taille de provenance, taille de certificat et cout de recherche
-15. assembler un theorem conditionnel de complexite
+1. prouver que la provenance generee ne repete aucune variable choisie fraiche
+2. definir explicitement les variables pertinentes d'une instance SAT
+3. renforcer la generation pour exiger que chaque variable choisie soit pertinente
+4. deriver une borne de profondeur depuis cette ressource finie
+5. caracteriser un etat terminal par epuisement des variables pertinentes
+6. verifier cette progression sur la trajectoire SAT constitutive
+7. construire ensuite une famille SAT parametrique avec largeur controlee
+8. construire en parallele une famille separatrice ou la largeur croit
+9. definir une recherche bornee de TransportCode sans en faire un oracle
+10. mesurer taille des codes, cout de recherche, cout de normalisation et taille d'etat
+11. assembler le theorem conditionnel de complexite
 ~~~
 
-Le verrou courant est plus exigeant que le separateur abstrait deja ferme :
+Le verrou courant est donc :
 
-> la relation nouvelle doit etre rendue reconstructible par une information
-> effectivement constituee dans une execution SAT, et non par un drapeau
-> exogene ajoute a la main.
+> obtenir la borne de longueur du chemin depuis les determinations structurelles
+> elles-memes, et non depuis une limite d'iterations posee a l'exterieur.
 
-C'est ce passage qui doit maintenant donner un contenu concret a la proposition
-"le chemin est le calcul".
+La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
+recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
 
 ## 25. Prochain theorem global vise
 
@@ -1415,55 +1422,59 @@ nettoyer les branches ou fichiers temporaires
 Etat actuel :
 
 ~~~text
-SearchSystem
--> Continuation structurelle / Accept separes
--> transports totaux preservant Accept
--> split exact
--> frontieres viables
--> normalisation relationnelle automatique durcie
--> contextes SAT generes avec provenance
--> flip global entre parents differents
+Continuation structurelle / Accept
+-> transport total preserve Accept
+-> frontiere viable
+-> moteur relationnel automatique
+-> normalisation automatique
+-> contexte SAT genere et proof-relevant
+-> relation globale entre parents differents
 -> ConstitutiveState
 -> FrontierTrajectory
--> trace de largeur du chemin
--> recherche relationnelle indexee par l'etat constitue
+-> relations dont la disponibilite depend du chemin
+-> certificat dynamique issu d'un vrai split SAT
+-> TransportCode fini
+-> fermeture compositionnelle explicite
 ~~~
 
-Le projet possede maintenant un premier separateur formel direct de l'idee
-constitutive :
+Deux separateurs structurants sont maintenant formalises.
+
+Premier separateur, constitution dynamique :
 
 ~~~text
-frontiere avant = [A, B]
-frontiere apres = [A, B]
-
-constitution avant != constitution apres
-
-DynamicRelationSearch avant A B = none
-DynamicRelationSearch apres A B = some transport
-
-largeur normalisee avant = 2
-largeur normalisee apres = 1
+meme frontiere
+none avant constitution
+some transport apres constitution
+largeur 2 -> 1
 ~~~
 
-La reduction n'est donc pas obtenue parce qu'on a explore plus longtemps une
-relation fixe. Le type des witnesses et la recherche sont indexes par l'etat
-constitue courant.
+La version SAT remplace l'ancre abstraite par un certificat contenant un parent
+genere, une variable fraiche et les enfants exacts du split certifie.
 
-Ce resultat reste volontairement abstrait : la nouvelle information est encore
-modelisee par une ancre minimale. Le prochain test doit faire provenir cette
-information d'une determination SAT effectivement constituee dans la trajectoire.
-
-Le point central demeure :
+Deuxieme separateur, composition :
 
 ~~~text
-le calcul constitue
--> ce qui est disponible change
--> de nouvelles relations deviennent reconstructibles
--> certaines alternatives deviennent alors absorbables
+recherche directe A -> C = none
+A -> B existe
+B -> C existe
+code A -> B -> C de taille 2
+largeur directe [A,C] = 2
+largeur avec recherche du code compose = 1
 ~~~
 
-La reduction de frontiere est une consequence de cette dynamique.
+Cela etablit formellement que "irreductible pour la recherche directe" et
+"irreductible sous composition" sont deux proprietes differentes.
 
-Les comparaisons avec selectivite, antichaines, CSP, BDD ou autres cadres
-restent des audits externes. Elles ne definissent pas le mecanisme et ne doivent
-pas etre utilisees pour le reduire a une analogie locale.
+Le prochain obstacle n'est plus la semantique du chemin ni l'existence de la
+composition. Il est la progression globale :
+
+~~~text
+combien de determinations fraiches peuvent etre constituees
+avant que la ressource structurelle finie soit epuisee ?
+~~~
+
+Puis seulement viendront les bornes parametriques de largeur et le calcul de
+complexite totale.
+
+Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
+pas le mecanisme constitutif.
