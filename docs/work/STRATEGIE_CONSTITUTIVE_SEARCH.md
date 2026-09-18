@@ -1118,6 +1118,7 @@ ConstitutiveSearch/
   DynamicRelationSearch.lean
   TransportCode.lean
   TransportClosure.lean
+  ClosureSearch.lean
   FrontierReduction.lean
   RelationalTransport.lean
   IrreducibleFrontier.lean
@@ -1165,7 +1166,8 @@ widthTrace -> largeur derivee du chemin effectivement construit
 DynamicRelationSearch -> relation et recherche indexees par l'etat constitue
 GeneratedSplitAnchor -> information dynamique issue d'un split SAT certifie
 TransportCode -> syntaxe finie des transports primitifs et de leur composition
-TransportClosure -> fermeture compositionnelle explicite, distincte de sa recherche
+TransportClosure -> fermeture compositionnelle explicite
+ClosureSearch -> recherche executable bornee par fuel et liste finie de candidats
 StructuralProgress -> ressource syntaxique finie, histoire sans repetition et terminalite
 ParametricSymmetricFamily -> famille SAT locale de taille arbitraire avec reduction sibling a largeur 1
 ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement longue avec W(n) <= 2
@@ -1184,7 +1186,7 @@ Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  ClosureSearch.lean
+  ClosureSearchBounds.lean
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
@@ -1318,9 +1320,36 @@ Le prochain verrou porte sur le cout de normalisation/search lorsque le moteur
 generique est effectivement utilise, puis sur la recherche dans la fermeture
 compositionnelle.
 
-La recherche exhaustive dans TransportClosure reste egalement ouverte. La
-fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
-mais aucun oracle de recherche de code n'est suppose.
+Une recherche executable bornee dans TransportClosure existe maintenant :
+
+~~~text
+searchTransportClosureBounded
+  primitiveSearch
+  candidates
+  fuel
+  source
+  target
+~~~
+
+Elle tente d'abord une relation primitive puis explore des etats intermediaires
+dans une liste finie de candidats. Son run expose explicitement :
+
+~~~text
+primitiveQueries
+compositionCandidates
+~~~
+
+La regression canonique distingue fuel 1 et fuel 2 : le chemin compose A -> B
+-> C n'est pas trouve avec fuel 1, est trouve avec fuel 2, produit un code de
+taille 2, effectue 3 requetes primitives et teste 1 candidat de composition.
+Le moteur borne peut ensuite etre injecte dans normalizeWithTransportClosure et
+reduire la paire a largeur 1.
+
+Cette recherche reste volontairement incomplete relativement a une fermeture
+mathematique non bornee : none signifie uniquement absence de code dans le fuel
+et la liste de candidats annonces. La prochaine couche doit borner
+symboliquement ses compteurs en fonction du fuel et de la taille de la liste de
+candidats.
 
 ## 23. Statut des phases
 
@@ -1364,8 +1393,15 @@ mais aucun oracle de recherche de code n'est suppose.
 [FAIT P4a] separateur direct width 2 / compose width 1
 [FAIT P4a] code compose explicite de taille 2
 
-[P4b] recherche executable generale dans les codes de fermeture
-[P4b] cout et bornes de cette recherche
+[FAIT P4b-a] recherche executable bornee dans TransportClosure
+[FAIT P4b-a] fuel explicite et liste finie de candidats
+[FAIT P4b-a] compteurs primitiveQueries et compositionCandidates
+[FAIT P4b-a] separateur fuel 1 / fuel 2
+[FAIT P4b-a] code compose retrouve puis utilise par le normaliseur
+[QUALIFICATION P4b-a] none reste relatif au budget de recherche
+
+[P4b-b] bornes generales des compteurs en fonction du fuel et des candidats
+[P4b-b] cout de recherche dans la fermeture pour les familles SAT explicites
 
 [FAIT P5] historique de variables sans repetition
 [FAIT P5] decision liee a une occurrence de ressource syntaxique finie
