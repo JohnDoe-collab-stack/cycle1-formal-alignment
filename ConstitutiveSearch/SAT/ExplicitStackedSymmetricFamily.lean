@@ -594,23 +594,12 @@ def explicitStackedTrajectory
     (DecisionsAvoidBelow.nil count)
     (Nat.le_refl count)
 
-/-- The explicit closed family has a trajectory of exactly the requested length. -/
+/-- The explicit closed family has a trace of exactly two entries per split plus the final singleton. -/
 theorem explicitStackedTrajectory_length
     (count : Nat) :
     (explicitStackedTrajectory count).trajectory.widthTrace.length =
-      2 * count + 1 := by
-  induction count with
-  | zero =>
-      rfl
-  | succ count inductionHypothesis =>
-      change
-        (1 :: 2 ::
-          (explicitStackedTrajectory count).trajectory.widthTrace).length =
-            2 * (count + 1) + 1
-      rw [inductionHypothesis]
-      simp only [List.length_cons]
-      rw [Nat.mul_succ]
-      omega
+      2 * count + 1 :=
+  (explicitStackedTrajectory count).trajectory.widthTrace_length
 
 /-- Uniform width bound for the concrete CNF family `F(n)`. -/
 theorem explicitStackedTrajectory_width_le_two
