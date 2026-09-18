@@ -426,6 +426,7 @@ theorem stackedStage_trueResidual
       tailAvoidsCurrent
   ]
   rw [List.append_assoc]
+  rfl
 
 namespace PrefixAvoidsBelow
 
