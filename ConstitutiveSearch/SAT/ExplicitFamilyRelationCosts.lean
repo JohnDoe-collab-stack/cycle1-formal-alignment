@@ -247,8 +247,10 @@ theorem relationVerificationSurface_le_uniform
   induction trajectory with
   | done state =>
       intro formulaBound provenanceBound _formulaLe _provenanceLe
-      change 0 ≤ 0
-      exact Nat.le_refl 0
+      rw [show
+        (FlipSymmetricTrajectory.done state).relationVerificationSurface =
+          0 from rfl]
+      exact Nat.zero_le _
   | @step parent finish length var fresh symmetric tail inductionHypothesis =>
       intro formulaBound provenanceBound parentFormulaLe finishProvenanceLe
       let child :=
