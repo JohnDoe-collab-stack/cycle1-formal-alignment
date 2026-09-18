@@ -11,7 +11,17 @@ abbrev background : Cnf :=
 
 theorem background_avoids_zero :
     Cnf.AvoidsVar 0 background := by
-  decide
+  constructor
+  · constructor
+    · decide
+    · exact True.intro
+  · constructor
+    · constructor
+      · decide
+      · constructor
+        · decide
+        · exact True.intro
+    · exact True.intro
 
 theorem anchor_three_differs_zero :
     (3 : Var) ≠ 0 := by
