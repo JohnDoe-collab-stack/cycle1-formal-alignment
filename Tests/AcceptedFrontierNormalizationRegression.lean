@@ -137,14 +137,18 @@ theorem rejectedRetained_exact :
         .head rejectedC) := by
   rfl
 
-theorem rejectedRetained_not_accepted :
-    ¬ FrontierAccept
-        demoSystem
-        normalizedABC.retained
-        rejectedRetained := by
-  rw [normalizedABC_retained, rejectedRetained_exact]
+theorem rejectedC_not_accepted :
+    ¬ demoSystem.Accept c rejectedC := by
   change ¬ (99 = 1 ∨ 99 = 2)
   decide
+
+theorem rejectedNormalizedView_not_accepted :
+    ¬ FrontierAccept
+        demoSystem
+        [c]
+        (show FrontierContinuation demoSystem [c] from
+          .head rejectedC) := by
+  exact rejectedC_not_accepted
 
 end ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression
 
@@ -163,5 +167,6 @@ end ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedA
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained_exact
-#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained_not_accepted
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedC_not_accepted
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedNormalizedView_not_accepted
 /- AXIOM_AUDIT_END -/
