@@ -104,7 +104,7 @@ theorem frontierSlotCount_eq
 Combined structural work count for any flip-symmetric trajectory.
 This still excludes relation-search and representation costs.
 -/
-def FlipSymmetricTrajectory.structuralWorkUnits
+def structuralWorkUnits
     {rootFormula : Cnf}
     {start finish : GeneratedStructuralBranchContext rootFormula}
     {length : Nat}
@@ -137,7 +137,7 @@ theorem structuralWorkArithmetic
           rfl
 
 /-- Exact generic work count for every certified flip-symmetric trajectory. -/
-theorem FlipSymmetricTrajectory.structuralWorkUnits_eq
+theorem structuralWorkUnits_eq
     {rootFormula : Cnf}
     {start finish : GeneratedStructuralBranchContext rootFormula}
     {length : Nat}
@@ -145,7 +145,7 @@ theorem FlipSymmetricTrajectory.structuralWorkUnits_eq
       FlipSymmetricTrajectory start finish length) :
     trajectory.structuralWorkUnits =
       4 * length + 1 := by
-  unfold FlipSymmetricTrajectory.structuralWorkUnits
+  unfold structuralWorkUnits
   calc
     trajectory.stepCount +
           trajectory.frontierSlotCount
@@ -272,7 +272,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_succ
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.frontierSlotCount_eq
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits
-#print axioms ConstitutiveSearch.SAT.structuralWorkArithmetic
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkArithmetic
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.structuralWorkUnits_eq
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyCertifiedCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyCertifiedCounts
