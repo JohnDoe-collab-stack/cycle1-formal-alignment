@@ -1,5 +1,5 @@
 import ConstitutiveSearch.ClosureSearchCosts
-import ConstitutiveSearch.Tests.ClosureSearchRegression
+import Tests.ClosureSearchRegression
 
 namespace ConstitutiveSearch.Tests.ClosureSearchCostsRegression
 
