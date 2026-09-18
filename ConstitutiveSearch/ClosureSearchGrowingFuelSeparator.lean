@@ -64,10 +64,7 @@ theorem binaryClosureBudget_add_one_eq_binaryFuelScale :
         _ =
           binaryFuelScale fuel +
             binaryFuelScale fuel := by
-              rw [
-                inductionHypothesis,
-                inductionHypothesis
-              ]
+              simpa only [inductionHypothesis]
 
 /--
 If fuel equals the input-size index and there is one candidate, primitive-query
