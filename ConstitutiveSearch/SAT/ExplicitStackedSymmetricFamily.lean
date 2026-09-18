@@ -402,57 +402,65 @@ theorem stackedStage_trueResidual
     accumulatedSafe
       count
       (Nat.lt_succ_self count)
-  let body :=
-    symmetricBlockFamily
-      count
-      anchor
-      (stackedSymmetricBlocks count anchor)
-  let retained :=
-    symmetricNegativeClause count anchor
-  change
-    branchResidual
-        (accumulated ++ body)
-        count
-        true =
-      (accumulated ++ [retained]) ++
-        stackedSymmetricBlocks count anchor
-  calc
-    branchResidual
-        (accumulated ++ body)
-        count
-        true =
-      branchResidual accumulated count true ++
-        branchResidual body count true :=
-      Cnf.branchResidual_append
-        accumulated
-        body
-        count
-        true
-    _ =
-      accumulated ++
-        branchResidual body count true :=
-      congrArg
-        (fun left =>
-          left ++ branchResidual body count true)
-        (Cnf.branchResidual_eq_self
-          accumulatedAvoidsCurrent
-          true)
-    _ =
-      accumulated ++
-        (retained ::
-          stackedSymmetricBlocks count anchor) :=
-      congrArg
-        (fun right => accumulated ++ right)
-        (symmetricBlockFamily_trueResidual
-          anchorDifferentCurrent
-          tailAvoidsCurrent)
-    _ =
-      (accumulated ++ [retained]) ++
-        stackedSymmetricBlocks count anchor := by
-      exact
+  exact
+    calc
+      branchResidual
+          (accumulated ++
+            stackedSymmetricBlocks (count + 1) anchor)
+          count
+          true =
+        branchResidual accumulated count true ++
+          branchResidual
+            (stackedSymmetricBlocks (count + 1) anchor)
+            count
+            true :=
+        Cnf.branchResidual_append
+          accumulated
+          (stackedSymmetricBlocks (count + 1) anchor)
+          count
+          true
+      _ =
+        accumulated ++
+          branchResidual
+            (stackedSymmetricBlocks (count + 1) anchor)
+            count
+            true :=
+        congrArg
+          (fun left =>
+            left ++
+              branchResidual
+                (stackedSymmetricBlocks (count + 1) anchor)
+                count
+                true)
+          (Cnf.branchResidual_eq_self
+            accumulatedAvoidsCurrent
+            true)
+      _ =
+        accumulated ++
+          branchResidual
+            (symmetricBlockFamily
+              count
+              anchor
+              (stackedSymmetricBlocks count anchor))
+            count
+            true :=
+        rfl
+      _ =
+        accumulated ++
+          (symmetricNegativeClause count anchor ::
+            stackedSymmetricBlocks count anchor) :=
+        congrArg
+          (fun right => accumulated ++ right)
+          (symmetricBlockFamily_trueResidual
+            anchorDifferentCurrent
+            tailAvoidsCurrent)
+      _ =
+        (accumulated ++
+          [symmetricNegativeClause count anchor]) ++
+            stackedSymmetricBlocks count anchor :=
         (List.append_assoc
           accumulated
-          [retained]
+          [symmetricNegativeClause count anchor]
           (stackedSymmetricBlocks count anchor)).symm
 
 namespace PrefixAvoidsBelow
