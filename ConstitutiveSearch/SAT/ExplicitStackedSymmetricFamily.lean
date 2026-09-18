@@ -291,6 +291,28 @@ theorem stackedSymmetricBlocks_avoids_of_le
             tailAvoids⟩
 
 /--
+An accumulated prefix is safe for the remaining `count` levels when it avoids every
+decision variable strictly below `count`.
+-/
+def PrefixAvoidsBelow
+    (count : Nat)
+    (accumulated : Cnf) : Prop :=
+  ∀ query : Var,
+    query < count →
+      Cnf.AvoidsVar query accumulated
+
+/--
+A decision history is safe for the remaining `count` levels when all those
+future decision variables are fresh.
+-/
+def DecisionsAvoidBelow
+    (count : Nat)
+    (decisions : List StructuralBranchDecision) : Prop :=
+  ∀ query : Var,
+    query < count →
+      StructuralDecisionsAvoid query decisions
+
+/--
 One explicit stacked stage is flip-symmetric at its current decision variable.
 -/
 theorem stackedStage_flipSymmetric
@@ -404,28 +426,6 @@ theorem stackedStage_trueResidual
       tailAvoidsCurrent
   ]
   rw [List.append_assoc]
-
-/--
-An accumulated prefix is safe for the remaining `count` levels when it avoids every
-decision variable strictly below `count`.
--/
-def PrefixAvoidsBelow
-    (count : Nat)
-    (accumulated : Cnf) : Prop :=
-  ∀ query : Var,
-    query < count →
-      Cnf.AvoidsVar query accumulated
-
-/--
-A decision history is safe for the remaining `count` levels when all those
-future decision variables are fresh.
--/
-def DecisionsAvoidBelow
-    (count : Nat)
-    (decisions : List StructuralBranchDecision) : Prop :=
-  ∀ query : Var,
-    query < count →
-      StructuralDecisionsAvoid query decisions
 
 namespace PrefixAvoidsBelow
 
