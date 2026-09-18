@@ -1478,7 +1478,6 @@ et la liste de candidats annonces.
 [QUALIFICATION P7b] ce comptage de controle-flow ne vaut pas cout bit-machine
 
 [OUVERT P7b] cout complet du normaliseur generique sur frontieres arbitraires
-[OUVERT P7b] cout binaire des representations et egalites
 [OUVERT P7b] instanciation du cout de fermeture compositionnelle sur une famille SAT
 
 [FAIT P7c-a] ComplexityCounts et AtomicCosts separes
@@ -1486,11 +1485,18 @@ et la liste de candidats annonces.
 [FAIT P7c-a] theorem conditionnel chargedCost <= uniformChargedBudget
 [FAIT P7c-a] profil F(n) : 4n syntax, 3n+1 frontier, n provenance, n certificats, 2n find
 [FAIT P7c-a] F(n) n'utilise aucune recherche de fermeture dans la strategie locale annoncee
-[QUALIFICATION P7c-a] aucune borne atomique bit-machine n'est encore prouvee
 
-[P7c-b] representation binaire concrete et cout des egalites
-[P7c-b] instanciation des couts atomiques
-[P7c-c] theorem de complexite derive des couts atomiques effectivement prouves
+[FAIT P7c-b] mesure binaire concrete de Nat, Literal, Clause, Cnf et historiques
+[FAIT P7c-b] budgets binaires prouves sur F(n) et son endpoint
+[FAIT P7c-b] flip preserve exactement les tailles binaires
+[FAIT P7c-b] branchResidual n'augmente pas la taille binaire de la Cnf
+[FAIT P7c-b] charge explicite des deux egalites structurelles du flip global
+[FAIT P7c-b] AtomicCosts instancies par des charges de representation concretes
+
+[FAIT P7c-c] explicitFamilyRepresentationBudget ferme les classes d'evenements reellement utilisees
+[FAIT P7c-c] explicitFamilyRepresentationChargedCost = explicitFamilyRepresentationBudget sans hypothese atomique externe
+[FAIT P7c-c] regression n=3 : cout charge = budget = 2349
+[QUALIFICATION P7c-c] il s'agit d'un cout de representation, pas d'un theorem de temps machine de DecidableEq ou du runtime Lean
 
 [P8] audit externe de nouveaute et de comparaison
 
@@ -1502,23 +1508,25 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. definir une mesure binaire concrete pour Var, Literal, Clause, Cnf et historique
-2. borner cette taille sur F(n) et tous les contextes de sa trajectoire
-3. definir le cout atomique des egalites structurelles utilisees par generatedStructuralFlipAtSearch
-4. instancier AtomicCosts avec ces bornes prouvees
-5. deduire le cout agrege de F(n) depuis ComplexityInterface
-6. construire une famille SAT parametrique dont la reduction exige une composition non triviale
-7. instancier ClosureSearchCosts sur cette famille et comparer largeur directe / composee
-8. seulement ensuite formuler le theorem de complexite final avec toutes les hypotheses fermees
+1. fermer une enveloppe polynomiale explicite de explicitFamilyRepresentationBudget en fonction de n
+2. relier ensuite cette enveloppe a la taille binaire de l'entree F(n)
+3. distinguer formellement charge de representation et cout machine effectif des egalites
+4. construire une famille SAT parametrique dont la reduction exige une composition non triviale
+5. instancier ClosureSearchCosts sur cette famille et comparer largeur directe / composee
+6. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
+7. assembler les profils locaux et compositionnels dans une interface commune
+8. seulement ensuite formuler le theorem final avec les hypotheses de representation et d'execution clairement separees
 ~~~
 
 Le verrou courant est donc :
 
-> passer de tailles de provenance/certificats et d'une surface de verification
-> a un cout executable instrumente pour la recherche et la normalisation.
+> passer du cout de representation agrege maintenant ferme sur F(n) a une
+> enveloppe polynomiale explicite, puis tester la couche compositionnelle sur
+> une famille SAT qui l'utilise reellement.
 
-Le proxy 4n+1 et la surface relationnelle ne doivent jamais etre utilises comme
-substituts du cout de RelationSearch.find ou de la recherche dans TransportClosure.
+Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
+jamais etre presentes comme du temps machine. Ils mesurent trois couches
+distinctes : structure, surface inspectee et taille chargee des representations.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
