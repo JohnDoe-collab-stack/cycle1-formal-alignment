@@ -60,33 +60,18 @@ theorem contains_forValue_false
       rcases avoids with ⟨literalAvoids, restAvoids⟩
       have tailFalse :=
         inductionHypothesis restAvoids
-      cases literal with
-      | positive query =>
-          change query ≠ var at literalAvoids
-          cases value <;>
-            simp only [
-              Literal.forValue,
-              containsLiteral,
-              Literal.positive.injEq,
-              Literal.negative.injEq,
-              reduceCtorEq,
-              if_false,
-              literalAvoids,
-              tailFalse
-            ]
-      | negative query =>
-          change query ≠ var at literalAvoids
-          cases value <;>
-            simp only [
-              Literal.forValue,
-              containsLiteral,
-              Literal.positive.injEq,
-              Literal.negative.injEq,
-              reduceCtorEq,
-              if_false,
-              literalAvoids,
-              tailFalse
-            ]
+      by_cases same :
+          literal = Literal.forValue var value
+      · subst literal
+        cases value with
+        | false =>
+            change var ≠ var at literalAvoids
+            exact False.elim (literalAvoids rfl)
+        | true =>
+            change var ≠ var at literalAvoids
+            exact False.elim (literalAvoids rfl)
+      · rw [containsLiteral, if_neg same]
+        exact tailFalse
 
 theorem flipAt_eq_self
     {var : Var}
@@ -171,6 +156,24 @@ def symmetricBlockFamily
     symmetricNegativeClause var anchor ::
       background
 
+theorem symmetricPositiveClause_flip
+    {var anchor : Var}
+    (anchorDifferent : anchor ≠ var) :
+    Clause.flipAt var
+        (symmetricPositiveClause var anchor) =
+      symmetricNegativeClause var anchor := by
+  unfold symmetricPositiveClause symmetricNegativeClause
+  dsimp [Clause.flipAt]
+  have selected :
+      Literal.flipAt var (Literal.positive var) =
+        Literal.negative var := by
+    rw [Literal.flipAt, if_pos rfl]
+  have anchorPreserved :
+      Literal.flipAt var (Literal.positive anchor) =
+        Literal.positive anchor := by
+    rw [Literal.flipAt, if_neg anchorDifferent]
+  rw [selected, anchorPreserved]
+
 theorem symmetricBlockFamily_flipSymmetric
     {var anchor : Var}
     {background : Cnf}
@@ -192,12 +195,16 @@ theorem symmetricBlockFamily_flipSymmetric
       Clause.containsLiteral
         (Literal.forValue var false)
         negativeClause = true := by
-    rfl
+    unfold negativeClause symmetricNegativeClause
+    dsimp [Literal.forValue]
+    rw [Clause.containsLiteral, if_pos rfl]
   have truePositiveHit :
       Clause.containsLiteral
         (Literal.forValue var true)
         positiveClause = true := by
-    rfl
+    unfold positiveClause symmetricPositiveClause
+    dsimp [Literal.forValue]
+    rw [Clause.containsLiteral, if_pos rfl]
   have trueNegativeMiss :
       Clause.containsLiteral
         (Literal.forValue var true)
@@ -267,20 +274,16 @@ theorem symmetricBlockFamily_flipSymmetric
     rw [backgroundTrue]
   unfold FlipSymmetricAt
   rw [falseResidual, trueResidual]
-  dsimp [
-    Cnf.flipAt,
-    positiveClause,
-    negativeClause,
-    symmetricPositiveClause,
-    symmetricNegativeClause,
-    Clause.flipAt
-  ]
-  simp only [
-    Literal.flipAt,
-    if_pos rfl,
-    if_neg anchorDifferent,
-    backgroundFlip
-  ]
+  change
+    negativeClause :: background =
+      Clause.flipAt var positiveClause ::
+        Cnf.flipAt var background
+  rw [backgroundFlip]
+  have positiveFlip :
+      Clause.flipAt var positiveClause =
+        negativeClause := by
+    exact symmetricPositiveClause_flip anchorDifferent
+  rw [positiveFlip]
 
 theorem flipStructuralDecisionsAt_eq_self
     {var : Var}
@@ -407,6 +410,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.Cnf.flipAt_eq_self
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricAt
 #print axioms ConstitutiveSearch.SAT.symmetricBlockFamily
+#print axioms ConstitutiveSearch.SAT.symmetricPositiveClause_flip
 #print axioms ConstitutiveSearch.SAT.symmetricBlockFamily_flipSymmetric
 #print axioms ConstitutiveSearch.SAT.flipStructuralDecisionsAt_eq_self
 #print axioms ConstitutiveSearch.SAT.flipSymmetricSiblingRelation
