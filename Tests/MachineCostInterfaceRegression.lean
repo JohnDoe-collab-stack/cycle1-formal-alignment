@@ -23,7 +23,11 @@ def representation : AtomicCosts :=
     terminalCheck := 2 }
 
 def machine : MachineCostModel :=
-  { atomic := representation }
+  { atomic :=
+      affineAtomicEnvelope
+        representation
+        1
+        0 }
 
 theorem identityBridge :
     RepresentationMachineBridge
@@ -32,17 +36,12 @@ theorem identityBridge :
       1
       0 := by
   constructor
-  unfold machine
-  unfold affineAtomicEnvelope
-  constructor
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
-  · rw [Nat.one_mul, Nat.add_zero]
+  exact
+    atomicCostPointwiseLe_refl
+      (affineAtomicEnvelope
+        representation
+        1
+        0)
 
 theorem aggregateMachineBound :
     machineChargedCost counts machine ≤
