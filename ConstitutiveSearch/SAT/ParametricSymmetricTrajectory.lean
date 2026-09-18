@@ -133,13 +133,13 @@ theorem widthTrace_length
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      change
-        Nat.succ
-          (Nat.succ tail.widthTrace.length) =
-            2 * (length + 1) + 1
-      rw [inductionHypothesis]
-      rw [Nat.mul_succ]
-      simp only [Nat.succ_eq_add_one]
+      simp only [
+        widthTrace,
+        List.length_cons,
+        inductionHypothesis,
+        Nat.mul_succ,
+        Nat.succ_eq_add_one
+      ]
       ac_rfl
 
 /-- Every width in the arbitrary-length trajectory is exactly 1 or 2. -/
