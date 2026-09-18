@@ -1,4 +1,5 @@
 import ConstitutiveSearch.AcceptedFrontierNormalizationCosts
+import ConstitutiveSearch.MachineCostPolynomial
 import ConstitutiveSearch.SAT.ExplicitFamilyConstitutiveProfile
 import ConstitutiveSearch.SAT.WidthSeparators
 
@@ -40,6 +41,27 @@ def isolatedFrontierInputBitSize : Nat → Nat
         (isolatedChildBinarySize count +
           isolatedFrontierInputBitSize count)
 
+/-- The family index is bounded by the serialized separator input itself. -/
+theorem isolatedSeparatorIndex_le_inputBitSize :
+    ∀ count : Nat,
+      count ≤
+        isolatedFrontierInputBitSize count
+  | 0 =>
+      Nat.zero_le 1
+  | count + 1 => by
+      change
+        Nat.succ count ≤
+          Nat.succ
+            (isolatedChildBinarySize count +
+              isolatedFrontierInputBitSize count)
+      exact
+        Nat.succ_le_succ
+          (Nat.le_trans
+            (isolatedSeparatorIndex_le_inputBitSize count)
+            (Nat.le_add_left
+              (isolatedFrontierInputBitSize count)
+              (isolatedChildBinarySize count)))
+
 /-- Maximum structural depth of the separator frontier. -/
 def isolatedSeparatorDepth : Nat → Nat
   | 0 => 0
@@ -64,6 +86,87 @@ def isolatedSeparatorRelationEqualityBudget
   uniformGeneratedFlipEqualityCharge
     1
     (isolatedSeparatorHistoryBinaryBudget count)
+
+/-- Exact cost polynomial for one separator history envelope. -/
+def isolatedSeparatorHistoryCostPolynomial :
+    CostPolynomial :=
+  .add
+    (.mul
+      (.constant 1)
+      (.add
+        .input
+        (.constant 3)))
+    (.constant 1)
+
+/-- Exact cost polynomial for one separator state envelope. -/
+def isolatedSeparatorStateCostPolynomial :
+    CostPolynomial :=
+  .add
+    (.constant 1)
+    isolatedSeparatorHistoryCostPolynomial
+
+/-- Exact cost polynomial for one separator fixed-flip equality envelope. -/
+def isolatedSeparatorRelationCostPolynomial :
+    CostPolynomial :=
+  .add
+    (.add
+      (.constant 1)
+      (.constant 1))
+    (.add
+      isolatedSeparatorHistoryCostPolynomial
+      isolatedSeparatorHistoryCostPolynomial)
+
+/-- Exact cost polynomial for the generic quadratic directed-find envelope. -/
+def isolatedSeparatorFindCountCostPolynomial :
+    CostPolynomial :=
+  .mul
+    (.constant 2)
+    (.mul
+      .input
+      .input)
+
+theorem isolatedSeparatorHistoryCostPolynomial_eval
+    (count : Nat) :
+    isolatedSeparatorHistoryCostPolynomial.eval count =
+      isolatedSeparatorHistoryBinaryBudget count := by
+  unfold isolatedSeparatorHistoryCostPolynomial
+  unfold isolatedSeparatorHistoryBinaryBudget
+  rw [
+    StructuralDecisionHistory.binaryBudget_closed
+      count
+      1
+  ]
+  rfl
+
+theorem isolatedSeparatorStateCostPolynomial_eval
+    (count : Nat) :
+    isolatedSeparatorStateCostPolynomial.eval count =
+      isolatedSeparatorStateBinaryBudget count := by
+  unfold isolatedSeparatorStateCostPolynomial
+  unfold isolatedSeparatorStateBinaryBudget
+  rw [
+    isolatedSeparatorHistoryCostPolynomial_eval
+  ]
+
+theorem isolatedSeparatorRelationCostPolynomial_eval
+    (count : Nat) :
+    isolatedSeparatorRelationCostPolynomial.eval count =
+      isolatedSeparatorRelationEqualityBudget count := by
+  unfold isolatedSeparatorRelationCostPolynomial
+  unfold isolatedSeparatorRelationEqualityBudget
+  unfold uniformGeneratedFlipEqualityCharge
+  rw [
+    isolatedSeparatorHistoryCostPolynomial_eval
+  ]
+
+theorem isolatedSeparatorFindCountCostPolynomial_eval
+    (count : Nat) :
+    isolatedSeparatorFindCountCostPolynomial.eval count =
+      normalizationFindCallQuadraticBudget count := by
+  unfold isolatedSeparatorFindCountCostPolynomial
+  unfold normalizationFindCallQuadraticBudget
+  unfold normalizationPairClassificationQuadraticBudget
+  rfl
 
 /-- Event envelope for generic normalization of the isolated frontier. -/
 def isolatedSeparatorEnvelopeCounts
@@ -205,10 +308,19 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.isolatedChildBinarySize
 #print axioms ConstitutiveSearch.SAT.isolatedFrontierInputBitSize
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorIndex_le_inputBitSize
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorDepth
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorHistoryBinaryBudget
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorStateBinaryBudget
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorRelationEqualityBudget
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorHistoryCostPolynomial
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorStateCostPolynomial
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorRelationCostPolynomial
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorFindCountCostPolynomial
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorHistoryCostPolynomial_eval
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorStateCostPolynomial_eval
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorRelationCostPolynomial_eval
+#print axioms ConstitutiveSearch.SAT.isolatedSeparatorFindCountCostPolynomial_eval
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeCounts
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorRepresentationAtomicCosts
 #print axioms ConstitutiveSearch.SAT.isolatedSeparatorEnvelopeProfile
