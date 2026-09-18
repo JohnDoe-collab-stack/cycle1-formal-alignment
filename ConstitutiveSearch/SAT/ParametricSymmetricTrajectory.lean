@@ -75,12 +75,12 @@ def preservation
   | .step var fresh symmetric tail =>
       let expansion :=
         generatedStructuralExpansion
-          _parent
+          _
           var
           fresh
       let reduction :=
         reduceFlipSymmetricSiblings
-          _parent
+          _
           var
           fresh
           symmetric
