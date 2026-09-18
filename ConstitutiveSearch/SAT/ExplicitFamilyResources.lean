@@ -60,6 +60,9 @@ theorem symmetricBlockFamily_variableOccurrences_length
         (Cnf.variableOccurrences background).length := by
   unfold symmetricBlockFamily
   unfold symmetricPositiveClause symmetricNegativeClause
+  unfold Cnf.variableOccurrences
+  unfold Clause.variableOccurrences
+  unfold Literal.varOf
   rfl
 
 /-- Each explicit stacked level contributes four literal occurrences. -/
