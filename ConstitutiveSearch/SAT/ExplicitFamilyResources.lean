@@ -68,13 +68,16 @@ theorem stackedSymmetricBlocks_variableOccurrences_length
         Clause.variableOccurrences,
         Literal.varOf
       ]
+      rw [List.length_append, List.length_append]
       change
-        4 +
-          (Cnf.variableOccurrences
-            (stackedSymmetricBlocks count anchor)).length =
+        2 +
+          (2 +
+            (Cnf.variableOccurrences
+              (stackedSymmetricBlocks count anchor)).length) =
         4 * (count + 1)
       rw [inductionHypothesis]
       rw [Nat.mul_succ]
+      rw [← Nat.add_assoc]
       exact Nat.add_comm 4 (4 * count)
 
 /-- The closed family has exactly four literal occurrences per level. -/
