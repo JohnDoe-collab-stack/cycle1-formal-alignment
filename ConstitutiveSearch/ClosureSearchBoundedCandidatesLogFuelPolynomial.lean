@@ -57,7 +57,7 @@ theorem closurePrimitiveQueryBudget_add_one_le_geometric
   intro fuel
   induction fuel with
   | zero =>
-      rfl
+      exact Nat.le_refl _
   | succ fuel inductionHypothesis =>
       let recursive :=
         closurePrimitiveQueryBudget
@@ -185,7 +185,7 @@ theorem closureCompositionCandidateBudget_add_one_le_geometric
   intro fuel
   induction fuel with
   | zero =>
-      rfl
+      exact Nat.le_refl _
   | succ fuel inductionHypothesis =>
       let recursive :=
         closureCompositionCandidateBudget
@@ -228,7 +228,6 @@ theorem closureCompositionCandidateBudget_add_one_le_geometric
           Nat.mul_one,
           Nat.add_mul
         ]
-        omega
       have stepLe :
           candidateCount *
                 (recursive +
