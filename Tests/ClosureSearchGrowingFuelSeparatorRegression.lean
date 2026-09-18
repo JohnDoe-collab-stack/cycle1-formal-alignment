@@ -13,10 +13,20 @@ theorem primitiveGrowingFuelFour :
       binaryFuelScale 4 :=
   closurePrimitiveOneCandidateGrowingFuel_exact 4
 
+theorem primitiveGrowingFuelFourPow :
+    closurePrimitiveQueryBudget 1 4 + 1 =
+      2 ^ 4 :=
+  closurePrimitiveOneCandidateGrowingFuel_eq_two_pow 4
+
 theorem compositionGrowingFuelFour :
     closureCompositionCandidateBudget 1 4 + 1 =
       binaryFuelScale 4 :=
   closureCompositionOneCandidateGrowingFuel_exact 4
+
+theorem compositionGrowingFuelFourPow :
+    closureCompositionCandidateBudget 1 4 + 1 =
+      2 ^ 4 :=
+  closureCompositionOneCandidateGrowingFuel_eq_two_pow 4
 
 theorem primitiveDegreeFour :
     (closurePrimitiveFixedFuelPolynomial 4).degree = 4 :=
@@ -47,7 +57,9 @@ end ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.scaleFour
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.primitiveGrowingFuelFour
+#print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.primitiveGrowingFuelFourPow
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.compositionGrowingFuelFour
+#print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.compositionGrowingFuelFourPow
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.primitiveDegreeFour
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.compositionDegreeFour
 #print axioms ConstitutiveSearch.Tests.ClosureSearchGrowingFuelSeparatorRegression.primitiveIdentityFuelNoUniformDegree
