@@ -133,14 +133,16 @@ theorem explicitFamilyRepresentationChargedCost_eq_budget
     (count : Nat) :
     explicitFamilyRepresentationChargedCost count =
       explicitFamilyRepresentationBudget count := by
-  simp [
-    explicitFamilyRepresentationChargedCost,
-    explicitFamilyChargedCost,
-    chargedCost,
-    explicitFamilyComplexityCounts,
-    explicitFamilyRepresentationAtomicCosts,
-    explicitFamilyRepresentationBudget
-  ]
+  unfold explicitFamilyRepresentationChargedCost
+  unfold explicitFamilyChargedCost
+  unfold chargedCost
+  unfold explicitFamilyComplexityCounts
+  unfold explicitFamilyRepresentationAtomicCosts
+  unfold explicitFamilyRepresentationBudget
+  rw [Nat.mul_one]
+  rw [Nat.zero_mul]
+  rw [Nat.zero_mul]
+  rw [Nat.one_mul]
 
 end SAT
 end ConstitutiveSearch
