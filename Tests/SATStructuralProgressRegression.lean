@@ -105,6 +105,17 @@ theorem second_history :
        { var := 1, value := true }] := by
   rfl
 
+theorem second_history_distinct :
+    StructuralDecisionsDistinct
+      second.context.decisions :=
+  second.generated.decisionsDistinct
+
+/-- A remaining fresh resource variable witnesses non-terminality. -/
+theorem first_not_terminal :
+    ¬ ResourceTerminal first [0] :=
+  ResourceTerminal.not_of_fresh_head
+    firstVar0Fresh
+
 /-- No external iteration count: exact budget is derived from the consumed syntax. -/
 theorem exact_budget :
     second.depth + ([] : List Var).length =
@@ -122,6 +133,21 @@ theorem complete_resource_consumption :
       second.depth = 2 := by
   exact ⟨rfl, rfl⟩
 
+/-- Exhaustion is a structural terminal fact, not an iteration cutoff. -/
+theorem second_terminal :
+    ResourceTerminal second [] :=
+  generatedSecond.terminal_of_exhausted
+
+theorem no_third_resource_decision :
+    ResourceDecision second [] → False :=
+  second_terminal
+
+/-- Exhaustion removes all depth slack. -/
+theorem exhausted_depth_exact :
+    second.depth =
+      formula.variableOccurrences.length :=
+  generatedSecond.depth_eq_initial_of_exhausted
+
 end ConstitutiveSearch.Tests.SATStructuralProgressRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -133,7 +159,12 @@ end ConstitutiveSearch.Tests.SATStructuralProgressRegression
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.generatedSecond
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.second_depth
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.second_history
+#print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.second_history_distinct
+#print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.first_not_terminal
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.exact_budget
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.depth_bounded_by_input_resource
 #print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.complete_resource_consumption
+#print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.second_terminal
+#print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.no_third_resource_decision
+#print axioms ConstitutiveSearch.Tests.SATStructuralProgressRegression.exhausted_depth_exact
 /- AXIOM_AUDIT_END -/
