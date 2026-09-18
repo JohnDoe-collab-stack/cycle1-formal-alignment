@@ -41,9 +41,29 @@ theorem normalizeAcceptedPair_width_one_of_forward_found
   | some forward =>
       cases backwardResult : search.find right left with
       | none =>
-          rfl
+          simp only [
+            normalizeAcceptedFrontier,
+            insertAcceptedIntoIrreducible,
+            RelationSearch.classifyPairCertified,
+            forwardResult,
+            backwardResult,
+            AcceptedIrreducibleFrontierReduction.width,
+            AcceptedInsertIrreducibleReduction.width,
+            List.length_cons,
+            List.length_nil
+          ]
       | some backward =>
-          rfl
+          simp only [
+            normalizeAcceptedFrontier,
+            insertAcceptedIntoIrreducible,
+            RelationSearch.classifyPairCertified,
+            forwardResult,
+            backwardResult,
+            AcceptedIrreducibleFrontierReduction.width,
+            AcceptedInsertIrreducibleReduction.width,
+            List.length_cons,
+            List.length_nil
+          ]
 
 namespace SAT
 
@@ -87,7 +107,7 @@ theorem generatedStructuralFlipAtSearch_sibling_found
           (GeneratedStructuralBranchContext.child
             parent var false fresh).context.decisions :=
     relation.decisionsExact
-  unfold generatedStructuralFlipAtSearch
+  dsimp [generatedStructuralFlipAtSearch]
   rw [dif_pos formulaExact]
   rw [dif_pos decisionsExact]
   intro impossible
@@ -158,20 +178,13 @@ theorem normalizationFindCallCount_eq
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      calc
+      rw [show
         (FlipSymmetricTrajectory.step
-          var fresh symmetric tail).normalizationFindCallCount
-            =
-          2 + tail.normalizationFindCallCount :=
-            rfl
-        _ = 2 + (2 * length) :=
-            congrArg
-              (Nat.add 2)
-              inductionHypothesis
-        _ = 2 * length + 2 :=
-            Nat.add_comm 2 (2 * length)
-        _ = 2 * (length + 1) :=
-            (Nat.mul_succ 2 length).symm
+          var fresh symmetric tail).normalizationFindCallCount =
+            2 + tail.normalizationFindCallCount from rfl]
+      rw [inductionHypothesis]
+      rw [Nat.mul_succ]
+      exact Nat.add_comm 2 (2 * _)
 
 /--
 Representation surface inspected by both directed searches used by each
@@ -186,11 +199,14 @@ def normalizationRelationVerificationSurface
   | .done _ =>
       0
   | .step var fresh _symmetric tail =>
-      2 *
-          siblingRelationVerificationSurface
-            _
-            var
-            fresh +
+      siblingRelationVerificationSurface
+          _
+          var
+          fresh +
+        siblingRelationVerificationSurface
+          _
+          var
+          fresh +
         tail.normalizationRelationVerificationSurface
 
 /--
@@ -208,7 +224,8 @@ theorem normalizationRelationVerificationSurface_le_uniform
       finish.provenanceSize ≤ provenanceBound →
       trajectory.normalizationRelationVerificationSurface ≤
         length *
-          (2 *
+          (uniformRelationVerificationUnit
+              formulaBound provenanceBound +
             uniformRelationVerificationUnit
               formulaBound provenanceBound) := by
   induction trajectory with
@@ -258,17 +275,20 @@ theorem normalizationRelationVerificationSurface_le_uniform
           parentFormulaLe
           childProvenanceLe
       have localTwo :
-          2 *
+          siblingRelationVerificationSurface
+                parent var fresh +
               siblingRelationVerificationSurface
                 parent var fresh ≤
-            2 *
+            uniformRelationVerificationUnit
+                formulaBound provenanceBound +
               uniformRelationVerificationUnit
                 formulaBound provenanceBound :=
-        Nat.mul_le_mul_left 2 localOne
+        Nat.add_le_add localOne localOne
       have tailLe :
           tail.normalizationRelationVerificationSurface ≤
             length *
-              (2 *
+              (uniformRelationVerificationUnit
+                  formulaBound provenanceBound +
                 uniformRelationVerificationUnit
                   formulaBound provenanceBound) :=
         inductionHypothesis
@@ -280,33 +300,39 @@ theorem normalizationRelationVerificationSurface_le_uniform
         (FlipSymmetricTrajectory.step
           var fresh symmetric tail).normalizationRelationVerificationSurface
             =
-          2 *
-              siblingRelationVerificationSurface
-                parent var fresh +
-            tail.normalizationRelationVerificationSurface :=
-              rfl
+          (siblingRelationVerificationSurface
+              parent var fresh +
+            siblingRelationVerificationSurface
+              parent var fresh) +
+            tail.normalizationRelationVerificationSurface := by
+              rw [Nat.add_assoc]
         _ ≤
-          2 *
-              uniformRelationVerificationUnit
-                formulaBound provenanceBound +
+          (uniformRelationVerificationUnit
+              formulaBound provenanceBound +
+            uniformRelationVerificationUnit
+              formulaBound provenanceBound) +
             length *
-              (2 *
+              (uniformRelationVerificationUnit
+                  formulaBound provenanceBound +
                 uniformRelationVerificationUnit
                   formulaBound provenanceBound) :=
               Nat.add_le_add localTwo tailLe
         _ =
           (length + 1) *
-            (2 *
+            (uniformRelationVerificationUnit
+                formulaBound provenanceBound +
               uniformRelationVerificationUnit
                 formulaBound provenanceBound) := by
               rw [Nat.succ_mul]
               exact
                 Nat.add_comm
-                  (2 *
+                  (uniformRelationVerificationUnit
+                      formulaBound provenanceBound +
                     uniformRelationVerificationUnit
                       formulaBound provenanceBound)
                   (length *
-                    (2 *
+                    (uniformRelationVerificationUnit
+                        formulaBound provenanceBound +
                       uniformRelationVerificationUnit
                         formulaBound provenanceBound))
 
@@ -315,8 +341,8 @@ end FlipSymmetricTrajectory
 /-- Exact generic-search call count for the closed family `F(n)`. -/
 theorem explicitFamilyNormalizationFindCallCount
     (count : Nat) :
-    (explicitFamilyResourceTrajectory count).trajectory
-        .normalizationFindCallCount =
+    FlipSymmetricTrajectory.normalizationFindCallCount
+        (explicitFamilyResourceTrajectory count).trajectory =
       2 * count :=
   FlipSymmetricTrajectory.normalizationFindCallCount_eq
     (explicitFamilyResourceTrajectory count).trajectory
@@ -325,7 +351,9 @@ theorem explicitFamilyNormalizationFindCallCount
 def explicitFamilyNormalizationVerificationBudget
     (count : Nat) : Nat :=
   count *
-    (2 *
+    (uniformRelationVerificationUnit
+        (4 * count)
+        count +
       uniformRelationVerificationUnit
         (4 * count)
         count)
@@ -336,15 +364,14 @@ the declared normalization verification-surface budget.
 -/
 theorem explicitFamilyNormalizationVerificationSurface_le
     (count : Nat) :
-    (explicitFamilyResourceTrajectory count).trajectory
-        .normalizationRelationVerificationSurface ≤
+    FlipSymmetricTrajectory.normalizationRelationVerificationSurface
+        (explicitFamilyResourceTrajectory count).trajectory ≤
       explicitFamilyNormalizationVerificationBudget count := by
   apply
-    FlipSymmetricTrajectory
-      .normalizationRelationVerificationSurface_le_uniform
-        (explicitFamilyResourceTrajectory count).trajectory
-        (4 * count)
-        count
+    FlipSymmetricTrajectory.normalizationRelationVerificationSurface_le_uniform
+      (explicitFamilyResourceTrajectory count).trajectory
+      (4 * count)
+      count
   · change
       Cnf.literalCount
           (explicitStackedSymmetricFamily count) ≤
