@@ -31,7 +31,10 @@ theorem binaryBudget_closed
       count * (maximum + 3) + 1 := by
   induction count with
   | zero =>
-      simp [binaryBudget]
+      change
+        1 =
+          0 * (maximum + 3) + 1
+      rw [Nat.zero_mul]
   | succ count inductionHypothesis =>
       change
         Nat.succ
@@ -42,12 +45,35 @@ theorem binaryBudget_closed
         inductionHypothesis,
         Nat.succ_mul count (maximum + 3)
       ]
-      simp only [
-        Nat.succ_eq_add_one,
-        Nat.add_assoc,
-        Nat.add_comm,
-        Nat.add_left_comm
-      ]
+      calc
+        Nat.succ
+            ((maximum + 2) +
+              (count * (maximum + 3) + 1))
+            =
+          Nat.succ (maximum + 2) +
+            (count * (maximum + 3) + 1) :=
+              (Nat.succ_add
+                (maximum + 2)
+                (count * (maximum + 3) + 1)).symm
+        _ =
+          (maximum + 3) +
+            (count * (maximum + 3) + 1) := by
+              rfl
+        _ =
+          ((maximum + 3) +
+            count * (maximum + 3)) + 1 :=
+              (Nat.add_assoc
+                (maximum + 3)
+                (count * (maximum + 3))
+                1).symm
+        _ =
+          (count * (maximum + 3) +
+            (maximum + 3)) + 1 :=
+              congrArg
+                (fun value => value + 1)
+                (Nat.add_comm
+                  (maximum + 3)
+                  (count * (maximum + 3)))
 
 end Clause
 
@@ -60,7 +86,10 @@ theorem binaryBudget_closed
       count * (maximum + 3) + 1 := by
   induction count with
   | zero =>
-      simp [binaryBudget]
+      change
+        1 =
+          0 * (maximum + 3) + 1
+      rw [Nat.zero_mul]
   | succ count inductionHypothesis =>
       change
         Nat.succ
@@ -71,14 +100,141 @@ theorem binaryBudget_closed
         inductionHypothesis,
         Nat.succ_mul count (maximum + 3)
       ]
-      simp only [
-        Nat.succ_eq_add_one,
-        Nat.add_assoc,
-        Nat.add_comm,
-        Nat.add_left_comm
-      ]
+      calc
+        Nat.succ
+            ((maximum + 2) +
+              (count * (maximum + 3) + 1))
+            =
+          Nat.succ (maximum + 2) +
+            (count * (maximum + 3) + 1) :=
+              (Nat.succ_add
+                (maximum + 2)
+                (count * (maximum + 3) + 1)).symm
+        _ =
+          (maximum + 3) +
+            (count * (maximum + 3) + 1) := by
+              rfl
+        _ =
+          ((maximum + 3) +
+            count * (maximum + 3)) + 1 :=
+              (Nat.add_assoc
+                (maximum + 3)
+                (count * (maximum + 3))
+                1).symm
+        _ =
+          (count * (maximum + 3) +
+            (maximum + 3)) + 1 :=
+              congrArg
+                (fun value => value + 1)
+                (Nat.add_comm
+                  (maximum + 3)
+                  (count * (maximum + 3)))
 
 end StructuralDecisionHistory
+
+/-- Pure additive identity for one stacked serialization level. -/
+theorem doubleBlockStep
+    (block prefix : Nat) :
+    Nat.succ
+        (block +
+          Nat.succ
+            (block + (prefix + 1))) =
+      prefix +
+          (block + block + 1 + 1) +
+        1 := by
+  have pair :
+      (block + 1) + (block + 1) =
+        block + block + 1 + 1 := by
+    calc
+      (block + 1) + (block + 1)
+          =
+        block + (1 + (block + 1)) :=
+          Nat.add_assoc
+            block
+            1
+            (block + 1)
+      _ =
+        block + ((1 + block) + 1) :=
+          congrArg
+            (Nat.add block)
+            (Nat.add_assoc 1 block 1).symm
+      _ =
+        block + ((block + 1) + 1) :=
+          congrArg
+            (fun value =>
+              block + (value + 1))
+            (Nat.add_comm 1 block)
+      _ =
+        block + (block + (1 + 1)) :=
+          congrArg
+            (Nat.add block)
+            (Nat.add_assoc block 1 1)
+      _ =
+        (block + block) + (1 + 1) :=
+          (Nat.add_assoc
+            block
+            block
+            (1 + 1)).symm
+      _ =
+        block + block + 1 + 1 :=
+          (Nat.add_assoc
+            (block + block)
+            1
+            1).symm
+  calc
+    Nat.succ
+        (block +
+          Nat.succ
+            (block + (prefix + 1)))
+        =
+      Nat.succ block +
+        Nat.succ
+          (block + (prefix + 1)) :=
+        (Nat.succ_add
+          block
+          (Nat.succ
+            (block + (prefix + 1)))).symm
+    _ =
+      Nat.succ block +
+        (Nat.succ block + (prefix + 1)) :=
+        congrArg
+          (Nat.add (Nat.succ block))
+          (Nat.succ_add
+            block
+            (prefix + 1)).symm
+    _ =
+      (block + 1) +
+        ((block + 1) + (prefix + 1)) := by
+        rfl
+    _ =
+      ((block + 1) + (block + 1)) +
+        (prefix + 1) :=
+        (Nat.add_assoc
+          (block + 1)
+          (block + 1)
+          (prefix + 1)).symm
+    _ =
+      (block + block + 1 + 1) +
+        (prefix + 1) :=
+        congrArg
+          (fun value =>
+            value + (prefix + 1))
+          pair
+    _ =
+      ((block + block + 1 + 1) +
+        prefix) + 1 :=
+        (Nat.add_assoc
+          (block + block + 1 + 1)
+          prefix
+          1).symm
+    _ =
+      (prefix +
+        (block + block + 1 + 1)) + 1 :=
+        congrArg
+          (fun value => value + 1)
+          (Nat.add_comm
+            (block + block + 1 + 1)
+            prefix)
 
 /-- Closed form of the stacked CNF serialization budget. -/
 theorem stackedSymmetricBinaryBudget_closed
@@ -91,7 +247,14 @@ theorem stackedSymmetricBinaryBudget_closed
         1 := by
   induction count with
   | zero =>
-      simp [stackedSymmetricBinaryBudget]
+      change
+        1 =
+          0 *
+              ((2 * (anchor + 3) + 1) +
+                (2 * (anchor + 3) + 1) +
+                1 + 1) +
+            1
+      rw [Nat.zero_mul]
   | succ count inductionHypothesis =>
       change
         Nat.succ
@@ -115,12 +278,13 @@ theorem stackedSymmetricBinaryBudget_closed
             (2 * (anchor + 3) + 1) +
             1 + 1)
       ]
-      simp only [
-        Nat.succ_eq_add_one,
-        Nat.add_assoc,
-        Nat.add_comm,
-        Nat.add_left_comm
-      ]
+      exact
+        doubleBlockStep
+          (2 * (anchor + 3) + 1)
+          (count *
+            ((2 * (anchor + 3) + 1) +
+              (2 * (anchor + 3) + 1) +
+              1 + 1))
 
 /-- Polynomial formula-size envelope used below. -/
 def explicitFamilyFormulaPolynomialBudget
@@ -301,6 +465,7 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.Clause.binaryBudget_closed
 #print axioms ConstitutiveSearch.SAT.StructuralDecisionHistory.binaryBudget_closed
+#print axioms ConstitutiveSearch.SAT.doubleBlockStep
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBinaryBudget_closed
 #print axioms ConstitutiveSearch.SAT.explicitFamilyFormulaPolynomialBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyHistoryPolynomialBudget
