@@ -55,14 +55,14 @@ theorem directRootSiblingWidthOne :
     root3FlipSymmetric
 
 theorem genericFindCalls3 :
-    (explicitFamilyResourceTrajectory 3).trajectory
-        .normalizationFindCallCount =
+    FlipSymmetricTrajectory.normalizationFindCallCount
+        (explicitFamilyResourceTrajectory 3).trajectory =
       6 := by
   exact explicitFamilyNormalizationFindCallCount 3
 
 theorem genericVerificationSurface3 :
-    (explicitFamilyResourceTrajectory 3).trajectory
-        .normalizationRelationVerificationSurface ≤
+    FlipSymmetricTrajectory.normalizationRelationVerificationSurface
+        (explicitFamilyResourceTrajectory 3).trajectory ≤
       explicitFamilyNormalizationVerificationBudget 3 :=
   explicitFamilyNormalizationVerificationSurface_le 3
 
