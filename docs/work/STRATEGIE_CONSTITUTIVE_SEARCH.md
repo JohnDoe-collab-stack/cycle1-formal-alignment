@@ -1119,6 +1119,8 @@ ConstitutiveSearch/
   TransportCode.lean
   TransportClosure.lean
   ClosureSearch.lean
+  ClosureSearchCosts.lean
+  ComplexityInterface.lean
   FrontierReduction.lean
   RelationalTransport.lean
   IrreducibleFrontier.lean
@@ -1143,6 +1145,8 @@ ConstitutiveSearch/SAT/
   ExplicitFamilyProvenance.lean
   ExplicitFamilyTransportCosts.lean
   ExplicitFamilyRelationCosts.lean
+  ExplicitFamilyNormalizationCosts.lean
+  ExplicitFamilyComplexity.lean
   WidthSeparators.lean
   BinaryBranch.lean
   RestrictionTransport.lean
@@ -1168,6 +1172,8 @@ GeneratedSplitAnchor -> information dynamique issue d'un split SAT certifie
 TransportCode -> syntaxe finie des transports primitifs et de leur composition
 TransportClosure -> fermeture compositionnelle explicite
 ClosureSearch -> recherche executable bornee par fuel et liste finie de candidats
+ClosureSearchCosts -> bornes recursives des requetes primitives et candidats de composition
+ComplexityInterface -> separation comptes certifies / couts atomiques / cout agrege conditionnel
 StructuralProgress -> ressource syntaxique finie, histoire sans repetition et terminalite
 ParametricSymmetricFamily -> famille SAT locale de taille arbitraire avec reduction sibling a largeur 1
 ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement longue avec W(n) <= 2
@@ -1177,6 +1183,8 @@ ExplicitFamilyCosts -> comptages structurels exacts et proxy de travail etroit 4
 ExplicitFamilyProvenance -> taille de provenance exactement egale a la profondeur
 ExplicitFamilyTransportCosts -> un atome TransportCode par absorption locale
 ExplicitFamilyRelationCosts -> surface de verification relationnelle explicitement bornee
+ExplicitFamilyNormalizationCosts -> 2n appels find et surface bidirectionnelle bornee
+ExplicitFamilyComplexity -> profil de comptes F(n) + cout agrege conditionnel
 WidthSeparators -> frontieres viables de largeur arbitraire irreductibles pour un flip fixe
 ~~~
 
@@ -1186,12 +1194,12 @@ Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  ClosureSearchBounds.lean
-  ComplexityInterface.lean
+  RepresentationCost.lean
 
 ConstitutiveSearch/SAT/
   StructuralContextTrajectory.lean
-  ExplicitFamilyNormalizationCosts.lean
+  ExplicitFamilyBitCosts.lean
+  ComposedTransportFamily.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
@@ -1472,7 +1480,17 @@ et la liste de candidats annonces.
 [OUVERT P7b] cout complet du normaliseur generique sur frontieres arbitraires
 [OUVERT P7b] cout binaire des representations et egalites
 [OUVERT P7b] instanciation du cout de fermeture compositionnelle sur une famille SAT
-[P7c] theorem conditionnel de complexite
+
+[FAIT P7c-a] ComplexityCounts et AtomicCosts separes
+[FAIT P7c-a] chargedCost explicite
+[FAIT P7c-a] theorem conditionnel chargedCost <= uniformChargedBudget
+[FAIT P7c-a] profil F(n) : 4n syntax, 3n+1 frontier, n provenance, n certificats, 2n find
+[FAIT P7c-a] F(n) n'utilise aucune recherche de fermeture dans la strategie locale annoncee
+[QUALIFICATION P7c-a] aucune borne atomique bit-machine n'est encore prouvee
+
+[P7c-b] representation binaire concrete et cout des egalites
+[P7c-b] instanciation des couts atomiques
+[P7c-c] theorem de complexite derive des couts atomiques effectivement prouves
 
 [P8] audit externe de nouveaute et de comparaison
 
@@ -1484,14 +1502,14 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. instrumenter RelationSearch.find et classifyPairCertified avec un cout executable explicite
-2. mesurer le cout de normalisation lorsque le moteur generique est effectivement utilise
-3. distinguer cout de verification d'un witness fourni et cout de recherche d'un witness
-4. definir une recherche bornee de TransportCode sans en faire un oracle
-5. mesurer le cout de recherche dans la fermeture
-6. borner la taille binaire des variables/representations
-7. relier ces couts au constructeur explicite F(n)
-8. assembler le theorem conditionnel de complexite
+1. definir une mesure binaire concrete pour Var, Literal, Clause, Cnf et historique
+2. borner cette taille sur F(n) et tous les contextes de sa trajectoire
+3. definir le cout atomique des egalites structurelles utilisees par generatedStructuralFlipAtSearch
+4. instancier AtomicCosts avec ces bornes prouvees
+5. deduire le cout agrege de F(n) depuis ComplexityInterface
+6. construire une famille SAT parametrique dont la reduction exige une composition non triviale
+7. instancier ClosureSearchCosts sur cette famille et comparer largeur directe / composee
+8. seulement ensuite formuler le theorem de complexite final avec toutes les hypotheses fermees
 ~~~
 
 Le verrou courant est donc :
