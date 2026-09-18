@@ -21,7 +21,7 @@ namespace SAT
 namespace Literal
 
 /-- Variable mentioned by one literal. -/
-def variable : Literal → Var
+def varOf : Literal → Var
   | .positive var => var
   | .negative var => var
 
@@ -33,7 +33,7 @@ namespace Clause
 def variableOccurrences : Clause → List Var
   | [] => []
   | literal :: rest =>
-      literal.variable :: variableOccurrences rest
+      literal.varOf :: variableOccurrences rest
 
 end Clause
 
@@ -90,8 +90,8 @@ def find
         (Sigma fun target =>
           VarRemoval var source target)
   | [] => none
-  | head :: tail =>
-      if same : head = var then
+  | current :: tail =>
+      if same : current = var then
         by
           cases same
           exact some ⟨tail, .head tail⟩
@@ -100,7 +100,7 @@ def find
         | none => none
         | some ⟨remaining, removed⟩ =>
             some
-              ⟨head :: remaining,
+              ⟨current :: remaining,
                 .tail same removed⟩
 
 end VarRemoval
@@ -179,7 +179,7 @@ theorem budget_exact
               remaining.length
             = (parent.depth + 1) +
                 remaining.length := by
-                  rfl
+                  rw [GeneratedStructuralBranchContext.child_depth]
         _ = parent.depth +
               (1 + remaining.length) := by
                 rw [Nat.add_assoc]
@@ -239,7 +239,7 @@ end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms ConstitutiveSearch.SAT.Literal.variable
+#print axioms ConstitutiveSearch.SAT.Literal.varOf
 #print axioms ConstitutiveSearch.SAT.Clause.variableOccurrences
 #print axioms ConstitutiveSearch.SAT.Cnf.variableOccurrences
 #print axioms ConstitutiveSearch.SAT.VarRemoval
