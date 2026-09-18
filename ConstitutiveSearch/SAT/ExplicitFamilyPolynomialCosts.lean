@@ -31,20 +31,23 @@ theorem binaryBudget_closed
       count * (maximum + 3) + 1 := by
   induction count with
   | zero =>
-      rfl
+      simp [binaryBudget]
   | succ count inductionHypothesis =>
-      simp only [
-        binaryBudget,
+      change
+        Nat.succ
+            ((maximum + 2) +
+              binaryBudget maximum count) =
+          Nat.succ count * (maximum + 3) + 1
+      rw [
         inductionHypothesis,
-        Nat.succ_mul,
-        Nat.succ_eq_add_one
+        Nat.succ_mul count (maximum + 3)
       ]
-      have step :
-          maximum + 3 =
-            (maximum + 2) + 1 := by
-        rfl
-      rw [step]
-      ac_rfl
+      simp only [
+        Nat.succ_eq_add_one,
+        Nat.add_assoc,
+        Nat.add_comm,
+        Nat.add_left_comm
+      ]
 
 end Clause
 
@@ -57,20 +60,23 @@ theorem binaryBudget_closed
       count * (maximum + 3) + 1 := by
   induction count with
   | zero =>
-      rfl
+      simp [binaryBudget]
   | succ count inductionHypothesis =>
-      simp only [
-        binaryBudget,
+      change
+        Nat.succ
+            ((maximum + 2) +
+              binaryBudget maximum count) =
+          Nat.succ count * (maximum + 3) + 1
+      rw [
         inductionHypothesis,
-        Nat.succ_mul,
-        Nat.succ_eq_add_one
+        Nat.succ_mul count (maximum + 3)
       ]
-      have step :
-          maximum + 3 =
-            (maximum + 2) + 1 := by
-        rfl
-      rw [step]
-      ac_rfl
+      simp only [
+        Nat.succ_eq_add_one,
+        Nat.add_assoc,
+        Nat.add_comm,
+        Nat.add_left_comm
+      ]
 
 end StructuralDecisionHistory
 
@@ -78,39 +84,52 @@ end StructuralDecisionHistory
 theorem stackedSymmetricBinaryBudget_closed
     (anchor count : Nat) :
     stackedSymmetricBinaryBudget anchor count =
-      count * (4 * anchor + 16) + 1 := by
+      count *
+          ((2 * (anchor + 3) + 1) +
+            (2 * (anchor + 3) + 1) +
+            1 + 1) +
+        1 := by
   induction count with
   | zero =>
-      rfl
+      simp [stackedSymmetricBinaryBudget]
   | succ count inductionHypothesis =>
-      simp only [
-        stackedSymmetricBinaryBudget,
-        Clause.binaryBudget_closed,
+      change
+        Nat.succ
+            (Clause.binaryBudget anchor 2 +
+              Nat.succ
+                (Clause.binaryBudget anchor 2 +
+                  stackedSymmetricBinaryBudget
+                    anchor
+                    count)) =
+          Nat.succ count *
+              ((2 * (anchor + 3) + 1) +
+                (2 * (anchor + 3) + 1) +
+                1 + 1) +
+            1
+      rw [
+        Clause.binaryBudget_closed anchor 2,
         inductionHypothesis,
-        Nat.succ_mul,
-        Nat.succ_eq_add_one
+        Nat.succ_mul
+          count
+          ((2 * (anchor + 3) + 1) +
+            (2 * (anchor + 3) + 1) +
+            1 + 1)
       ]
-      have twoBlock :
-          2 * (anchor + 3) + 1 =
-            2 * anchor + 7 := by
-        rw [Nat.mul_add]
-        rfl
-      have fourAnchor :
-          4 * anchor =
-            2 * anchor + 2 * anchor := by
-        simpa only using
-          (Nat.add_mul 2 2 anchor)
-      have sixteen :
-          16 =
-            7 + 7 + 1 + 1 := by
-        rfl
-      rw [twoBlock, fourAnchor, sixteen]
-      ac_rfl
+      simp only [
+        Nat.succ_eq_add_one,
+        Nat.add_assoc,
+        Nat.add_comm,
+        Nat.add_left_comm
+      ]
 
 /-- Polynomial formula-size envelope used below. -/
 def explicitFamilyFormulaPolynomialBudget
     (count : Nat) : Nat :=
-  count * (4 * count + 16) + 1
+  count *
+      ((2 * (count + 3) + 1) +
+        (2 * (count + 3) + 1) +
+        1 + 1) +
+    1
 
 /-- Polynomial history-size envelope used below. -/
 def explicitFamilyHistoryPolynomialBudget
@@ -126,12 +145,12 @@ def explicitFamilyStatePolynomialBudget
 /-- Polynomial provenance-unit envelope used below. -/
 def explicitFamilyProvenancePolynomialBudget
     (count : Nat) : Nat :=
-  count + 4
+  1 * (count + 3) + 1
 
 /-- Polynomial certificate-atom envelope used below. -/
 def explicitFamilyCertificatePolynomialBudget
     (count : Nat) : Nat :=
-  count + 2
+  Nat.succ (count + 1)
 
 /-- Polynomial equality-charge envelope for one relation-search call. -/
 def explicitFamilyRelationPolynomialBudget
@@ -182,8 +201,10 @@ theorem explicitFamilyProvenanceUnitBinaryBudget_eq_polynomial
       explicitFamilyProvenancePolynomialBudget count := by
   unfold explicitFamilyProvenanceUnitBinaryBudget
   unfold explicitFamilyProvenancePolynomialBudget
-  rw [StructuralDecisionHistory.binaryBudget_closed]
-  rfl
+  exact
+    StructuralDecisionHistory.binaryBudget_closed
+      count
+      1
 
 /-- One tagged certificate atom costs at most n+2 bits in the coarse model. -/
 theorem explicitFamilyCertificateAtomBinaryBudget_le_polynomial
