@@ -313,6 +313,47 @@ def DecisionsAvoidBelow
       StructuralDecisionsAvoid query decisions
 
 /--
+The true residual of the head block in a nonempty stack leaves exactly its
+negative sibling clause followed by the remaining stack.
+-/
+theorem stackedSymmetricBlocks_trueResidual
+    {count anchor : Nat}
+    (countSuccLeAnchor : count + 1 ≤ anchor) :
+    branchResidual
+        (stackedSymmetricBlocks (count + 1) anchor)
+        count
+        true =
+      symmetricNegativeClause count anchor ::
+        stackedSymmetricBlocks count anchor := by
+  have currentLtAnchor : count < anchor :=
+    Nat.lt_of_lt_of_le
+      (Nat.lt_succ_self count)
+      countSuccLeAnchor
+  have anchorDifferentCurrent : anchor ≠ count :=
+    (Nat.ne_of_lt currentLtAnchor).symm
+  have tailAvoidsCurrent :
+      Cnf.AvoidsVar
+        count
+        (stackedSymmetricBlocks count anchor) :=
+    stackedSymmetricBlocks_avoids_of_le
+      (Nat.le_refl count)
+      (Nat.ne_of_lt currentLtAnchor)
+  change
+    branchResidual
+        (symmetricBlockFamily
+          count
+          anchor
+          (stackedSymmetricBlocks count anchor))
+        count
+        true =
+      symmetricNegativeClause count anchor ::
+        stackedSymmetricBlocks count anchor
+  exact
+    symmetricBlockFamily_trueResidual
+      anchorDifferentCurrent
+      tailAvoidsCurrent
+
+/--
 One explicit stacked stage is flip-symmetric at its current decision variable.
 -/
 theorem stackedStage_flipSymmetric
@@ -384,19 +425,6 @@ theorem stackedStage_trueResidual
       (accumulated ++
         [symmetricNegativeClause count anchor]) ++
           stackedSymmetricBlocks count anchor := by
-  have currentLtAnchor : count < anchor :=
-    Nat.lt_of_lt_of_le
-      (Nat.lt_succ_self count)
-      countSuccLeAnchor
-  have anchorDifferentCurrent : anchor ≠ count :=
-    (Nat.ne_of_lt currentLtAnchor).symm
-  have tailAvoidsCurrent :
-      Cnf.AvoidsVar
-        count
-        (stackedSymmetricBlocks count anchor) :=
-    stackedSymmetricBlocks_avoids_of_le
-      (Nat.le_refl count)
-      (Nat.ne_of_lt currentLtAnchor)
   have accumulatedAvoidsCurrent :
       Cnf.AvoidsVar count accumulated :=
     accumulatedSafe
@@ -437,23 +465,12 @@ theorem stackedStage_trueResidual
             true)
       _ =
         accumulated ++
-          branchResidual
-            (symmetricBlockFamily
-              count
-              anchor
-              (stackedSymmetricBlocks count anchor))
-            count
-            true :=
-        rfl
-      _ =
-        accumulated ++
           (symmetricNegativeClause count anchor ::
             stackedSymmetricBlocks count anchor) :=
         congrArg
           (fun right => accumulated ++ right)
-          (symmetricBlockFamily_trueResidual
-            anchorDifferentCurrent
-            tailAvoidsCurrent)
+          (stackedSymmetricBlocks_trueResidual
+            countSuccLeAnchor)
       _ =
         (accumulated ++
           [symmetricNegativeClause count anchor]) ++
@@ -766,6 +783,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_length
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_avoids_of_le
+#print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_trueResidual
 #print axioms ConstitutiveSearch.SAT.stackedStage_flipSymmetric
 #print axioms ConstitutiveSearch.SAT.stackedStage_trueResidual
 #print axioms ConstitutiveSearch.SAT.PrefixAvoidsBelow
