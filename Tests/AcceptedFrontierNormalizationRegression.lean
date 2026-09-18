@@ -87,10 +87,19 @@ theorem normalizedAB_width :
     normalizedAB.width = 2 := by
   rfl
 
+/-- A concrete structural continuation of state a. -/
+def acceptedA : demoSystem.Continuation a := by
+  change Nat
+  exact 1
+
+theorem acceptedA_accept :
+    demoSystem.Accept a acceptedA := by
+  rfl
+
 /-- The source frontier is viable through state a. -/
 theorem source_viable :
     FrontierViable demoSystem [a, b, c] := by
-  exact ⟨.head 1, rfl⟩
+  exact ⟨.head acceptedA, acceptedA_accept⟩
 
 /-- Complete automatic normalization preserves viability in both directions. -/
 theorem normalizedABC_viable_iff :
@@ -106,19 +115,34 @@ theorem retained_viable :
 Rejected continuations remain structural inputs to the automatic normalizer.
 They are not upgraded into accepted witnesses by transport.
 -/
+def rejectedA : demoSystem.Continuation a := by
+  change Nat
+  exact 99
+
 def rejectedSource :
     FrontierContinuation demoSystem [a, b, c] :=
-  .head 99
+  .head rejectedA
 
 def rejectedRetained :
     FrontierContinuation demoSystem normalizedABC.retained :=
   normalizedABC.preservation.forward.map rejectedSource
+
+def rejectedC : demoSystem.Continuation c := by
+  change Nat
+  exact 99
+
+theorem rejectedRetained_exact :
+    rejectedRetained =
+      (show FrontierContinuation demoSystem [c] from
+        .head rejectedC) := by
+  rfl
 
 theorem rejectedRetained_not_accepted :
     ¬ FrontierAccept
         demoSystem
         normalizedABC.retained
         rejectedRetained := by
+  rw [normalizedABC_retained, rejectedRetained_exact]
   change ¬ (99 = 1 ∨ 99 = 2)
   decide
 
@@ -131,9 +155,13 @@ end ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.normalizedABC_retained
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.normalizedABC_width
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.normalizedAB_width
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.acceptedA
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.acceptedA_accept
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.source_viable
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.normalizedABC_viable_iff
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.retained_viable
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedA
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained
+#print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained_exact
 #print axioms ConstitutiveSearch.Tests.AcceptedFrontierNormalizationRegression.rejectedRetained_not_accepted
 /- AXIOM_AUDIT_END -/
