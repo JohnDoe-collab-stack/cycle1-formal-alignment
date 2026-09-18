@@ -7,10 +7,10 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-7e4ce9f343cf6a1e7402e5aaa720422a9c995927
+1a7e07572546dd39d617b85bab559b401529c514
 ~~~
 
-P1 a P5, P6a, P6b et le constructeur ferme P6b-explicit sont maintenant formalises. Le code du constructeur explicite passe le build et l'audit Linux sans axiome ; le CI final du head documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows apres synchronisation du plan.
+P1 a P5, P6a, P6b, le constructeur ferme P6b-explicit et une premiere couche quantitative P7a sont maintenant formalises. Les nouvelles couches de ressources et de comptages structurels sont auditees sans axiome sur Linux. Le CI final du head documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1137,6 +1137,8 @@ ConstitutiveSearch/SAT/
   ParametricSymmetricFamily.lean
   ParametricSymmetricTrajectory.lean
   ExplicitStackedSymmetricFamily.lean
+  ExplicitFamilyResources.lean
+  ExplicitFamilyCosts.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1164,6 +1166,8 @@ StructuralProgress -> ressource syntaxique finie, histoire sans repetition et te
 ParametricSymmetricFamily -> famille SAT locale de taille arbitraire avec reduction sibling a largeur 1
 ParametricSymmetricTrajectory -> trajectoire flip-symetrique arbitrairement longue avec W(n) <= 2
 ExplicitStackedSymmetricFamily -> F(n) ferme, 2n clauses, trajectoire automatique de longueur n
+ExplicitFamilyResources -> ressource exacte n, endpoint depth n et terminalite
+ExplicitFamilyCosts -> comptages structurels exacts et proxy de travail etroit 4n+1
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1177,8 +1181,8 @@ ConstitutiveSearch/
 
 ConstitutiveSearch/SAT/
   StructuralContextTrajectory.lean
-  ExplicitFamilyResources.lean
-  ExplicitFamilyCosts.lean
+  ExplicitFamilyProvenance.lean
+  ExplicitFamilyTransportCosts.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
@@ -1197,9 +1201,28 @@ decision fraiche
 -> profondeur finale exacte en cas d'epuisement
 ~~~
 
-La ressource actuelle compte des occurrences syntaxiques. Elle fournit donc une
-borne constructive correcte mais pas encore une mesure minimale du nombre de
-variables distinctes.
+Le noyau P5 conserve sa ressource generique par occurrences syntaxiques. Pour
+la famille fermee F(n), une ressource plus precise est maintenant construite :
+
+~~~text
+explicitFamilyDecisionResource n
+= [n-1, ..., 1, 0]
+
+taille = n
+~~~
+
+Le constructeur resource-aligned consomme exactement une entree par niveau et
+atteint le meme endpoint avec ressource vide. On obtient donc sur cette famille :
+
+~~~text
+depth(endpoint) = n
+ResourceTerminal endpoint []
+aucune decision resource-consuming supplementaire
+~~~
+
+Cette ressource est specifique a la strategie annoncee pour F(n) ; elle ne doit
+pas etre interpretee comme une caracterisation generale des variables
+pertinentes de SAT.
 
 Le theorem multi-niveaux et son instanciation fermee sont maintenant disponibles.
 
@@ -1234,15 +1257,32 @@ On obtient pour tout n :
 
 ~~~text
 nombre de clauses de F(n) = 2n
+Cnf.literalCount(F(n)) = 4n
+taille de la ressource exacte de decision = n
 longueur de la trajectoire certifiee = n
 longueur de widthTrace = 2n + 1
+frontierSlotCount = 3n + 1
 toute largeur observee <= 2
+depth(endpoint) = n
+endpoint structurellement terminal
 Viable [root(F(n))] <-> Viable [endpoint(n)]
 ~~~
 
-Le prochain verrou n'est donc plus l'existence d'une famille fermee. Il porte
-sur les tailles plus fines, la ressource pertinente, la taille de provenance et
-des certificats, puis leur cout de construction/recherche.
+Un proxy etroit de travail structurel est egalement defini :
+
+~~~text
+structuralWorkUnits
+= stepCount + frontierSlotCount
+= 4n + 1
+~~~
+
+Cette quantite n'est pas un temps d'execution. Elle ne facture pas encore la
+recherche de relations, la construction/verifications des witnesses, la taille
+des representations, la recherche dans la fermeture compositionnelle ni les
+couts machine.
+
+Le prochain verrou porte donc sur les tailles de provenance et de certificats,
+puis sur les vrais couts de recherche et de normalisation.
 
 La recherche exhaustive dans TransportClosure reste egalement ouverte. La
 fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
@@ -1320,8 +1360,20 @@ mais aucun oracle de recherche de code n'est suppose.
 
 [P6c] familles separatrices ou la largeur croit
 
-[P7] tailles et couts
-[P7] theorem conditionnel de complexite
+[FAIT P7a] Cnf.literalCount(F(n)) = 4n
+[FAIT P7a] ressource exacte de decision de taille n
+[FAIT P7a] ressource consommee jusqu'a [] sur le meme endpoint
+[FAIT P7a] depth(endpoint) = n et terminalite structurelle
+[FAIT P7a] stepCount = n
+[FAIT P7a] frontierSlotCount = 3n + 1
+[FAIT P7a] bundle ExplicitFamilyCertifiedCounts
+[FAIT P7a] proxy structurel etroit = 4n + 1
+
+[P7b] taille de provenance et des witnesses/codes
+[P7b] cout executable de recherche relationnelle
+[P7b] cout de normalisation
+[P7b] cout de recherche dans TransportClosure
+[P7c] theorem conditionnel de complexite
 
 [P8] audit externe de nouveaute et de comparaison
 
@@ -1333,21 +1385,24 @@ mais aucun oracle de recherche de code n'est suppose.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. calculer la taille litterale de F(n), pas seulement son nombre de clauses
-2. definir une ressource de variables distinctes adaptee a F(n) et la relier a la trajectoire
-3. borner exactement la taille de l'historique/provenance le long de la trajectoire
-4. borner la taille des witnesses et codes de transport utilises a chaque niveau
+1. borner exactement la taille de l'historique/provenance le long de la trajectoire
+2. borner la taille des witnesses et codes de transport utilises a chaque niveau
+3. instrumenter le moteur relationnel avec un cout executable explicite
+4. mesurer le cout de normalisation pour F(n)
 5. construire une famille separatrice ou la largeur croit
 6. definir une recherche bornee de TransportCode sans en faire un oracle
-7. mesurer cout de recherche, cout de normalisation et taille d'etat
+7. mesurer le cout de recherche dans la fermeture
 8. assembler le theorem conditionnel de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> passer de la borne structurelle fermee F(n), trajectoire n, W(n) <= 2
-> a une comptabilite complete des ressources et des couts : taille litterale,
-> variables distinctes, provenance, certificats, recherche et normalisation.
+> passer des comptages structurels exacts maintenant disponibles a une
+> comptabilite des objets effectivement manipules : provenance, certificats,
+> recherche relationnelle, normalisation et fermeture compositionnelle.
+
+Le proxy 4n+1 ne doit jamais etre utilise comme substitut de ces couts encore
+ouverts.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
@@ -1406,12 +1461,18 @@ explicitStackedTrajectory n
 
 produit directement une trajectoire certifiee de longueur n depuis F(n).
 
-Les bornes deja fermees sont :
+Les bornes maintenant fermees sont :
 
 ~~~text
 clauses(F(n)) = 2n
+literalCount(F(n)) = 4n
+decisionResource(F(n)).length = n
+stepCount = n
 length(widthTrace) = 2n + 1
+frontierSlotCount = 3n + 1
 W(n) <= 2
+depth(endpoint) = n
+endpoint terminal
 Viable racine <-> Viable endpoint
 ~~~
 
@@ -1419,21 +1480,20 @@ Toutes ces nouvelles declarations sont auditees sans axiome.
 
 ### 26.3 Ce qui reste avant l'interpretation de complexite
 
-La taille en clauses ne suffit pas. Il reste a fermer :
+Les tailles structurelles de base ne suffisent toujours pas. Il reste a fermer :
 
 ~~~text
-nombre total de litteraux / taille syntaxique
-ressource de variables distinctes
 taille de la provenance a chaque profondeur
 taille des witnesses/codes de transport
 cout de construction et verification de ces witnesses
 cout de recherche relationnelle
 cout de normalisation
+cout de recherche dans TransportClosure
 ~~~
 
-La ressource P5 actuelle compte des occurrences syntaxiques et contient donc des
-doublons ; elle est une borne finie correcte mais n'est pas encore la ressource
-minimale adaptee a cette famille. Cette distinction doit rester explicite.
+Le proxy structurel 4n+1 compte seulement les niveaux certifies et les slots de
+frontiere explicitement visites. Il ne constitue pas un resultat de complexite
+temporelle.
 
 ---
 
@@ -1611,14 +1671,19 @@ Deuxieme niveau : toute trajectoire flip-symetrique certifiee de longueur
 arbitraire n preserve la viabilite de bout en bout et satisfait W(n) <= 2.
 
 Troisieme niveau : la famille fermee F(n) est construite explicitement. Elle
-contient 2n clauses et engendre automatiquement une trajectoire de longueur n
-avec trace de longueur 2n+1 et largeur maximale au plus 2. Le constructeur suit
-explicitement l'accumulation de clauses due au residuel faible.
+contient 2n clauses et 4n litteraux, engendre automatiquement une trajectoire de
+longueur n avec trace de longueur 2n+1 et largeur maximale au plus 2. Une
+ressource exacte [n-1,...,0] de taille n est consommee jusqu'a l'endpoint,
+qui a profondeur n et est structurellement terminal.
 
-Le prochain obstacle est quantitatif et separateur : taille syntaxique fine,
-ressource de variables distinctes, provenance, certificats et couts, puis une
-famille ou la largeur croit. Ces gates restent obligatoires avant toute analyse
-de complexite forte.
+Une premiere comptabilite structurelle est egalement fermee :
+stepCount = n, frontierSlotCount = 3n+1 et un proxy etroit
+stepCount + frontierSlotCount = 4n+1.
+
+Le prochain obstacle est quantitatif au sens algorithmique : taille de
+provenance, certificats, cout de recherche relationnelle, normalisation et
+fermeture compositionnelle, puis une famille ou la largeur croit. Ces gates
+restent obligatoires avant toute analyse de complexite forte.
 
 Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
 pas le mecanisme constitutif.
