@@ -105,11 +105,19 @@ theorem composedClosurePhaseChargedCost_eq_budget
     (costs : AtomicCosts) :
     composedClosurePhaseChargedCost count costs =
       composedClosurePhaseBudget costs := by
-  unfold composedClosurePhaseChargedCost
-  unfold composedClosurePhaseCounts
-  unfold chargedCost
-  unfold composedClosurePhaseBudget
-  rw [Nat.zero_mul]
+  change
+    0 * costs.syntaxUnit +
+        (2 * costs.frontierSlot +
+          (0 * costs.provenanceUnit +
+            (2 * costs.certificateAtom +
+              (0 * costs.relationFindCall +
+                (3 * costs.closurePrimitiveQuery +
+                  (1 * costs.closureCompositionCandidate +
+                    0 * costs.terminalCheck)))))) =
+      2 * costs.frontierSlot +
+        (2 * costs.certificateAtom +
+          (3 * costs.closurePrimitiveQuery +
+            costs.closureCompositionCandidate))
   rw [Nat.zero_mul]
   rw [Nat.zero_mul]
   rw [Nat.zero_mul]
@@ -118,8 +126,7 @@ theorem composedClosurePhaseChargedCost_eq_budget
   rw [Nat.zero_add]
   rw [Nat.zero_add]
   rw [Nat.zero_add]
-  rw [Nat.zero_add]
-  rw [Nat.zero_add]
+  rw [Nat.add_zero]
 
 end SAT
 end ConstitutiveSearch
