@@ -10,9 +10,9 @@ For `n`, the formula contains `n` symmetric two-clause blocks over the
 decision variables `0, ..., n-1` and uses `n` itself as a common anchor.
 The announced strategy decides variables in descending order.  Because the
 current residual is the weak branch residual, each true decision retains the
-negative sibling clause.  Those retained clauses form an explicit prefix.
+negative sibling clause.  Those retained clauses form an explicit accumulated.
 
-The constructor below tracks that prefix, proves each next variable fresh,
+The constructor below tracks that accumulated, proves each next variable fresh,
 proves each current residual flip-symmetric, and builds a
 `FlipSymmetricTrajectory` of length exactly `n`.
 -/
@@ -51,6 +51,16 @@ theorem branchResidual_append
   | nil =>
       rfl
   | cons clause rest inductionHypothesis =>
+      change
+        branchResidual
+            (clause :: (rest ++ right))
+            var
+            value =
+          branchResidual
+              (clause :: rest)
+              var
+              value ++
+            branchResidual right var value
       cases hit :
           Clause.containsLiteral
             (Literal.forValue var value)
@@ -106,27 +116,27 @@ end Cnf
 namespace FlipSymmetricAt
 
 /--
-A prefix that avoids the selected variable can be placed in front of a
+A accumulated that avoids the selected variable can be placed in front of a
 flip-symmetric body without destroying the symmetry.
 -/
 theorem prepend_avoiding
-    {prefix body : Cnf}
+    {accumulated body : Cnf}
     {var : Var}
-    (prefixAvoids : Cnf.AvoidsVar var prefix)
+    (accumulatedAvoids : Cnf.AvoidsVar var accumulated)
     (bodySymmetric : FlipSymmetricAt body var) :
-    FlipSymmetricAt (prefix ++ body) var := by
+    FlipSymmetricAt (accumulated ++ body) var := by
   unfold FlipSymmetricAt at bodySymmetric ⊢
   rw [
     Cnf.branchResidual_append,
     Cnf.branchResidual_append,
     Cnf.branchResidual_eq_self
-      prefixAvoids
+      accumulatedAvoids
       true,
     Cnf.branchResidual_eq_self
-      prefixAvoids
+      accumulatedAvoids
       false,
     Cnf.flipAt_append,
-    Cnf.flipAt_eq_self prefixAvoids,
+    Cnf.flipAt_eq_self accumulatedAvoids,
     bodySymmetric
   ]
 
@@ -228,7 +238,6 @@ theorem stackedSymmetricBlocks_length
       ]
       rw [inductionHypothesis]
       rw [Nat.mul_succ]
-      exact Nat.add_comm 2 (2 * count)
 
 /--
 All variables in a stack of size `count` avoid every query at least
@@ -281,15 +290,15 @@ theorem stackedSymmetricBlocks_avoids_of_le
             tailAvoids⟩
 
 /--
-A prefix is safe for the remaining `count` levels when it avoids every
+A accumulated is safe for the remaining `count` levels when it avoids every
 decision variable strictly below `count`.
 -/
 def PrefixAvoidsBelow
     (count : Nat)
-    (prefix : Cnf) : Prop :=
+    (accumulated : Cnf) : Prop :=
   ∀ query : Var,
     query < count →
-      Cnf.AvoidsVar query prefix
+      Cnf.AvoidsVar query accumulated
 
 /--
 A decision history is safe for the remaining `count` levels when all those
@@ -312,17 +321,17 @@ theorem nil
 
 /--
 After deciding `count`, append its retained negative clause.  The resulting
-prefix is safe for every smaller future variable.
+accumulated is safe for every smaller future variable.
 -/
 theorem append_negative
     {count anchor : Nat}
-    {prefix : Cnf}
+    {accumulated : Cnf}
     (safe :
-      PrefixAvoidsBelow (count + 1) prefix)
+      PrefixAvoidsBelow (count + 1) accumulated)
     (countLtAnchor : count < anchor) :
     PrefixAvoidsBelow
       count
-      (prefix ++
+      (accumulated ++
         [symmetricNegativeClause count anchor]) := by
   intro query queryLtCount
   have queryLtSucc :
@@ -330,7 +339,7 @@ theorem append_negative
     Nat.lt_trans
       queryLtCount
       (Nat.lt_succ_self count)
-  have prefixAvoids :=
+  have accumulatedAvoids :=
     safe query queryLtSucc
   have countDifferentQuery : count ≠ query :=
     (Nat.ne_of_lt queryLtCount).symm
@@ -348,7 +357,7 @@ theorem append_negative
         ⟨anchorDifferentQuery, True.intro⟩⟩
   exact
     Cnf.avoidsVar_append
-      prefixAvoids
+      accumulatedAvoids
       ⟨clauseAvoids, True.intro⟩
 
 end PrefixAvoidsBelow
@@ -401,27 +410,27 @@ structure StackedTrajectoryResult
 /--
 Construct the complete flip-symmetric path through an explicit stack.
 
-The current formula is tracked as `prefix ++ stackedSymmetricBlocks count
+The current formula is tracked as `accumulated ++ stackedSymmetricBlocks count
 anchor`.  The weak residual retains one negative clause after every true
-decision, and that clause is appended to `prefix`.
+decision, and that clause is appended to `accumulated`.
 -/
 def buildStackedTrajectory
     {rootFormula : Cnf}
     (anchor : Var) :
     (count : Nat) →
       (state : GeneratedStructuralBranchContext rootFormula) →
-      (prefix : Cnf) →
+      (accumulated : Cnf) →
       state.context.formula =
-        prefix ++ stackedSymmetricBlocks count anchor →
-      PrefixAvoidsBelow count prefix →
+        accumulated ++ stackedSymmetricBlocks count anchor →
+      PrefixAvoidsBelow count accumulated →
       DecisionsAvoidBelow count state.context.decisions →
       count ≤ anchor →
       StackedTrajectoryResult state count
-  | 0, state, _prefix, _formulaExact, _prefixSafe,
+  | 0, state, _accumulated, _formulaExact, _accumulatedSafe,
       _decisionsSafe, _countLeAnchor =>
       { finish := state
         trajectory := .done state }
-  | count + 1, state, prefix, formulaExact, prefixSafe,
+  | count + 1, state, accumulated, formulaExact, accumulatedSafe,
       decisionsSafe, countSuccLeAnchor =>
       let currentVar : Var := count
       have currentLtAnchor : currentVar < anchor :=
@@ -455,19 +464,19 @@ def buildStackedTrajectory
         symmetricBlockFamily_flipSymmetric
           anchorDifferentCurrent
           tailAvoidsCurrent
-      have prefixAvoidsCurrent :
-          Cnf.AvoidsVar currentVar prefix :=
-        prefixSafe
+      have accumulatedAvoidsCurrent :
+          Cnf.AvoidsVar currentVar accumulated :=
+        accumulatedSafe
           currentVar
           (Nat.lt_succ_self count)
       have explicitSymmetric :
           FlipSymmetricAt
-            (prefix ++
+            (accumulated ++
               stackedSymmetricBlocks (count + 1) anchor)
             currentVar := by
         change
           FlipSymmetricAt
-            (prefix ++
+            (accumulated ++
               symmetricBlockFamily
                 currentVar
                 anchor
@@ -475,7 +484,7 @@ def buildStackedTrajectory
             currentVar
         exact
           FlipSymmetricAt.prepend_avoiding
-            prefixAvoidsCurrent
+            accumulatedAvoidsCurrent
             blockSymmetric
       have stateSymmetric :
           FlipSymmetricAt
@@ -490,7 +499,7 @@ def buildStackedTrajectory
           true
           fresh
       let nextPrefix : Cnf :=
-        prefix ++
+        accumulated ++
           [symmetricNegativeClause currentVar anchor]
       have childFormulaExact :
           child.context.formula =
@@ -507,11 +516,11 @@ def buildStackedTrajectory
         rw [Cnf.branchResidual_append]
         rw [
           Cnf.branchResidual_eq_self
-            prefixAvoidsCurrent
+            accumulatedAvoidsCurrent
             true
         ]
         change
-          prefix ++
+          accumulated ++
               branchResidual
                 (symmetricBlockFamily
                   currentVar
@@ -534,7 +543,7 @@ def buildStackedTrajectory
         unfold nextPrefix
         exact
           PrefixAvoidsBelow.append_negative
-            prefixSafe
+            accumulatedSafe
             currentLtAnchor
       have nextDecisionsSafe :
           DecisionsAvoidBelow
