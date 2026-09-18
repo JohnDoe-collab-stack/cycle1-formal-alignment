@@ -312,29 +312,23 @@ theorem budget_exact
       initial.length := by
   induction generated with
   | root =>
-      simp only [
-        GeneratedStructuralBranchContext.root_depth,
-        Nat.zero_add
-      ]
+      exact Nat.zero_add _
   | @child available remaining parent parentGenerated var value fresh removed inductionHypothesis =>
-      calc
-        (GeneratedStructuralBranchContext.child
-            parent var value fresh).depth +
-              remaining.length
-            = (parent.depth + 1) +
-                remaining.length := by
-                  rw [GeneratedStructuralBranchContext.child_depth]
-        _ = parent.depth +
-              (1 + remaining.length) := by
-                rw [Nat.add_assoc]
-        _ = parent.depth +
-              (remaining.length + 1) := by
-                rw [Nat.add_comm 1 remaining.length]
-        _ = parent.depth +
-              available.length := by
-                rw [← removed.length_eq]
-        _ = initial.length :=
-              inductionHypothesis
+      exact
+        Eq.trans
+          (Nat.add_assoc
+            parent.depth
+            1
+            remaining.length)
+          (Eq.trans
+            (congrArg
+              (Nat.add parent.depth)
+              (Nat.add_comm 1 remaining.length))
+            (Eq.trans
+              (congrArg
+                (Nat.add parent.depth)
+                removed.length_eq.symm)
+              inductionHypothesis))
 
 /-- Constructive depth-bound certificate with remaining resource as slack. -/
 theorem depth_bound_certificate
