@@ -50,6 +50,34 @@ theorem stackedDecisionResource_length
       exact
         congrArg Nat.succ inductionHypothesis
 
+/-- Each explicit stacked level contributes four literal occurrences. -/
+theorem stackedSymmetricBlocks_variableOccurrences_length
+    (count : Nat)
+    (anchor : Var) :
+    (Cnf.variableOccurrences
+      (stackedSymmetricBlocks count anchor)).length =
+      4 * count := by
+  induction count with
+  | zero =>
+      rfl
+  | succ count inductionHypothesis =>
+      change
+        4 +
+          (Cnf.variableOccurrences
+            (stackedSymmetricBlocks count anchor)).length =
+        4 * (count + 1)
+      rw [inductionHypothesis]
+      rw [Nat.mul_succ]
+      exact Nat.add_comm 4 (4 * count)
+
+/-- The closed family has exactly four literal occurrences per level. -/
+theorem explicitStackedSymmetricFamily_variableOccurrences_length
+    (count : Nat) :
+    (Cnf.variableOccurrences
+      (explicitStackedSymmetricFamily count)).length =
+      4 * count :=
+  stackedSymmetricBlocks_variableOccurrences_length count count
+
 /--
 Combined output: one explicit flip-symmetric trajectory and one resource
 accounting witness reaching the same final generated SAT context.
@@ -342,6 +370,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_succ
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_length
+#print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_variableOccurrences_length
+#print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.ResourceAlignedStackedTrajectoryResult
 #print axioms ConstitutiveSearch.SAT.buildResourceAlignedStackedTrajectory
 #print axioms ConstitutiveSearch.SAT.explicitFamilyDecisionResource
