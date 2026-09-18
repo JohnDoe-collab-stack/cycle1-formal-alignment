@@ -120,6 +120,28 @@ def widthTrace
   | .step _var _fresh _symmetric tail =>
       1 :: 2 :: tail.widthTrace
 
+/-- The operational trace contains one singleton plus two entries per split. -/
+theorem widthTrace_length
+    {rootFormula : Cnf}
+    {start finish : GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    trajectory.widthTrace.length =
+      2 * length + 1 := by
+  induction trajectory with
+  | done state =>
+      rfl
+  | step var fresh symmetric tail inductionHypothesis =>
+      change
+        Nat.succ
+          (Nat.succ tail.widthTrace.length) =
+            2 * (length + 1) + 1
+      rw [inductionHypothesis]
+      rw [Nat.mul_succ]
+      simp only [Nat.succ_eq_add_one]
+      ac_rfl
+
 /-- Every width in the arbitrary-length trajectory is exactly 1 or 2. -/
 theorem widthTrace_value
     {rootFormula : Cnf}
@@ -199,6 +221,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.preservation
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.viable_iff
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.widthTrace
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.widthTrace_length
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.widthTrace_value
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.width_le_two
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.step_width_two
