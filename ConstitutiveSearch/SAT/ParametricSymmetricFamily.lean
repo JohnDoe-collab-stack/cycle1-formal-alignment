@@ -209,16 +209,21 @@ theorem symmetricBlockFamily_flipSymmetric
       Clause.containsLiteral
         (Literal.forValue var true)
         negativeClause = false := by
-    simp only [
-      negativeClause,
-      symmetricNegativeClause,
-      Literal.forValue,
-      Clause.containsLiteral,
-      Literal.positive.injEq,
-      reduceCtorEq,
-      if_false,
-      anchorDifferent
-    ]
+    unfold negativeClause symmetricNegativeClause
+    dsimp [Literal.forValue]
+    have firstDifferent :
+        Literal.negative var ≠ Literal.positive var := by
+      intro impossible
+      cases impossible
+    have secondDifferent :
+        Literal.positive anchor ≠ Literal.positive var := by
+      intro impossible
+      have exactVar : anchor = var :=
+        Literal.positive.inj impossible
+      exact anchorDifferent exactVar
+    rw [Clause.containsLiteral, if_neg firstDifferent]
+    rw [Clause.containsLiteral, if_neg secondDifferent]
+    rfl
   have backgroundFalse :
       branchResidual background var false = background :=
     Cnf.branchResidual_eq_self
