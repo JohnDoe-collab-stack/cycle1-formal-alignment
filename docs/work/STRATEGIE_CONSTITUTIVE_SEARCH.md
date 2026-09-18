@@ -7,10 +7,10 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique auditee actuelle avant cette mise a jour documentaire :
 
 ~~~text
-23ca5f946d832a2878e234b81e7ece30d5e39975
+1bfa6849ac92729276e2febb8b14c1d67f4213e1
 ~~~
 
-P1, P2, P3 et la couche P4 de codes compositionnels sont compilees et axiom-free sur Linux. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
+P1 a P5 et le premier theorem parametrique P6a sont maintenant formalises. Les couches P5 et P6a sont axiom-free dans l'audit Linux. Le CI final de la presente mise a jour documentaire doit confirmer de nouveau l'ensemble sur Linux et Windows.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1133,6 +1133,8 @@ ConstitutiveSearch/SAT/
   GeneratedStructuralContext.lean
   StructuralGlobalContextRelation.lean
   StructuralDynamicRelation.lean
+  StructuralProgress.lean
+  ParametricSymmetricFamily.lean
   BinaryBranch.lean
   RestrictionTransport.lean
   ResidualFlipTransport.lean
@@ -1156,6 +1158,8 @@ DynamicRelationSearch -> relation et recherche indexees par l'etat constitue
 GeneratedSplitAnchor -> information dynamique issue d'un split SAT certifie
 TransportCode -> syntaxe finie des transports primitifs et de leur composition
 TransportClosure -> fermeture compositionnelle explicite, distincte de sa recherche
+StructuralProgress -> ressource syntaxique finie, histoire sans repetition et terminalite
+ParametricSymmetricFamily -> famille SAT de taille arbitraire avec reduction sibling a largeur 1
 ~~~
 
 ### 22.2 Prochains modules prioritaires
@@ -1164,31 +1168,37 @@ Les noms restent provisoires.
 
 ~~~text
 ConstitutiveSearch/
-  StructuralProgress.lean
   ClosureSearch.lean
   ComplexityInterface.lean
 
 ConstitutiveSearch/SAT/
+  ParametricSymmetricTrajectory.lean
   StructuralContextTrajectory.lean
   SimplifiedRestriction.lean
   RenamingTransport.lean
   SubstitutionTransport.lean
   PropagationTransport.lean
-  ParametricSymmetricFamily.lean
   WidthSeparators.lean
 ~~~
 
-Le prochain verrou principal est la progression structurelle :
+La progression structurelle de base est maintenant fermee :
 
 ~~~text
 decision fraiche
--> historique sans repetition
--> variables choisies prises dans une ressource finie pertinente
--> profondeur bornee par cette ressource
+-> historique global sans repetition
+-> consommation d'une ressource syntaxique finie
+-> invariant depth + remaining = initial
+-> epuisement => aucune nouvelle decision consommante
+-> profondeur finale exacte en cas d'epuisement
 ~~~
 
-Cette borne doit etre derivee de la structure des decisions. Elle ne doit pas etre
-postulee par un compteur externe.
+La ressource actuelle compte des occurrences syntaxiques. Elle fournit donc une
+borne constructive correcte mais pas encore une mesure minimale du nombre de
+variables distinctes.
+
+Le prochain verrou principal est parametrique : iterer la reduction sibling sur
+une famille de taille n et obtenir une borne explicite W(n) sur toute la
+trajectoire, pas seulement sur un split.
 
 La recherche exhaustive dans TransportClosure reste egalement ouverte. La
 fermeture existe comme syntaxe finie et les codes s'interpretent correctement,
@@ -1239,13 +1249,20 @@ mais aucun oracle de recherche de code n'est suppose.
 [P4b] recherche executable generale dans les codes de fermeture
 [P4b] cout et bornes de cette recherche
 
-[P5] historique de variables sans repetition
-[P5] variables de decision pertinentes
-[P5] borne de profondeur derivee de la ressource finie
-[P5] terminalite structurelle
+[FAIT P5] historique de variables sans repetition
+[FAIT P5] decision liee a une occurrence de ressource syntaxique finie
+[FAIT P5] borne de profondeur derivee de la ressource finie
+[FAIT P5] terminalite structurelle par epuisement
+[FAIT P5] invariant exact depth + remaining = initial
 
-[P6] familles parametriques positives
-[P6] familles separatrices et bornes de largeur
+[FAIT P6a] famille SAT symetrique sur background arbitraire
+[FAIT P6a] residuals siblings relies par flip structurel
+[FAIT P6a] reduction certifiee sibling width = 1
+[FAIT P6a] preservation de Viable sans requete SAT
+
+[P6b] trajectoire parametrique multi-niveaux de taille n
+[P6b] borne explicite W(n) sur la largeur maximale
+[P6c] familles separatrices ou la largeur croit
 
 [P7] tailles et couts
 [P7] theorem conditionnel de complexite
@@ -1260,23 +1277,22 @@ mais aucun oracle de recherche de code n'est suppose.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. prouver que la provenance generee ne repete aucune variable choisie fraiche
-2. definir explicitement les variables pertinentes d'une instance SAT
-3. renforcer la generation pour exiger que chaque variable choisie soit pertinente
-4. deriver une borne de profondeur depuis cette ressource finie
-5. caracteriser un etat terminal par epuisement des variables pertinentes
-6. verifier cette progression sur la trajectoire SAT constitutive
-7. construire ensuite une famille SAT parametrique avec largeur controlee
-8. construire en parallele une famille separatrice ou la largeur croit
-9. definir une recherche bornee de TransportCode sans en faire un oracle
-10. mesurer taille des codes, cout de recherche, cout de normalisation et taille d'etat
-11. assembler le theorem conditionnel de complexite
+1. construire la trajectoire parametrique multi-niveaux de la famille symetrique
+2. prouver une borne explicite sur la largeur maximale W(n)
+3. relier la longueur de cette trajectoire a la ressource structurelle P5
+4. construire une famille separatrice ou la largeur croit
+5. distinguer borne par occurrences et borne par variables distinctes
+6. definir une recherche bornee de TransportCode sans en faire un oracle
+7. mesurer taille des codes, cout de recherche, cout de normalisation et taille d'etat
+8. mesurer la taille de provenance et des certificats le long de la famille
+9. assembler le theorem conditionnel de complexite
 ~~~
 
 Le verrou courant est donc :
 
-> obtenir la borne de longueur du chemin depuis les determinations structurelles
-> elles-memes, et non depuis une limite d'iterations posee a l'exterieur.
+> passer du theorem local parametrique "chaque sibling symetrique se reduit a
+> largeur 1" a une trajectoire de n decisions dont la largeur maximale est
+> bornee uniformement par un theorem explicite.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini. Sa
 recherche algorithmique reste un cout a analyser, pas une primitive gratuite.
@@ -1465,16 +1481,23 @@ largeur avec recherche du code compose = 1
 Cela etablit formellement que "irreductible pour la recherche directe" et
 "irreductible sous composition" sont deux proprietes differentes.
 
-Le prochain obstacle n'est plus la semantique du chemin ni l'existence de la
-composition. Il est la progression globale :
+La progression globale de base est maintenant fermee :
 
 ~~~text
-combien de determinations fraiches peuvent etre constituees
-avant que la ressource structurelle finie soit epuisee ?
+histoire sans repetition
+ressource finie consommee
+depth + remaining = initial
+epuisement => terminalite
 ~~~
 
-Puis seulement viendront les bornes parametriques de largeur et le calcul de
-complexite totale.
+Le premier resultat parametrique positif est egalement formalise : pour un bloc
+SAT symetrique devant un background arbitrairement grand qui evite la variable
+de split, les deux enfants possedent un transport structurel certifie et se
+reduisent a une frontiere de largeur 1.
+
+Le prochain obstacle est plus fort : composer ce mecanisme sur n niveaux et
+borner la largeur maximale W(n) de la trajectoire complete. Ensuite seulement
+viendront les familles separatrices et le calcul de complexite totale.
 
 Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
 pas le mecanisme constitutif.
