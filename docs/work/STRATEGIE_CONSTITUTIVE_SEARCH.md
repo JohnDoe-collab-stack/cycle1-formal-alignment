@@ -1664,6 +1664,7 @@ et la liste de candidats annonces.
 [FAIT P7d-d] candidateCount input-polynomial + fuel fixe => compteurs executables input-polynomiaux
 [FAIT P7d-d] fuel variable uniformement borne par une constante + candidats input-polynomiaux => compteurs executables input-polynomiaux
 [FAIT P7d-d] fuel(input)=input avec un candidat suit exactement une echelle binaire de doublement
+[FAIT P7d-d] forme fermee de ce separateur : budget(input) + 1 = 2^input
 [FAIT P7d-d] cette famille exacte n'admet aucune borne uniforme de degre polynomial
 [FAIT P7d-d] schedule de closure controle par maxFrontierWidth, avec types d'etats dependants de l'instance
 [FAIT P7d-d] largeur uniformement bornee + candidats/fuel sous cette largeur => compteurs executables input-polynomiaux
@@ -1709,7 +1710,8 @@ Le verrou quantitatif courant est donc maintenant tres precis :
 > dont candidats et fuel restent sous une largeur constitutive uniformement
 > bornee est maintenant fermee, y compris sur l'instance SAT composee. Pour
 > fuel(input)=input avec un seul candidat, le moteur expose une recurrence
-> binaire exacte et aucune borne uniforme de degre sur ses polynomes exacts.
+> binaire exacte, avec budget(input) + 1 = 2^input, et aucune borne uniforme
+> de degre sur ses polynomes exacts.
 > Le cas non ferme est la caracterisation en valeur des fuels croissants :
 > lesquels conservent ou excluent une enveloppe polynomiale unique en inputBits.
 
