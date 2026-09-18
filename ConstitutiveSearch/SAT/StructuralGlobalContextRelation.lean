@@ -256,6 +256,7 @@ def normalizeGeneratedStructuralFrontierByFlip
     (frontier :
       List (GeneratedStructuralBranchContext rootFormula)) :
     AcceptedIrreducibleFrontierReduction
+      (system := generatedStructuralBranchSystem rootFormula)
       (generatedStructuralFlipAtSearch rootFormula var)
       frontier :=
   normalizeAcceptedFrontier
