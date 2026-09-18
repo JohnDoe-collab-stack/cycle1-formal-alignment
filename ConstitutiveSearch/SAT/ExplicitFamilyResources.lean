@@ -50,51 +50,6 @@ theorem stackedDecisionResource_length
       exact
         congrArg Nat.succ inductionHypothesis
 
-/-- List append length proved by direct structural recursion for axiom audit. -/
-theorem listLengthAppend
-    {α : Type}
-    (left right : List α) :
-    (left ++ right).length =
-      left.length + right.length := by
-  induction left with
-  | nil =>
-      rfl
-  | cons head tail inductionHypothesis =>
-      change
-        Nat.succ ((tail ++ right).length) =
-          Nat.succ (tail.length + right.length)
-      exact
-        congrArg Nat.succ inductionHypothesis
-
-namespace Clause
-
-/-- Recording variable occurrences preserves the literal count of one clause. -/
-theorem variableOccurrences_length_eq_length
-    (clause : Clause) :
-    (variableOccurrences clause).length =
-      clause.length := by
-  induction clause with
-  | nil =>
-      rfl
-  | cons literal rest inductionHypothesis =>
-      have step :
-          variableOccurrences (literal :: rest) =
-            literal.varOf :: variableOccurrences rest :=
-        rfl
-      calc
-        (variableOccurrences (literal :: rest)).length
-            =
-          (literal.varOf :: variableOccurrences rest).length :=
-            congrArg List.length step
-        _ = Nat.succ (variableOccurrences rest).length :=
-              rfl
-        _ = Nat.succ rest.length :=
-              congrArg Nat.succ inductionHypothesis
-        _ = (literal :: rest).length :=
-              rfl
-
-end Clause
-
 namespace Cnf
 
 /-- Structural literal count of one CNF. -/
@@ -103,43 +58,6 @@ def literalCount : Cnf → Nat
       0
   | clause :: rest =>
       clause.length + literalCount rest
-
-/-- The variable-occurrence list has exactly one entry per CNF literal. -/
-theorem variableOccurrences_length_eq_literalCount :
-    (formula : Cnf) →
-      (variableOccurrences formula).length =
-        literalCount formula
-  | [] =>
-      rfl
-  | clause :: rest =>
-      calc
-        (variableOccurrences (clause :: rest)).length
-            =
-          (Clause.variableOccurrences clause ++
-            variableOccurrences rest).length :=
-              rfl
-        _ =
-          (Clause.variableOccurrences clause).length +
-            (variableOccurrences rest).length :=
-              listLengthAppend
-                (Clause.variableOccurrences clause)
-                (variableOccurrences rest)
-        _ =
-          clause.length +
-            (variableOccurrences rest).length :=
-              congrArg
-                (fun value =>
-                  value + (variableOccurrences rest).length)
-                (Clause.variableOccurrences_length_eq_length
-                  clause)
-        _ =
-          clause.length + literalCount rest :=
-              congrArg
-                (Nat.add clause.length)
-                (variableOccurrences_length_eq_literalCount
-                  rest)
-        _ = literalCount (clause :: rest) :=
-              rfl
 
 end Cnf
 
@@ -253,30 +171,6 @@ theorem stackedSymmetricBlocks_literalCount
             Nat.add_comm 4 (4 * count)
         _ = 4 * (count + 1) :=
             (Nat.mul_succ 4 count).symm
-
-/-- Each explicit stacked level contributes four literal occurrences. -/
-theorem stackedSymmetricBlocks_variableOccurrences_length
-    (count : Nat)
-    (anchor : Var) :
-    (Cnf.variableOccurrences
-      (stackedSymmetricBlocks count anchor)).length =
-      4 * count := by
-  exact
-    Eq.trans
-      (Cnf.variableOccurrences_length_eq_literalCount
-        (stackedSymmetricBlocks count anchor))
-      (stackedSymmetricBlocks_literalCount count anchor)
-
-/-- The closed family has exactly four literal occurrences per level. -/
-theorem explicitStackedSymmetricFamily_variableOccurrences_length
-    (count : Nat) :
-    (Cnf.variableOccurrences
-      (explicitStackedSymmetricFamily count)).length =
-      4 * count := by
-  exact
-    stackedSymmetricBlocks_variableOccurrences_length
-      count
-      count
 
 /--
 Combined output: one explicit flip-symmetric trajectory and one resource
@@ -570,16 +464,11 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_succ
 #print axioms ConstitutiveSearch.SAT.stackedDecisionResource_length
-#print axioms ConstitutiveSearch.SAT.listLengthAppend
-#print axioms ConstitutiveSearch.SAT.Clause.variableOccurrences_length_eq_length
 #print axioms ConstitutiveSearch.SAT.Cnf.literalCount
-#print axioms ConstitutiveSearch.SAT.Cnf.variableOccurrences_length_eq_literalCount
 #print axioms ConstitutiveSearch.SAT.symmetricPositiveClause_length
 #print axioms ConstitutiveSearch.SAT.symmetricNegativeClause_length
 #print axioms ConstitutiveSearch.SAT.symmetricBlockFamily_literalCount
 #print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_literalCount
-#print axioms ConstitutiveSearch.SAT.stackedSymmetricBlocks_variableOccurrences_length
-#print axioms ConstitutiveSearch.SAT.explicitStackedSymmetricFamily_variableOccurrences_length
 #print axioms ConstitutiveSearch.SAT.ResourceAlignedStackedTrajectoryResult
 #print axioms ConstitutiveSearch.SAT.buildResourceAlignedStackedTrajectory
 #print axioms ConstitutiveSearch.SAT.explicitFamilyDecisionResource
