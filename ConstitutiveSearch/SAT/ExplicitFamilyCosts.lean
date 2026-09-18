@@ -192,21 +192,44 @@ theorem explicitFamilyStructuralWorkUnits_eq
     (count : Nat) :
     explicitFamilyStructuralWorkUnits count =
       4 * count + 1 := by
-  unfold explicitFamilyStructuralWorkUnits
-  rw [
-    FlipSymmetricTrajectory.stepCount_eq_index
-      (explicitFamilyResourceTrajectory count).trajectory,
-    FlipSymmetricTrajectory.frontierSlotCount_eq
-      (explicitFamilyResourceTrajectory count).trajectory
-  ]
+  let trajectory :=
+    (explicitFamilyResourceTrajectory count).trajectory
+  have stepExact :
+      trajectory.stepCount = count :=
+    FlipSymmetricTrajectory.stepCount_eq_index trajectory
+  have slotExact :
+      trajectory.frontierSlotCount =
+        3 * count + 1 :=
+    FlipSymmetricTrajectory.frontierSlotCount_eq trajectory
+  change
+    trajectory.stepCount +
+        trajectory.frontierSlotCount =
+      4 * count + 1
   calc
-    count + (3 * count + 1)
-        = (count + 3 * count) + 1 :=
+    trajectory.stepCount +
+          trajectory.frontierSlotCount
+        =
+      count + trajectory.frontierSlotCount :=
+        congrArg
+          (fun value =>
+            value + trajectory.frontierSlotCount)
+          stepExact
+    _ = count + (3 * count + 1) :=
+          congrArg
+            (Nat.add count)
+            slotExact
+    _ = (count + 3 * count) + 1 :=
           (Nat.add_assoc count (3 * count) 1).symm
-    _ = (1 * count + 3 * count) + 1 := by
-          rw [Nat.one_mul]
-    _ = ((1 + 3) * count) + 1 := by
-          rw [Nat.add_mul]
+    _ = (1 * count + 3 * count) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (congrArg
+              (fun value => value + 3 * count)
+              (Nat.one_mul count).symm)
+    _ = ((1 + 3) * count) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (Nat.add_mul 1 3 count).symm
     _ = 4 * count + 1 := by
           rfl
 
