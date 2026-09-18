@@ -402,31 +402,58 @@ theorem stackedStage_trueResidual
     accumulatedSafe
       count
       (Nat.lt_succ_self count)
+  let body :=
+    symmetricBlockFamily
+      count
+      anchor
+      (stackedSymmetricBlocks count anchor)
+  let retained :=
+    symmetricNegativeClause count anchor
   change
     branchResidual
-        (accumulated ++
-          symmetricBlockFamily
-            count
-            anchor
-            (stackedSymmetricBlocks count anchor))
+        (accumulated ++ body)
         count
         true =
-      (accumulated ++
-        [symmetricNegativeClause count anchor]) ++
-          stackedSymmetricBlocks count anchor
-  rw [Cnf.branchResidual_append]
-  rw [
-    Cnf.branchResidual_eq_self
-      accumulatedAvoidsCurrent
-      true
-  ]
-  rw [
-    symmetricBlockFamily_trueResidual
-      anchorDifferentCurrent
-      tailAvoidsCurrent
-  ]
-  rw [List.append_assoc]
-  rfl
+      (accumulated ++ [retained]) ++
+        stackedSymmetricBlocks count anchor
+  calc
+    branchResidual
+        (accumulated ++ body)
+        count
+        true =
+      branchResidual accumulated count true ++
+        branchResidual body count true :=
+      Cnf.branchResidual_append
+        accumulated
+        body
+        count
+        true
+    _ =
+      accumulated ++
+        branchResidual body count true :=
+      congrArg
+        (fun left =>
+          left ++ branchResidual body count true)
+        (Cnf.branchResidual_eq_self
+          accumulatedAvoidsCurrent
+          true)
+    _ =
+      accumulated ++
+        (retained ::
+          stackedSymmetricBlocks count anchor) :=
+      congrArg
+        (fun right => accumulated ++ right)
+        (symmetricBlockFamily_trueResidual
+          anchorDifferentCurrent
+          tailAvoidsCurrent)
+    _ =
+      (accumulated ++ [retained]) ++
+        stackedSymmetricBlocks count anchor := by
+      exact
+        (List.append_assoc
+          accumulated
+          [retained]
+          (stackedSymmetricBlocks count anchor)).symm
 
 namespace PrefixAvoidsBelow
 
