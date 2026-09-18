@@ -13,13 +13,16 @@ theorem background_avoids_zero :
     Cnf.AvoidsVar 0 background := by
   constructor
   · constructor
-    · decide
+    · change (1 : Var) ≠ 0
+      decide
     · exact True.intro
   · constructor
     · constructor
-      · decide
+      · change (2 : Var) ≠ 0
+        decide
       · constructor
-        · decide
+        · change (3 : Var) ≠ 0
+          decide
         · exact True.intro
     · exact True.intro
 
