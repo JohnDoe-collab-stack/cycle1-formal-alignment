@@ -225,7 +225,11 @@ theorem logarithmicWitnessPrimitive_inputPolynomiallyBounded :
       rw [
         logarithmicWitnessFuel_eq_log
           n
-      ])
+      ]
+      exact
+        Nat.le_refl
+          (Nat.log2
+            (logarithmicWitnessInputBits n)))
 
 theorem logarithmicWitnessComposition_inputPolynomiallyBounded :
     InputPolynomiallyBounded
@@ -242,7 +246,11 @@ theorem logarithmicWitnessComposition_inputPolynomiallyBounded :
       rw [
         logarithmicWitnessFuel_eq_log
           n
-      ])
+      ]
+      exact
+        Nat.le_refl
+          (Nat.log2
+            (logarithmicWitnessInputBits n)))
 
 end ConstitutiveSearch
 
