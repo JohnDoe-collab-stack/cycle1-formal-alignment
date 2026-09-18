@@ -64,7 +64,7 @@ theorem insertPairClassificationCount_le_length
                   state
                   (current :: tail) =
                 1 := by
-            unfold insertPairClassificationCount
+            rw [insertPairClassificationCount]
             rw [classification]
           rw [countExact]
           exact Nat.succ_le_succ (Nat.zero_le _)
@@ -75,7 +75,7 @@ theorem insertPairClassificationCount_le_length
                   state
                   (current :: tail) =
                 1 := by
-            unfold insertPairClassificationCount
+            rw [insertPairClassificationCount]
             rw [classification]
           rw [countExact]
           exact Nat.succ_le_succ (Nat.zero_le _)
@@ -90,15 +90,16 @@ theorem insertPairClassificationCount_le_length
                     search
                     state
                     tail := by
-            unfold insertPairClassificationCount
+            rw [insertPairClassificationCount]
             rw [classification]
           rw [countExact]
-          rw [Nat.succ_eq_add_one]
-          rw [Nat.add_comm 1 (insertPairClassificationCount search state tail)]
-          exact
-            Nat.add_le_add_right
+          simpa only [
+            List.length_cons,
+            Nat.succ_eq_add_one,
+            Nat.add_comm
+          ] using
+            Nat.succ_le_succ
               inductionHypothesis
-              1
       | unresolved forwardNotFound backwardNotFound =>
           have countExact :
               insertPairClassificationCount
@@ -110,15 +111,16 @@ theorem insertPairClassificationCount_le_length
                     search
                     state
                     tail := by
-            unfold insertPairClassificationCount
+            rw [insertPairClassificationCount]
             rw [classification]
           rw [countExact]
-          rw [Nat.succ_eq_add_one]
-          rw [Nat.add_comm 1 (insertPairClassificationCount search state tail)]
-          exact
-            Nat.add_le_add_right
+          simpa only [
+            List.length_cons,
+            Nat.succ_eq_add_one,
+            Nat.add_comm
+          ] using
+            Nat.succ_le_succ
               inductionHypothesis
-              1
 
 /--
 The original insertion algorithm never increases width by more than the inserted
@@ -158,7 +160,7 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
                 (current :: tail)
                 restIrreducible).retained =
               current :: tail := by
-            unfold insertAcceptedIntoIrreducible
+            rw [insertAcceptedIntoIrreducible]
             rw [classification]
           rw [retainedExact]
           exact
@@ -174,7 +176,7 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
                 (current :: tail)
                 restIrreducible).retained =
               current :: tail := by
-            unfold insertAcceptedIntoIrreducible
+            rw [insertAcceptedIntoIrreducible]
             rw [classification]
           rw [retainedExact]
           exact
@@ -197,15 +199,23 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
                 state
                 tail
                 tailIrreducible).retained := by
-            unfold insertAcceptedIntoIrreducible
+            rw [insertAcceptedIntoIrreducible]
             rw [classification]
           rw [retainedExact]
+          have widened :
+              tail.length + 1 ≤
+                (current :: tail).length + 1 := by
+            simpa only [
+              List.length_cons,
+              Nat.succ_eq_add_one
+            ] using
+              Nat.add_le_add_right
+                (Nat.le_succ tail.length)
+                1
           exact
             Nat.le_trans
               recursiveLe
-              (Nat.le_add_right
-                (tail.length + 1)
-                1)
+              widened
       | unresolved forwardNotFound backwardNotFound =>
           have recursiveLe :=
             inductionHypothesis tailIrreducible
@@ -223,10 +233,13 @@ theorem insertAcceptedIntoIrreducible_retained_length_le
                   state
                   tail
                   tailIrreducible).retained := by
-            unfold insertAcceptedIntoIrreducible
+            rw [insertAcceptedIntoIrreducible]
             rw [classification]
           rw [retainedExact]
-          exact
+          simpa only [
+            List.length_cons,
+            Nat.succ_eq_add_one
+          ] using
             Nat.succ_le_succ
               recursiveLe
 
