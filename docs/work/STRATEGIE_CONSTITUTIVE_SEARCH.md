@@ -146,6 +146,9 @@ ConstitutiveSearch/ClosureSearchPolynomialRegimes.lean
 ConstitutiveSearch/ClosureSearchPolynomialComplexity.lean
 ConstitutiveSearch/ClosureSearchFixedFuelPolynomial.lean
 ConstitutiveSearch/ClosureSearchGrowingFuelSeparator.lean
+ConstitutiveSearch/PolynomialExponentialSeparator.lean
+ConstitutiveSearch/ClosureSearchLogFuelPolynomial.lean
+ConstitutiveSearch/ClosureSearchScaledLogFuelPolynomial.lean
 ConstitutiveSearch/ClosureSearchWidthControlled.lean
 
 ConstitutiveSearch/ComplexityInterface.lean
@@ -1666,10 +1669,17 @@ et la liste de candidats annonces.
 [FAIT P7d-d] fuel(input)=input avec un candidat suit exactement une echelle binaire de doublement
 [FAIT P7d-d] forme fermee de ce separateur : budget(input) + 1 = 2^input
 [FAIT P7d-d] cette famille exacte n'admet aucune borne uniforme de degre polynomial
+[FAIT P7d-d] tout CostPolynomial fini est battu par 2^n sur un input explicite construit depuis sa syntaxe
+[FAIT P7d-d] 2^n n'est pas PolynomiallyBounded dans l'interface interne
+[FAIT P7d-d] avec un candidat et fuel(input)=input, primitiveQueries et compositionCandidates ne sont pas PolynomiallyBounded
+[FAIT P7d-d] avec un candidat et fuel <= log2(inputBits), les deux compteurs sont bornes lineairement par inputBits
+[FAIT P7d-d] avec un candidat et fuel <= c*log2(inputBits), les deux compteurs ont l'enveloppe interne explicite X^c
+[FAIT P7d-d] famille temoin inputBits(n)=2^n, fuel(n)=c*n : budget(n)+1 = inputBits(n)^c
+[FAIT P7d-d] pour c>0 cette famille de fuel est non bornee tout en restant input-polynomiale
 [FAIT P7d-d] schedule de closure controle par maxFrontierWidth, avec types d'etats dependants de l'instance
 [FAIT P7d-d] largeur uniformement bornee + candidats/fuel sous cette largeur => compteurs executables input-polynomiaux
 [FAIT P7d-d] instance SAT composee : [middle], fuel=2, tous deux certifies sous la largeur constitutive 2
-[QUALIFICATION P7d-d] le separateur fuel(input)=input expose une croissance binaire et un degre exact non uniformement borne; il ne constitue pas encore un theorem general de non-polynomialite
+[QUALIFICATION P7d-d] la non-polynomialite est fermee pour le regime concret un candidat + fuel(input)=input; elle n'est pas extrapolee a tout fuel non borne ni aux regimes multi-candidats
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1693,14 +1703,15 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. renforcer le separateur fuel croissant vers une caracterisation en valeur, pas seulement en degre
-2. distinguer les croissances de fuel compatibles avec une enveloppe polynomiale des croissances incompatibles
-3. tester d'autres generations endogenes du fuel/candidat lorsque la largeur elle-meme croit
-4. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
-5. consolider l'audit de non-factorisation/provenance si necessaire
-6. effectuer P8 : audit externe de nouveaute et comparaison
-7. synchroniser ensuite la documentation canonique avant toute integration vers main
-8. seulement apres etudier les consequences generales de classe de complexite
+1. generaliser la classification fuel/candidats au-dela du cas un candidat
+2. caracteriser les regimes combines candidateCount(input) et fuel(input) qui restent input-polynomiaux
+3. tester les generations endogenes lorsque maxFrontierWidth croit avec l'entree
+4. relier ces regimes aux trajectoires/provenances qui produisent effectivement candidats et fuel
+5. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
+6. consolider l'audit de non-factorisation/provenance si necessaire
+7. effectuer P8 : audit externe de nouveaute et comparaison
+8. synchroniser ensuite la documentation canonique avant toute integration vers main
+9. seulement apres etudier les consequences generales de classe de complexite
 ~~~
 
 Le verrou quantitatif courant est donc maintenant tres precis :
@@ -1709,11 +1720,13 @@ Le verrou quantitatif courant est donc maintenant tres precis :
 > varier tant qu'il reste uniformement borne par une constante. Une politique
 > dont candidats et fuel restent sous une largeur constitutive uniformement
 > bornee est maintenant fermee, y compris sur l'instance SAT composee. Pour
-> fuel(input)=input avec un seul candidat, le moteur expose une recurrence
-> binaire exacte, avec budget(input) + 1 = 2^input, et aucune borne uniforme
-> de degre sur ses polynomes exacts.
-> Le cas non ferme est la caracterisation en valeur des fuels croissants :
-> lesquels conservent ou excluent une enveloppe polynomiale unique en inputBits.
+> avec un seul candidat, la frontiere est maintenant separee en valeur :
+> fuel(input)=input donne budget(input)+1 = 2^input et n'est pas
+> PolynomiallyBounded, tandis que fuel <= c*log2(inputBits) admet l'enveloppe
+> explicite X^c. Un fuel peut donc etre non borne et rester polynomial si sa
+> croissance est suffisamment faible relativement a la taille concrete d'entree.
+> Le cas non ferme est la classification combinee lorsque candidateCount croit
+> lui aussi avec inputBits et que fuel n'est plus uniformement borne.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1723,10 +1736,10 @@ B(0) = 0
 B(f+1) = 2 * B(f) + 1
 ~~~
 
-Le prochain travail doit donc passer du separateur de degre et de recurrence
-binaire a une caracterisation de croissance en valeur : identifier
-constructivement les fuels croissants compatibles avec une enveloppe
-polynomiale et ceux qui ne le sont pas, sans postuler leur benignite.
+Le prochain travail doit donc generaliser cette classification au moteur
+multi-candidats : quantifier conjointement la croissance de candidateCount et
+de fuel, puis raccorder ces hypotheses aux quantites effectivement constituees
+par les trajectoires, sans postuler leur benignite.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
