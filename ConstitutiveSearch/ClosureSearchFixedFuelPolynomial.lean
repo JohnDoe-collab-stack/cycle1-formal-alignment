@@ -114,11 +114,11 @@ theorem closureCompositionFixedFuelPolynomial_eval :
             (closureCompositionCandidateBudget candidateCount fuel)
             candidateCount from rfl]
       exact
-        viaCompositionCandidateBudget_closed
+        (viaCompositionCandidateBudget_closed
           (closureCompositionCandidateBudget
             candidateCount
             fuel)
-          candidateCount
+          candidateCount).symm
 
 /-- For every fixed fuel, primitive-query budget as a function of candidates is polynomial. -/
 theorem closurePrimitiveFixedFuel_polynomiallyBounded
