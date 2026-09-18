@@ -61,6 +61,13 @@ theorem stackedSymmetricBlocks_variableOccurrences_length
   | zero =>
       rfl
   | succ count inductionHypothesis =>
+      dsimp [
+        stackedSymmetricBlocks,
+        symmetricBlockFamily,
+        Cnf.variableOccurrences,
+        Clause.variableOccurrences,
+        Literal.varOf
+      ]
       change
         4 +
           (Cnf.variableOccurrences
