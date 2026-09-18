@@ -37,39 +37,6 @@ inductive FrontierTrajectory
 
 namespace FrontierTrajectory
 
-/-- Compose all frontier preservation witnesses carried by a trajectory. -/
-def preservationCore
-    {system : SearchSystem}
-    {Constitution : Type uConstitution}
-    {Constitutes : Constitution → Constitution → Type uStep} :
-    (start finish : ConstitutiveState system Constitution) →
-      FrontierTrajectory system Constitutes start finish →
-        AcceptedFrontierPreservation
-          system
-          start.frontier
-          finish.frontier
-  | start, _, .refl _ =>
-      AcceptedFrontierPreservation.identity
-        system
-        start.frontier
-  | start, _, .snoc previous step =>
-      (preservationCore start _ previous).trans
-        step.preservation
-
-/-- Endpoint-indexed view of the composed preservation witness. -/
-def preservation
-    {system : SearchSystem}
-    {Constitution : Type uConstitution}
-    {Constitutes : Constitution → Constitution → Type uStep}
-    {start finish : ConstitutiveState system Constitution}
-    (trajectory :
-      FrontierTrajectory system Constitutes start finish) :
-    AcceptedFrontierPreservation
-      system
-      start.frontier
-      finish.frontier :=
-  preservationCore start finish trajectory
-
 /-- Initial and final frontiers of a trajectory are viability-equivalent. -/
 theorem viable_iff
     {system : SearchSystem}
@@ -79,8 +46,14 @@ theorem viable_iff
     (trajectory :
       FrontierTrajectory system Constitutes start finish) :
     FrontierViable system start.frontier ↔
-      FrontierViable system finish.frontier :=
-  trajectory.preservation.viable_iff
+      FrontierViable system finish.frontier := by
+  induction trajectory with
+  | refl =>
+      exact Iff.rfl
+  | snoc previous step inductionHypothesis =>
+      exact
+        inductionHypothesis.trans
+          step.viable_iff
 
 /-- Number of constitutive transitions in a trajectory. -/
 def length
@@ -92,24 +65,33 @@ def length
   | .refl _ => 0
   | .snoc previous _ => previous.length + 1
 
-/--
-Widths of all visited frontiers in reverse chronological order.  The explicit
-endpoint arguments keep dependent recursion computational.
--/
-def reverseWidthTraceCore
+/-- Width of the target frontier of one constitutive step. -/
+def ConstitutiveStep.targetWidth
     {system : SearchSystem}
     {Constitution : Type uConstitution}
-    {Constitutes : Constitution → Constitution → Type uStep} :
-    (start finish : ConstitutiveState system Constitution) →
-      FrontierTrajectory system Constitutes start finish →
-        List Nat
-  | start, _, .refl _ =>
-      [start.frontier.length]
-  | start, finish, .snoc previous _ =>
-      finish.frontier.length ::
-        reverseWidthTraceCore start _ previous
+    {Constitutes : Constitution → Constitution → Type uStep}
+    {source target : ConstitutiveState system Constitution}
+    (_step : ConstitutiveStep system Constitutes source target) :
+    Nat :=
+  target.frontier.length
 
-/-- Widths of all frontiers visited by a trajectory, including both endpoints. -/
+/--
+Target widths of the trajectory in reverse chronological order.
+This recursion depends only on explicit step data, not on equality of indices.
+-/
+def reverseTargetWidths
+    {system : SearchSystem}
+    {Constitution : Type uConstitution}
+    {Constitutes : Constitution → Constitution → Type uStep}
+    {start finish : ConstitutiveState system Constitution} :
+    FrontierTrajectory system Constitutes start finish →
+      List Nat
+  | .refl _ => []
+  | .snoc previous step =>
+      step.targetWidth ::
+        reverseTargetWidths previous
+
+/-- Widths of all frontiers visited by the trajectory, including its start. -/
 def widthTrace
     {system : SearchSystem}
     {Constitution : Type uConstitution}
@@ -118,7 +100,8 @@ def widthTrace
     (trajectory :
       FrontierTrajectory system Constitutes start finish) :
     List Nat :=
-  (reverseWidthTraceCore start finish trajectory).reverse
+  start.frontier.length ::
+    (reverseTargetWidths trajectory).reverse
 
 /-- Maximum frontier width observed along the concrete trajectory. -/
 def maxWidth
@@ -149,11 +132,10 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.FrontierTrajectory
-#print axioms ConstitutiveSearch.FrontierTrajectory.preservationCore
-#print axioms ConstitutiveSearch.FrontierTrajectory.preservation
 #print axioms ConstitutiveSearch.FrontierTrajectory.viable_iff
 #print axioms ConstitutiveSearch.FrontierTrajectory.length
-#print axioms ConstitutiveSearch.FrontierTrajectory.reverseWidthTraceCore
+#print axioms ConstitutiveSearch.FrontierTrajectory.ConstitutiveStep.targetWidth
+#print axioms ConstitutiveSearch.FrontierTrajectory.reverseTargetWidths
 #print axioms ConstitutiveSearch.FrontierTrajectory.widthTrace
 #print axioms ConstitutiveSearch.FrontierTrajectory.maxWidth
 #print axioms ConstitutiveSearch.FrontierTrajectory.appendStep
