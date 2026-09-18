@@ -41,29 +41,17 @@ theorem normalizeAcceptedPair_width_one_of_forward_found
   | some forward =>
       cases backwardResult : search.find right left with
       | none =>
-          simp only [
-            normalizeAcceptedFrontier,
-            insertAcceptedIntoIrreducible,
-            RelationSearch.classifyPairCertified,
-            forwardResult,
-            backwardResult,
-            AcceptedIrreducibleFrontierReduction.width,
-            AcceptedInsertIrreducibleReduction.width,
-            List.length_cons,
-            List.length_nil
-          ]
+          unfold normalizeAcceptedFrontier
+          unfold insertAcceptedIntoIrreducible
+          unfold RelationSearch.classifyPairCertified
+          rw [forwardResult, backwardResult]
+          rfl
       | some backward =>
-          simp only [
-            normalizeAcceptedFrontier,
-            insertAcceptedIntoIrreducible,
-            RelationSearch.classifyPairCertified,
-            forwardResult,
-            backwardResult,
-            AcceptedIrreducibleFrontierReduction.width,
-            AcceptedInsertIrreducibleReduction.width,
-            List.length_cons,
-            List.length_nil
-          ]
+          unfold normalizeAcceptedFrontier
+          unfold insertAcceptedIntoIrreducible
+          unfold RelationSearch.classifyPairCertified
+          rw [forwardResult, backwardResult]
+          rfl
 
 namespace SAT
 
@@ -304,8 +292,13 @@ theorem normalizationRelationVerificationSurface_le_uniform
               parent var fresh +
             siblingRelationVerificationSurface
               parent var fresh) +
-            tail.normalizationRelationVerificationSurface := by
-              rw [Nat.add_assoc]
+            tail.normalizationRelationVerificationSurface :=
+              (Nat.add_assoc
+                (siblingRelationVerificationSurface
+                  parent var fresh)
+                (siblingRelationVerificationSurface
+                  parent var fresh)
+                tail.normalizationRelationVerificationSurface).symm
         _ ≤
           (uniformRelationVerificationUnit
               formulaBound provenanceBound +
