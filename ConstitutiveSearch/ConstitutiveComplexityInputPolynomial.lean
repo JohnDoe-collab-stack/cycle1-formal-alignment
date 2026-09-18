@@ -79,6 +79,35 @@ theorem constant
     fun _ =>
       Nat.le_refl _⟩
 
+
+/--
+Applying one fixed cost polynomial to an input-polynomially bounded quantity
+preserves input-polynomial boundedness by syntactic substitution.
+-/
+theorem apply_polynomial
+    {inputBits cost : Nat → Nat}
+    (bounded :
+      InputPolynomiallyBounded
+        inputBits
+        cost)
+    (polynomial : CostPolynomial) :
+    InputPolynomiallyBounded
+      inputBits
+      (fun n =>
+        polynomial.eval (cost n)) := by
+  rcases bounded with
+    ⟨envelope, costLe⟩
+  refine
+    ⟨CostPolynomial.substitute
+        polynomial
+        envelope,
+      ?_⟩
+  intro n
+  rw [CostPolynomial.eval_substitute]
+  exact
+    polynomial.eval_mono
+      (costLe n)
+
 /--
 Additive coordinates remain polynomially bounded when phase input sizes are
 merged by maximum.
@@ -472,6 +501,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.InputPolynomiallyBounded
 #print axioms ConstitutiveSearch.InputPolynomiallyBounded.self
 #print axioms ConstitutiveSearch.InputPolynomiallyBounded.constant
+#print axioms ConstitutiveSearch.InputPolynomiallyBounded.apply_polynomial
 #print axioms ConstitutiveSearch.InputPolynomiallyBounded.add_under_max
 #print axioms ConstitutiveSearch.InputPolynomiallyBounded.max_under_max
 #print axioms ConstitutiveSearch.ConstitutiveProfileFamilyInputPolynomiallyBounded
