@@ -69,7 +69,7 @@ theorem zero_add
     (counts : ComplexityCounts) :
     add zero counts = counts := by
   cases counts
-  rfl
+  simp only [add, zero, Nat.zero_add]
 
 theorem add_zero
     (counts : ComplexityCounts) :
