@@ -1490,7 +1490,8 @@ et la liste de candidats annonces.
 [OUVERT P7b] cout complet du normaliseur generique sur frontieres arbitraires
 [FAIT P7b] ClosureSearchCosts instancie sur une famille SAT parametrique
 [FAIT P7b] fermeture composee SAT : 3 requetes primitives et 1 candidat pour le chemin a deux atomes
-[QUALIFICATION P7b] ces compteurs sont des evenements de controle-flow; leur charge de representation sur la famille composee reste a fermer
+[FAIT P7b] charge de representation de cette fermeture instanciee et bornee polynomialement en taille d'entree
+[QUALIFICATION P7b] les compteurs restent des evenements de controle-flow; leur traduction en temps machine reste distincte
 
 [FAIT P7c-a] ComplexityCounts et AtomicCosts separes
 [FAIT P7c-a] chargedCost explicite
@@ -1520,6 +1521,15 @@ et la liste de candidats annonces.
 [FAIT P7c-e] cout charge <= enveloppe polynomiale indexee par la taille binaire reelle de l'entree
 [QUALIFICATION P7c-e] cette borne est une complexite de representation; le cout machine concret des egalites reste une couche distincte
 
+[FAIT P7c-f] profil separe de la phase compositionnelle : 2 slots, 2 atomes, 3 primitiveQueries, 1 compositionCandidate
+[FAIT P7c-f] histories des etats du carre compose de longueur n+2
+[FAIT P7c-f] tailles binaires des residuels, histories et witnesses bornees
+[FAIT P7c-f] primitive query chargee par au plus deux comparaisons structurelles
+[FAIT P7c-f] composedClosurePhaseRepresentationChargedCost = budget explicite
+[FAIT P7c-f] budget compositionnel ferme sous forme polynomiale
+[FAIT P7c-f] cout compositionnel <= enveloppe polynomiale indexee par explicitFamilyInputBitSize
+[QUALIFICATION P7c-f] borne de representation de la phase ajoutee; pas un temps machine
+
 [P8] audit externe de nouveaute et de comparaison
 
 [FERME] toute revendication P/NP avant fermeture des phases restantes
@@ -1530,23 +1540,23 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. definir le profil ComplexityCounts de la famille SAT compositionnelle
-2. charger primitiveQueries et compositionCandidates par les tailles binaires des etats/witnesses correspondants
-3. deduire une enveloppe de representation compositionnelle puis l'indexer par la taille d'entree
-4. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
-5. distinguer formellement charge de representation et cout machine effectif des egalites
-6. assembler les profils locaux et compositionnels dans une interface commune
-7. comparer les enveloppes locale, compositionnelle et separatrice
-8. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
+1. mesurer le cout du normaliseur generique sur des frontieres de largeur arbitraire
+2. distinguer formellement charge de representation et cout machine effectif des egalites
+3. assembler les profils locaux et compositionnels dans une interface commune
+4. comparer les enveloppes locale, compositionnelle et separatrice
+5. formaliser les regimes de croissance de candidateCount et fuel dans ClosureSearch
+6. formuler les hypotheses minimales d'un theorem de complexite constitutive abstrait
+7. separer les hypotheses de representation des hypotheses de machine
+8. tester l'interface abstraite sur une deuxieme famille parametrique
 ~~~
 
 Le verrou courant est donc :
 
-> quantifier la couche compositionnelle SAT avec la meme discipline de cout de
-> representation deja fermee pour F(n). Le phenomene direct width 2 / compose
-> width 1 est maintenant certifie sur une famille parametrique, et le moteur
-> borne expose exactement 3 requetes primitives et 1 candidat de composition
-> pour le chemin a deux atomes.
+> generaliser la comptabilite au normaliseur et aux recherches dont la largeur,
+> candidateCount ou fuel croissent avec l'entree. Les couches locale F(n) et
+> compositionnelle ont maintenant toutes deux une charge de representation
+> explicite, une enveloppe polynomiale et une indexation par la taille binaire
+> concrete de l'entree.
 
 Le proxy 4n+1, la surface relationnelle et le cout de representation ne doivent
 jamais etre presentes comme du temps machine. Ils mesurent trois couches
@@ -1554,9 +1564,10 @@ distinctes : structure, surface inspectee et taille chargee des representations.
 
 La fermeture compositionnelle est disponible comme objet mathematique fini et
 comme recherche bornee executable. Sur la famille compositionnelle actuelle,
-les compteurs de recherche sont exacts et bornes; il reste a leur attacher une
-charge de representation parametrique puis a etudier les regimes ou la liste
-de candidats ou le fuel croissent avec l'entree.
+les compteurs, la charge binaire, l'enveloppe polynomiale et l'indexation par
+taille d'entree sont maintenant fermes. Le prochain test quantitatif porte sur
+les regimes ou la largeur, la liste de candidats ou le fuel croissent avec
+l'entree.
 
 ## 25. Prochain theorem global vise
 
