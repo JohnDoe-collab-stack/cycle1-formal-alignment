@@ -71,6 +71,7 @@ theorem searchTransportClosureBounded_primitiveHit_stats
             ClosureSearchStats.withPrimitiveQuery,
             ClosureSearchStats.zero
           ]
+          exact ⟨True.intro, True.intro⟩
 
 namespace SAT
 
