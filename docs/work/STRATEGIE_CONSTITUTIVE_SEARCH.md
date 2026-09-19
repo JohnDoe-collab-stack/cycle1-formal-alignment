@@ -1702,7 +1702,18 @@ et la liste de candidats annonces.
 [FAIT P7d-d] le premier sibling reel de toute FlipSymmetricTrajectory non vide satisfait ce short circuit dans la closure derivee
 [FAIT P7d-d] execution sequentielle derivee : en recombinant le run sibling de chaque suffixe, toute trajectoire certifiee de longueur n execute exactement n primitiveQueries et 0 compositionCandidate
 [FAIT P7d-d] sur F(n), ces deux compteurs executes sont InputPolynomiallyBounded dans explicitFamilyInputBitSize
-[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. Le short circuit et l'induction sequentielle formalisent explicitement cette distinction.
+[FAIT P7d-d] PrimitiveHitPath factorise une succession executable de primitive hits, avec code de meme nombre d'atomes et execution exacte k primitiveQueries / 0 compositionCandidate
+[FAIT P7d-d] tout code trouve par ClosureSearch se projette vers un PrimitiveHitPath de meme taille
+[FAIT P7d-d] direct primitive miss + succes ClosureSearch => au moins un compositionCandidate inspecte et code retourne de taille >= 2
+[FAIT P7d-d] tout succes ClosureSearch admet un remplacement sequentiel en primitive hits; sous direct miss ce remplacement utilise 0 compositionCandidate alors que le run global en utilise au moins un
+[FAIT P7d-d] SearchableBy isole la condition locale exacte sur un TransportCode deja constitue : chaque atome doit etre retrouvable par primitive.find
+[FAIT P7d-d] GlobalCompositionRequired <-> direct miss + existence d'un code SearchableBy de taille >= 2, sans executer la closure globale
+[FAIT P7d-d] benchmark SAT compose : composedConstitutedCode est construit directement depuis les deux witnesses certifies, taille 2, SearchableBy, et certifie le besoin global sans recherche de closure
+[FAIT P7d-d] exécution locale candidate-free : tout code SearchableBy admet une execution avec candidats=[] et fuel=1, cout exact code.size primitiveQueries / 0 compositionCandidate
+[FAIT P7d-d] famille de codes SearchableBy + taille de code input-polynomiale => execution locale candidate-free input-polynomiale
+[FAIT P7d-d] les familles de codes locaux sont fermees par composition : searchabilite preservee, taille additive, polynomialite locale preservee
+[FAIT P7d-d] benchmark SAT compose reconstruit exactement composedConstitutedCode par composition de deux familles locales de taille 1
+[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. La fermeture locale montre que la recherche globale n'est pas necessaire lorsqu'un code searchable est deja constitue. Le cout de production/validation de ce code reste une obligation distincte a expliciter.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1726,33 +1737,32 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. comparer formellement l'execution sequentielle locale a une requete de fermeture globale qui exige reellement de la composition
-2. caracteriser quand un besoin compositionnel ne peut pas etre resolu par les primitive hits successifs de la trajectoire
-3. determiner si une politique de candidats/fuel derivee localement de la constitution evite systematiquement l'enveloppe globale non polynomiale
-4. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits)
-5. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
-6. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
-7. consolider l'audit de non-factorisation/provenance si necessaire
-8. effectuer P8 : audit externe de nouveaute et comparaison
-9. synchroniser ensuite la documentation canonique avant toute integration vers main
-10. seulement apres etudier les consequences generales de classe de complexite
+1. reconstruire des codes SearchableBy directement depuis les donnees constituees de trajectoire/provenance, au-dela du benchmark compose a deux atomes
+2. expliciter et charger le cout de production/validation de ces codes, separement de leur execution locale
+3. relier taille/verification des codes constitues aux dimensions certificateAtoms, provenanceUnits et representationCharge
+4. caracteriser les hypotheses locales qui garantissent une taille de code input-polynomiale sous composition iterative
+5. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits) lorsque aucun code local n'est deja constitue
+6. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
+7. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
+8. consolider l'audit de non-factorisation/provenance si necessaire
+9. effectuer P8 : audit externe de nouveaute et comparaison
+10. synchroniser ensuite la documentation canonique avant toute integration vers main
+11. seulement apres etudier les consequences generales de classe de complexite
 ~~~
 
 Le verrou quantitatif courant est donc maintenant tres precis :
 
-> la classification combinee possede maintenant des regimes positifs et negatifs,
-> et l'endogeneite est fermee sur la famille F(n) au niveau du domaine de controle :
-> la trajectoire produit elle-meme 2n candidats et fuel n. L'enveloppe recursive
-> globale correspondante n'est pas InputPolynomiallyBounded dans la taille binaire
-> reelle de F(n), alors que l'execution constitutive sequentielle de la meme
-> trajectoire possede deja un profil input-polynomial. De plus, lorsqu'une requete
-> constitutive est un primitive hit, ClosureSearch court-circuite a exactement
-> 1 primitiveQuery et 0 compositionCandidate. Cette propriete est maintenant
-> composee sur toute trajectoire : longueur n => n primitiveQueries executees et
-> 0 compositionCandidate, et ces compteurs sont input-polynomiaux sur F(n).
-> Le verrou porte maintenant sur les requetes qui exigent reellement une
-> composition : comprendre quand elles apparaissent constitutivement et comment
-> leur recherche se compare a la decomposition sequentielle.
+> la distinction recherche globale / execution constituee est maintenant formelle.
+> Un direct miss avec code SearchableBy de taille >= 2 caracterise un besoin de
+> composition globale sans lancer ClosureSearch. Une fois ce code constitue, il
+> s'execute localement avec candidats=[] et fuel=1, pour exactement code.size
+> primitiveQueries et zero compositionCandidate. Cette politique est
+> input-polynomiale des que la taille du code l'est, et elle est fermee sous
+> composition locale additive. Le benchmark SAT a deux flips est ferme de bout en
+> bout de cette maniere. Le verrou n'est donc plus le cout d'execution d'un code
+> deja constitue, mais la production et la validation endogenes des bons codes
+> composes depuis trajectoires/provenances, avec une charge explicite de cette
+> construction dans le profil constitutif.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1763,10 +1773,11 @@ B(f+1) = 2 * B(f) + 1
 ~~~
 
 Les requetes sibling effectivement produites le long de la trajectoire sont
-maintenant quantifiees exactement : n primitiveQueries, zero compositionCandidate.
-Le prochain travail doit donc cibler les requetes qui ne sont pas des primitive
-hits et exigent reellement une composition, puis comparer leur cout execute a
-l'enveloppe recursive de la fermeture globale aplatie.
+quantifiees exactement : n primitiveQueries, zero compositionCandidate. Les
+requetes composees disposent maintenant d'une alternative locale lorsque le code
+est deja constitue et SearchableBy. Le prochain travail doit donc mesurer comment
+ces codes sont produits, verifies et accumules par la constitution elle-meme,
+plutot que traiter leur existence comme une donnee gratuite.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
