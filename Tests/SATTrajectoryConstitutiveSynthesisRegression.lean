@@ -21,10 +21,16 @@ theorem certificates3 :
       3 :=
   explicitFamilyConstitutedTotalProfile_certificates 3
 
+theorem productionRelationFindZero3 :
+    (explicitFamilyConstitutedProductionProfile
+      3).events.relationFindCalls =
+      0 := by
+  rfl
+
 theorem relationFind3 :
     (explicitFamilyConstitutedTotalProfile
       3).events.relationFindCalls =
-      9 :=
+      3 :=
   explicitFamilyConstitutedTotalProfile_relationFind 3
 
 theorem closurePrimitive3 :
@@ -54,6 +60,7 @@ end ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.synthesis3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.provenance3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.certificates3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.productionRelationFindZero3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.relationFind3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.closurePrimitive3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutiveSynthesisRegression.closureCandidates3
