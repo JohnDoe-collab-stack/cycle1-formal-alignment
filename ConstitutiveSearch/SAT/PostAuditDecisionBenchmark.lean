@@ -430,10 +430,12 @@ theorem auditedTerminalRun_clauseChecks_le_two
     rw [
       auditedTerminalRun_zero
     ]
+    decide
   · rw [
       auditedTerminalRun_nonzero
         inputZero
     ]
+    decide
 
 /-- Terminal decision is exactly the benchmark yes/no answer. -/
 theorem auditedTerminalDecision_correct
@@ -441,6 +443,7 @@ theorem auditedTerminalDecision_correct
     auditedTerminalDecision input =
         true ↔
       auditedDecisionProblem.Accept input := by
+  unfold auditedTerminalDecision
   rw [
     auditedDecisionProblem_accept_iff_zero
   ]
@@ -682,7 +685,6 @@ theorem executeAuditedDecision_total
     executeAuditedDecision_executionCompositionCandidates,
     executeAuditedDecision_terminalChecks
   ]
-  omega
 
 /-- Complete real procedure performs at most six charged source-level events. -/
 theorem executeAuditedDecision_total_le_six
