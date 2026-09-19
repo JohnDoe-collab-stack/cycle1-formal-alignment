@@ -10,32 +10,32 @@ theorem chain3_length :
   composedPrimitiveStateChain_length 3
 
 theorem local3_found :
-    (composedLocalPrimitivePathRun 3).path? ≠ none :=
-  composedLocalPrimitivePathRun_found 3
+    (composedLocalPrimitiveCodeRun 3).path? ≠ none :=
+  composedLocalPrimitiveCodeRun_found 3
 
 theorem local3_primitiveQueries :
-    (composedLocalPrimitivePathRun 3).stats.primitiveQueries = 2 :=
-  composedLocalPrimitivePathRun_primitiveQueries 3
+    (composedLocalPrimitiveCodeRun 3).stats.primitiveQueries = 2 :=
+  composedLocalPrimitiveCodeRun_primitiveQueries 3
 
 theorem local3_compositionCandidates :
-    (composedLocalPrimitivePathRun 3).stats.compositionCandidates = 0 :=
-  composedLocalPrimitivePathRun_compositionCandidates 3
+    (composedLocalPrimitiveCodeRun 3).stats.compositionCandidates = 0 :=
+  composedLocalPrimitiveCodeRun_compositionCandidates 3
 
 theorem local3_codeSize :
-    match (composedLocalPrimitivePathRun 3).path? with
+    match (composedLocalPrimitiveCodeRun 3).path? with
     | none => False
-    | some path => path.toTransportCode.size = 2 :=
-  composedLocalPrimitivePathRun_codeSize 3
+    | some code => code.size = 2 :=
+  composedLocalPrimitiveCodeRun_codeSize 3
 
 theorem local3_primitiveStrict :
-    (composedLocalPrimitivePathRun 3).stats.primitiveQueries <
+    (composedLocalPrimitiveCodeRun 3).stats.primitiveQueries <
       (composedClosureFuelTwo 3).stats.primitiveQueries :=
-  composedLocalPrimitivePathRun_primitiveQueries_lt_global 3
+  composedLocalPrimitiveCodeRun_primitiveQueries_lt_global 3
 
 theorem local3_compositionStrict :
-    (composedLocalPrimitivePathRun 3).stats.compositionCandidates <
+    (composedLocalPrimitiveCodeRun 3).stats.compositionCandidates <
       (composedClosureFuelTwo 3).stats.compositionCandidates :=
-  composedLocalPrimitivePathRun_compositionCandidates_lt_global 3
+  composedLocalPrimitiveCodeRun_compositionCandidates_lt_global 3
 
 end ConstitutiveSearch.Tests.SATComposedLocalPrimitivePathSearchRegression
 
