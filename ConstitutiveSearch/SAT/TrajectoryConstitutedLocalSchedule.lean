@@ -1,6 +1,6 @@
 import ConstitutiveSearch.LocalSearchableCodeExecution
 import ConstitutiveSearch.SearchableTransportCodeValidation
-import ConstitutiveSearch.SAT.ParametricSymmetricTrajectory
+import ConstitutiveSearch.SAT.TrajectoryDerivedClosure
 import ConstitutiveSearch.SAT.ExplicitFamilyTransportCosts
 import ConstitutiveSearch.SAT.ExplicitFamilyInputComplexity
 
@@ -204,7 +204,7 @@ theorem executionRun_found
         False.elim
           (entry.code_searchable found)
   | some witness =>
-      simp only [found]
+      simp only
       intro impossible
       cases impossible
 
