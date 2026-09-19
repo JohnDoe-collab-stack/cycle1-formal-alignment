@@ -4,44 +4,49 @@ import ConstitutiveSearch.FrontierTrajectory
 /-!
 # Minimal bridge to classical decision-complexity interfaces
 
-This file introduces only the interfaces needed to state the final bridge.
+The repository's polynomial-cost interface is indexed by Nat.  The classical
+bridge therefore uses Nat-coded decision instances rather than opening a new
+general encoding framework.
 
-The notions P and NP below are relative to an explicit input-size function and
-an explicit source-level cost.  No concrete machine-runtime model is silently
-assumed.
+The notions P and NP below are relative to:
+* one concrete input-size function Nat -> Nat;
+* one explicit source-level cost model.
 
-* P is witnessed by a correct Boolean decider whose announced cost is
-  input-polynomial.
-* NP is witnessed by a polynomially bounded certificate family and a correct
-  verifier whose announced verification cost is polynomial on certificates
-  within that bound.
+No concrete machine-runtime model is silently assumed.
 
-A SearchSystem projects extensionally to the decision problem "is this state
-viable?".  Its structural continuations are exactly the NP-like witness role.
-A correct polynomial constitutive decider projects to P.
+P is witnessed by a correct Boolean decider with input-polynomial announced
+cost.
+
+NP is witnessed relative to an explicit certificate family by:
+* polynomially bounded positive certificates;
+* a correct Boolean verifier;
+* polynomially bounded announced verification cost.
+
+A SearchSystem can be projected along any announced Nat-indexed family of
+states.  Its continuations become the NP-like certificate family.  A correct
+polynomial constitutive decider becomes the P-like projection.
 
 FrontierTrajectory supplies the AND/OR projection law: constitutive expansion,
-accumulation and reduction preserve the extensional yes/no decision even though
-they need not preserve the computational structure that produced it.
+accumulation and reduction preserve the extensional yes/no decision even when
+they do not preserve all computational structure.
 -/
 
 namespace ConstitutiveSearch
 
-universe uInput uWitness uState uContinuation uConstitution uStep
+universe uWitness uState uContinuation uConstitution uStep
 
-/-- Extensional decision problem with an explicit concrete input-size measure. -/
+/-- Nat-coded extensional decision problem with a concrete encoded input size. -/
 structure DecisionProblem where
-  Input : Type uInput
-  inputSize : Input → Nat
-  Accept : Input → Prop
+  inputSize : Nat → Nat
+  Accept : Nat → Prop
 
 /-- Correct deterministic decision procedure with an announced polynomial cost. -/
 structure PolynomialDecider
-    (problem : DecisionProblem.{uInput}) where
-  decide : problem.Input → Bool
-  cost : problem.Input → Nat
+    (problem : DecisionProblem) where
+  decide : Nat → Bool
+  cost : Nat → Nat
   correct :
-    ∀ input : problem.Input,
+    ∀ input : Nat,
       decide input = true ↔
         problem.Accept input
   costPolynomial :
@@ -51,31 +56,30 @@ structure PolynomialDecider
 
 /-- Classical P interface relative to the declared size and cost model. -/
 def InP
-    (problem : DecisionProblem.{uInput}) : Prop :=
+    (problem : DecisionProblem) : Prop :=
   Nonempty
     (PolynomialDecider problem)
 
 /--
-Polynomial verifier interface.
+Polynomial verifier interface relative to an explicit certificate family.
 
-Witness size is polynomially bounded in input size for positive instances.
-Verifier cost is polynomial for witnesses within that announced bound.
+Keeping the certificate family explicit is deliberate: it avoids hiding a
+type-level existential in the bridge and states exactly which constitutive
+objects play the witness role.
 -/
 structure PolynomialVerifier
-    (problem : DecisionProblem.{uInput}) where
-  Witness :
-    problem.Input →
-      Type uWitness
+    (problem : DecisionProblem)
+    (Witness : Nat → Type uWitness) where
   witnessSize :
-    {input : problem.Input} →
+    {input : Nat} →
       Witness input →
         Nat
   verify :
-    (input : problem.Input) →
+    (input : Nat) →
       Witness input →
         Bool
   cost :
-    (input : problem.Input) →
+    (input : Nat) →
       Witness input →
         Nat
   certificateBound :
@@ -83,12 +87,12 @@ structure PolynomialVerifier
   verifierCostBound :
     CostPolynomial
   sound :
-    ∀ (input : problem.Input)
+    ∀ (input : Nat)
       (witness : Witness input),
       verify input witness = true →
         problem.Accept input
   complete :
-    ∀ input : problem.Input,
+    ∀ input : Nat,
       problem.Accept input →
         ∃ witness : Witness input,
           witnessSize witness ≤
@@ -96,7 +100,7 @@ structure PolynomialVerifier
                 (problem.inputSize input) ∧
             verify input witness = true
   costBound :
-    ∀ (input : problem.Input)
+    ∀ (input : Nat)
       (witness : Witness input),
       witnessSize witness ≤
           certificateBound.eval
@@ -105,115 +109,136 @@ structure PolynomialVerifier
           verifierCostBound.eval
             (problem.inputSize input)
 
-/-- Classical NP interface relative to the declared size and verifier-cost model. -/
-def InNP.{uInput,uWitness}
-    (problem : DecisionProblem.{uInput}) : Prop :=
+/-- Classical NP verifier interface relative to the announced witness family. -/
+def InNP
+    (problem : DecisionProblem)
+    (Witness : Nat → Type uWitness) : Prop :=
   Nonempty
-    (PolynomialVerifier.{uInput,uWitness}
-      problem)
+    (PolynomialVerifier
+      problem
+      Witness)
 
-/-- Extensional decision problem obtained by forgetting everything except viability. -/
+/--
+Extensional decision problem obtained by selecting one SearchSystem state for
+each Nat-coded instance and forgetting all other constitutive structure.
+-/
 def searchSystemDecisionProblem
     (system : SearchSystem.{uState,uContinuation})
-    (stateSize : system.State → Nat) :
-    DecisionProblem.{uState} :=
-  { Input := system.State
-    inputSize := stateSize
-    Accept := system.Viable }
+    (stateAt : Nat → system.State)
+    (inputSize : Nat → Nat) :
+    DecisionProblem :=
+  { inputSize := inputSize
+    Accept := fun input =>
+      system.Viable
+        (stateAt input) }
 
-/-- The NP-like constitutive role is exactly existential accepted continuation. -/
+/-- The NP-like role remains exactly existential accepted continuation. -/
 theorem searchSystemDecisionProblem_accept_iff
     (system : SearchSystem.{uState,uContinuation})
-    (stateSize : system.State → Nat)
-    (state : system.State) :
+    (stateAt : Nat → system.State)
+    (inputSize : Nat → Nat)
+    (input : Nat) :
     (searchSystemDecisionProblem
         system
-        stateSize).Accept state ↔
+        stateAt
+        inputSize).Accept input ↔
       ∃ continuation :
-          system.Continuation state,
+          system.Continuation
+            (stateAt input),
         system.Accept
-          state
+          (stateAt input)
           continuation := by
   rfl
 
 /--
-Data required to project the structural continuation role of a SearchSystem to
-the classical NP verifier interface.
-
-No such verifier is manufactured without these explicit size/cost hypotheses.
+Explicit data needed to project structural continuations to the classical NP
+verifier interface.
 -/
 structure SearchSystemPolynomialVerifier
     (system : SearchSystem.{uState,uContinuation})
-    (stateSize : system.State → Nat) where
+    (stateAt : Nat → system.State)
+    (inputSize : Nat → Nat) where
   continuationSize :
-    {state : system.State} →
-      system.Continuation state →
-        Nat
+    {input : Nat} →
+      system.Continuation
+        (stateAt input) →
+          Nat
   verify :
-    (state : system.State) →
-      system.Continuation state →
-        Bool
+    (input : Nat) →
+      system.Continuation
+        (stateAt input) →
+          Bool
   cost :
-    (state : system.State) →
-      system.Continuation state →
-        Nat
+    (input : Nat) →
+      system.Continuation
+        (stateAt input) →
+          Nat
   certificateBound :
     CostPolynomial
   verifierCostBound :
     CostPolynomial
   verifySound :
-    ∀ (state : system.State)
+    ∀ (input : Nat)
       (continuation :
-        system.Continuation state),
-      verify state continuation = true →
+        system.Continuation
+          (stateAt input)),
+      verify input continuation = true →
         system.Accept
-          state
+          (stateAt input)
           continuation
   verifyComplete :
-    ∀ (state : system.State)
+    ∀ (input : Nat)
       (continuation :
-        system.Continuation state),
+        system.Continuation
+          (stateAt input)),
       system.Accept
-          state
+          (stateAt input)
           continuation →
-        verify state continuation = true
+        verify input continuation = true
   smallAcceptedWitness :
-    ∀ state : system.State,
-      system.Viable state →
+    ∀ input : Nat,
+      system.Viable
+          (stateAt input) →
         ∃ continuation :
-            system.Continuation state,
+            system.Continuation
+              (stateAt input),
           system.Accept
-              state
+              (stateAt input)
               continuation ∧
             continuationSize continuation ≤
               certificateBound.eval
-                (stateSize state)
+                (inputSize input)
   costBound :
-    ∀ (state : system.State)
+    ∀ (input : Nat)
       (continuation :
-        system.Continuation state),
+        system.Continuation
+          (stateAt input)),
       continuationSize continuation ≤
           certificateBound.eval
-            (stateSize state) →
-        cost state continuation ≤
+            (inputSize input) →
+        cost input continuation ≤
           verifierCostBound.eval
-            (stateSize state)
+            (inputSize input)
 
-/-- Build the classical NP verifier from the explicit SearchSystem witness data. -/
+/-- Build the verifier from the explicit SearchSystem witness data. -/
 def SearchSystemPolynomialVerifier.toPolynomialVerifier
     {system : SearchSystem.{uState,uContinuation}}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialVerifier
         system
-        stateSize) :
-    PolynomialVerifier.{uState,uContinuation}
+        stateAt
+        inputSize) :
+    PolynomialVerifier
       (searchSystemDecisionProblem
         system
-        stateSize) :=
-  { Witness :=
-      system.Continuation
-    witnessSize :=
+        stateAt
+        inputSize)
+      (fun input =>
+        system.Continuation
+          (stateAt input)) :=
+  { witnessSize :=
       bridge.continuationSize
     verify :=
       bridge.verify
@@ -224,18 +249,18 @@ def SearchSystemPolynomialVerifier.toPolynomialVerifier
     verifierCostBound :=
       bridge.verifierCostBound
     sound := by
-      intro state continuation verified
+      intro input continuation verified
       exact
         ⟨continuation,
           bridge.verifySound
-            state
+            input
             continuation
             verified⟩
     complete := by
-      intro state viable
+      intro input viable
       rcases
           bridge.smallAcceptedWitness
-            state
+            input
             viable with
         ⟨continuation,
           accepted,
@@ -244,58 +269,64 @@ def SearchSystemPolynomialVerifier.toPolynomialVerifier
         ⟨continuation,
           sizeBound,
           bridge.verifyComplete
-            state
+            input
             continuation
             accepted⟩
     costBound :=
       bridge.costBound }
 
-/-- The NP-like continuation role projects to NP once its explicit verifier data hold. -/
+/-- The NP-like continuation role projects to NP under its explicit verifier hypotheses. -/
 theorem npLike_projects_to_InNP
     {system : SearchSystem.{uState,uContinuation}}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialVerifier
         system
-        stateSize) :
-    InNP.{uState,uContinuation}
+        stateAt
+        inputSize) :
+    InNP
       (searchSystemDecisionProblem
         system
-        stateSize) :=
+        stateAt
+        inputSize)
+      (fun input =>
+        system.Continuation
+          (stateAt input)) :=
   ⟨bridge.toPolynomialVerifier⟩
 
-/--
-Data required to project a constitutive P-like procedure to the classical P
-decider interface.
--/
+/-- Explicit data needed to project a P-like constitutive procedure to P. -/
 structure SearchSystemPolynomialDecider
     (system : SearchSystem.{uState,uContinuation})
-    (stateSize : system.State → Nat) where
-  decide :
-    system.State → Bool
-  cost :
-    system.State → Nat
+    (stateAt : Nat → system.State)
+    (inputSize : Nat → Nat) where
+  decide : Nat → Bool
+  cost : Nat → Nat
   correct :
-    ∀ state : system.State,
-      decide state = true ↔
-        system.Viable state
+    ∀ input : Nat,
+      decide input = true ↔
+        system.Viable
+          (stateAt input)
   costPolynomial :
     InputPolynomiallyBounded
-      stateSize
+      inputSize
       cost
 
-/-- Build the classical P decider from the explicit constitutive decision procedure. -/
+/-- Build the classical P decider from the explicit constitutive decider. -/
 def SearchSystemPolynomialDecider.toPolynomialDecider
     {system : SearchSystem.{uState,uContinuation}}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialDecider
         system
-        stateSize) :
+        stateAt
+        inputSize) :
     PolynomialDecider
       (searchSystemDecisionProblem
         system
-        stateSize) :=
+        stateAt
+        inputSize) :=
   { decide :=
       bridge.decide
     cost :=
@@ -305,36 +336,41 @@ def SearchSystemPolynomialDecider.toPolynomialDecider
     costPolynomial :=
       bridge.costPolynomial }
 
-/-- The P-like role projects to P exactly when a correct polynomial decider is supplied. -/
+/-- The P-like role projects to P exactly under a correct polynomial decider. -/
 theorem pLike_projects_to_InP
     {system : SearchSystem.{uState,uContinuation}}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialDecider
         system
-        stateSize) :
+        stateAt
+        inputSize) :
     InP
       (searchSystemDecisionProblem
         system
-        stateSize) :=
+        stateAt
+        inputSize) :=
   ⟨bridge.toPolynomialDecider⟩
 
-/-- Decision problem on frontiers obtained by forgetting constitutive history. -/
+/-- Nat-indexed frontier decision problem obtained by forgetting constitution. -/
 def frontierDecisionProblem
     (system : SearchSystem.{uState,uContinuation})
-    (frontierSize :
-      List system.State → Nat) :
+    (frontierAt :
+      Nat →
+        List system.State)
+    (inputSize : Nat → Nat) :
     DecisionProblem :=
-  { Input :=
-      List system.State
-    inputSize :=
-      frontierSize
-    Accept :=
-      FrontierViable system }
+  { inputSize :=
+      inputSize
+    Accept := fun input =>
+      FrontierViable
+        system
+        (frontierAt input) }
 
 /--
-AND/OR constitutive trajectories project to equality of the extensional
-decision answer between their initial and final frontiers.
+AND/OR constitutive trajectories preserve the extensional decision between
+their initial and final frontiers.
 -/
 theorem andOrTrajectory_projects_to_decision_equivalence
     {system : SearchSystem.{uState,uContinuation}}
