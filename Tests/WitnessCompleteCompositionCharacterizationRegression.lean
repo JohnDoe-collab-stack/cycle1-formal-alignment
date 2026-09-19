@@ -59,7 +59,8 @@ theorem demoCompositionRequired :
   exact
     ⟨demoDirectMiss,
       ⟨demoCode, by
-        rw [demoCodeSize]⟩⟩
+        rw [demoCodeSize]
+        exact Nat.le_refl 2⟩⟩
 
 end ConstitutiveSearch.Tests.WitnessCompleteCompositionCharacterizationRegression
 
