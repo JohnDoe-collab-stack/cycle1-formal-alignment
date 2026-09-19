@@ -1,5 +1,5 @@
 import Init.Omega
-import ConstitutiveSearch.SAT.SequentialGlobalClosureSeparator
+import ConstitutiveSearch.ClosureSearch
 
 /-!
 # Sequential execution of certified primitive-hit paths
@@ -146,6 +146,46 @@ def sequentialStats
           fuel
           tail)
 
+/--
+A positive-fuel ClosureSearch query that is already a primitive hit performs
+exactly one primitive query and no composition-candidate inspection.
+-/
+theorem primitiveHit_run_stats
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State)
+    (fuel : Nat)
+    (source target : State)
+    (fuelPositive : 0 < fuel)
+    (primitiveHit :
+      primitive.find source target ≠ none) :
+    let run :=
+      searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target
+    run.stats.primitiveQueries = 1 ∧
+      run.stats.compositionCandidates = 0 := by
+  cases fuel with
+  | zero =>
+      omega
+  | succ fuel =>
+      cases found :
+          primitive.find source target with
+      | none =>
+          exact False.elim (primitiveHit found)
+      | some witness =>
+          simp only [
+            searchTransportClosureBounded,
+            found,
+            ClosureSearchStats.withPrimitiveQuery,
+            ClosureSearchStats.zero
+          ]
+          exact ⟨True.intro, True.intro⟩
+
 /-- Every stored edge is a non-none primitive hit. -/
 theorem step_hit_ne_none
     {State : Type}
@@ -191,7 +231,7 @@ theorem sequentialStats_primitiveQueries
       rfl
   | @step source middle target witness hit tail inductionHypothesis =>
       have edgeStats :=
-        searchTransportClosureBounded_primitiveHit_stats
+        primitiveHit_run_stats
           primitive
           candidates
           fuel
@@ -238,7 +278,7 @@ theorem sequentialStats_compositionCandidates
       rfl
   | @step source middle target witness hit tail inductionHypothesis =>
       have edgeStats :=
-        searchTransportClosureBounded_primitiveHit_stats
+        primitiveHit_run_stats
           primitive
           candidates
           fuel
@@ -358,6 +398,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveHitPath.toTransportCode
 #print axioms ConstitutiveSearch.PrimitiveHitPath.toTransportCode_size
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats
+#print axioms ConstitutiveSearch.PrimitiveHitPath.primitiveHit_run_stats
 #print axioms ConstitutiveSearch.PrimitiveHitPath.step_hit_ne_none
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats_primitiveQueries
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats_compositionCandidates
