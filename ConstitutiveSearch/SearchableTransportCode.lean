@@ -195,9 +195,10 @@ theorem toTransportCode_searchable
       exact True.intro
   | @step source middle target witness hit tail inductionHypothesis =>
       constructor
-      · rw [hit]
-        intro impossible
-        cases impossible
+      · exact
+          step_hit_ne_none
+            hit
+            tail
       · exact inductionHypothesis
 
 /--
