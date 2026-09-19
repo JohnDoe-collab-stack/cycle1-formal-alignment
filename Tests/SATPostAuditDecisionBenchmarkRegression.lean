@@ -39,8 +39,12 @@ theorem compositionZero3 :
   executeAuditedDecision_executionCompositionCandidates 3
 
 theorem terminalCharged3 :
-    (executeAuditedDecision 3).stats.terminalChecks = 1 :=
-  executeAuditedDecision_terminalChecks 3
+    (executeAuditedDecision 3).stats.terminalChecks = 2 := by
+  rw [
+    executeAuditedDecision_terminalChecks,
+    auditedTerminalRun_nonzero
+      (by decide : (3 : Nat) ≠ 0)
+  ]
 
 theorem totalPolynomial :
     InputPolynomiallyBounded
