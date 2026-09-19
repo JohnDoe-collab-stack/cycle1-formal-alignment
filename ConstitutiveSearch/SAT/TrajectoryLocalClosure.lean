@@ -334,7 +334,8 @@ theorem explicitFamilyTrajectoryLocalCompositionCandidates_inputPolynomiallyBoun
           0
       rw [
         explicitFamilyTrajectoryLocalClosureStats_compositionCandidates
-      ]⟩
+      ]
+      exact Nat.le_refl 0⟩
 
 end SAT
 end ConstitutiveSearch
