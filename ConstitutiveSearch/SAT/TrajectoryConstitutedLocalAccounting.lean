@@ -264,6 +264,71 @@ theorem explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
         (explicitFamilyIndex_le_inputBitSize
           count))
 
+/--
+Single evidence bundle tying endogenous production, executable validation, and
+candidate-free local execution to the announced F(n) accounting coordinates.
+-/
+structure ExplicitFamilyConstitutedLocalAccountingEvidence
+    (count : Nat) : Prop where
+  productionCertificateExact :
+    (explicitFamilyComplexityCounts
+        count).certificateAtoms =
+      ConstitutedLocalSchedule.atomCount
+        (explicitFamilyConstitutedLocalWitnesses
+          count)
+  productionProvenanceExact :
+    (explicitFamilyComplexityCounts
+        count).provenanceUnits =
+      (explicitFamilyResourceTrajectory
+        count).trajectory.decisionVars.length
+  validationSucceeds :
+    ConstitutedLocalSchedule.ValidationSucceeds
+      (explicitFamilyConstitutedLocalWitnesses
+        count)
+  validationFindExact :
+    (explicitFamilyConstitutedValidationCounts
+      count).relationFindCalls =
+      count
+  localExecutions :
+    ConstitutedLocalSchedule.HasLocalExecutions
+      (explicitFamilyConstitutedLocalWitnesses
+        count)
+  executionPrimitiveExact :
+    (explicitFamilyConstitutedExecutionCounts
+      count).closurePrimitiveQueries =
+      count
+  executionCompositionExact :
+    (explicitFamilyConstitutedExecutionCounts
+      count).closureCompositionCandidates =
+      0
+
+/-- Complete endogenous production/validation/execution evidence for every F(n). -/
+theorem explicitFamilyConstitutedLocalAccountingEvidence
+    (count : Nat) :
+    ExplicitFamilyConstitutedLocalAccountingEvidence
+      count :=
+  { productionCertificateExact :=
+      explicitFamilyConstitutedProduction_matchesCertificateAtoms
+        count
+    productionProvenanceExact :=
+      explicitFamilyConstitutedProduction_matchesProvenanceUnits
+        count
+    validationSucceeds :=
+      explicitFamilyConstitutedLocalValidationSucceeds
+        count
+    validationFindExact :=
+      explicitFamilyConstitutedValidationCounts_relationFindCalls
+        count
+    localExecutions :=
+      explicitFamilyConstitutedLocalHasLocalExecutions
+        count
+    executionPrimitiveExact :=
+      explicitFamilyConstitutedExecutionCounts_primitiveQueries
+        count
+    executionCompositionExact :=
+      explicitFamilyConstitutedExecutionCounts_compositionCandidates
+        count }
+
 end SAT
 end ConstitutiveSearch
 
@@ -282,4 +347,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalQueryInputBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
+#print axioms ConstitutiveSearch.SAT.ExplicitFamilyConstitutedLocalAccountingEvidence
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalAccountingEvidence
 /- AXIOM_AUDIT_END -/
