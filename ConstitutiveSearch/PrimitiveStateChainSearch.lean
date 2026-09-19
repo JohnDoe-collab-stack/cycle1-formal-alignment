@@ -94,29 +94,27 @@ def findPrimitiveHit?
         { witness := witness
           exactFind := exactFind }
 
-/-- Any exact primitive-search equality yields a packaged primitive hit. -/
-theorem findPrimitiveHit?_some_of_exact
+/-- A nonempty primitive-search result gives a nonempty packaged hit. -/
+theorem findPrimitiveHit?_ne_none_of_find_ne_none
     {State : Type}
     {Generator : State → State → Type uGenerator}
     {primitive : RelationSearch Generator}
     {source target : State}
-    {witness : Generator source target}
-    (exactFind :
-      primitive.find source target =
-        some witness) :
-    ∃ hit :
-        PrimitiveSearchHit
-          primitive
-          source
-          target,
-      findPrimitiveHit?
-          primitive
-          source
-          target =
-        some hit := by
+    (primitiveHit :
+      primitive.find source target ≠ none) :
+    findPrimitiveHit?
+        primitive
+        source
+        target ≠
+      none := by
   unfold findPrimitiveHit?
-  cases exactFind
-  exact ⟨_, rfl⟩
+  cases found :
+      primitive.find source target with
+  | none =>
+      exact False.elim (primitiveHit found)
+  | some witness =>
+      intro impossible
+      cases impossible
 
 /-- Result of executable adjacent primitive search on one ordered state chain. -/
 structure PrimitiveStateChainSearchRun
@@ -479,7 +477,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveStateChain.length
 #print axioms ConstitutiveSearch.PrimitiveSearchHit
 #print axioms ConstitutiveSearch.findPrimitiveHit?
-#print axioms ConstitutiveSearch.findPrimitiveHit?_some_of_exact
+#print axioms ConstitutiveSearch.findPrimitiveHit?_ne_none_of_find_ne_none
 #print axioms ConstitutiveSearch.PrimitiveStateChainSearchRun
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_compositionCandidates_zero
