@@ -399,6 +399,84 @@ def explicitFamilyConstitutedLocalQueryInputBudget
       explicitFamilyRelationPolynomialBudget
         (explicitFamilyInputBitSize count))
 
+/--
+Representation charge of the instrumented variable-level provenance-search
+attempts themselves.
+-/
+def explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+    (count : Nat) :
+    Nat :=
+  explicitFamilyConstitutedProvenanceVariableQueries
+      count *
+    explicitFamilyRelationEqualityChargeBudget
+      count
+
+/--
+The phase AtomicCosts envelope covers the instrumented internal provenance-search
+work.  This closes the gap between top-level primitive-query counting and the
+variable-level searches performed inside provenanceStructuralFlipSearch.
+-/
+theorem explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_validationCharge
+    (count : Nat) :
+    explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+        count ≤
+      explicitFamilyConstitutedValidationRepresentationCharge
+        count := by
+  unfold explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+  rw [
+    explicitFamilyConstitutedValidationRepresentationCharge_eq
+  ]
+  calc
+    explicitFamilyConstitutedProvenanceVariableQueries count *
+        explicitFamilyRelationEqualityChargeBudget count
+        ≤
+      (count * count) *
+        explicitFamilyRelationEqualityChargeBudget count :=
+          natMulLeMul
+            (explicitFamilyConstitutedProvenanceVariableQueries_le_square
+              count)
+            (Nat.le_refl _)
+    _ =
+      count *
+        (count *
+          explicitFamilyRelationEqualityChargeBudget count) :=
+            Nat.mul_assoc
+              count
+              count
+              (explicitFamilyRelationEqualityChargeBudget
+                count)
+
+/-- The same envelope covers the provenance work performed by local execution. -/
+theorem explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_executionCharge
+    (count : Nat) :
+    explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+        count ≤
+      explicitFamilyConstitutedExecutionRepresentationCharge
+        count := by
+  unfold explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+  rw [
+    explicitFamilyConstitutedExecutionRepresentationCharge_eq
+  ]
+  calc
+    explicitFamilyConstitutedProvenanceVariableQueries count *
+        explicitFamilyRelationEqualityChargeBudget count
+        ≤
+      (count * count) *
+        explicitFamilyRelationEqualityChargeBudget count :=
+          natMulLeMul
+            (explicitFamilyConstitutedProvenanceVariableQueries_le_square
+              count)
+            (Nat.le_refl _)
+    _ =
+      count *
+        (count *
+          explicitFamilyRelationEqualityChargeBudget count) :=
+            Nat.mul_assoc
+              count
+              count
+              (explicitFamilyRelationEqualityChargeBudget
+                count)
+
 /-- Validation representation charge is polynomially bounded in actual input size. -/
 theorem explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
     (count : Nat) :
@@ -466,6 +544,10 @@ structure ExplicitFamilyConstitutedLocalAccountingEvidence
     ConstitutedLocalSchedule.ValidationSucceeds
       (explicitFamilyConstitutedLocalWitnesses
         count)
+  provenanceVariableQueriesBound :
+    explicitFamilyConstitutedProvenanceVariableQueries
+        count ≤
+      count * count
   validationFindExact :
     (explicitFamilyConstitutedValidationCounts
       count).relationFindCalls =
@@ -496,6 +578,9 @@ theorem explicitFamilyConstitutedLocalAccountingEvidence
         count
     validationSucceeds :=
       explicitFamilyConstitutedLocalValidationSucceeds
+        count
+    provenanceVariableQueriesBound :=
+      explicitFamilyConstitutedProvenanceVariableQueries_le_square
         count
     validationFindExact :=
       explicitFamilyConstitutedValidationCounts_relationFindCalls
@@ -532,6 +617,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationRepresentationCharge_eq
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionRepresentationCharge_eq
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalQueryInputBudget
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_validationCharge
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_executionCharge
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyConstitutedLocalAccountingEvidence
