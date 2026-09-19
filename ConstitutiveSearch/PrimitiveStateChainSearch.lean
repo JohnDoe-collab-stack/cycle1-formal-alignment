@@ -115,7 +115,7 @@ theorem findPrimitiveHit?_some_of_exact
           target =
         some hit := by
   unfold findPrimitiveHit?
-  simp only [exactFind]
+  cases exactFind
   exact ⟨_, rfl⟩
 
 /-- Result of executable adjacent primitive search on one ordered state chain. -/
