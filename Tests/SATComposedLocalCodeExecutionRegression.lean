@@ -18,19 +18,27 @@ theorem globalNeedAndLocal3 :
   composedConstitutedCode_globalNeed_and_localExecution 3
 
 theorem localStats3 :
-    let execution :=
-      composedConstitutedCode_localSequentialExecution 3
-    (execution.path.sequentialStats [] 1).primitiveQueries = 2 ∧
-      (execution.path.sequentialStats [] 1).compositionCandidates = 0 :=
+    ∃ path :
+        PrimitiveHitPath
+          (composedPrimitiveSearch 3)
+          (composedSource 3)
+          (composedTarget 3),
+      path.length = 2 ∧
+        (path.sequentialStats [] 1).primitiveQueries = 2 ∧
+        (path.sequentialStats [] 1).compositionCandidates = 0 :=
   composedConstitutedCode_localStats 3
 
 theorem localGlobalGap3 :
-    let execution :=
-      composedConstitutedCode_localSequentialExecution 3
-    (execution.path.sequentialStats [] 1).primitiveQueries <
-        (composedClosureFuelTwo 3).stats.primitiveQueries ∧
-      (execution.path.sequentialStats [] 1).compositionCandidates <
-        (composedClosureFuelTwo 3).stats.compositionCandidates :=
+    ∃ path :
+        PrimitiveHitPath
+          (composedPrimitiveSearch 3)
+          (composedSource 3)
+          (composedTarget 3),
+      path.length = 2 ∧
+        (path.sequentialStats [] 1).primitiveQueries <
+          (composedClosureFuelTwo 3).stats.primitiveQueries ∧
+        (path.sequentialStats [] 1).compositionCandidates <
+          (composedClosureFuelTwo 3).stats.compositionCandidates :=
   composedConstitutedCode_localGlobalGap 3
 
 end ConstitutiveSearch.Tests.SATComposedLocalCodeExecutionRegression
