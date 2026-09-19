@@ -1718,11 +1718,12 @@ et la liste de candidats annonces.
 [QUALIFICATION P7d-d] une FlipSymmetricTrajectory n'est pas elle-meme un ConstitutedPrimitivePath entre start et finish : chaque flip local relie le false sibling au true child, tandis que la trajectoire avance du parent au true child par expansion puis absorption. Identifier ces deux graphes serait une confusion constitutive.
 [FAIT P7d-d] TrajectoryConstitutedLocalSchedule extrait directement de toute FlipSymmetricTrajectory un schedule proof-relevant de witnesses sibling locaux; aucun witness, candidat, fuel ou resultat de ClosureSearch n'est fourni separement
 [FAIT P7d-d] ce schedule utilise exactement trajectory.decisionVars comme domaine de provenance et contient exactement un witness / un atome de transport par etape
-[FAIT P7d-d] pour toute trajectoire de longueur n : production = n atomes, validation executable = n requetes provenance de haut niveau, execution locale reelle = n primitiveQueries ClosureSearch et 0 compositionCandidate avec candidats=[] / fuel=1
-[FAIT P7d-d] le cout interne de provenance n'est pas masque : une provenanceStructuralFlipSearch.find peut tester jusqu'a decisionVars.length flips elementaires; le schedule complet est donc borne par n^2 essais elementaires
+[FAIT P7d-d] pour toute trajectoire de longueur n : production = n atomes, validation executable = n recherches de flip directes indexees par le var de l'etape, execution locale reelle = n primitiveQueries ClosureSearch et 0 compositionCandidate avec candidats=[] / fuel=1
+[FAIT P7d-d] le schedule n'utilise pas une provenance finale pour executer les etapes precedentes : chaque entree conserve son propre var constitue et utilise generatedStructuralFlipAtSearch rootFormula entry.var
+[FAIT P7d-d] la projection des variables du schedule est exactement trajectory.decisionVars, dans le meme ordre
 [FAIT P7d-d] le nombre d'atomes produits coincide exactement avec transportCertificateAtomCount deja audite; sur F(n), production, validation et execution locale sont InputPolynomiallyBounded dans explicitFamilyInputBitSize
 [FAIT P7d-d] le cout de production n'est pas recompte : les n atomes et les n unites de provenance coincident avec certificateAtoms et provenanceUnits deja presents dans explicitFamilyComplexityCounts
-[FAIT P7d-d] validation et execution sont chargees comme phases distinctes : validation = n appels provenance; execution locale = n closurePrimitiveQueries / 0 closureCompositionCandidates; chaque appel provenance est charge par une enveloppe de scan n * relationEqualityCharge, donc les charges de representation couvrent explicitement le cout interne n^2 et restent bornees par un budget polynomial indexe par la taille binaire reelle de F(n)
+[FAIT P7d-d] validation et execution sont chargees comme phases distinctes : validation = n relationFindCalls directs; execution locale = n closurePrimitiveQueries / 0 closureCompositionCandidates; les deux utilisent le cout atomique du flip direct deja audite et leurs charges de representation restent bornees par un budget polynomial indexe par la taille binaire reelle de F(n)
 [QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. La fermeture locale montre que la recherche globale n'est pas necessaire lorsqu'un code searchable est deja constitue. Le cout de production/validation de ce code reste une obligation distincte a expliciter.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
@@ -1770,11 +1771,12 @@ Le verrou quantitatif courant est donc maintenant tres precis :
 > composition locale additive. Le benchmark SAT a deux flips est ferme de bout en
 > bout de cette maniere. Pour FlipSymmetricTrajectory, la production endogene est
 > maintenant fermee sous la forme correcte : la trajectoire extrait son propre
-> schedule de witnesses sibling depuis decisionVars, avec n atomes produits,
-> n requetes provenance de validation, n runs locaux ClosureSearch effectivement
-> executes avec candidats=[] / fuel=1 et zero compositionCandidate. Le scan
-> interne de la recherche de provenance est lui aussi explicite : au plus n
-> essais elementaires par requete, donc n^2 sur le schedule. Ce schedule n'est volontairement pas reinterprete comme
+> schedule de witnesses sibling directement depuis les constructeurs de la
+> trajectoire, avec n atomes produits, n validations de flip direct indexees par
+> le var de chaque etape, n runs locaux ClosureSearch effectivement executes avec
+> candidats=[] / fuel=1 et zero compositionCandidate. La projection des vars du
+> schedule est exactement decisionVars : aucune provenance future n'est utilisee
+> pour valider ou executer une etape anterieure. Ce schedule n'est volontairement pas reinterprete comme
 > un unique chemin primitif start -> finish, car les transports locaux relient
 > des siblings alors que la trajectoire avance par split puis absorption. Le
 > verrou restant porte donc sur la caracterisation generale de cette structure
