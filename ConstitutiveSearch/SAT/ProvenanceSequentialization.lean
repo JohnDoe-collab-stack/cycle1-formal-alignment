@@ -61,9 +61,22 @@ theorem provenanceStructuralFlipSearch_witnessComplete
                   target := by
               simpa only [varEq] using
                 witness.relation
+            have headNonNone :
+                (generatedStructuralFlipAtSearch
+                  rootFormula
+                  head).find
+                    source
+                    target ≠
+                  none := by
+              dsimp [generatedStructuralFlipAtSearch]
+              rw [
+                dif_pos relationAtHead.formulaExact,
+                dif_pos relationAtHead.decisionsExact
+              ]
+              intro impossible
+              cases impossible
             exact
-              (generatedStructuralFlipAtSearch_found_of_relation
-                relationAtHead)
+              headNonNone
                 headFound
           have memberRest :
               witness.var ∈ rest := by
