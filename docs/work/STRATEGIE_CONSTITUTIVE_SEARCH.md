@@ -22,7 +22,7 @@ module qui le portait enregistre explicitement
 `FirstAuditClosureStatus.withdrawnAfterSecondAudit`. Aucun nouveau marqueur de
 cloture ne sera introduit avant un nouvel audit adversarial.
 
-La reparation en cours suit maintenant douze obligations exactes :
+La reparation en cours suit maintenant quatorze obligations exactes :
 
 - modele calculatoire capable de parcourir une entree non bornee et de disposer
   d'une bande de travail bidirectionnelle non bornee ;
@@ -42,11 +42,21 @@ La reparation en cours suit maintenant douze obligations exactes :
   l'entree ;
 - sortie publique certifiee conservant discovery, schedule, validation,
   execution, terminal et equation de readout avant toute projection observable.
+- non-factorisation ungated sur une famille infinie a projections non
+  constantes et residus non vides, et non plus seulement sur deux etats vides ;
+- raccord explicite entre le pipeline causal execute et la perte sous sa
+  projection publique complete : meme decision et memes compteurs publies ne
+  reconstruisent pas la variable effectivement decouverte.
 
 `BitMachineDecision`, `SecondAuditCausalBenchmark` et
-`GrowingDiscoveryBenchmark` realisent maintenant ces obligations dans leur
-perimetre de benchmark. Ce statut est une reparation formelle a auditer, pas
-une nouvelle cloture.
+`GrowingDiscoveryBenchmark` realisent les obligations calculatoires et
+causales dans leur perimetre de benchmark.
+`ParametricProvenanceNonFactorization` et
+`CausalProjectionNonFactorization` ferment les deux obligations de projection
+ci-dessus. `SecondAuditRepairReadiness` les rassemble dans un paquet de preuves
+dont le statut formel est `readyForIndependentAdversarialAudit` et dont la
+portee calculatoire est `bitMachineOnly`. Ce statut est une reparation formelle
+a auditer, pas une nouvelle cloture.
 
 Le chemin vers une eventuelle nouvelle cloture est ordonne ainsi :
 
@@ -1831,7 +1841,7 @@ et le raccord qui a echoue.
 ~~~text
 noyau trajectoire / provenance / transports       maintenu
 non-composabilite des schedules de longueur >= 2  maintenue
-non-factorisation ungated minimale                maintenue
+non-factorisation ungated minimale                maintenue puis renforcee
 accounting local sans double comptage             maintenu
 
 interfaces historiques InFiniteEqualityP / NP     inadequates
@@ -1976,6 +1986,33 @@ interdit le bypass dans l'API annoncee : on ne peut construire le terminal
 certifie de cette procedure sans fournir son execution. Il ne pretend pas
 qu'aucun autre algorithme mathematique ne puisse calculer le meme booleen.
 
+Le raccord a la non-factorisation est maintenant explicite. Les runs certifies
+des entrees `0` et `2` ont exactement la meme projection publique complete :
+meme decision, meme drapeau de terminal et memes compteurs de phases. Ils
+conservent pourtant deux variables de discovery distinctes, chacune prouvee
+egale au resultat de la discovery effectivement executee. Le theorem
+`causalDiscoveryVariable_not_factor_through_observable` montre donc que cette
+discovery ne se factorise pas par `CausalDecisionProcedureRun`. La conclusion
+porte sur l'information effacee par cette projection ; elle ne pretend pas
+qu'un autre algorithme ne puisse pas recalculer la variable depuis l'entree.
+
+Le separateur ungated n'est plus limite a une projection constante sur deux
+etats de formule residuelle vide. `ParametricProvenanceNonFactorization`
+construit une famille infinie de formules residuelles singleton non vides. A
+chaque indice, les organisations positive et negative ont la meme projection,
+mais le meme moteur ungated trouve exactement la paire sibling et rejette la
+paire de provenances incompatibles. D'un indice au suivant, la projection
+change strictement. Le theorem
+`parametricRelationReconstructibility_not_factor_through_residuals` ferme la
+non-factorisation sur cette famille non constante.
+
+`SecondAuditRepairEvidence` rassemble seulement les obligations reparees :
+parite et cout croissant, canal certificat, bande de travail non bornee,
+extraction instrumentee, discovery distincte croissante, exactitude causale du
+terminal, et les deux non-factorisations renforcees. Son statut formel reste
+`readyForIndependentAdversarialAudit`; il ne remplace pas le marqueur de
+cloture retire.
+
 Etat d'arret actuel :
 
 ~~~text
@@ -1984,6 +2021,9 @@ regressions Aristotle integrees
 instrumentation d'extraction construite
 discovery croissante construite
 sortie causale certifiee construite
+non-factorisation parametrique non constante construite
+perte causale sous projection publique construite
+paquet exact de readiness construit
 aucun nouveau marqueur de cloture
 portee calculatoire explicitement bornee a BitMachine
 simulation vers un modele standard non revendiquee
