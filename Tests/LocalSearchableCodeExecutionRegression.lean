@@ -39,13 +39,9 @@ theorem demoLocalExecution :
     demoSearchable
 
 theorem demoGlobalNeedAndLocal :
-    PrimitiveHitPath.GlobalCompositionRequired
-        demoPrimitive
-        0
-        2 ∧
-      TransportCode.LocalSequentialExecution
-        demoPrimitive
-        demoCode := by
+    TransportCode.GlobalNeedWithLocalExecution
+      demoPrimitive
+      demoCode := by
   apply
     TransportCode.directMiss_searchableCode_hasLocalExecution
       demoPrimitive
