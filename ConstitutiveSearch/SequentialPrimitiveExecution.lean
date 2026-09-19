@@ -642,6 +642,127 @@ def GlobalCompositionRequired
       2 ≤ path.length
 
 /--
+Any nonempty candidate layer executes at least one composition-candidate
+inspection, independently of whether the first or a later candidate succeeds.
+-/
+theorem searchClosureViaCandidates_cons_compositionCandidates_pos
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (recurse :
+      (source target : State) →
+        ClosureSearchRun Generator source target)
+    (middle : State)
+    (rest : List State)
+    (source target : State) :
+    0 <
+      (searchClosureViaCandidates
+        recurse
+        (middle :: rest)
+        source
+        target).stats.compositionCandidates := by
+  cases firstResult :
+      (recurse source middle).code? with
+  | none =>
+      simp only [
+        searchClosureViaCandidates,
+        firstResult,
+        ClosureSearchStats.withCompositionCandidate,
+        ClosureSearchStats.combine
+      ]
+      omega
+  | some firstCode =>
+      cases secondResult :
+          (recurse middle target).code? with
+      | none =>
+          simp only [
+            searchClosureViaCandidates,
+            firstResult,
+            secondResult,
+            ClosureSearchStats.withCompositionCandidate,
+            ClosureSearchStats.combine
+          ]
+          omega
+      | some secondCode =>
+          simp only [
+            searchClosureViaCandidates,
+            firstResult,
+            secondResult,
+            ClosureSearchStats.withCompositionCandidate,
+            ClosureSearchStats.combine
+          ]
+          omega
+
+/--
+If the direct primitive query misses but bounded ClosureSearch still succeeds,
+the actual global run necessarily inspects at least one composition candidate.
+-/
+theorem searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State)
+    (fuel : Nat)
+    (source target : State)
+    (directMiss :
+      primitive.find source target = none)
+    {code :
+      TransportClosure
+        Generator
+        source
+        target}
+    (found :
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).code? =
+          some code) :
+    0 <
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).stats.compositionCandidates := by
+  cases fuel with
+  | zero =>
+      simp only [
+        searchTransportClosureBounded,
+        ClosureSearchRun.empty
+      ] at found
+      cases found
+  | succ fuel =>
+      cases candidates with
+      | nil =>
+          simp only [
+            searchTransportClosureBounded,
+            directMiss,
+            searchClosureViaCandidates,
+            ClosureSearchRun.empty
+          ] at found
+          cases found
+      | cons middle rest =>
+          simp only [
+            searchTransportClosureBounded,
+            directMiss,
+            ClosureSearchStats.withPrimitiveQuery
+          ]
+          exact
+            searchClosureViaCandidates_cons_compositionCandidates_pos
+              (fun left right =>
+                searchTransportClosureBounded
+                  primitive
+                  (middle :: rest)
+                  fuel
+                  left
+                  right)
+              middle
+              rest
+              source
+              target
+
+/--
 A successful bounded closure query whose direct primitive query misses is
 necessarily a genuine global composition requirement.
 -/
@@ -838,6 +959,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveHitPath.directHit_of_length_one
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchClosureViaCandidates_found_hasPrimitiveHitPath
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_found_hasPrimitiveHitPath
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchClosureViaCandidates_cons_compositionCandidates_pos
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_requiresComposition
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_codeSize
 #print axioms ConstitutiveSearch.PrimitiveHitPath.GlobalCompositionRequired
