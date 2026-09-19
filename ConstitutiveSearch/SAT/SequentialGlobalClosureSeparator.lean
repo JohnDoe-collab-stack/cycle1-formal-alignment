@@ -95,36 +95,17 @@ theorem explicitFamilySequentialGlobalClosureAccountingSeparator :
 /--
 The sequential and global regimes are built from exactly the same certified
 trajectory object; only the accounting/search organization changes.
+
+The globally flattened candidate list and fuel are definitionally extracted
+from that trajectory's splitCandidates and closureFuel.
 -/
 theorem explicitFamilySequentialGlobal_sameTrajectory
     (count : Nat) :
-    explicitFamilyTrajectoryClosureFuel count =
-        (explicitFamilyResourceTrajectory count).trajectory.length ∧
-      (explicitFamilyTrajectoryClosureCandidates count).length =
-        2 *
-          (explicitFamilyResourceTrajectory count).trajectory.length := by
-  constructor
-  · calc
-      explicitFamilyTrajectoryClosureFuel count
-          =
-        count :=
-          explicitFamilyTrajectoryClosureFuel_eq count
-      _ =
-        (explicitFamilyResourceTrajectory count).trajectory.length := by
-          symm
-          exact
-            (explicitFamilyResourceTrajectory count).trajectory_length
-  · calc
-      (explicitFamilyTrajectoryClosureCandidates count).length
-          =
-        2 * count :=
-          explicitFamilyTrajectoryClosureCandidates_length count
-      _ =
-        2 *
-          (explicitFamilyResourceTrajectory count).trajectory.length := by
-            rw [
-              (explicitFamilyResourceTrajectory count).trajectory_length
-            ]
+    explicitFamilyTrajectoryClosureCandidates count =
+        (explicitFamilyResourceTrajectory count).trajectory.splitCandidates ∧
+      explicitFamilyTrajectoryClosureFuel count =
+        (explicitFamilyResourceTrajectory count).trajectory.closureFuel := by
+  exact ⟨rfl, rfl⟩
 
 end SAT
 end ConstitutiveSearch
