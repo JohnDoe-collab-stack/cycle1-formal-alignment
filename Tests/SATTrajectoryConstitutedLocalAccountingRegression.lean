@@ -16,6 +16,11 @@ theorem productionMatchesProvenance3 :
       (explicitFamilyResourceTrajectory 3).trajectory.decisionVars.length :=
   explicitFamilyConstitutedProduction_matchesProvenanceUnits 3
 
+theorem provenanceVariableQueries3 :
+    explicitFamilyConstitutedProvenanceVariableQueries 3 ≤
+      3 * 3 :=
+  explicitFamilyConstitutedProvenanceVariableQueries_le_square 3
+
 theorem validationCalls3 :
     (explicitFamilyConstitutedValidationCounts 3).relationFindCalls =
       3 :=
@@ -50,6 +55,7 @@ end ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.productionMatchesCertificateAtoms3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.productionMatchesProvenance3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.provenanceVariableQueries3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.validationCalls3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.executionQueries3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.executionComposition3
