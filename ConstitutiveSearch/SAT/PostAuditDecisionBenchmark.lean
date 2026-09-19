@@ -587,15 +587,15 @@ The relation witness is obtained only from auditedDecisionDiscover.
 def executeAuditedDecision
     (input : Nat) :
     AuditedDecisionProcedureRun :=
-  let discovery :=
-    runAuditedDecisionDiscovery input
   match found :
-      discovery.relation? with
+      (runAuditedDecisionDiscovery
+        input).relation? with
   | none =>
       { result := false
         stats :=
           { discoveryQueries :=
-              discovery.queries
+              (runAuditedDecisionDiscovery
+                input).queries
             scheduleAtoms := 0
             validationQueries := 0
             executionPrimitiveQueries := 0
@@ -610,7 +610,7 @@ def executeAuditedDecision
         validateSearchableCode
           (generatedStructuralFlipAtSearch
             (auditedDecisionFormula input)
-            0)
+            entry.var)
           entry.code
       let execution :=
         entry.executionRun
@@ -620,7 +620,8 @@ def executeAuditedDecision
           !terminal.containsEmpty
         stats :=
           { discoveryQueries :=
-              discovery.queries
+              (runAuditedDecisionDiscovery
+                input).queries
             scheduleAtoms :=
               entry.code.size
             validationQueries :=
