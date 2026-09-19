@@ -96,10 +96,7 @@ theorem closurePrimitiveQueryBudget_doublePower_lt
             candidateCount *
               (recursive + recursive) := by
         unfold base
-        rw [
-          Nat.mul_add,
-          Nat.add_mul
-        ]
+        rw [Nat.mul_add]
         ac_rfl
       calc
         base ^ (fuel + 1) * base
@@ -176,7 +173,6 @@ theorem closurePrimitiveQueryBudget_le_composition
           Nat.mul_add,
           Nat.add_mul
         ]
-        ac_rfl
       have compositionStep :
           closureCompositionCandidateBudget
               candidateCount
@@ -198,7 +194,6 @@ theorem closurePrimitiveQueryBudget_le_composition
           Nat.mul_one,
           Nat.add_mul
         ]
-        ac_rfl
       rw [
         primitiveStep,
         compositionStep
@@ -470,22 +465,55 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
     have baseExact :
         candidate + candidate =
           2 ^ (witnessIndex + 5) := by
-      unfold candidate scale
-      rw [Nat.pow_succ]
-      omega
-    rw [← baseExact]
-    exact
-      (show
+      calc
+        candidate + candidate
+            =
+          candidate * 2 :=
+            (Nat.mul_two candidate).symm
+        _ =
+          2 ^ (witnessIndex + 5) := by
+            unfold candidate scale
+            simpa [Nat.add_assoc] using
+              (Nat.pow_succ
+                2
+                (witnessIndex + 4)).symm
+    have lowerPowerExact :
         (candidate + candidate) ^
-              ((witnessIndex + 2) + 1) <
-            closurePrimitiveQueryBudget
-              candidate
-              ((witnessIndex + 2) + 2) from
-        lower)
+              (witnessIndex + 3) =
+          2 ^
+            ((witnessIndex + 5) *
+              (witnessIndex + 3)) := by
+      rw [baseExact]
+      exact
+        (Nat.pow_mul
+          2
+          (witnessIndex + 5)
+          (witnessIndex + 3)).symm
+    calc
+      2 ^
+            ((witnessIndex + 5) *
+              (witnessIndex + 3))
+          =
+        (candidate + candidate) ^
+          (witnessIndex + 3) :=
+            lowerPowerExact.symm
+      _ <
+        closurePrimitiveQueryBudget
+          candidate
+          (witnessIndex + 4) := by
+            simpa [Nat.add_assoc] using lower
+      _ =
+        closurePrimitiveQueryBudget
+          (jointHardCandidateCount witnessIndex)
+          (jointHardFuel witnessIndex) := by
+            rw [
+              candidateExact,
+              fuelExact
+            ]
   have inputPositive :
       1 ≤
         jointHardInputBits witnessIndex :=
-    Nat.le_of_lt
+    (Nat.succ_le_iff).2
       (jointHardInputBits_positive
         witnessIndex)
   have evalLeMajorant :=
