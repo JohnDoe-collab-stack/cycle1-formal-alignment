@@ -22,6 +22,18 @@ theorem validationQueries3 :
       3 :=
   explicitFamilyConstitutedLocalValidationQueries 3
 
+theorem executionQueries3 :
+    ConstitutedLocalSchedule.executionPrimitiveQueries
+        (explicitFamilyConstitutedLocalWitnesses 3) =
+      3 :=
+  explicitFamilyConstitutedLocalExecutionQueries 3
+
+theorem executionComposition3 :
+    ConstitutedLocalSchedule.executionCompositionCandidates
+        (explicitFamilyConstitutedLocalWitnesses 3) =
+      0 :=
+  explicitFamilyConstitutedLocalExecutionCompositionCandidates 3
+
 theorem validationSucceeds3 :
     ConstitutedLocalSchedule.ValidationSucceeds
       (explicitFamilyConstitutedLocalWitnesses 3) :=
@@ -40,6 +52,22 @@ theorem productionPolynomial :
           (explicitFamilyConstitutedLocalWitnesses count)) :=
   explicitFamilyConstitutedLocalAtomCount_inputPolynomiallyBounded
 
+theorem executionPolynomial :
+    InputPolynomiallyBounded
+      explicitFamilyInputBitSize
+      (fun count =>
+        ConstitutedLocalSchedule.executionPrimitiveQueries
+          (explicitFamilyConstitutedLocalWitnesses count)) :=
+  explicitFamilyConstitutedLocalExecution_inputPolynomiallyBounded
+
+theorem executionCompositionPolynomial :
+    InputPolynomiallyBounded
+      explicitFamilyInputBitSize
+      (fun count =>
+        ConstitutedLocalSchedule.executionCompositionCandidates
+          (explicitFamilyConstitutedLocalWitnesses count)) :=
+  explicitFamilyConstitutedLocalExecutionComposition_inputPolynomiallyBounded
+
 theorem validationPolynomial :
     InputPolynomiallyBounded
       explicitFamilyInputBitSize
@@ -54,8 +82,12 @@ end ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.witnessCount3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.atomCount3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.validationQueries3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.executionQueries3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.executionComposition3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.validationSucceeds3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.localExecutions3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.productionPolynomial
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.executionPolynomial
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.executionCompositionPolynomial
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.validationPolynomial
 /- AXIOM_AUDIT_END -/
