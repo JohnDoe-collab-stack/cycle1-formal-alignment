@@ -66,24 +66,66 @@ theorem composedLocalPrimitivePathRun_found
       composedPrimitiveSearch_middle_target_some
         count with
     ⟨secondWitness, secondExact⟩
-  rcases
-      findPrimitiveHit?_some_of_exact
-        firstExact with
-    ⟨firstHit, firstHitExact⟩
-  rcases
-      findPrimitiveHit?_some_of_exact
-        secondExact with
-    ⟨secondHit, secondHitExact⟩
-  unfold
-    composedLocalPrimitivePathRun
-    composedPrimitiveStateChain
-  simp only [searchPrimitiveStateChain]
-  rw [
-    firstHitExact,
-    secondHitExact
-  ]
-  intro impossible
-  cases impossible
+  have firstPrimitiveNonempty :
+      (composedPrimitiveSearch count).find
+          (composedSource count)
+          (composedMiddle count) ≠
+        none := by
+    rw [firstExact]
+    intro impossible
+    cases impossible
+  have secondPrimitiveNonempty :
+      (composedPrimitiveSearch count).find
+          (composedMiddle count)
+          (composedTarget count) ≠
+        none := by
+    rw [secondExact]
+    intro impossible
+    cases impossible
+  have firstPackagedNonempty :
+      findPrimitiveHit?
+          (composedPrimitiveSearch count)
+          (composedSource count)
+          (composedMiddle count) ≠
+        none :=
+    findPrimitiveHit?_ne_none_of_find_ne_none
+      firstPrimitiveNonempty
+  have secondPackagedNonempty :
+      findPrimitiveHit?
+          (composedPrimitiveSearch count)
+          (composedMiddle count)
+          (composedTarget count) ≠
+        none :=
+    findPrimitiveHit?_ne_none_of_find_ne_none
+      secondPrimitiveNonempty
+  cases firstFound :
+      findPrimitiveHit?
+        (composedPrimitiveSearch count)
+        (composedSource count)
+        (composedMiddle count) with
+  | none =>
+      exact False.elim
+        (firstPackagedNonempty firstFound)
+  | some firstHit =>
+      cases secondFound :
+          findPrimitiveHit?
+            (composedPrimitiveSearch count)
+            (composedMiddle count)
+            (composedTarget count) with
+      | none =>
+          exact False.elim
+            (secondPackagedNonempty secondFound)
+      | some secondHit =>
+          unfold
+            composedLocalPrimitivePathRun
+            composedPrimitiveStateChain
+          simp only [
+            searchPrimitiveStateChain,
+            firstFound,
+            secondFound
+          ]
+          intro impossible
+          cases impossible
 
 /-- Local path discovery executes exactly two primitive queries. -/
 theorem composedLocalPrimitivePathRun_primitiveQueries
