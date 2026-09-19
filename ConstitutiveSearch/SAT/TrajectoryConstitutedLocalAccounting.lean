@@ -75,8 +75,11 @@ theorem provenanceVariableQueries_le_length_mul_varsLength
       schedule.length * vars.length := by
   induction schedule with
   | nil =>
-      change 0 ≤ 0
-      exact Nat.le_refl 0
+      simp only [
+        provenanceVariableQueries,
+        List.length_nil,
+        Nat.zero_mul
+      ]
   | cons entry rest inductionHypothesis =>
       have headLe :
           provenanceStructuralFlipSearchVariableQueries
