@@ -1713,6 +1713,15 @@ et la liste de candidats annonces.
 [FAIT P7d-d] famille de codes SearchableBy + taille de code input-polynomiale => execution locale candidate-free input-polynomiale
 [FAIT P7d-d] les familles de codes locaux sont fermees par composition : searchabilite preservee, taille additive, polynomialite locale preservee
 [FAIT P7d-d] benchmark SAT compose reconstruit exactement composedConstitutedCode par composition de deux familles locales de taille 1
+[FAIT P7d-d] validateSearchableCode rend SearchableBy executable : succes <-> SearchableBy et nombre exact de primitive queries = code.size
+[FAIT P7d-d] ConstitutedPrimitivePath compile une suite lineaire de witnesses primitifs deja constitues vers un TransportCode de meme taille, avec validation puis execution locale de bout en bout
+[QUALIFICATION P7d-d] une FlipSymmetricTrajectory n'est pas elle-meme un ConstitutedPrimitivePath entre start et finish : chaque flip local relie le false sibling au true child, tandis que la trajectoire avance du parent au true child par expansion puis absorption. Identifier ces deux graphes serait une confusion constitutive.
+[FAIT P7d-d] TrajectoryConstitutedLocalSchedule extrait directement de toute FlipSymmetricTrajectory un schedule proof-relevant de witnesses sibling locaux; aucun witness, candidat, fuel ou resultat de ClosureSearch n'est fourni separement
+[FAIT P7d-d] ce schedule utilise exactement trajectory.decisionVars comme domaine de provenance et contient exactement un witness / un atome de transport par etape
+[FAIT P7d-d] pour toute trajectoire de longueur n : production = n atomes, validation executable = n primitive queries, execution locale = n primitive queries et 0 compositionCandidate
+[FAIT P7d-d] le nombre d'atomes produits coincide exactement avec transportCertificateAtomCount deja audite; sur F(n), production, validation et execution locale sont InputPolynomiallyBounded dans explicitFamilyInputBitSize
+[FAIT P7d-d] le cout de production n'est pas recompte : les n atomes et les n unites de provenance coincident avec certificateAtoms et provenanceUnits deja presents dans explicitFamilyComplexityCounts
+[FAIT P7d-d] validation et execution sont chargees comme phases distinctes : validation = n relationFindCalls; execution locale = n closurePrimitiveQueries / 0 closureCompositionCandidates; leurs charges de representation sont bornees par un budget polynomial indexe par la taille binaire reelle de F(n)
 [QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. La fermeture locale montre que la recherche globale n'est pas necessaire lorsqu'un code searchable est deja constitue. Le cout de production/validation de ce code reste une obligation distincte a expliciter.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
@@ -1737,17 +1746,16 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. reconstruire des codes SearchableBy directement depuis les donnees constituees de trajectoire/provenance, au-dela du benchmark compose a deux atomes
-2. expliciter et charger le cout de production/validation de ces codes, separement de leur execution locale
-3. relier taille/verification des codes constitues aux dimensions certificateAtoms, provenanceUnits et representationCharge
-4. caracteriser les hypotheses locales qui garantissent une taille de code input-polynomiale sous composition iterative
+1. generaliser si necessaire le schedule endogene de codes locaux au-dela de FlipSymmetricTrajectory, sans confondre les arêtes de split avec les transports sibling
+2. caracteriser exactement quand une suite de codes locaux est composable en un transport endpoint-to-endpoint, et quand elle doit rester un schedule de reductions locales
+3. raccorder le schedule produit/valide/execute au profil constitutif total sans double comptage des certificateAtoms et provenanceUnits
+4. consolider la non-factorisation/provenance : mesurer ce qui est perdu lorsqu'on oublie le schedule constitue et qu'on ne conserve que des requetes globales
 5. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits) lorsque aucun code local n'est deja constitue
 6. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
 7. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
-8. consolider l'audit de non-factorisation/provenance si necessaire
-9. effectuer P8 : audit externe de nouveaute et comparaison
-10. synchroniser ensuite la documentation canonique avant toute integration vers main
-11. seulement apres etudier les consequences generales de classe de complexite
+8. effectuer P8 : audit externe de nouveaute et comparaison apres fermeture de l'objectif formel
+9. synchroniser ensuite la documentation canonique avant toute integration vers main
+10. seulement apres etudier les consequences generales de classe de complexite
 ~~~
 
 Le verrou quantitatif courant est donc maintenant tres precis :
@@ -1759,10 +1767,17 @@ Le verrou quantitatif courant est donc maintenant tres precis :
 > primitiveQueries et zero compositionCandidate. Cette politique est
 > input-polynomiale des que la taille du code l'est, et elle est fermee sous
 > composition locale additive. Le benchmark SAT a deux flips est ferme de bout en
-> bout de cette maniere. Le verrou n'est donc plus le cout d'execution d'un code
-> deja constitue, mais la production et la validation endogenes des bons codes
-> composes depuis trajectoires/provenances, avec une charge explicite de cette
-> construction dans le profil constitutif.
+> bout de cette maniere. Pour FlipSymmetricTrajectory, la production endogene est
+> maintenant fermee sous la forme correcte : la trajectoire extrait son propre
+> schedule de witnesses sibling depuis decisionVars, avec n atomes produits,
+> n requetes de validation, n requetes primitives d'execution locale et zero
+> compositionCandidate. Ce schedule n'est volontairement pas reinterprete comme
+> un unique chemin primitif start -> finish, car les transports locaux relient
+> des siblings alors que la trajectoire avance par split puis absorption. Le
+> verrou restant porte donc sur la caracterisation generale de cette structure
+> de schedule, son eventuelle composabilite endpoint-to-endpoint lorsque les
+> types le permettent, et la non-factorisation de cette information sous une
+> projection globale qui l'oublie.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
