@@ -172,6 +172,48 @@ theorem auditedDecisionDiscover_found
   intro impossible
   cases impossible
 
+/-- Executed structural-discovery phase with its own produced query counter. -/
+structure AuditedDecisionDiscoveryRun
+    (input : Nat) where
+  relation? :
+    Option
+      (GeneratedStructuralFlipAtRelation
+        0
+        (auditedDecisionFalseChild input)
+        (auditedDecisionTrueChild input))
+  queries : Nat
+
+/--
+Run the exact structural discovery once.
+
+The query count is part of this phase result and is consumed by the complete
+procedure rather than independently supplied there.
+-/
+def runAuditedDecisionDiscovery
+    (input : Nat) :
+    AuditedDecisionDiscoveryRun input :=
+  { relation? :=
+      auditedDecisionDiscover input
+    queries := 1 }
+
+/-- The discovery phase executes exactly one announced structural query. -/
+theorem runAuditedDecisionDiscovery_queries
+    (input : Nat) :
+    (runAuditedDecisionDiscovery
+      input).queries =
+      1 := by
+  rfl
+
+/-- The discovery run always returns the structurally reconstructible relation. -/
+theorem runAuditedDecisionDiscovery_found
+    (input : Nat) :
+    (runAuditedDecisionDiscovery
+      input).relation? ≠
+      none := by
+  exact
+    auditedDecisionDiscover_found
+      input
+
 /-- Package a discovered relation as one constituted local schedule entry. -/
 def auditedDecisionEntry
     (input : Nat)
@@ -189,6 +231,55 @@ def auditedDecisionEntry
       auditedDecisionTrueChild input
     relation :=
       relation }
+
+/--
+Schedule production is driven solely by the discovery run.
+
+No local witness, symmetry proof or future trajectory information is supplied
+as a separate schedule argument.
+-/
+def auditedDecisionSchedule
+    (input : Nat) :
+    Option
+      (List
+        (ConstitutedLocalWitness
+          (auditedDecisionFormula input))) :=
+  match
+      (runAuditedDecisionDiscovery
+        input).relation? with
+  | none =>
+      none
+  | some relation =>
+      some
+        [auditedDecisionEntry
+          input
+          relation]
+
+/-- The endogenously produced schedule contains exactly one discovered atom. -/
+theorem auditedDecisionSchedule_found
+    (input : Nat) :
+    ∃ schedule,
+      auditedDecisionSchedule input =
+          some schedule ∧
+        schedule.length = 1 := by
+  cases found :
+      (runAuditedDecisionDiscovery
+        input).relation? with
+  | none =>
+      exact
+        False.elim
+          ((runAuditedDecisionDiscovery_found
+              input)
+            found)
+  | some relation =>
+      exact
+        ⟨[auditedDecisionEntry
+            input
+            relation],
+          by
+            unfold auditedDecisionSchedule
+            rw [found],
+          rfl⟩
 
 /-- Executed terminal scan result. -/
 structure TerminalDecisionRun where
@@ -496,12 +587,15 @@ The relation witness is obtained only from auditedDecisionDiscover.
 def executeAuditedDecision
     (input : Nat) :
     AuditedDecisionProcedureRun :=
+  let discovery :=
+    runAuditedDecisionDiscovery input
   match found :
-      auditedDecisionDiscover input with
+      discovery.relation? with
   | none =>
       { result := false
         stats :=
-          { discoveryQueries := 1
+          { discoveryQueries :=
+              discovery.queries
             scheduleAtoms := 0
             validationQueries := 0
             executionPrimitiveQueries := 0
@@ -525,7 +619,8 @@ def executeAuditedDecision
       { result :=
           !terminal.containsEmpty
         stats :=
-          { discoveryQueries := 1
+          { discoveryQueries :=
+              discovery.queries
             scheduleAtoms :=
               entry.code.size
             validationQueries :=
@@ -541,14 +636,16 @@ def executeAuditedDecision
 theorem executeAuditedDecision_success_branch
     (input : Nat) :
     ∃ relation,
-      auditedDecisionDiscover input =
+      (runAuditedDecisionDiscovery
+        input).relation? =
           some relation := by
   cases found :
-      auditedDecisionDiscover input with
+      (runAuditedDecisionDiscovery
+        input).relation? with
   | none =>
       exact
         False.elim
-          ((auditedDecisionDiscover_found
+          ((runAuditedDecisionDiscovery_found
               input)
             found)
   | some relation =>
@@ -573,7 +670,7 @@ theorem executeAuditedDecision_correct
     auditedTerminalDecision_correct
       input
 
-/-- Discovery cost is explicitly one structural relation query. -/
+/-- Complete run imports discovery cost from the executed discovery phase. -/
 theorem executeAuditedDecision_discoveryQueries
     (input : Nat) :
     (executeAuditedDecision
@@ -585,6 +682,9 @@ theorem executeAuditedDecision_discoveryQueries
     ⟨relation, found⟩
   unfold executeAuditedDecision
   rw [found]
+  exact
+    runAuditedDecisionDiscovery_queries
+      input
 
 /-- Schedule production is exactly one actually discovered transport atom. -/
 theorem executeAuditedDecision_scheduleAtoms
@@ -986,6 +1086,12 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.auditedDecisionFormula
 #print axioms ConstitutiveSearch.SAT.auditedDecisionDiscover
 #print axioms ConstitutiveSearch.SAT.auditedDecisionDiscover_found
+#print axioms ConstitutiveSearch.SAT.AuditedDecisionDiscoveryRun
+#print axioms ConstitutiveSearch.SAT.runAuditedDecisionDiscovery
+#print axioms ConstitutiveSearch.SAT.runAuditedDecisionDiscovery_queries
+#print axioms ConstitutiveSearch.SAT.runAuditedDecisionDiscovery_found
+#print axioms ConstitutiveSearch.SAT.auditedDecisionSchedule
+#print axioms ConstitutiveSearch.SAT.auditedDecisionSchedule_found
 #print axioms ConstitutiveSearch.SAT.auditedDecisionProblem
 #print axioms ConstitutiveSearch.SAT.auditedDecisionProblem_accept_iff_zero
 #print axioms ConstitutiveSearch.SAT.auditedDecision_yes
