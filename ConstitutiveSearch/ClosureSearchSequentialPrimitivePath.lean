@@ -1,4 +1,4 @@
-import ConstitutiveSearch.SAT.SequentialGlobalClosureSeparator
+import ConstitutiveSearch.ClosureSearchPrimitiveHit
 
 /-!
 # Sequential execution along primitive-hit paths
