@@ -121,9 +121,12 @@ theorem localSearchableCodeFamily_inputPolynomiallyBounded
           (code n)
           (searchable n)
       primitiveBudget := by
-        simpa only [
-          localSearchableCodePrimitiveBudget
-        ] using codeSizeBounded
+        change
+          InputPolynomiallyBounded
+            inputBits
+            (fun n =>
+              (code n).size)
+        exact codeSizeBounded
       compositionBudget :=
         InputPolynomiallyBounded.constant
           inputBits
