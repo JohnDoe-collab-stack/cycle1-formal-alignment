@@ -53,6 +53,52 @@ theorem gap3 :
           (composedClosureFuelTwo 3).stats.compositionCandidates :=
   composedGlobalCompositionRequired_executionGap 3
 
+
+theorem foundRunRequiresComposition3 :
+    PrimitiveHitPath.GlobalCompositionRequired
+      (composedPrimitiveSearch 3)
+      (composedSource 3)
+      (composedTarget 3) := by
+  cases found :
+      (composedClosureFuelTwo 3).code? with
+  | none =>
+      exact
+        False.elim
+          ((composedClosureFuelTwo_found 3)
+            found)
+  | some code =>
+      exact
+        PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_requiresComposition
+          (composedPrimitiveSearch 3)
+          [composedMiddle 3]
+          2
+          (composedSource 3)
+          (composedTarget 3)
+          (composedPrimitiveSearch_source_target_none 3)
+          found
+
+theorem foundRunCodeSize3 :
+    match (composedClosureFuelTwo 3).code? with
+    | some code => 2 ≤ code.size
+    | none => False := by
+  cases found :
+      (composedClosureFuelTwo 3).code? with
+  | none =>
+      exact
+        False.elim
+          ((composedClosureFuelTwo_found 3)
+            found)
+  | some code =>
+      exact
+        PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_codeSize
+          (composedPrimitiveSearch 3)
+          [composedMiddle 3]
+          2
+          (composedSource 3)
+          (composedTarget 3)
+          (composedPrimitiveSearch_source_target_none 3)
+          found
+
 end ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -60,4 +106,6 @@ end ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.exactPath3
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.sequential3
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.gap3
+#print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.foundRunRequiresComposition3
+#print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.foundRunCodeSize3
 /- AXIOM_AUDIT_END -/
