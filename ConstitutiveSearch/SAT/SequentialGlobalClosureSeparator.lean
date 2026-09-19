@@ -1,3 +1,4 @@
+import Init.Omega
 import ConstitutiveSearch.SAT.ExplicitFamilyInputPolynomialProfile
 import ConstitutiveSearch.SAT.TrajectoryDerivedClosureComplexity
 
@@ -27,6 +28,50 @@ closure run.
 -/
 
 namespace ConstitutiveSearch
+
+universe uGenerator
+
+/--
+If a positive-fuel closure query is already solved by the primitive relation
+search, the bounded closure engine short-circuits immediately: exactly one
+primitive query and no composition candidate are charged, independently of the
+global candidate list and fuel magnitude.
+-/
+theorem searchTransportClosureBounded_primitiveHit_stats
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State)
+    (fuel : Nat)
+    (source target : State)
+    (fuelPositive : 0 < fuel)
+    (primitiveHit :
+      primitive.find source target ≠ none) :
+    let run :=
+      searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target
+    run.stats.primitiveQueries = 1 ∧
+      run.stats.compositionCandidates = 0 := by
+  cases fuel with
+  | zero =>
+      omega
+  | succ fuel =>
+      cases h :
+          primitive.find source target with
+      | none =>
+          exact False.elim (primitiveHit h)
+      | some witness =>
+          simp only [
+            searchTransportClosureBounded,
+            h,
+            ClosureSearchStats.withPrimitiveQuery,
+            ClosureSearchStats.zero
+          ]
+
 namespace SAT
 
 /--
@@ -107,11 +152,86 @@ theorem explicitFamilySequentialGlobal_sameTrajectory
         (explicitFamilyResourceTrajectory count).trajectory.closureFuel := by
   exact ⟨rfl, rfl⟩
 
+
+/--
+For every nonempty certified flip-symmetric trajectory, the closure query
+corresponding to its first actual sibling split is a primitive hit.  Therefore
+the globally available candidate list and fuel do not force exploration on
+that constitutive query: the run charges one primitive query and zero
+composition candidates.
+-/
+theorem trajectoryDerivedClosure_firstSibling_shortCircuit
+    {rootFormula : Cnf}
+    {parent finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (var : Var)
+    (fresh :
+      StructuralDecisionsAvoid
+        var
+        parent.context.decisions)
+    (symmetric :
+      FlipSymmetricAt
+        parent.context.formula
+        var)
+    (tail :
+      FlipSymmetricTrajectory
+        (GeneratedStructuralBranchContext.child
+          parent
+          var
+          true
+          fresh)
+        finish
+        length) :
+    let trajectory :=
+      FlipSymmetricTrajectory.step
+        var
+        fresh
+        symmetric
+        tail
+    let source :=
+      GeneratedStructuralBranchContext.child
+        parent
+        var
+        false
+        fresh
+    let target :=
+      GeneratedStructuralBranchContext.child
+        parent
+        var
+        true
+        fresh
+    let run :=
+      searchTransportClosureBounded
+        trajectory.primitiveSearch
+        trajectory.splitCandidates
+        trajectory.closureFuel
+        source
+        target
+    run.stats.primitiveQueries = 1 ∧
+      run.stats.compositionCandidates = 0 := by
+  dsimp only
+  apply
+    searchTransportClosureBounded_primitiveHit_stats
+  · change
+      0 <
+        Nat.succ
+          tail.decisionVars.length
+    exact Nat.zero_lt_succ _
+  · exact
+      FlipSymmetricTrajectory.primitiveSearch_finds_firstSibling
+        var
+        fresh
+        symmetric
+        tail
+
 end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.searchTransportClosureBounded_primitiveHit_stats
 #print axioms ConstitutiveSearch.SAT.SequentialGlobalClosureAccountingSeparator
 #print axioms ConstitutiveSearch.SAT.explicitFamilySequentialGlobalClosureAccountingSeparator
 #print axioms ConstitutiveSearch.SAT.explicitFamilySequentialGlobal_sameTrajectory
+#print axioms ConstitutiveSearch.SAT.trajectoryDerivedClosure_firstSibling_shortCircuit
 /- AXIOM_AUDIT_END -/
