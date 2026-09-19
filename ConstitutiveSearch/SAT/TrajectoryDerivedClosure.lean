@@ -229,11 +229,9 @@ theorem finish_decisionVariables_eq_trajectoryVars
   rw [
     trajectory.finish_decisions_eq_trajectoryVars
   ]
-  simp only [
-    List.map_append,
-    List.map_map,
-    trueDecisionOfVar,
-    Function.comp_apply
+  simp [
+    Function.comp_def,
+    trueDecisionOfVar
   ]
 
 /-- The generator-variable list has exactly one entry per constitutive step. -/
