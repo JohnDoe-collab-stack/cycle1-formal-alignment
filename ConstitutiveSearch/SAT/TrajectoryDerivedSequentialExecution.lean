@@ -185,6 +185,7 @@ theorem sequentialDerivedClosureStats_primitiveQueries
         stepStats.1,
         inductionHypothesis
       ]
+      exact Nat.add_comm 1 _
 
 /-- No composition candidate is inspected by the executed sibling-query sequence. -/
 theorem sequentialDerivedClosureStats_compositionCandidates
