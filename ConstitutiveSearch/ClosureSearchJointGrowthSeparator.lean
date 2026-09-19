@@ -96,8 +96,31 @@ theorem closurePrimitiveQueryBudget_doublePower_lt
             candidateCount *
               (recursive + recursive) := by
         unfold base
-        rw [Nat.mul_add]
-        ac_rfl
+        calc
+          recursive *
+                (candidateCount + candidateCount)
+              =
+            recursive * candidateCount +
+              recursive * candidateCount :=
+                Nat.mul_add
+                  recursive
+                  candidateCount
+                  candidateCount
+          _ =
+            candidateCount * recursive +
+              candidateCount * recursive := by
+                rw [
+                  Nat.mul_comm
+                    recursive
+                    candidateCount
+                ]
+          _ =
+            candidateCount *
+              (recursive + recursive) :=
+                (Nat.mul_add
+                  candidateCount
+                  recursive
+                  recursive).symm
       calc
         base ^ (fuel + 1) * base
             <
