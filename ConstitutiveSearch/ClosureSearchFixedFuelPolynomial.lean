@@ -69,14 +69,12 @@ theorem closurePrimitiveFixedFuelPolynomial_degree :
       ]
       have selfMax :
           Nat.max fuel fuel = fuel :=
-        Nat.max_eq_left
-          (Nat.le_refl fuel)
+        Constructive.nat_max_self fuel
       rw [selfMax]
       have outerMax :
           Nat.max (1 + fuel) 0 =
             1 + fuel :=
-        Nat.max_eq_left
-          (Nat.zero_le _)
+        Constructive.nat_max_zero (1 + fuel)
       rw [outerMax]
       exact Nat.add_comm 1 fuel
 
@@ -101,13 +99,11 @@ theorem closureCompositionFixedFuelPolynomial_degree :
       ]
       have selfMax :
           Nat.max fuel fuel = fuel :=
-        Nat.max_eq_left
-          (Nat.le_refl fuel)
+        Constructive.nat_max_self fuel
       rw [selfMax]
       have outerMax :
           Nat.max fuel 0 = fuel :=
-        Nat.max_eq_left
-          (Nat.zero_le _)
+        Constructive.nat_max_zero fuel
       rw [outerMax]
       exact Nat.add_comm 1 fuel
 
@@ -395,9 +391,17 @@ theorem closurePrimitiveFixedFuel_of_candidateInputPolynomial
     InputPolynomiallyBounded.apply_polynomial
       candidateBounded
       (closurePrimitiveFixedFuelPolynomial fuel)
-  simpa only [
-    closurePrimitiveFixedFuelPolynomial_eval
-  ] using evaluated
+  rcases evaluated with
+    ⟨envelope, evaluatedLe⟩
+  exact
+    ⟨envelope,
+      fun n =>
+        Nat.le_trans
+          (Nat.le_of_eq
+            (closurePrimitiveFixedFuelPolynomial_eval
+              fuel
+              (candidateCount n)).symm)
+          (evaluatedLe n)⟩
 
 /--
 The same closure property holds for fixed-fuel composition-candidate budgets.
@@ -424,9 +428,17 @@ theorem closureCompositionFixedFuel_of_candidateInputPolynomial
     InputPolynomiallyBounded.apply_polynomial
       candidateBounded
       (closureCompositionFixedFuelPolynomial fuel)
-  simpa only [
-    closureCompositionFixedFuelPolynomial_eval
-  ] using evaluated
+  rcases evaluated with
+    ⟨envelope, evaluatedLe⟩
+  exact
+    ⟨envelope,
+      fun n =>
+        Nat.le_trans
+          (Nat.le_of_eq
+            (closureCompositionFixedFuelPolynomial_eval
+              fuel
+              (candidateCount n)).symm)
+          (evaluatedLe n)⟩
 
 /--
 For a family of candidate lists whose lengths are input-polynomially bounded,

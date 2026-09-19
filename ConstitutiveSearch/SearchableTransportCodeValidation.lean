@@ -105,12 +105,19 @@ theorem validateSearchableCode_primitiveQueries
       rfl
   | @atom source target witness =>
       cases found :
-          primitive.find source target <;>
-        simp only [
-          validateSearchableCode,
-          found,
-          TransportCode.size
-        ]
+          primitive.find source target with
+      | none =>
+          rw [
+            validateSearchableCode,
+            found
+          ]
+          rfl
+      | some executableWitness =>
+          rw [
+            validateSearchableCode,
+            found
+          ]
+          rfl
   | compose first second firstHypothesis secondHypothesis =>
       change
         (validateSearchableCode
@@ -121,10 +128,28 @@ theorem validateSearchableCode_primitiveQueries
               second).primitiveQueries =
           first.size +
             second.size
-      rw [
-        firstHypothesis,
-        secondHypothesis
-      ]
+      calc
+        (validateSearchableCode
+              primitive
+              first).primitiveQueries +
+            (validateSearchableCode
+              primitive
+              second).primitiveQueries =
+            first.size +
+              (validateSearchableCode
+                primitive
+                second).primitiveQueries :=
+          congrArg
+            (fun value =>
+              value +
+                (validateSearchableCode
+                  primitive
+                  second).primitiveQueries)
+            firstHypothesis
+        _ = first.size + second.size :=
+          congrArg
+            (Nat.add first.size)
+            secondHypothesis
 
 /-- Executable validation succeeds exactly for SearchableBy codes. -/
 theorem validateSearchableCode_success_iff
@@ -144,26 +169,53 @@ theorem validateSearchableCode_success_iff
       code.SearchableBy primitive := by
   induction code with
   | identity state =>
-      simp [
-        validateSearchableCode,
-        TransportCode.SearchableBy
-      ]
+      exact ⟨fun _ => True.intro, fun _ => rfl⟩
   | @atom source target witness =>
       cases found :
-          primitive.find source target <;>
-        simp [
-          validateSearchableCode,
-          TransportCode.SearchableBy,
-          found
-        ]
+          primitive.find source target with
+      | none =>
+          constructor
+          · intro impossible
+            rw [
+              validateSearchableCode,
+              found
+            ] at impossible
+            cases impossible
+          · intro searchable
+            exact False.elim (searchable found)
+      | some executableWitness =>
+          constructor
+          · intro _ impossible
+            rw [found] at impossible
+            cases impossible
+          · intro _
+            rw [
+              validateSearchableCode,
+              found
+            ]
   | compose first second firstHypothesis secondHypothesis =>
-      simp [
-        validateSearchableCode,
-        SearchableCodeValidationRun.combine,
-        TransportCode.SearchableBy,
-        firstHypothesis,
-        secondHypothesis
-      ]
+      change
+        (((validateSearchableCode primitive first).success &&
+            (validateSearchableCode primitive second).success) = true) ↔
+          (first.SearchableBy primitive ∧
+            second.SearchableBy primitive)
+      constructor
+      · intro combined
+        have successes :=
+          (Constructive.bool_and_eq_true_iff
+            (validateSearchableCode primitive first).success
+            (validateSearchableCode primitive second).success).mp
+            combined
+        exact
+          ⟨firstHypothesis.mp successes.1,
+            secondHypothesis.mp successes.2⟩
+      · intro searchable
+        exact
+          (Constructive.bool_and_eq_true_iff
+            (validateSearchableCode primitive first).success
+            (validateSearchableCode primitive second).success).mpr
+            ⟨firstHypothesis.mpr searchable.1,
+              secondHypothesis.mpr searchable.2⟩
 
 /-- SearchableBy evidence implies executable validator success. -/
 theorem validateSearchableCode_success_of_searchable

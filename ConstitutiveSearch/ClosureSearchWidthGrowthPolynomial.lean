@@ -25,31 +25,19 @@ closure counters remain input-polynomial relative to the concrete input size.
 
 namespace ConstitutiveSearch
 
-/-- Monotonicity of Nat.log2, reconstructed from the standard power bounds. -/
+/-- Monotonicity of the local executable logarithm. -/
 theorem natLog2_mono
     {small large : Nat}
     (smallLe : small ≤ large) :
-    Nat.log2 small ≤
-      Nat.log2 large := by
+    Constructive.natLog2 small ≤
+      Constructive.natLog2 large := by
   cases small with
   | zero =>
       exact Nat.zero_le _
   | succ small =>
-      have smallPositive :
-          0 < small + 1 :=
-        Nat.zero_lt_succ small
-      have largePositive :
-          0 < large :=
-        Nat.lt_of_lt_of_le
-          smallPositive
-          smallLe
-      apply
-        (Nat.le_log2
-          (Nat.ne_of_gt largePositive)).2
       exact
-        Nat.le_trans
-          (Nat.log2_self_le
-            (Nat.ne_of_gt smallPositive))
+        Constructive.natLog2_mono
+          (fun impossible => Nat.noConfusion impossible)
           smallLe
 
 /-- Candidate binary width is monotone in candidate count. -/
@@ -98,7 +86,7 @@ theorem inputPolynomialCounters_of_jointWidthGrowth
               (profile n).maxFrontierWidth *
             schedule.fuel n ≤
           degree *
-            Nat.log2
+            Constructive.natLog2
               (profile n).inputBits) :
     InputPolynomialCounters
       primitive
@@ -109,7 +97,7 @@ theorem inputPolynomialCounters_of_jointWidthGrowth
               ((schedule.candidates n).length) *
             schedule.fuel n ≤
           degree *
-            Nat.log2
+            Constructive.natLog2
               (profile n).inputBits := by
     intro n
     have bitWidthLe :
@@ -187,7 +175,7 @@ theorem inputPolynomialCounters_of_profileWidthGrowth
               (profile n).maxFrontierWidth *
             (profile n).maxFrontierWidth ≤
           degree *
-            Nat.log2
+            Constructive.natLog2
               (profile n).inputBits) :
     InputPolynomialCounters
       primitive
@@ -282,7 +270,11 @@ def jointGrowingWidthSchedule :
           (jointGrowingCandidateCount n)
           0).length ≤
         jointGrowingCandidateCount n
-      simp
+      exact
+        Nat.le_of_eq
+          (Constructive.list_length_replicate
+            0
+            (jointGrowingCandidateCount n))
     fuelLeWidth :=
       jointGrowingFuel_le_width }
 
@@ -296,7 +288,7 @@ theorem jointGrowingWidthSchedule_jointLe
           (jointGrowingWidthProfile n).maxFrontierWidth *
         jointGrowingWidthSchedule.fuel n ≤
       1 *
-        Nat.log2
+        Constructive.natLog2
           (jointGrowingWidthProfile n).inputBits := by
   simpa only [
     jointGrowingWidthProfile,

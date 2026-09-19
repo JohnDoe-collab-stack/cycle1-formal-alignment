@@ -1,4 +1,5 @@
 import ConstitutiveSearch.MachineCostInterface
+import ConstitutiveSearch.ConstructivePrelude
 
 /-!
 # Multidimensional constitutive complexity profiles
@@ -68,14 +69,34 @@ def zero : ComplexityCounts :=
 theorem zero_add
     (counts : ComplexityCounts) :
     add zero counts = counts := by
-  cases counts
-  simp only [add, zero, Nat.zero_add]
+  cases counts with
+  | mk syntaxCount frontier provenance certificate relation primitive candidate terminal =>
+      unfold add zero
+      rw [
+        Nat.zero_add syntaxCount,
+        Nat.zero_add frontier,
+        Nat.zero_add provenance,
+        Nat.zero_add certificate,
+        Nat.zero_add relation,
+        Nat.zero_add primitive,
+        Nat.zero_add candidate,
+        Nat.zero_add terminal
+      ]
 
 theorem add_zero
     (counts : ComplexityCounts) :
     add counts zero = counts := by
-  cases counts
-  simp only [add, zero, Nat.add_zero]
+  cases counts with
+  | mk syntaxCount frontier provenance certificate relation primitive candidate terminal =>
+      cases Nat.add_zero syntaxCount
+      cases Nat.add_zero frontier
+      cases Nat.add_zero provenance
+      cases Nat.add_zero certificate
+      cases Nat.add_zero relation
+      cases Nat.add_zero primitive
+      cases Nat.add_zero candidate
+      cases Nat.add_zero terminal
+      rfl
 
 end ComplexityCounts
 

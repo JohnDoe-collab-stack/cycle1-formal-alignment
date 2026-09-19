@@ -37,7 +37,7 @@ namespace ConstitutiveSearch
 /-- Binary width of the geometric base induced by one candidate count. -/
 def closureCandidateBitWidth
     (candidateCount : Nat) : Nat :=
-  Nat.log2
+  Constructive.natLog2
       (closureGeometricBase candidateCount) +
     1
 
@@ -49,8 +49,8 @@ theorem closureGeometricBase_le_twoPowCandidateBitWidth
   unfold closureCandidateBitWidth
   exact
     Nat.le_of_lt
-      (Nat.lt_log2_self
-        (n := closureGeometricBase candidateCount))
+      (Constructive.lt_two_pow_natLog2_succ
+        (closureGeometricBase candidateCount))
 
 /--
 Joint logarithmic growth criterion for the geometric closure envelope.
@@ -70,7 +70,7 @@ theorem closureGeometric_jointGrowth_le_inputPower
               (candidateCount n) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureGeometricBase
             (candidateCount n) ^
@@ -98,25 +98,25 @@ theorem closureGeometric_jointGrowth_le_inputPower
   have exponentLe :
       width * fuel n ≤
         degree *
-          Nat.log2 (inputBits n) := by
+          Constructive.natLog2 (inputBits n) := by
     simpa only [width] using
       jointLe n
   have twoPowerLe :
       2 ^ (width * fuel n) ≤
         2 ^
           (degree *
-            Nat.log2 (inputBits n)) :=
+            Constructive.natLog2 (inputBits n)) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       exponentLe
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have finalPowerLe :
-      (2 ^ Nat.log2 (inputBits n)) ^ degree ≤
+      (2 ^ Constructive.natLog2 (inputBits n)) ^ degree ≤
         (inputBits n) ^ degree :=
     Nat.pow_le_pow_left
       logPowerLe
@@ -133,23 +133,23 @@ theorem closureGeometric_jointGrowth_le_inputPower
         basePowerLe
     _ =
       2 ^ (width * fuel n) := by
-        rw [Nat.pow_mul]
+        rw [Constructive.nat_pow_mul]
     _ ≤
       2 ^
         (degree *
-          Nat.log2 (inputBits n)) :=
+          Constructive.natLog2 (inputBits n)) :=
         twoPowerLe
     _ =
-      (2 ^ Nat.log2 (inputBits n)) ^ degree := by
+      (2 ^ Constructive.natLog2 (inputBits n)) ^ degree := by
         have exponentExact :
             degree *
-                Nat.log2 (inputBits n) =
-              Nat.log2 (inputBits n) *
+                Constructive.natLog2 (inputBits n) =
+              Constructive.natLog2 (inputBits n) *
                 degree := by
           exact Nat.mul_comm _ _
         rw [
           exponentExact,
-          Nat.pow_mul
+          Constructive.nat_pow_mul
         ]
     _ ≤
       (inputBits n) ^ degree :=
@@ -170,7 +170,7 @@ theorem closurePrimitive_jointGrowth_le_inputPower
               (candidateCount n) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closurePrimitiveQueryBudget
           (candidateCount n)
@@ -216,7 +216,7 @@ theorem closureComposition_jointGrowth_le_inputPower
               (candidateCount n) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureCompositionCandidateBudget
           (candidateCount n)
@@ -260,7 +260,7 @@ theorem closurePrimitive_jointGrowth_inputPolynomiallyBounded
               (candidateCount n) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -293,7 +293,7 @@ theorem closureComposition_jointGrowth_inputPolynomiallyBounded
               (candidateCount n) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -339,7 +339,7 @@ theorem searchTransportClosure_jointGrowth_primitiveQueries
               ((candidates n).length) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n))
+            Constructive.natLog2 (inputBits n))
     (source target :
       (n : Nat) →
         State n) :
@@ -400,7 +400,7 @@ theorem searchTransportClosure_jointGrowth_compositionCandidates
               ((candidates n).length) *
             fuel n ≤
           degree *
-            Nat.log2 (inputBits n))
+            Constructive.natLog2 (inputBits n))
     (source target :
       (n : Nat) →
         State n) :
@@ -472,8 +472,16 @@ theorem jointGrowing_geometricBase
       0 < 2 ^ n :=
     Nat.pow_pos
       Nat.zero_lt_two
-  rw [Nat.pow_succ]
-  omega
+  cases powerExact : 2 ^ n with
+  | zero =>
+      rw [powerExact] at powerPositive
+      exact False.elim (Nat.not_lt_zero 0 powerPositive)
+  | succ predecessor =>
+      rw [Nat.pow_succ, powerExact]
+      rw [Nat.succ_sub_one, Nat.mul_two]
+      exact
+        Constructive.nat_double_add_two
+          predecessor
 
 /-- Its candidate bit width is exactly n+2. -/
 theorem jointGrowing_candidateBitWidth
@@ -484,16 +492,16 @@ theorem jointGrowing_candidateBitWidth
   unfold closureCandidateBitWidth
   rw [
     jointGrowing_geometricBase,
-    Nat.log2_two_pow
+    Constructive.natLog2_two_pow
   ]
 
 /-- The logarithm of the concrete input size is exactly (n+2)^2. -/
 theorem jointGrowing_inputLog
     (n : Nat) :
-    Nat.log2 (jointGrowingInputBits n) =
+    Constructive.natLog2 (jointGrowingInputBits n) =
       (n + 2) * (n + 2) := by
   unfold jointGrowingInputBits
-  rw [Nat.log2_two_pow]
+  rw [Constructive.natLog2_two_pow]
 
 /-- The witness input is always positive. -/
 theorem jointGrowing_inputPositive
@@ -513,7 +521,7 @@ theorem jointGrowing_jointLe
           (jointGrowingCandidateCount n) *
         jointGrowingFuel n ≤
       1 *
-        Nat.log2 (jointGrowingInputBits n) := by
+        Constructive.natLog2 (jointGrowingInputBits n) := by
   rw [
     jointGrowing_candidateBitWidth,
     jointGrowing_inputLog
@@ -539,7 +547,17 @@ theorem jointGrowingCandidateCount_unbounded :
       cap + 2 <
         2 ^ (cap + 2) :=
     Nat.lt_two_pow_self
-  omega
+  cases powerExact : 2 ^ (cap + 2) with
+  | zero =>
+      rw [powerExact] at powerLt
+      exact False.elim (Nat.not_lt_zero _ powerLt)
+  | succ predecessor =>
+      change cap < predecessor
+      rw [powerExact] at powerLt
+      exact
+        Nat.lt_trans
+          (Nat.lt_succ_self cap)
+          (Nat.lt_of_succ_lt_succ powerLt)
 
 /-- Fuel is unbounded as well. -/
 theorem jointGrowingFuel_unbounded :

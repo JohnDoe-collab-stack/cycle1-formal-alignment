@@ -25,9 +25,13 @@ def demoCode :
 theorem demoSearchable :
     demoCode.SearchableBy demoPrimitive := by
   change
-    demoPrimitive.find 0 1 ≠ none ∧
-      demoPrimitive.find 1 2 ≠ none
-  constructor <;> simp [demoPrimitive]
+    some DemoGenerator.first ≠ none ∧
+      some DemoGenerator.second ≠ none
+  constructor
+  · intro impossible
+    cases impossible
+  · intro impossible
+    cases impossible
 
 theorem demoLocalExecution :
     TransportCode.LocalSequentialExecution

@@ -300,7 +300,10 @@ theorem step_step_constitutedLocalWitnesses_not_endpointComposable
       GeneratedStructuralBranchContext.child_depth,
       GeneratedStructuralBranchContext.child_depth
     ] at depthEqual
-    omega
+    exact
+      Constructive.nat_ne_add_one
+        (GeneratedStructuralBranchContext.depth parent + 1)
+        depthEqual
   exact
     ConstitutedLocalSchedule.not_endpointComposable_of_first_gap
       _
@@ -328,11 +331,13 @@ theorem constitutedLocalWitnesses_not_endpointComposable_of_two_le
         trajectory.constitutedLocalWitnesses := by
   cases trajectory with
   | done state =>
-      omega
+      change 2 ≤ 0 at twoLe
+      nomatch twoLe
   | step var fresh symmetric tail =>
       cases tail with
       | done child =>
-          omega
+          change 2 ≤ 1 at twoLe
+          nomatch twoLe
       | step nextVar nextFresh nextSymmetric nextTail =>
           exact
             step_step_constitutedLocalWitnesses_not_endpointComposable

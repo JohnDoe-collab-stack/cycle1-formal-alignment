@@ -20,8 +20,8 @@ jobs:
       - name: Build Lean project
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
 
-      - name: Build regression library
-        run: lake build AuditRegression
+      - name: Verify constructive axiom audits
+        run: bash scripts/verify-axiom-audits.sh
 
       - name: Verify scientific-file manifest
         run: bash scripts/verify-manifest.sh
@@ -37,9 +37,9 @@ jobs:
       - name: Build Lean project
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
 
-      - name: Build regression library
+      - name: Verify constructive axiom audits
         shell: pwsh
-        run: '& "$HOME\.elan\bin\lake.exe" build AuditRegression'
+        run: ./scripts/verify-axiom-audits.ps1
 
       - name: Verify manifest with PowerShell
         shell: pwsh

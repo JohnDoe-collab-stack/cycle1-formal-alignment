@@ -27,7 +27,7 @@ theorem witnessJointCriterion
     closureCandidateBitWidth
           (jointGrowingCandidateCount n) *
         jointGrowingFuel n ≤
-      Nat.log2
+      Constructive.natLog2
         (jointGrowingInputBits n) := by
   have h :=
     jointGrowing_jointLe n

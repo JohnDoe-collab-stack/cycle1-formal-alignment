@@ -245,7 +245,7 @@ theorem oneCandidatePrimitive_le_explicitFamilyTrajectoryBudget
         closurePrimitiveQueryBudget_mono_candidateCount
           (small := 1)
           (large := 2 * (count + 1))
-          (by omega)
+          (Constructive.one_le_two_mul_succ count)
           (count + 1)
 
 /--
@@ -267,7 +267,7 @@ theorem oneCandidateComposition_le_explicitFamilyTrajectoryBudget
         closureCompositionCandidateBudget_mono_candidateCount
           (small := 1)
           (large := 2 * (count + 1))
-          (by omega)
+          (Constructive.one_le_two_mul_succ count)
           (count + 1)
 
 /--

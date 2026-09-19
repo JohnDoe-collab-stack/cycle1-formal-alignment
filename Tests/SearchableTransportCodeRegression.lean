@@ -30,11 +30,13 @@ theorem demoSearchable :
       demoPrimitive := by
   constructor
   · change
-      demoPrimitive.find 0 1 ≠ none
-    simp [demoPrimitive]
+      some DemoGenerator.first ≠ none
+    intro impossible
+    cases impossible
   · change
-      demoPrimitive.find 1 2 ≠ none
-    simp [demoPrimitive]
+      some DemoGenerator.second ≠ none
+    intro impossible
+    cases impossible
 
 theorem demoRequired :
     PrimitiveHitPath.GlobalCompositionRequired

@@ -1,4 +1,4 @@
-import Init.Omega
+import ConstitutiveSearch.SequentialPrimitiveExecution
 import ConstitutiveSearch.SAT.ExplicitFamilyInputPolynomialProfile
 import ConstitutiveSearch.SAT.TrajectoryDerivedClosureComplexity
 
@@ -47,31 +47,26 @@ theorem searchTransportClosureBounded_primitiveHit_stats
     (fuelPositive : 0 < fuel)
     (primitiveHit :
       primitive.find source target ≠ none) :
-    let run :=
-      searchTransportClosureBounded
+    (searchTransportClosureBounded
         primitive
         candidates
         fuel
         source
-        target
-    run.stats.primitiveQueries = 1 ∧
-      run.stats.compositionCandidates = 0 := by
-  cases fuel with
-  | zero =>
-      omega
-  | succ fuel =>
-      cases h :
-          primitive.find source target with
-      | none =>
-          exact False.elim (primitiveHit h)
-      | some witness =>
-          simp only [
-            searchTransportClosureBounded,
-            h,
-            ClosureSearchStats.withPrimitiveQuery,
-            ClosureSearchStats.zero
-          ]
-          exact ⟨True.intro, True.intro⟩
+        target).stats.primitiveQueries = 1 ∧
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).stats.compositionCandidates = 0 :=
+  PrimitiveHitPath.primitiveHit_run_stats
+    primitive
+    candidates
+    fuel
+    source
+    target
+    fuelPositive
+    primitiveHit
 
 namespace SAT
 

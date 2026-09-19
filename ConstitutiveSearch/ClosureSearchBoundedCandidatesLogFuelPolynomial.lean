@@ -71,11 +71,17 @@ theorem closurePrimitiveQueryBudget_add_one_le_geometric
               candidateCount ≤
             base := by
         unfold base closureGeometricBase
-        omega
+        exact
+          Nat.le_add_right
+            (candidateCount + candidateCount)
+            2
       have twoLeBase :
           2 ≤ base := by
         unfold base closureGeometricBase
-        omega
+        exact
+          Nat.le_add_left
+            2
+            (candidateCount + candidateCount)
       have recursivePartLe :
           candidateCount *
               (recursive + recursive) ≤
@@ -89,7 +95,7 @@ theorem closurePrimitiveQueryBudget_add_one_le_geometric
               recursive := by
                 rw [
                   Nat.mul_add,
-                  Nat.add_mul
+                  Constructive.nat_add_mul
                 ]
           _ ≤
             base * recursive :=
@@ -153,7 +159,7 @@ theorem closurePrimitiveQueryBudget_add_one_le_geometric
           candidateCount *
                 (recursive + recursive) +
               2 := by
-                omega
+                rfl
         _ ≤
           base *
             (recursive + 1) :=
@@ -199,12 +205,21 @@ theorem closureCompositionCandidateBudget_add_one_le_geometric
               candidateCount ≤
             base := by
         unfold base closureGeometricBase
-        omega
+        exact
+          Nat.le_add_right
+            (candidateCount + candidateCount)
+            2
       have tailLe :
           candidateCount + 1 ≤
             base := by
         unfold base closureGeometricBase
-        omega
+        exact
+          Nat.add_le_add
+            (Nat.le_add_right
+              candidateCount
+              candidateCount)
+            (Nat.le.step
+              (Nat.le_refl 1))
       have recursivePartLe :
           (candidateCount +
               candidateCount) *
@@ -226,7 +241,7 @@ theorem closureCompositionCandidateBudget_add_one_le_geometric
           Nat.mul_add,
           Nat.mul_add,
           Nat.mul_one,
-          Nat.add_mul
+          Constructive.nat_add_mul
         ]
       have stepLe :
           candidateCount *
@@ -248,7 +263,11 @@ theorem closureCompositionCandidateBudget_add_one_le_geometric
                 candidateCount) *
                 recursive +
               (candidateCount + 1) := by
-                omega
+                exact
+                  Nat.add_assoc
+                    ((candidateCount + candidateCount) * recursive)
+                    candidateCount
+                    1
           _ ≤
             base * recursive +
               base :=
@@ -314,9 +333,12 @@ theorem closureGeometricBase_mono
     (smallLe :
       small ≤ large) :
     closureGeometricBase small ≤
-      closureGeometricBase large := by
+    closureGeometricBase large := by
   unfold closureGeometricBase
-  omega
+  exact
+    Nat.add_le_add
+      (Nat.add_le_add smallLe smallLe)
+      (Nat.le_refl 2)
 
 /--
 Under a fixed candidate cap, primitive budget plus one is bounded by the capped
@@ -381,7 +403,7 @@ theorem closureCappedGeometric_scaledLog_le_inputPower
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureGeometricBase
             candidateCap ^
@@ -413,7 +435,7 @@ theorem closureCappedGeometric_scaledLog_le_inputPower
       base * fuel n ≤
         base *
           (factor *
-            Nat.log2 (inputBits n)) :=
+            Constructive.natLog2 (inputBits n)) :=
     Nat.mul_le_mul_left
       base
       (fuelLeScaledLog n)
@@ -422,18 +444,18 @@ theorem closureCappedGeometric_scaledLog_le_inputPower
         2 ^
           (base *
             (factor *
-              Nat.log2 (inputBits n))) :=
+              Constructive.natLog2 (inputBits n))) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       exponentLe
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have finalPowerLe :
-      (2 ^ Nat.log2 (inputBits n)) ^
+      (2 ^ Constructive.natLog2 (inputBits n)) ^
             (base * factor) ≤
         (inputBits n) ^
             (base * factor) :=
@@ -452,28 +474,38 @@ theorem closureCappedGeometric_scaledLog_le_inputPower
         basePowerLe
     _ =
       2 ^ (base * fuel n) := by
-        rw [
-          Nat.pow_mul
-        ]
+          exact
+            Constructive.nat_pow_mul
+              2
+              base
+              (fuel n) |>.symm
     _ ≤
       2 ^
         (base *
           (factor *
-            Nat.log2 (inputBits n))) :=
+            Constructive.natLog2 (inputBits n))) :=
         twoPowerExponentLe
     _ =
-      (2 ^ Nat.log2 (inputBits n)) ^
+      (2 ^ Constructive.natLog2 (inputBits n)) ^
         (base * factor) := by
           have exponentExact :
               base *
                   (factor *
-                    Nat.log2 (inputBits n)) =
-                Nat.log2 (inputBits n) *
+                    Constructive.natLog2 (inputBits n)) =
+                Constructive.natLog2 (inputBits n) *
                   (base * factor) := by
-            ac_rfl
+            exact
+              Eq.trans
+                (Constructive.nat_mul_assoc
+                  base
+                  factor
+                  (Constructive.natLog2 (inputBits n))).symm
+                (Nat.mul_comm
+                  (base * factor)
+                  (Constructive.natLog2 (inputBits n)))
           rw [
             exponentExact,
-            Nat.pow_mul
+            Constructive.nat_pow_mul
           ]
     _ ≤
       (inputBits n) ^
@@ -501,7 +533,7 @@ theorem closurePrimitiveBoundedCandidates_scaledLogFuel_le_inputPower
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closurePrimitiveQueryBudget
           (candidateCount n)
@@ -561,7 +593,7 @@ theorem closureCompositionBoundedCandidates_scaledLogFuel_le_inputPower
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureCompositionCandidateBudget
           (candidateCount n)
@@ -619,7 +651,7 @@ theorem closurePrimitiveBoundedCandidates_scaledLogFuel_inputPolynomiallyBounded
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -661,7 +693,7 @@ theorem closureCompositionBoundedCandidates_scaledLogFuel_inputPolynomiallyBound
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -716,7 +748,7 @@ theorem searchTransportClosureBoundedCandidates_scaledLogFuel_primitiveQueries
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n))
+            Constructive.natLog2 (inputBits n))
     (source target :
       (n : Nat) →
         State n) :
@@ -781,7 +813,7 @@ theorem searchTransportClosureBoundedCandidates_scaledLogFuel_compositionCandida
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n))
+            Constructive.natLog2 (inputBits n))
     (source target :
       (n : Nat) →
         State n) :

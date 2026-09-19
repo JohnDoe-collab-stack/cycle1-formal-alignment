@@ -75,16 +75,21 @@ theorem binaryClosureBudget_add_one_eq_binaryFuelScale :
           1
             =
           (binaryClosureBudget fuel + 1) +
-            (binaryClosureBudget fuel + 1) := by
-              simp only [
-                Nat.add_assoc,
-                Nat.add_comm,
-                Nat.add_left_comm
-              ]
+            (binaryClosureBudget fuel + 1) :=
+          Constructive.nat_double_add_two
+            (binaryClosureBudget fuel)
         _ =
           binaryFuelScale fuel +
-            binaryFuelScale fuel := by
-              simpa only [inductionHypothesis]
+            binaryFuelScale fuel :=
+          Eq.trans
+            (congrArg
+              (fun value =>
+                value +
+                  (binaryClosureBudget fuel + 1))
+              inductionHypothesis)
+            (congrArg
+              (Nat.add (binaryFuelScale fuel))
+              inductionHypothesis)
 
 /--
 If fuel equals the input-size index and there is one candidate, primitive-query

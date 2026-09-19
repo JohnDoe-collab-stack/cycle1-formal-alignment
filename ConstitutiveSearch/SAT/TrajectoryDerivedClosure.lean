@@ -1,4 +1,5 @@
 import ConstitutiveSearch.ClosureSearch
+import ConstitutiveSearch.ConstructivePrelude
 import ConstitutiveSearch.SAT.ExplicitFamilyResources
 
 /-!
@@ -200,14 +201,12 @@ theorem finish_decisions_eq_trajectoryVars
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
       rw [inductionHypothesis]
-      simp only [
+      rw [
         decisionVars,
-        List.reverse_cons,
-        List.map_append,
-        List.map_singleton,
+        Constructive.list_reverse_cons,
+        Constructive.list_map_append,
         GeneratedStructuralBranchContext.child_decisions,
-        trueDecisionOfVar,
-        List.append_assoc
+        Constructive.list_append_assoc
       ]
       rfl
 
@@ -229,10 +228,48 @@ theorem finish_decisionVariables_eq_trajectoryVars
   rw [
     trajectory.finish_decisions_eq_trajectoryVars
   ]
-  simp [
-    Function.comp_def,
-    trueDecisionOfVar
-  ]
+  calc
+    ((trajectory.decisionVars.reverse.map trueDecisionOfVar ++
+          start.context.decisions).map
+        StructuralBranchDecision.var) =
+        (trajectory.decisionVars.reverse.map
+            trueDecisionOfVar).map
+              StructuralBranchDecision.var ++
+          start.context.decisions.map
+            StructuralBranchDecision.var :=
+      Constructive.list_map_append
+        StructuralBranchDecision.var
+        (trajectory.decisionVars.reverse.map trueDecisionOfVar)
+        start.context.decisions
+    _ = trajectory.decisionVars.reverse.map
+            (fun value =>
+              StructuralBranchDecision.var
+                (trueDecisionOfVar value)) ++
+          start.context.decisions.map
+            StructuralBranchDecision.var :=
+      congrArg
+        (fun values =>
+          values ++
+            start.context.decisions.map
+              StructuralBranchDecision.var)
+        (Constructive.list_map_map
+          trueDecisionOfVar
+          StructuralBranchDecision.var
+          trajectory.decisionVars.reverse)
+    _ = trajectory.decisionVars.reverse.map
+            (fun value => value) ++
+          start.context.decisions.map
+            StructuralBranchDecision.var := rfl
+    _ = trajectory.decisionVars.reverse ++
+          start.context.decisions.map
+            StructuralBranchDecision.var :=
+      congrArg
+        (fun values =>
+          values ++
+            start.context.decisions.map
+              StructuralBranchDecision.var)
+        (Constructive.list_map_id
+          trajectory.decisionVars.reverse)
 
 /-- The generator-variable list has exactly one entry per constitutive step. -/
 theorem decisionVars_length

@@ -44,10 +44,9 @@ theorem provenanceStructuralFlipSearch_witnessComplete
               source
               target with
       | some relation =>
-          simp only [
-            provenanceStructuralFlipSearch,
-            headFound
-          ]
+          rw [provenanceStructuralFlipSearch]
+          dsimp only
+          rw [headFound]
           intro impossible
           cases impossible
       | none =>
@@ -59,8 +58,7 @@ theorem provenanceStructuralFlipSearch_witnessComplete
                   head
                   source
                   target := by
-              simpa only [varEq] using
-                witness.relation
+              exact varEq ▸ witness.relation
             have headNonNone :
                 (generatedStructuralFlipAtSearch
                   rootFormula
@@ -81,7 +79,7 @@ theorem provenanceStructuralFlipSearch_witnessComplete
           have memberRest :
               witness.var ∈ rest := by
             rcases
-                List.mem_cons.mp
+                Constructive.list_mem_cons_cases
                   witness.member with
               headEq | tailMember
             · exact
@@ -117,11 +115,11 @@ theorem provenanceStructuralFlipSearch_witnessComplete
                 False.elim
                   (tailNonNone tailFound)
           | some foundWitness =>
-              simp only [
-                provenanceStructuralFlipSearch,
-                headFound,
-                tailFound
-              ]
+              rw [provenanceStructuralFlipSearch]
+              dsimp only
+              rw [headFound]
+              dsimp only
+              rw [tailFound]
               intro impossible
               cases impossible
 

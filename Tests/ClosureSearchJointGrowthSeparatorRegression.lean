@@ -11,7 +11,7 @@ theorem candidateEqualsInputFour :
 
 theorem fuelEqualsLogFour :
     jointHardFuel 4 =
-      Nat.log2 (jointHardInputBits 4) :=
+      Constructive.natLog2 (jointHardInputBits 4) :=
   jointHardFuel_eq_log2Input 4
 
 theorem primitiveBudgetNotPolynomial :

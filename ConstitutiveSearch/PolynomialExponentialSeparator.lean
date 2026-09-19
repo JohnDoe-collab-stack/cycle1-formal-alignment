@@ -77,22 +77,12 @@ theorem eval_le_majorant :
           polynomial.majorantMass *
             inputBits ^ polynomial.majorantRank
   | .constant value, inputBits, _ => by
-      simp only [
-        eval,
-        majorantMass,
-        majorantRank,
-        Nat.pow_zero,
-        Nat.mul_one
-      ]
+      change value ≤ value * inputBits ^ 0
+      rw [Nat.pow_zero, Nat.mul_one]
       exact Nat.le_refl value
   | .input, inputBits, _ => by
-      simp only [
-        eval,
-        majorantMass,
-        majorantRank,
-        Nat.pow_one,
-        Nat.one_mul
-      ]
+      change inputBits ≤ 1 * inputBits ^ 1
+      rw [Nat.pow_succ, Nat.pow_zero, Nat.one_mul, Nat.one_mul]
       exact Nat.le_refl inputBits
   | .add left right, inputBits, inputPositive => by
       have inputNonzero :
@@ -115,13 +105,27 @@ theorem eval_le_majorant :
             left.majorantRank +
               right.majorantRank +
               1 := by
-        omega
+        exact
+          Nat.le_trans
+            (Nat.le_add_right
+              left.majorantRank
+              right.majorantRank)
+            (Nat.le_add_right
+              (left.majorantRank + right.majorantRank)
+              1)
       have rightRankLe :
           right.majorantRank ≤
             left.majorantRank +
               right.majorantRank +
               1 := by
-        omega
+        exact
+          Nat.le_trans
+            (Nat.le_add_left
+              right.majorantRank
+              left.majorantRank)
+            (Nat.le_add_right
+              (left.majorantRank + right.majorantRank)
+              1)
       have leftPowLe :
           inputBits ^ left.majorantRank ≤
             inputBits ^
@@ -197,7 +201,7 @@ theorem eval_le_majorant :
               (left.majorantRank +
                 right.majorantRank +
                 1) := by
-          rw [Nat.add_mul]
+          rw [Constructive.nat_add_mul]
   | .mul left right, inputBits, inputPositive => by
       have leftLe :=
         eval_le_majorant
@@ -234,8 +238,13 @@ theorem eval_le_majorant :
             inputBits ^
               (left.majorantRank +
                 right.majorantRank) := by
-          rw [Nat.pow_add]
-          ac_rfl
+          rw [Constructive.nat_pow_add]
+          exact
+            Constructive.nat_mul_pair_swap
+              left.majorantMass
+              (inputBits ^ left.majorantRank)
+              right.majorantMass
+              (inputBits ^ right.majorantRank)
 
 /--
 For n >= 3, doubling n still remains strictly below 2^n.
@@ -247,33 +256,59 @@ theorem two_mul_lt_two_pow_of_three_le
     (n : Nat)
     (threeLe : 3 ≤ n) :
     n + n < 2 ^ n := by
-  obtain ⟨offset, rfl⟩ :=
-    Nat.exists_eq_add_of_le
-      threeLe
-  induction offset with
-  | zero =>
-      decide
-  | succ offset inductionHypothesis =>
-      have oneLe :
-          1 ≤ 3 + offset := by
-        omega
-      have twoLePow :
-          2 ≤ 2 ^ (3 + offset) := by
-        have powerMonotone :=
-          Nat.pow_le_pow_right
-            Nat.zero_lt_two
-            oneLe
-        simpa only [
-          Nat.pow_one
-        ] using powerMonotone
-      rw [
-        show
-          3 + (offset + 1) =
-            (3 + offset) + 1 by
-              omega,
-        Nat.pow_succ
-      ]
-      omega
+  cases n with
+  | zero => nomatch threeLe
+  | succ first =>
+      cases first with
+      | zero => nomatch threeLe
+      | succ second =>
+          cases second with
+          | zero => nomatch threeLe
+          | succ offset =>
+              induction offset with
+              | zero => decide
+              | succ offset inductionHypothesis =>
+                  let current :=
+                    Nat.succ
+                      (Nat.succ
+                        (Nat.succ offset))
+                  have currentThree : 3 ≤ current :=
+                    Nat.succ_le_succ
+                      (Nat.succ_le_succ
+                        (Nat.succ_le_succ
+                          (Nat.zero_le offset)))
+                  have oneLe : 1 ≤ current :=
+                    Nat.le_trans
+                      (Nat.le_succ 1)
+                      (Nat.le_trans
+                        (Nat.le_succ 2)
+                        currentThree)
+                  have twoLePow :
+                      2 ≤ 2 ^ current := by
+                    change 2 ^ 1 ≤ 2 ^ current
+                    exact
+                      Nat.pow_le_pow_right
+                        Nat.zero_lt_two
+                        oneLe
+                  change
+                    (current + 1) + (current + 1) <
+                      2 ^ (current + 1)
+                  rw [Nat.pow_succ, Nat.mul_two]
+                  calc
+                    (current + 1) + (current + 1) =
+                        (current + current + 1) + 1 :=
+                      (Constructive.nat_double_add_two
+                        current).symm
+                    _ <
+                        2 ^ current + 2 ^ current :=
+                      let doubleStep :
+                          (current + current) + 2 <
+                            2 ^ current + 2 ^ current :=
+                        Nat.add_lt_add_of_lt_of_le
+                          (inductionHypothesis
+                            currentThree)
+                          twoLePow
+                      doubleStep
 
 /-- First finite parameter used by the explicit escape point. -/
 def escapeCore
@@ -297,7 +332,13 @@ theorem escapeCore_three_le
     (polynomial : CostPolynomial) :
     3 ≤ polynomial.escapeCore := by
   unfold escapeCore
-  omega
+  exact
+    Nat.le_trans
+      (Nat.le_succ 3)
+      (Nat.le_add_left
+        4
+        (polynomial.majorantMass +
+          polynomial.majorantRank))
 
 /-- The structural mass lies strictly below the first power-of-two expansion. -/
 theorem majorantMass_lt_escapeExponent
@@ -309,7 +350,11 @@ theorem majorantMass_lt_escapeExponent
       polynomial.majorantMass <
         polynomial.escapeCore := by
     unfold escapeCore
-    omega
+    rw [Nat.add_assoc]
+    exact
+      Nat.lt_add_of_pos_right
+        (Nat.zero_lt_succ
+          (polynomial.majorantRank + 3))
   exact
     Nat.lt_trans
       massLtCore
@@ -324,7 +369,15 @@ theorem majorantRank_succ_le_escapeCore
     polynomial.majorantRank + 1 ≤
       polynomial.escapeCore := by
   unfold escapeCore
-  omega
+  rw [Nat.add_assoc]
+  exact
+    Nat.le_trans
+      (Nat.add_le_add_left
+        (Nat.le_add_right 1 3)
+        polynomial.majorantRank)
+      (Nat.le_add_left
+        (polynomial.majorantRank + 4)
+        polynomial.majorantMass)
 
 /--
 The linear exponent induced by the monomial majorant lies below the concrete
@@ -414,15 +467,14 @@ theorem majorantExponent_lt_escapeInput
         2 ^ (core + core) := by
     rw [
       exponentEq,
-      Nat.pow_add
+      Constructive.nat_pow_add
     ]
   have fourth :
       exponent * exponent <
         2 ^ exponent := by
     rw [exponentSquareEq]
     exact
-      Nat.pow_lt_pow_right
-        Nat.one_lt_two
+      Constructive.two_pow_strictly_grows
         (by
           rw [exponentEq]
           exact coreDoubleLt)
@@ -483,8 +535,8 @@ theorem majorant_lt_two_pow_at_escape
               polynomial.majorantRank) := by
     rw [
       inputEq,
-      ← Nat.pow_mul,
-      ← Nat.pow_add
+      ← Constructive.nat_pow_mul,
+      ← Constructive.nat_pow_add
     ]
   have exponentLt :
       polynomial.majorantMass +
@@ -502,8 +554,7 @@ theorem majorant_lt_two_pow_at_escape
             exponent *
               polynomial.majorantRank) <
         2 ^ input :=
-    Nat.pow_lt_pow_right
-      Nat.one_lt_two
+    Constructive.two_pow_strictly_grows
       exponentLt
   exact
     Nat.lt_of_le_of_lt
@@ -592,9 +643,16 @@ theorem closurePrimitiveOneCandidateIdentityFuel_not_polynomiallyBounded :
       PolynomiallyBounded
         (fun inputBits =>
           2 ^ inputBits) := by
-    simpa only [
-      closurePrimitiveOneCandidateGrowingFuel_eq_two_pow
-    ] using plusOneBounded
+    rcases plusOneBounded with
+      ⟨envelope, budgetLe⟩
+    refine ⟨envelope, ?_⟩
+    intro inputBits
+    change 2 ^ inputBits ≤ envelope.eval inputBits
+    rw [
+      ← closurePrimitiveOneCandidateGrowingFuel_eq_two_pow
+        inputBits
+    ]
+    exact budgetLe inputBits
   exact
     twoPow_not_polynomiallyBounded
       exponentialBounded
@@ -625,9 +683,16 @@ theorem closureCompositionOneCandidateIdentityFuel_not_polynomiallyBounded :
       PolynomiallyBounded
         (fun inputBits =>
           2 ^ inputBits) := by
-    simpa only [
-      closureCompositionOneCandidateGrowingFuel_eq_two_pow
-    ] using plusOneBounded
+    rcases plusOneBounded with
+      ⟨envelope, budgetLe⟩
+    refine ⟨envelope, ?_⟩
+    intro inputBits
+    change 2 ^ inputBits ≤ envelope.eval inputBits
+    rw [
+      ← closureCompositionOneCandidateGrowingFuel_eq_two_pow
+        inputBits
+    ]
+    exact budgetLe inputBits
   exact
     twoPow_not_polynomiallyBounded
       exponentialBounded

@@ -54,9 +54,12 @@ theorem closurePrimitiveQueryBudget_doublePower_lt
   | zero =>
       rw [
         closurePrimitiveQueryBudget_fuel_two,
-        Nat.pow_one
+        Nat.pow_succ,
+        Nat.pow_zero,
+        Nat.one_mul,
+        Nat.mul_two
       ]
-      omega
+      exact Nat.lt_succ_self _
   | succ fuel inductionHypothesis =>
       let recursive :=
         closurePrimitiveQueryBudget
@@ -68,14 +71,19 @@ theorem closurePrimitiveQueryBudget_doublePower_lt
       have basePositive :
           0 < base := by
         unfold base
-        omega
+        exact
+          Nat.lt_of_lt_of_le
+            candidatePositive
+            (Nat.le_add_right
+              candidateCount
+              candidateCount)
       have scaled :
           base ^ (fuel + 1) * base <
             recursive * base := by
         exact
-          (Nat.mul_lt_mul_right
-            basePositive).2
+          Nat.mul_lt_mul_of_pos_right
             inductionHypothesis
+            basePositive
       rw [show
         closurePrimitiveQueryBudget
             candidateCount
@@ -169,7 +177,7 @@ theorem closurePrimitiveQueryBudget_le_composition
           candidateCount
       have oneLeCandidate :
           1 ≤ candidateCount := by
-        omega
+        exact candidatePositive
       have scaled :
           base * primitiveRecursive ≤
             base * compositionRecursive :=
@@ -194,7 +202,7 @@ theorem closurePrimitiveQueryBudget_le_composition
         unfold base
         rw [
           Nat.mul_add,
-          Nat.add_mul
+          Constructive.nat_add_mul
         ]
       have compositionStep :
           closureCompositionCandidateBudget
@@ -215,7 +223,7 @@ theorem closurePrimitiveQueryBudget_le_composition
           Nat.mul_add,
           Nat.mul_add,
           Nat.mul_one,
-          Nat.add_mul
+          Constructive.nat_add_mul
         ]
       rw [
         primitiveStep,
@@ -254,12 +262,12 @@ theorem jointHardCandidateCount_eq_input
 theorem jointHardFuel_eq_log2Input
     (n : Nat) :
     jointHardFuel n =
-      Nat.log2
+      Constructive.natLog2
         (jointHardInputBits n) := by
   unfold
     jointHardFuel
     jointHardInputBits
-  rw [Nat.log2_two_pow]
+  rw [Constructive.natLog2_two_pow]
 
 /-- Concrete input size is positive. -/
 theorem jointHardInputBits_positive
@@ -288,7 +296,12 @@ theorem jointHardFuel_unbounded :
   refine
     ⟨cap + 1, ?_⟩
   unfold jointHardFuel
-  omega
+  exact
+    Nat.lt_of_lt_of_le
+      (Nat.lt_succ_self cap)
+      (Nat.le_add_right
+        (cap + 1)
+        4)
 
 theorem jointHardCandidateCount_unbounded :
     ∀ cap : Nat,
@@ -305,9 +318,9 @@ theorem jointHardCandidateCount_unbounded :
     Nat.lt_trans
       (Nat.lt_two_pow_self
         (n := cap))
-      (Nat.pow_lt_pow_right
-        Nat.one_lt_two
-        (by omega))
+      (Constructive.two_pow_strictly_grows
+        (Nat.lt_add_of_pos_right
+          (Nat.zero_lt_succ 3)))
 
 /--
 Finite syntax parameters leave a strict exponent gap for the chosen hard-family
@@ -323,14 +336,29 @@ theorem jointHard_exponent_gap
   have massLtScale :
       mass <
         mass + rank + 4 := by
-    omega
+    rw [Nat.add_assoc]
+    exact
+      Nat.lt_add_of_pos_right
+        (Nat.zero_lt_succ
+          (rank + 3))
   have rankSuccLe :
       rank + 1 ≤
         mass + rank + 3 := by
-    omega
+    rw [Nat.add_assoc]
+    exact
+      Nat.le_trans
+        (Nat.add_le_add_left
+          (Nat.le_add_right 1 2)
+          rank)
+        (Nat.le_add_left
+          (rank + 3)
+          mass)
   have rightPositive :
       0 < mass + rank + 3 := by
-    omega
+    exact
+      Nat.zero_lt_of_lt
+        (Nat.lt_add_of_pos_right
+          (Nat.zero_lt_succ 2))
   calc
     mass +
           (mass + rank + 4) *
@@ -359,10 +387,11 @@ theorem jointHard_exponent_gap
     _ <
       (mass + rank + 5) *
         (mass + rank + 3) := by
-          apply
-            (Nat.mul_lt_mul_right
-              rightPositive).2
-          omega
+          exact
+            Nat.mul_lt_mul_of_pos_right
+              (Nat.lt_succ_self
+                (mass + rank + 4))
+              rightPositive
 
 /-- Any structural monomial majorant at a power-of-two input is a power of two. -/
 theorem costPolynomialMajorant_le_twoPow
@@ -398,8 +427,8 @@ theorem costPolynomialMajorant_le_twoPow
           scale *
             polynomial.majorantRank) := by
           rw [
-            ← Nat.pow_mul,
-            ← Nat.pow_add
+            ← Constructive.nat_pow_mul,
+            ← Constructive.nat_pow_add
           ]
 
 /--
@@ -434,7 +463,7 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
         envelope.majorantMass +
           envelope.majorantRank +
           4 := by
-    simp only [scale, witnessIndex]
+    rfl
   have inputExact :
       jointHardInputBits witnessIndex =
         candidate := by
@@ -496,7 +525,15 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
         _ =
           2 ^ (witnessIndex + 5) := by
             unfold candidate scale
-            simpa [Nat.add_assoc] using
+            rw [show
+              witnessIndex + 5 =
+                (witnessIndex + 4) + 1 by
+                  exact
+                    (Nat.add_assoc
+                      witnessIndex
+                      4
+                      1).symm]
+            exact
               (Nat.pow_succ
                 2
                 (witnessIndex + 4)).symm
@@ -508,7 +545,7 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
               (witnessIndex + 3)) := by
       rw [baseExact]
       exact
-        (Nat.pow_mul
+        (Constructive.nat_pow_mul
           2
           (witnessIndex + 5)
           (witnessIndex + 3)).symm
@@ -524,7 +561,22 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
         closurePrimitiveQueryBudget
           candidate
           (witnessIndex + 4) := by
-            simpa [Nat.add_assoc] using lower
+            have exponentExact :
+                (witnessIndex + 2) + 1 =
+                  witnessIndex + 3 :=
+              (Nat.add_assoc
+                witnessIndex
+                2
+                1).symm
+            have fuelExact' :
+                (witnessIndex + 2) + 2 =
+                  witnessIndex + 4 :=
+              (Nat.add_assoc
+                witnessIndex
+                2
+                2).symm
+            rw [exponentExact, fuelExact'] at lower
+            exact lower
       _ =
         closurePrimitiveQueryBudget
           (jointHardCandidateCount witnessIndex)
@@ -536,9 +588,8 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
   have inputPositive :
       1 ≤
         jointHardInputBits witnessIndex :=
-    (Nat.succ_le_iff).2
-      (jointHardInputBits_positive
-        witnessIndex)
+    jointHardInputBits_positive
+      witnessIndex
   have evalLeMajorant :=
     envelope.eval_le_majorant
       (jointHardInputBits witnessIndex)
@@ -579,8 +630,7 @@ theorem jointHardPrimitive_not_inputPolynomiallyBounded :
             (witnessIndex + 3)) :=
     Nat.lt_of_le_of_lt
       majorantLePower
-      (Nat.pow_lt_pow_right
-        Nat.one_lt_two
+      (Constructive.two_pow_strictly_grows
         exponentGap)
   have evalLtBudget :
       envelope.eval

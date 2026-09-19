@@ -45,6 +45,7 @@ roots = [
   "ConstitutiveSearch.ClosureSearchFixedFuelPolynomial",
   "ConstitutiveSearch.ClosureSearchGrowingFuelSeparator",
   "ConstitutiveSearch.ClosureSearchWidthControlled",
+  "ConstitutiveSearch.ConstructivePrelude",
   "ConstitutiveSearch.ComplexityInterface",
   "ConstitutiveSearch.MachineCostInterface",
   "ConstitutiveSearch.MachineCostPolynomial",

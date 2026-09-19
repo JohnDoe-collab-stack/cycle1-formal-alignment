@@ -150,7 +150,7 @@ theorem add_under_max
     Nat.le_trans
       (leftLe n)
       (leftEnvelope.eval_mono
-        (Nat.le_max_left
+          (Constructive.nat_le_max_left
           (leftInput n)
           (rightInput n)))
   have rightAtMax :
@@ -162,7 +162,7 @@ theorem add_under_max
     Nat.le_trans
       (rightLe n)
       (rightEnvelope.eval_mono
-        (Nat.le_max_right
+        (Constructive.nat_le_max_right
           (leftInput n)
           (rightInput n)))
   exact
@@ -204,14 +204,21 @@ theorem max_under_max
         rightEnvelope,
       ?_⟩
   intro n
-  rw [Nat.max_le]
-  constructor
-  · exact
-      Nat.le_trans
+  exact
+    Constructive.nat_max_le
+      (leftCost n)
+      (rightCost n)
+      ((CostPolynomial.add
+        leftEnvelope
+        rightEnvelope).eval
+          (Nat.max
+            (leftInput n)
+            (rightInput n)))
+      (Nat.le_trans
         (Nat.le_trans
           (leftLe n)
           (leftEnvelope.eval_mono
-            (Nat.le_max_left
+            (Constructive.nat_le_max_left
               (leftInput n)
               (rightInput n))))
         (Nat.le_add_right
@@ -222,13 +229,12 @@ theorem max_under_max
           (rightEnvelope.eval
             (Nat.max
               (leftInput n)
-              (rightInput n))))
-  · exact
-      Nat.le_trans
+              (rightInput n)))))
+      (Nat.le_trans
         (Nat.le_trans
           (rightLe n)
           (rightEnvelope.eval_mono
-            (Nat.le_max_right
+            (Constructive.nat_le_max_right
               (leftInput n)
               (rightInput n))))
         (Nat.le_add_left
@@ -239,7 +245,7 @@ theorem max_under_max
           (leftEnvelope.eval
             (Nat.max
               (leftInput n)
-              (rightInput n))))
+              (rightInput n)))))
 
 end InputPolynomiallyBounded
 

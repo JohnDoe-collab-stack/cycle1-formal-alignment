@@ -210,7 +210,21 @@ theorem explicitFamilyConstitutedValidationRepresentationCharge_eq
   rw [
     explicitFamilyConstitutedLocalValidationQueries
   ]
-  simp
+  change
+    0 * 1 +
+        (0 * explicitFamilyStateBinaryBudget count +
+          (0 * explicitFamilyProvenanceUnitBinaryBudget count +
+            (0 * explicitFamilyCertificateAtomBinaryBudget count +
+              (count * explicitFamilyRelationEqualityChargeBudget count +
+                (0 * explicitFamilyRelationEqualityChargeBudget count +
+                  (0 * explicitFamilyStateBinaryBudget count +
+                    0 * StructuralDecisionHistory.binaryBudget
+                      count
+                      count)))))) =
+      count * explicitFamilyRelationEqualityChargeBudget count
+  repeat rw [Nat.zero_mul]
+  repeat rw [Nat.zero_add]
+  repeat rw [Nat.add_zero]
 
 /-- Local execution charge is exactly n direct primitive-query charges. -/
 theorem explicitFamilyConstitutedExecutionRepresentationCharge_eq
@@ -228,7 +242,21 @@ theorem explicitFamilyConstitutedExecutionRepresentationCharge_eq
     explicitFamilyConstitutedLocalExecutionQueries,
     explicitFamilyConstitutedLocalExecutionCompositionCandidates
   ]
-  simp
+  change
+    0 * 1 +
+        (0 * explicitFamilyStateBinaryBudget count +
+          (0 * explicitFamilyProvenanceUnitBinaryBudget count +
+            (0 * explicitFamilyCertificateAtomBinaryBudget count +
+              (0 * explicitFamilyRelationEqualityChargeBudget count +
+                (count * explicitFamilyRelationEqualityChargeBudget count +
+                  (0 * explicitFamilyStateBinaryBudget count +
+                    0 * StructuralDecisionHistory.binaryBudget
+                      count
+                      count)))))) =
+      count * explicitFamilyRelationEqualityChargeBudget count
+  repeat rw [Nat.zero_mul]
+  repeat rw [Nat.zero_add]
+  repeat rw [Nat.add_zero]
 
 /--
 Input-indexed polynomial envelope used for either validation or local execution

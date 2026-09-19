@@ -39,13 +39,17 @@ theorem demoFirstSearchable
     (n : Nat) :
     (demoFirst n).SearchableBy
       (demoPrimitive n) := by
-  simp [demoFirst, demoPrimitive, TransportCode.SearchableBy]
+  change some (DemoGenerator.first n) ≠ none
+  intro impossible
+  cases impossible
 
 theorem demoSecondSearchable
     (n : Nat) :
     (demoSecond n).SearchableBy
       (demoPrimitive n) := by
-  simp [demoSecond, demoPrimitive, TransportCode.SearchableBy]
+  change some (DemoGenerator.second n) ≠ none
+  intro impossible
+  cases impossible
 
 theorem demoComposedSize
     (n : Nat) :

@@ -1,4 +1,5 @@
 import ConstitutiveSearch.ConstitutiveComplexityProfile
+import ConstitutiveSearch.ConstructivePrelude
 
 /-!
 # Sequential composition of constitutive complexity profiles
@@ -47,7 +48,7 @@ theorem left_boundedBy_compose
     first.BoundedBy
       (compose first second) :=
   { inputBitsLe :=
-      Nat.le_max_left
+      Constructive.nat_le_max_left
         first.inputBits
         second.inputBits
     depthLe :=
@@ -55,7 +56,7 @@ theorem left_boundedBy_compose
         first.depth
         second.depth
     widthLe :=
-      Nat.le_max_left
+      Constructive.nat_le_max_left
         first.maxFrontierWidth
         second.maxFrontierWidth
     syntaxLe :=
@@ -101,7 +102,7 @@ theorem right_boundedBy_compose
     second.BoundedBy
       (compose first second) :=
   { inputBitsLe :=
-      Nat.le_max_right
+      Constructive.nat_le_max_right
         first.inputBits
         second.inputBits
     depthLe :=
@@ -109,7 +110,7 @@ theorem right_boundedBy_compose
         second.depth
         first.depth
     widthLe :=
-      Nat.le_max_right
+      Constructive.nat_le_max_right
         first.maxFrontierWidth
         second.maxFrontierWidth
     syntaxLe :=

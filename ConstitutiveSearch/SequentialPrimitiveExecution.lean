@@ -1,5 +1,5 @@
-import Init.Omega
 import ConstitutiveSearch.ClosureSearch
+import ConstitutiveSearch.ConstructivePrelude
 
 /-!
 # Sequential execution of certified primitive-hit paths
@@ -159,18 +159,29 @@ theorem trans_length
       first.length + second.length := by
   induction first with
   | identity state =>
-      simp only [
-        trans,
-        length,
-        Nat.zero_add
-      ]
+      exact
+        (Nat.zero_add second.length).symm
   | step hit tail inductionHypothesis =>
-      change
+      calc
         (tail.trans second).length + 1 =
-          (tail.length + 1) +
+            (tail.length + second.length) + 1 :=
+          congrArg
+            (fun value => value + 1)
+            (inductionHypothesis second)
+        _ = tail.length + (second.length + 1) :=
+          Nat.add_assoc
+            tail.length
             second.length
-      rw [inductionHypothesis]
-      omega
+            1
+        _ = tail.length + (1 + second.length) :=
+          congrArg
+            (Nat.add tail.length)
+            (Nat.add_comm second.length 1)
+        _ = (tail.length + 1) + second.length :=
+          (Nat.add_assoc
+            tail.length
+            1
+            second.length).symm
 
 /--
 Aggregate actual ClosureSearch statistics obtained by following path edges
@@ -231,20 +242,18 @@ theorem primitiveHit_run_stats
       run.stats.compositionCandidates = 0 := by
   cases fuel with
   | zero =>
-      omega
+      nomatch fuelPositive
   | succ fuel =>
       cases found :
           primitive.find source target with
       | none =>
           exact False.elim (primitiveHit found)
       | some witness =>
-          simp only [
+          rw [
             searchTransportClosureBounded,
-            found,
-            ClosureSearchStats.withPrimitiveQuery,
-            ClosureSearchStats.zero
+            found
           ]
-          exact ⟨True.intro, True.intro⟩
+          exact ⟨rfl, rfl⟩
 
 /-- Every stored edge is a non-none primitive hit. -/
 theorem step_hit_ne_none
@@ -301,16 +310,37 @@ theorem sequentialStats_primitiveQueries
           (step_hit_ne_none
             hit
             tail)
-      simp only [
-        sequentialStats,
-        ClosureSearchStats.combine,
-        length
-      ]
-      rw [
-        edgeStats.1,
-        inductionHypothesis
-      ]
-      omega
+      calc
+        (sequentialStats
+            candidates
+            fuel
+            (.step hit tail)).primitiveQueries =
+            (searchTransportClosureBounded
+                primitive
+                candidates
+                fuel
+                source
+                middle).stats.primitiveQueries +
+              (tail.sequentialStats
+                candidates
+                fuel).primitiveQueries := rfl
+        _ = 1 +
+              (tail.sequentialStats
+                candidates
+                fuel).primitiveQueries :=
+          congrArg
+            (fun value =>
+              value +
+                (tail.sequentialStats
+                  candidates
+                  fuel).primitiveQueries)
+            edgeStats.1
+        _ = 1 + tail.length :=
+          congrArg
+            (Nat.add 1)
+            inductionHypothesis
+        _ = tail.length + 1 :=
+          Nat.add_comm 1 tail.length
 
 /--
 Sequential execution never inspects a composition candidate: every edge
@@ -348,14 +378,36 @@ theorem sequentialStats_compositionCandidates
           (step_hit_ne_none
             hit
             tail)
-      simp only [
-        sequentialStats,
-        ClosureSearchStats.combine
-      ]
-      rw [
-        edgeStats.2,
-        inductionHypothesis
-      ]
+      calc
+        (sequentialStats
+            candidates
+            fuel
+            (.step hit tail)).compositionCandidates =
+            (searchTransportClosureBounded
+                primitive
+                candidates
+                fuel
+                source
+                middle).stats.compositionCandidates +
+              (tail.sequentialStats
+                candidates
+                fuel).compositionCandidates := rfl
+        _ = 0 +
+              (tail.sequentialStats
+                candidates
+                fuel).compositionCandidates :=
+          congrArg
+            (fun value =>
+              value +
+                (tail.sequentialStats
+                  candidates
+                  fuel).compositionCandidates)
+            edgeStats.2
+        _ = 0 + 0 :=
+          congrArg
+            (Nat.add 0)
+            inductionHypothesis
+        _ = 0 := rfl
 
 
 /--
@@ -378,7 +430,7 @@ theorem directHit_of_length_one
   cases path with
   | identity state =>
       change 0 = 1 at lengthOne
-      omega
+      cases lengthOne
   | @step source middle target witness hit tail =>
       cases tail with
       | identity state =>
@@ -388,7 +440,10 @@ theorem directHit_of_length_one
       | step tailHit rest =>
           change
             (rest.length + 1) + 1 = 1 at lengthOne
-          omega
+          have impossible :
+              Nat.succ rest.length = 0 :=
+            Nat.succ.inj lengthOne
+          cases impossible
 
 /--
 Whenever the candidate-recursion layer returns a code, it carries an executable
@@ -443,17 +498,21 @@ theorem searchClosureViaCandidates_found_hasPrimitiveHitPath
   induction candidates with
   | nil =>
       intro source target code found
-      simp only [
-        searchClosureViaCandidates,
-        ClosureSearchRun.empty
-      ] at found
+      change
+        (none :
+          Option
+            (TransportClosure
+              Generator
+              source
+              target)) =
+          some code at found
       cases found
   | cons middle rest inductionHypothesis =>
       intro source target code found
       cases firstResult :
           (recurse source middle).code? with
       | none =>
-          simp only [
+          rw [
             searchClosureViaCandidates,
             firstResult
           ] at found
@@ -467,11 +526,10 @@ theorem searchClosureViaCandidates_found_hasPrimitiveHitPath
           cases secondResult :
               (recurse middle target).code? with
           | none =>
-              simp only [
-                searchClosureViaCandidates,
-                firstResult,
-                secondResult
-              ] at found
+              rw [searchClosureViaCandidates] at found
+              rw [firstResult] at found
+              dsimp only at found
+              rw [secondResult] at found
               exact
                 inductionHypothesis
                   source
@@ -479,11 +537,10 @@ theorem searchClosureViaCandidates_found_hasPrimitiveHitPath
                   code
                   found
           | some secondCode =>
-              simp only [
-                searchClosureViaCandidates,
-                firstResult,
-                secondResult
-              ] at found
+              rw [searchClosureViaCandidates] at found
+              rw [firstResult] at found
+              dsimp only at found
+              rw [secondResult] at found
               injection found with codeExact
               subst code
               rcases
@@ -509,29 +566,37 @@ theorem searchClosureViaCandidates_found_hasPrimitiveHitPath
                   secondPath
               refine
                 ⟨path, ?_, ?_⟩
-              · rw [show
-                    path.length =
+              · have positiveSum :
+                    0 < firstPath.length +
+                      secondPath.length :=
+                  Nat.lt_of_lt_of_le
+                    firstPositive
+                    (Nat.le_add_right
+                      firstPath.length
+                      secondPath.length)
+                exact
+                  (trans_length
+                    firstPath
+                    secondPath).symm ▸
+                    positiveSum
+              · calc
+                  path.length =
                       firstPath.length +
-                        secondPath.length from
+                        secondPath.length :=
                     trans_length
                       firstPath
-                      secondPath]
-                omega
-              · change
-                  path.length =
-                    firstCode.size +
-                      secondCode.size
-                rw [
-                  show
-                    path.length =
-                      firstPath.length +
-                        secondPath.length from
-                      trans_length
-                        firstPath
-                        secondPath,
-                  firstLength,
-                  secondLength
-                ]
+                      secondPath
+                  _ = firstCode.size +
+                        secondPath.length :=
+                    congrArg
+                      (fun value =>
+                        value + secondPath.length)
+                      firstLength
+                  _ = firstCode.size +
+                        secondCode.size :=
+                    congrArg
+                      (Nat.add firstCode.size)
+                      secondLength
 
 /--
 Every code actually found by bounded ClosureSearch has an executable
@@ -669,7 +734,7 @@ theorem searchClosureViaCandidates_cons_compositionCandidates_pos
         ClosureSearchStats.withCompositionCandidate,
         ClosureSearchStats.combine
       ]
-      omega
+      exact Nat.zero_lt_succ _
   | some firstCode =>
       cases secondResult :
           (recurse middle target).code? with
@@ -681,7 +746,7 @@ theorem searchClosureViaCandidates_cons_compositionCandidates_pos
             ClosureSearchStats.withCompositionCandidate,
             ClosureSearchStats.combine
           ]
-          omega
+          exact Nat.zero_lt_succ _
       | some secondCode =>
           simp only [
             searchClosureViaCandidates,
@@ -690,7 +755,7 @@ theorem searchClosureViaCandidates_cons_compositionCandidates_pos
             ClosureSearchStats.withCompositionCandidate,
             ClosureSearchStats.combine
           ]
-          omega
+          exact Nat.zero_lt_succ _
 
 /--
 If the direct primitive query misses but bounded ClosureSearch still succeeds,
@@ -911,7 +976,10 @@ theorem searchTransportClosureBounded_directMiss_found_hasSequentialReplacement
         directMiss
   have twoLe :
       2 ≤ path.length := by
-    omega
+    exact
+      Constructive.two_le_of_pos_of_ne_one
+        pathPositive
+        pathNotOne
   have globalCompositionPositive :
       0 <
         (searchTransportClosureBounded
@@ -1004,7 +1072,10 @@ theorem searchTransportClosureBounded_directMiss_found_requiresComposition
         directMiss
   have twoLe :
       2 ≤ path.length := by
-    omega
+    exact
+      Constructive.two_le_of_pos_of_ne_one
+        pathPositive
+        pathNotOne
   exact
     ⟨directMiss,
       ⟨path, twoLe⟩⟩
@@ -1055,9 +1126,11 @@ theorem searchTransportClosureBounded_directMiss_found_codeSize
         directMiss
   have twoLe :
       2 ≤ path.length := by
-    omega
-  rw [pathLength] at twoLe
-  exact twoLe
+    exact
+      Constructive.two_le_of_pos_of_ne_one
+        pathPositive
+        pathNotOne
+  exact pathLength ▸ twoLe
 
 /--
 A global composition requirement carries an explicit closure code with at least

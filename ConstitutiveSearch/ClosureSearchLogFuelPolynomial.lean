@@ -29,7 +29,7 @@ theorem closurePrimitiveOneCandidate_logFuel_le_input
     (fuelLeLog :
       ∀ n : Nat,
         fuel n ≤
-          Nat.log2 (inputBits n)) :
+          Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closurePrimitiveQueryBudget
           1
@@ -38,14 +38,14 @@ theorem closurePrimitiveOneCandidate_logFuel_le_input
   intro n
   have fuelPowerLe :
       2 ^ fuel n ≤
-        2 ^ Nat.log2 (inputBits n) :=
+        2 ^ Constructive.natLog2 (inputBits n) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       (fuelLeLog n)
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have budgetPlusOneLe :
@@ -62,7 +62,12 @@ theorem closurePrimitiveOneCandidate_logFuel_le_input
       Nat.le_trans
         fuelPowerLe
         logPowerLe
-  omega
+  exact
+    Nat.le_trans
+      (Nat.le_add_right
+        (closurePrimitiveQueryBudget 1 (fuel n))
+        1)
+      budgetPlusOneLe
 
 /--
 The primitive-query cost family is therefore input-polynomial, with the
@@ -76,7 +81,7 @@ theorem closurePrimitiveOneCandidate_logFuel_inputPolynomiallyBounded
     (fuelLeLog :
       ∀ n : Nat,
         fuel n ≤
-          Nat.log2 (inputBits n)) :
+          Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -101,7 +106,7 @@ theorem closureCompositionOneCandidate_logFuel_le_input
     (fuelLeLog :
       ∀ n : Nat,
         fuel n ≤
-          Nat.log2 (inputBits n)) :
+          Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureCompositionCandidateBudget
           1
@@ -110,14 +115,14 @@ theorem closureCompositionOneCandidate_logFuel_le_input
   intro n
   have fuelPowerLe :
       2 ^ fuel n ≤
-        2 ^ Nat.log2 (inputBits n) :=
+        2 ^ Constructive.natLog2 (inputBits n) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       (fuelLeLog n)
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have budgetPlusOneLe :
@@ -134,7 +139,12 @@ theorem closureCompositionOneCandidate_logFuel_le_input
       Nat.le_trans
         fuelPowerLe
         logPowerLe
-  omega
+  exact
+    Nat.le_trans
+      (Nat.le_add_right
+        (closureCompositionCandidateBudget 1 (fuel n))
+        1)
+      budgetPlusOneLe
 
 /--
 The one-candidate composition counter is likewise input-polynomial under
@@ -148,7 +158,7 @@ theorem closureCompositionOneCandidate_logFuel_inputPolynomiallyBounded
     (fuelLeLog :
       ∀ n : Nat,
         fuel n ≤
-          Nat.log2 (inputBits n)) :
+          Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -189,14 +199,14 @@ theorem logarithmicWitnessInputPositive :
 theorem logarithmicWitnessFuel_eq_log :
     ∀ n : Nat,
       logarithmicWitnessFuel n =
-        Nat.log2
+        Constructive.natLog2
           (logarithmicWitnessInputBits n) := by
   intro n
   unfold
     logarithmicWitnessFuel
     logarithmicWitnessInputBits
   exact
-    (Nat.log2_two_pow).symm
+    (Constructive.natLog2_two_pow).symm
 
 theorem logarithmicWitnessFuel_unbounded :
     ∀ cap : Nat,
@@ -228,7 +238,7 @@ theorem logarithmicWitnessPrimitive_inputPolynomiallyBounded :
       ]
       exact
         Nat.le_refl
-          (Nat.log2
+          (Constructive.natLog2
             (logarithmicWitnessInputBits n)))
 
 theorem logarithmicWitnessComposition_inputPolynomiallyBounded :
@@ -249,7 +259,7 @@ theorem logarithmicWitnessComposition_inputPolynomiallyBounded :
       ]
       exact
         Nat.le_refl
-          (Nat.log2
+          (Constructive.natLog2
             (logarithmicWitnessInputBits n)))
 
 end ConstitutiveSearch

@@ -131,14 +131,13 @@ theorem explicitFamilyWithCompositionProfile_eq_compose
     explicitFamilyWithCompositionProfile count =
       ConstitutiveComplexityProfile.compose
         (explicitFamilyConstitutiveProfile count)
-        (composedClosureConstitutivePhaseProfile count) := by
-  simp only [
-    explicitFamilyWithCompositionProfile,
-    ConstitutiveComplexityProfile.compose,
-    explicitFamilyConstitutiveProfile,
-    composedClosureConstitutivePhaseProfile,
-    Nat.max_self
-  ]
+      (composedClosureConstitutivePhaseProfile count) := by
+  unfold
+    explicitFamilyWithCompositionProfile
+    ConstitutiveComplexityProfile.compose
+    explicitFamilyConstitutiveProfile
+    composedClosureConstitutivePhaseProfile
+  rw [Constructive.nat_max_self]
 
 /-- The local F(n) profile is pointwise bounded by the complete execution profile. -/
 theorem explicitFamilyConstitutiveProfile_boundedBy_withComposition

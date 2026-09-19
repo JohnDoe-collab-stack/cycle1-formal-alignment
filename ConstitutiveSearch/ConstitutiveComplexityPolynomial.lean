@@ -42,20 +42,23 @@ theorem polynomiallyBounded_max
         rightEnvelope,
       ?_⟩
   intro inputBits
-  rw [Nat.max_le]
-  constructor
-  · exact
-      Nat.le_trans
+  exact
+    Constructive.nat_max_le
+      (left inputBits)
+      (right inputBits)
+      ((CostPolynomial.add
+        leftEnvelope
+        rightEnvelope).eval inputBits)
+      (Nat.le_trans
         (leftLe inputBits)
         (Nat.le_add_right
           (leftEnvelope.eval inputBits)
-          (rightEnvelope.eval inputBits))
-  · exact
-      Nat.le_trans
+          (rightEnvelope.eval inputBits)))
+      (Nat.le_trans
         (rightLe inputBits)
         (Nat.le_add_left
           (rightEnvelope.eval inputBits)
-          (leftEnvelope.eval inputBits))
+          (leftEnvelope.eval inputBits)))
 
 /--
 Polynomial asymptotic envelope for every coordinate of a profile family.

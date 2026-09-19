@@ -14,7 +14,7 @@ theorem witnessInputThree :
 
 theorem witnessFuelIsLogThree :
     logarithmicWitnessFuel 3 =
-      Nat.log2
+      Constructive.natLog2
         (logarithmicWitnessInputBits 3) :=
   logarithmicWitnessFuel_eq_log 3
 

@@ -89,7 +89,7 @@ theorem closurePrimitiveOneCandidate_scaledLogFuel_le_inputPower
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closurePrimitiveQueryBudget
           1
@@ -100,26 +100,26 @@ theorem closurePrimitiveOneCandidate_scaledLogFuel_le_inputPower
       2 ^ fuel n ≤
         2 ^
           (factor *
-            Nat.log2 (inputBits n)) :=
+            Constructive.natLog2 (inputBits n)) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       (fuelLeScaledLog n)
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have scaledPowerLe :
       2 ^
           (factor *
-            Nat.log2 (inputBits n)) ≤
+            Constructive.natLog2 (inputBits n)) ≤
         (inputBits n) ^ factor := by
     rw [
       Nat.mul_comm
         factor
-        (Nat.log2 (inputBits n)),
-      Nat.pow_mul
+        (Constructive.natLog2 (inputBits n)),
+      Constructive.nat_pow_mul
     ]
     exact
       Nat.pow_le_pow_left
@@ -161,7 +161,7 @@ theorem closurePrimitiveOneCandidate_scaledLogFuel_inputPolynomiallyBounded
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -195,7 +195,7 @@ theorem closureCompositionOneCandidate_scaledLogFuel_le_inputPower
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     ∀ n : Nat,
       closureCompositionCandidateBudget
           1
@@ -206,26 +206,26 @@ theorem closureCompositionOneCandidate_scaledLogFuel_le_inputPower
       2 ^ fuel n ≤
         2 ^
           (factor *
-            Nat.log2 (inputBits n)) :=
+            Constructive.natLog2 (inputBits n)) :=
     Nat.pow_le_pow_right
       Nat.zero_lt_two
       (fuelLeScaledLog n)
   have logPowerLe :
-      2 ^ Nat.log2 (inputBits n) ≤
+      2 ^ Constructive.natLog2 (inputBits n) ≤
         inputBits n :=
-    Nat.log2_self_le
+    Constructive.two_pow_natLog2_le
       (Nat.ne_of_gt
         (inputPositive n))
   have scaledPowerLe :
       2 ^
           (factor *
-            Nat.log2 (inputBits n)) ≤
+            Constructive.natLog2 (inputBits n)) ≤
         (inputBits n) ^ factor := by
     rw [
       Nat.mul_comm
         factor
-        (Nat.log2 (inputBits n)),
-      Nat.pow_mul
+        (Constructive.natLog2 (inputBits n)),
+      Constructive.nat_pow_mul
     ]
     exact
       Nat.pow_le_pow_left
@@ -267,7 +267,7 @@ theorem closureCompositionOneCandidate_scaledLogFuel_inputPolynomiallyBounded
       ∀ n : Nat,
         fuel n ≤
           factor *
-            Nat.log2 (inputBits n)) :
+            Constructive.natLog2 (inputBits n)) :
     InputPolynomiallyBounded
       inputBits
       (fun n =>
@@ -300,14 +300,14 @@ theorem scaledLogarithmicWitnessFuel_le_scaledLog
           factor
           n ≤
         factor *
-          Nat.log2
+          Constructive.natLog2
             (logarithmicWitnessInputBits n) := by
   intro n
   unfold
     scaledLogarithmicWitnessFuel
     logarithmicWitnessInputBits
   rw [
-    Nat.log2_two_pow
+    Constructive.natLog2_two_pow
   ]
   exact
     Nat.le_refl
@@ -376,7 +376,7 @@ theorem scaledLogarithmicWitnessPrimitive_exact
     Nat.mul_comm
       factor
       n,
-    Nat.pow_mul
+    Constructive.nat_pow_mul
   ]
 
 /--
@@ -404,7 +404,7 @@ theorem scaledLogarithmicWitnessComposition_exact
     Nat.mul_comm
       factor
       n,
-    Nat.pow_mul
+    Constructive.nat_pow_mul
   ]
 
 theorem scaledLogarithmicWitnessPrimitive_inputPolynomiallyBounded

@@ -279,19 +279,25 @@ theorem explicitFamilyConstitutedTotalProfile_relationFind
     (explicitFamilyConstitutedTotalProfile
       count).events.relationFindCalls =
       3 * count := by
-  simp only [
-    explicitFamilyConstitutedTotalProfile,
-    ConstitutiveComplexityProfile.compose,
-    ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
-    explicitFamilyConstitutedValidationProfile,
-    explicitFamilyConstitutedValidationCounts,
-    explicitFamilyConstitutedExecutionProfile,
-    explicitFamilyConstitutedExecutionCounts,
-    explicitFamilyConstitutedLocalValidationQueries
+  change
+    2 * count +
+        (ConstitutedLocalSchedule.validationPrimitiveQueries
+            (explicitFamilyConstitutedLocalWitnesses count) +
+          0) =
+      3 * count
+  rw [
+    explicitFamilyConstitutedLocalValidationQueries,
+    Nat.add_zero
   ]
-  omega
+  calc
+    2 * count + count =
+        2 * count + 1 * count :=
+      congrArg
+        (Nat.add (2 * count))
+        (Nat.one_mul count).symm
+    _ = (2 + 1) * count :=
+      (Constructive.nat_add_mul 2 1 count).symm
+    _ = 3 * count := rfl
 
 /-- Actual local execution contributes exactly n primitive closure queries. -/
 theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
@@ -299,19 +305,17 @@ theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
     (explicitFamilyConstitutedTotalProfile
       count).events.closurePrimitiveQueries =
       count := by
-  simp only [
-    explicitFamilyConstitutedTotalProfile,
-    ConstitutiveComplexityProfile.compose,
-    ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
-    explicitFamilyConstitutedValidationProfile,
-    explicitFamilyConstitutedValidationCounts,
-    explicitFamilyConstitutedExecutionProfile,
-    explicitFamilyConstitutedExecutionCounts,
-    explicitFamilyConstitutedLocalExecutionQueries
+  change
+    0 +
+        (0 +
+          ConstitutedLocalSchedule.executionPrimitiveQueries
+            (explicitFamilyConstitutedLocalWitnesses count)) =
+      count
+  rw [
+    explicitFamilyConstitutedLocalExecutionQueries,
+    Nat.zero_add,
+    Nat.zero_add
   ]
-  simp
 
 /-- No actual local execution phase inspects a composition candidate. -/
 theorem explicitFamilyConstitutedTotalProfile_closureCandidates
@@ -319,17 +323,16 @@ theorem explicitFamilyConstitutedTotalProfile_closureCandidates
     (explicitFamilyConstitutedTotalProfile
       count).events.closureCompositionCandidates =
       0 := by
-  simp only [
-    explicitFamilyConstitutedTotalProfile,
-    ConstitutiveComplexityProfile.compose,
-    ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
-    explicitFamilyConstitutedValidationProfile,
-    explicitFamilyConstitutedValidationCounts,
-    explicitFamilyConstitutedExecutionProfile,
-    explicitFamilyConstitutedExecutionCounts,
-    explicitFamilyConstitutedLocalExecutionCompositionCandidates
+  change
+    0 +
+        (0 +
+          ConstitutedLocalSchedule.executionCompositionCandidates
+            (explicitFamilyConstitutedLocalWitnesses count)) =
+      0
+  rw [
+    explicitFamilyConstitutedLocalExecutionCompositionCandidates,
+    Nat.zero_add,
+    Nat.zero_add
   ]
 
 /--

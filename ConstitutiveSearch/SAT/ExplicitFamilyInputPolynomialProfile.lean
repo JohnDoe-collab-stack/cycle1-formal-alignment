@@ -33,11 +33,14 @@ theorem foldlNatMax_le
         bound
         tail
         (Nat.max initial head)
-        ((Nat.max_le).2
-          ⟨initialLe,
-            allLe
-              head
-              List.mem_cons_self⟩)
+        (Constructive.nat_max_le
+          initial
+          head
+          bound
+          initialLe
+          (allLe
+            head
+            List.mem_cons_self))
         (fun value member =>
           allLe
             value
@@ -217,7 +220,7 @@ bounded in its own concrete binary input-size coordinate.
 theorem explicitFamilyWithCompositionProfile_inputPolynomiallyBounded :
     ConstitutiveProfileFamilyInputPolynomiallyBounded
       explicitFamilyWithCompositionProfile := by
-  have composedBounded :
+  let composedBounded :
       ConstitutiveProfileFamilyInputPolynomiallyBounded
         (fun count =>
           ConstitutiveComplexityProfile.compose
@@ -226,18 +229,117 @@ theorem explicitFamilyWithCompositionProfile_inputPolynomiallyBounded :
     ConstitutiveProfileFamilyInputPolynomiallyBounded.compose
       explicitFamilyConstitutiveProfile_inputPolynomiallyBounded
       composedClosureConstitutivePhaseProfile_inputPolynomiallyBounded
-  have profileExact :
-      explicitFamilyWithCompositionProfile =
-        (fun count =>
-          ConstitutiveComplexityProfile.compose
-            (explicitFamilyConstitutiveProfile count)
-            (composedClosureConstitutivePhaseProfile count)) := by
-    funext count
-    exact
-      explicitFamilyWithCompositionProfile_eq_compose
-        count
-  rw [profileExact]
-  exact composedBounded
+  exact
+    { depth := by
+        rcases composedBounded.depth with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).depth ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      width := by
+        rcases composedBounded.width with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).maxFrontierWidth ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      syntaxUnits := by
+        rcases composedBounded.syntaxUnits with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.syntaxUnits ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      frontierSlots := by
+        rcases composedBounded.frontierSlots with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.frontierSlots ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      provenance := by
+        rcases composedBounded.provenance with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.provenanceUnits ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      certificates := by
+        rcases composedBounded.certificates with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.certificateAtoms ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      relationFind := by
+        rcases composedBounded.relationFind with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.relationFindCalls ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      closurePrimitive := by
+        rcases composedBounded.closurePrimitive with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.closurePrimitiveQueries ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      closureCandidates := by
+        rcases composedBounded.closureCandidates with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.closureCompositionCandidates ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      terminal := by
+        rcases composedBounded.terminal with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).events.terminalChecks ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count
+      representationCharge := by
+        rcases composedBounded.representationCharge with ⟨envelope, bound⟩
+        refine ⟨envelope, ?_⟩
+        intro count
+        change
+          (explicitFamilyWithCompositionProfile count).representationCharge ≤
+            envelope.eval
+              (explicitFamilyWithCompositionProfile count).inputBits
+        rw [explicitFamilyWithCompositionProfile_eq_compose]
+        exact bound count }
 
 end SAT
 end ConstitutiveSearch

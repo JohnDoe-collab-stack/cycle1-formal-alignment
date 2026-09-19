@@ -24,9 +24,13 @@ theorem demoComplete :
   intro source target witness
   cases witness with
   | first =>
-      simp [demoPrimitive]
+      change some DemoGenerator.first ≠ none
+      intro impossible
+      cases impossible
   | second =>
-      simp [demoPrimitive]
+      change some DemoGenerator.second ≠ none
+      intro impossible
+      cases impossible
 
 def demoCode :
     TransportClosure

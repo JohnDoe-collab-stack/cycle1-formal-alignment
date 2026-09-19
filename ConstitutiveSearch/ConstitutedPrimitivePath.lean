@@ -164,7 +164,15 @@ theorem toTransportCode_searchable_iff
             tail.toTransportCode.SearchableBy primitive) ↔
           (primitive.find source middle ≠ none ∧
             tail.SearchableBy primitive)
-      rw [inductionHypothesis]
+      constructor
+      · intro searchable
+        exact
+          ⟨searchable.1,
+            inductionHypothesis.mp searchable.2⟩
+      · intro searchable
+        exact
+          ⟨searchable.1,
+            inductionHypothesis.mpr searchable.2⟩
 
 /-- Validation query count of the compiled code is exactly path length. -/
 theorem validation_primitiveQueries
