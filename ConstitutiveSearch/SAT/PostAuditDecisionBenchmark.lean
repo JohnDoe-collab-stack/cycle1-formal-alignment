@@ -91,6 +91,21 @@ def auditedDecisionTrueChild
     true
     (auditedDecisionRootFresh input)
 
+/-- The benchmark background never mentions the split variable zero. -/
+theorem auditedDecisionBackground_avoids
+    (input : Nat) :
+    Cnf.AvoidsVar
+      0
+      (auditedDecisionBackground input) := by
+  unfold auditedDecisionBackground
+  by_cases inputZero : input = 0
+  · rw [if_pos inputZero]
+    exact True.intro
+  · rw [if_neg inputZero]
+    exact
+      ⟨True.intro,
+        True.intro⟩
+
 /-- The two-clause block is structurally symmetric independently of YES/NO. -/
 theorem auditedDecision_flipSymmetric
     (input : Nat) :
@@ -104,14 +119,9 @@ theorem auditedDecision_flipSymmetric
       (background :=
         auditedDecisionBackground input)
   · decide
-  · unfold auditedDecisionBackground
-    by_cases inputZero : input = 0
-    · rw [if_pos inputZero]
-      exact True.intro
-    · rw [if_neg inputZero]
-      exact
-        ⟨True.intro,
-          True.intro⟩
+  · exact
+      auditedDecisionBackground_avoids
+        input
 
 /-- Exact relation known mathematically, used only to prove discovery completeness. -/
 def auditedDecisionExpectedRelation
@@ -266,7 +276,7 @@ theorem auditedDecisionProblem_accept_iff_zero
     · exact
         False.elim
           ((auditedDecision_nonzero_not_satisfiable
-              inputNonzero)
+              inputZero)
             accepted)
   · intro inputZero
     subst input
@@ -293,10 +303,52 @@ theorem auditedDecision_no :
       accepted
   cases zero
 
+/-- Exact true-branch residual for every benchmark input. -/
+theorem auditedTrueChild_formula
+    (input : Nat) :
+    (auditedDecisionTrueChild
+      input).context.formula =
+      symmetricNegativeClause 0 1 ::
+        auditedDecisionBackground input := by
+  change
+    branchResidual
+        (auditedDecisionFormula input)
+        0
+        true =
+      symmetricNegativeClause 0 1 ::
+        auditedDecisionBackground input
+  unfold auditedDecisionFormula
+  unfold symmetricBlockFamily
+  rw [
+    branchResidual_cons_hit
+      (symmetricPositiveClause 0 1)
+      (symmetricNegativeClause 0 1 ::
+        auditedDecisionBackground input)
+      0
+      true
+      (by rfl)
+  ]
+  rw [
+    branchResidual_cons_miss
+      (symmetricNegativeClause 0 1)
+      (auditedDecisionBackground input)
+      0
+      true
+      (by rfl)
+  ]
+  rw [
+    Cnf.branchResidual_eq_self
+      (auditedDecisionBackground_avoids input)
+      true
+  ]
+
 /-- Exact terminal residual formula of the YES instance. -/
 theorem auditedTrueChild_formula_zero :
     (auditedDecisionTrueChild 0).context.formula =
-      [[Literal.positive 1]] := by
+      [symmetricNegativeClause 0 1] := by
+  rw [
+    auditedTrueChild_formula
+  ]
   rfl
 
 /-- Exact terminal residual formula of every NO instance. -/
@@ -305,13 +357,14 @@ theorem auditedTrueChild_formula_nonzero
     (inputNonzero : input ≠ 0) :
     (auditedDecisionTrueChild
       input).context.formula =
-      [[Literal.positive 1], []] := by
-  unfold auditedDecisionTrueChild
-  unfold auditedDecisionRoot
-  unfold auditedDecisionFormula
+      [symmetricNegativeClause 0 1, []] := by
+  rw [
+    auditedTrueChild_formula
+  ]
   unfold auditedDecisionBackground
-  rw [if_neg inputNonzero]
-  rfl
+  rw [
+    if_neg inputNonzero
+  ]
 
 /-- Terminal decision is exactly the benchmark yes/no answer. -/
 theorem auditedTerminalDecision_correct
@@ -331,12 +384,12 @@ theorem auditedTerminalDecision_correct
     ]
   · have terminalFormula :=
       auditedTrueChild_formula_nonzero
-        inputNonzero
+        inputZero
     simp [
       auditedTerminalDecision,
       terminalFormula,
       containsEmptyClause,
-      inputNonzero
+      inputZero
     ]
 
 /-- Separate executed phase counters of the complete constitutive procedure. -/
@@ -431,7 +484,7 @@ theorem executeAuditedDecision_success_branch
   | some relation =>
       exact
         ⟨relation,
-          found⟩
+          rfl⟩
 
 /-- Complete procedure returns the correct terminal yes/no answer. -/
 theorem executeAuditedDecision_correct
@@ -570,6 +623,11 @@ theorem executeAuditedDecision_total_inputPolynomiallyBounded :
   refine
     ⟨CostPolynomial.constant 5, ?_⟩
   intro input
+  change
+    (executeAuditedDecision
+        input).stats.total ≤
+      (CostPolynomial.constant 5).eval
+        (auditedDecisionProblem.inputSize input)
   rw [
     executeAuditedDecision_total
   ]
@@ -664,17 +722,19 @@ def auditedDecisionPolynomialVerifier :
       CostPolynomial.constant 1
     sound := by
       intro input witness verified
-      have inputZero : input = 0 := by
-        by_contra inputNonzero
-        simp [
-          auditedDecisionVerifierCode,
-          executeVerifier,
-          inputNonzero
-        ] at verified
-      exact
-        (auditedDecisionProblem_accept_iff_zero
-          input).2
-          inputZero
+      by_cases inputZero : input = 0
+      · exact
+          (auditedDecisionProblem_accept_iff_zero
+            input).2
+            inputZero
+      · have impossible :
+            (false : Bool) = true := by
+          simpa [
+            auditedDecisionVerifierCode,
+            executeVerifier,
+            inputZero
+          ] using verified
+        cases impossible
     complete := by
       intro input accepted
       have inputZero :=
