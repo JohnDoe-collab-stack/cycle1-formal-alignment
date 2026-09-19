@@ -190,27 +190,49 @@ def auditedDecisionEntry
     relation :=
       relation }
 
-/-- Syntactic terminal test: detect whether a CNF contains an empty clause. -/
-def containsEmptyClause : Cnf → Bool
-  | [] =>
-      false
-  | clause :: rest =>
-      if clause = [] then
-        true
-      else
-        containsEmptyClause rest
+/-- Executed terminal scan result. -/
+structure TerminalDecisionRun where
+  containsEmpty : Bool
+  clauseChecks : Nat
 
 /--
-Terminal decision reads the actually retained residual formula.
+Executable terminal scan.  Its cost is produced by the recursion itself:
+one charged clause check for every inspected clause.
+-/
+def scanTerminalCnf : Cnf → TerminalDecisionRun
+  | [] =>
+      { containsEmpty := false
+        clauseChecks := 0 }
+  | clause :: rest =>
+      if clause = [] then
+        { containsEmpty := true
+          clauseChecks := 1 }
+      else
+        let tail :=
+          scanTerminalCnf rest
+        { containsEmpty :=
+            tail.containsEmpty
+          clauseChecks :=
+            tail.clauseChecks + 1 }
+
+/-- Actual terminal run on the retained residual formula. -/
+def auditedTerminalRun
+    (input : Nat) :
+    TerminalDecisionRun :=
+  scanTerminalCnf
+    (auditedDecisionTrueChild
+      input).context.formula
+
+/--
+Terminal decision reads the result of the executed retained-residual scan.
 
 For this benchmark, satisfiability is equivalent to absence of the deliberately
 inserted empty clause after the symmetric split.
 -/
 def auditedTerminalDecision
     (input : Nat) : Bool :=
-  !(containsEmptyClause
-      (auditedDecisionTrueChild
-        input).context.formula)
+  !(auditedTerminalRun
+      input).containsEmpty
 
 /-- YES witness assignment. -/
 def auditedYesAssignment : Assignment
@@ -366,6 +388,53 @@ theorem auditedTrueChild_formula_nonzero
     if_neg inputNonzero
   ]
 
+/-- YES terminal run scans the one retained nonempty clause. -/
+theorem auditedTerminalRun_zero :
+    auditedTerminalRun 0 =
+      { containsEmpty := false
+        clauseChecks := 1 } := by
+  unfold auditedTerminalRun
+  rw [
+    auditedTrueChild_formula_zero
+  ]
+  simp [
+    scanTerminalCnf,
+    symmetricNegativeClause
+  ]
+
+/-- NO terminal run scans the retained nonempty clause and then the empty clause. -/
+theorem auditedTerminalRun_nonzero
+    {input : Nat}
+    (inputNonzero : input ≠ 0) :
+    auditedTerminalRun input =
+      { containsEmpty := true
+        clauseChecks := 2 } := by
+  unfold auditedTerminalRun
+  rw [
+    auditedTrueChild_formula_nonzero
+      inputNonzero
+  ]
+  simp [
+    scanTerminalCnf,
+    symmetricNegativeClause
+  ]
+
+/-- Terminal scan performs at most two actually executed clause checks. -/
+theorem auditedTerminalRun_clauseChecks_le_two
+    (input : Nat) :
+    (auditedTerminalRun
+      input).clauseChecks ≤
+        2 := by
+  by_cases inputZero : input = 0
+  · subst input
+    rw [
+      auditedTerminalRun_zero
+    ]
+  · rw [
+      auditedTerminalRun_nonzero
+        inputZero
+    ]
+
 /-- Terminal decision is exactly the benchmark yes/no answer. -/
 theorem auditedTerminalDecision_correct
     (input : Nat) :
@@ -377,21 +446,15 @@ theorem auditedTerminalDecision_correct
   ]
   by_cases inputZero : input = 0
   · subst input
-    simp [
-      auditedTerminalDecision,
-      auditedTrueChild_formula_zero,
-      containsEmptyClause
+    rw [
+      auditedTerminalRun_zero
     ]
-  · have terminalFormula :=
-      auditedTrueChild_formula_nonzero
+    rfl
+  · rw [
+      auditedTerminalRun_nonzero
         inputZero
-    simp [
-      auditedTerminalDecision,
-      terminalFormula,
-      containsEmptyClause,
-      symmetricNegativeClause,
-      inputZero
     ]
+    simp [inputZero]
 
 /-- Separate executed phase counters of the complete constitutive procedure. -/
 structure AuditedDecisionProcedureStats where
@@ -440,7 +503,7 @@ def executeAuditedDecision
             validationQueries := 0
             executionPrimitiveQueries := 0
             executionCompositionCandidates := 0
-            terminalChecks := 1 } }
+            terminalChecks := 0 } }
   | some relation =>
       let entry :=
         auditedDecisionEntry
@@ -454,8 +517,10 @@ def executeAuditedDecision
           entry.code
       let execution :=
         entry.executionRun
+      let terminal :=
+        auditedTerminalRun input
       { result :=
-          auditedTerminalDecision input
+          !terminal.containsEmpty
         stats :=
           { discoveryQueries := 1
             scheduleAtoms :=
@@ -466,7 +531,8 @@ def executeAuditedDecision
               execution.stats.primitiveQueries
             executionCompositionCandidates :=
               execution.stats.compositionCandidates
-            terminalChecks := 1 } }
+            terminalChecks :=
+              terminal.clauseChecks } }
 
 /-- The executable structural discovery failure branch is unreachable. -/
 theorem executeAuditedDecision_success_branch
@@ -585,12 +651,13 @@ theorem executeAuditedDecision_executionCompositionCandidates
       input
       relation).executionRun_stats).2
 
-/-- Terminal decision is explicitly charged once. -/
+/-- Terminal-check count is the actually executed retained-residual scan cost. -/
 theorem executeAuditedDecision_terminalChecks
     (input : Nat) :
     (executeAuditedDecision
       input).stats.terminalChecks =
-      1 := by
+      (auditedTerminalRun
+        input).clauseChecks := by
   rcases
       executeAuditedDecision_success_branch
         input with
@@ -598,12 +665,14 @@ theorem executeAuditedDecision_terminalChecks
   unfold executeAuditedDecision
   rw [found]
 
-/-- Complete source-level charged event count is exactly five. -/
+/-- Complete charged event count is four fixed local events plus the terminal scan. -/
 theorem executeAuditedDecision_total
     (input : Nat) :
     (executeAuditedDecision
       input).stats.total =
-      5 := by
+      4 +
+        (auditedTerminalRun
+          input).clauseChecks := by
   unfold AuditedDecisionProcedureStats.total
   rw [
     executeAuditedDecision_discoveryQueries,
@@ -613,6 +682,21 @@ theorem executeAuditedDecision_total
     executeAuditedDecision_executionCompositionCandidates,
     executeAuditedDecision_terminalChecks
   ]
+  omega
+
+/-- Complete real procedure performs at most six charged source-level events. -/
+theorem executeAuditedDecision_total_le_six
+    (input : Nat) :
+    (executeAuditedDecision
+      input).stats.total ≤
+        6 := by
+  rw [
+    executeAuditedDecision_total
+  ]
+  have terminalLe :=
+    auditedTerminalRun_clauseChecks_le_two
+      input
+  omega
 
 /-- Complete real procedure cost is polynomial in the declared input size. -/
 theorem executeAuditedDecision_total_inputPolynomiallyBounded :
@@ -622,17 +706,15 @@ theorem executeAuditedDecision_total_inputPolynomiallyBounded :
         (executeAuditedDecision
           input).stats.total) := by
   refine
-    ⟨CostPolynomial.constant 5, ?_⟩
+    ⟨CostPolynomial.constant 6, ?_⟩
   intro input
   change
     (executeAuditedDecision
         input).stats.total ≤
-      (CostPolynomial.constant 5).eval
-        (auditedDecisionProblem.inputSize input)
-  rw [
-    executeAuditedDecision_total
-  ]
-  exact Nat.le_refl 5
+      6
+  exact
+    executeAuditedDecision_total_le_six
+      input
 
 /-- Minimal executable classical decider code for the same extensional language. -/
 def auditedDecisionDeciderCode :
@@ -768,11 +850,19 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.auditedDecisionProblem_accept_iff_zero
 #print axioms ConstitutiveSearch.SAT.auditedDecision_yes
 #print axioms ConstitutiveSearch.SAT.auditedDecision_no
+#print axioms ConstitutiveSearch.SAT.TerminalDecisionRun
+#print axioms ConstitutiveSearch.SAT.scanTerminalCnf
+#print axioms ConstitutiveSearch.SAT.auditedTerminalRun
+#print axioms ConstitutiveSearch.SAT.auditedTerminalRun_zero
+#print axioms ConstitutiveSearch.SAT.auditedTerminalRun_nonzero
+#print axioms ConstitutiveSearch.SAT.auditedTerminalRun_clauseChecks_le_two
 #print axioms ConstitutiveSearch.SAT.auditedTerminalDecision
 #print axioms ConstitutiveSearch.SAT.auditedTerminalDecision_correct
 #print axioms ConstitutiveSearch.SAT.executeAuditedDecision
 #print axioms ConstitutiveSearch.SAT.executeAuditedDecision_correct
+#print axioms ConstitutiveSearch.SAT.executeAuditedDecision_terminalChecks
 #print axioms ConstitutiveSearch.SAT.executeAuditedDecision_total
+#print axioms ConstitutiveSearch.SAT.executeAuditedDecision_total_le_six
 #print axioms ConstitutiveSearch.SAT.executeAuditedDecision_total_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.SAT.auditedDecisionPolynomialDecider
 #print axioms ConstitutiveSearch.SAT.auditedDecision_inP
