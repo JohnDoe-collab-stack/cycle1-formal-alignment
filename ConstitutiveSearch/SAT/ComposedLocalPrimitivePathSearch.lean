@@ -66,13 +66,21 @@ theorem composedLocalPrimitivePathRun_found
       composedPrimitiveSearch_middle_target_some
         count with
     ⟨secondWitness, secondExact⟩
+  rcases
+      findPrimitiveHit?_some_of_exact
+        firstExact with
+    ⟨firstHit, firstHitExact⟩
+  rcases
+      findPrimitiveHit?_some_of_exact
+        secondExact with
+    ⟨secondHit, secondHitExact⟩
   unfold
     composedLocalPrimitivePathRun
     composedPrimitiveStateChain
   simp only [searchPrimitiveStateChain]
   rw [
-    firstExact,
-    secondExact
+    firstHitExact,
+    secondHitExact
   ]
   intro impossible
   cases impossible
