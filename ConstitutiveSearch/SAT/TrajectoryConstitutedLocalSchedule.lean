@@ -392,6 +392,37 @@ def validationPrimitiveQueries
         validationPrimitiveQueries
           rest
 
+/--
+Primitive-query budget of the candidate-free local executions admitted by the
+schedule. Every local code is one atom, so this is exactly the produced atom
+count.
+-/
+def executionPrimitiveQueries
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (schedule :
+      List
+        (ConstitutedLocalWitness
+          rootFormula
+          vars)) :
+    Nat :=
+  atomCount schedule
+
+/--
+Composition-candidate budget of the local schedule. Every entry executes with
+candidates=[] and fuel=1, hence no composition candidate is inspected.
+-/
+def executionCompositionCandidates
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (_schedule :
+      List
+        (ConstitutedLocalWitness
+          rootFormula
+          vars)) :
+    Nat :=
+  0
+
 /-- Every entry code in the schedule validates successfully. -/
 def ValidationSucceeds
     {rootFormula : Cnf}
