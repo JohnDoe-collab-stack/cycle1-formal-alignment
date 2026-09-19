@@ -4,15 +4,25 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique de cloture avant cette mise a jour documentaire :
+Base scientifique post-audit avant cette synchronisation documentaire :
 
 ~~~text
-7270966eed7177236ba4db28051dae1d2613eaba
+c084348aadec589d2378739f0e66e07ce39cecfd
 ~~~
 
-Le programme NP AND/OR P est maintenant formellement clos au perimetre annonce. Les obligations de composabilite du schedule, de synthese quantitative et de non-factorisation sous oubli de constitution sont fermees. Le pont classique minimal vers des interfaces Nat-codees de probleme de decision, P et NP est egalement formalise. Le theorem npAndPObjectiveComplete constitue le marqueur d'arret de l'objectif NP / P. Il n'enonce ni P = NP ni P != NP.
+L'audit adversarial Aristotle a rouvert le programme uniquement pour correction. Aucun theorem Lean pre-audit n'a ete falsifie, mais trois interpretations de cloture etaient trop fortes : cout P/NP decouple de l'execution, usage de F(n) comme projection decisionnelle finale alors que cette famille est constamment satisfiable, et non-factorisation centrale portee par un moteur explicitement gate par la constitution.
 
-P1 a P6c et les couches quantitatives P7a a P7d-f sont maintenant formalises au niveau annonce dans ce document. Le head code ci-dessus a passe Linux et Windows. Le normaliseur generique possede une borne quadratique de controle-flow en largeur, la fermeture compositionnelle possede des lois de croissance explicites et des regimes polynomiaux prouves pour tout fuel fixe ainsi que pour tout fuel variable uniformement borne. Les longueurs de listes de candidats peuvent elles-memes croitre polynomialement avec la taille d'entree. Les profils constitutifs multidimensionnels se composent generiquement, deux familles SAT parametriques distinctes sont instanciees dans l'interface input-polynomiale, et le passage vers un cout machine polynomial est formalise uniquement sous un RepresentationMachineBridge explicite. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
+Ces points sont maintenant repares au niveau formel annonce. Le marqueur npAndPObjectiveComplete est conserve uniquement comme marqueur historique pre-audit et ne constitue plus une preuve de cloture actuelle. Le nouveau marqueur est auditedNPAndPObjectiveComplete.
+
+La cloture post-audit repose sur quatre obligations exactes :
+- cout P/NP derive de runs executables DeciderCode / VerifierCode, sans champ cost libre ;
+- benchmark decisionnel final non constant, distinct de F(n), avec YES, NO et terminalDecision correct ;
+- non-factorisation ungated sous le meme generatedStructuralFlipAtSearch des deux cotes ;
+- decouverte, production de schedule, validation, execution et decision terminale explicitement chargees.
+
+F(n) reste un benchmark structurel de symetrie, trajectoire, schedule, accounting et execution locale. Il n'est plus utilise comme probleme decisionnel final.
+
+P1 a P6c et les couches quantitatives P7a a P7d-f restent formalises au niveau annonce. Le head code ci-dessus a passe Linux et Windows, ainsi que les regressions post-audit. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
 
 La consolidation GitHub est terminee : le chantier NP AND/OR P n'a plus qu'une branche canonique, research/np-and-or-p.
 
@@ -1730,14 +1740,21 @@ et la liste de candidats annonces.
 [FAIT CLOTURE] pour toute FlipSymmetricTrajectory de longueur >= 2, le schedule constitue n'est pas EndpointComposable : la cible du premier flip sibling est a profondeur d+1 tandis que la source du flip sibling suivant est a profondeur d+2
 [FAIT CLOTURE] explicitFamilyConstitutedTotalProfile compose production, validation et execution sans recompter provenanceUnits ni certificateAtoms; les compteurs executes restent distincts des enveloppes recursives de ClosureSearch
 [FAIT CLOTURE] explicitFamilyConstitutedTotalProfile est ConstitutiveProfileFamilyInputPolynomiallyBounded dans explicitFamilyInputBitSize
-[FAIT CLOTURE] relation reconstructibility ne factorise pas par la projection frontier-only : meme frontiere, relation absente avant constitution du split exact, presente apres
-[FAIT CLOTURE] le cout execute de recherche compositionnelle ne factorise pas par les seuls endpoints : meme source/target, execution locale constituee = 0 compositionCandidate, requete globale aplatie = 1
-[FAIT CLOTURE] NPAndOrPProgramClosed regroupe composabilite exacte, schedule local, synthese quantitative et pertes par projection
-[FAIT PONT CLASSIQUE] DecisionProblem est Nat-code; InP exige un decider correct a cout InputPolynomiallyBounded; InNP est relatif a une famille explicite de certificats avec taille et verification polynomialement bornees
-[FAIT PONT CLASSIQUE] le role NP-like des continuations ne se projette vers InNP que sous SearchSystemPolynomialVerifier explicite; le role P-like ne se projette vers InP que sous SearchSystemPolynomialDecider explicite
-[FAIT PONT CLASSIQUE] la trajectoire AND/OR preserve la decision extensionnelle par viable_iff, tandis que ConstitutiveProjectionLossClosed enregistre ce que la projection classique oublie
-[FERME] npAndPObjectiveComplete : OBJECTIF NP / P TERMINE
-[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. La fermeture locale montre que la recherche globale n'est pas necessaire lorsqu'un code searchable est deja constitue. Le cout de production/validation de ce code reste une obligation distincte a expliciter.
+[PRE-AUDIT] splitRelationReconstructibility_not_factor_through_frontier reste un exemple valide de moteur dynamique, mais son gate constitution = none -> none ne porte plus la non-factorisation centrale
+[PRE-AUDIT] composedExecutionCost_not_factor_through_endpoints reste un separateur secondaire 0-vs-1; il n'est plus utilise comme preuve principale de perte de provenance
+[PRE-AUDIT] NPAndOrPProgramClosed et npAndPObjectiveComplete restent compilables pour compatibilite historique, mais leur portee de cloture a ete jugee surestimee par l'audit
+[FAIT POST-AUDIT] ActualUngatedRelationReconstructible utilise exactement le meme generatedStructuralFlipAtSearch [] 0 sur deux paires generees ayant la meme projection de formules residuelles; la paire sibling est trouvee, la paire a provenances distinctes ne l'est pas
+[FAIT POST-AUDIT] actualUngatedRelationReconstructibility_not_factor_through_residuals prouve la non-factorisation sans gate; ungatedWidth_not_factor_through_residuals donne en plus largeur 1 vs 2 sous le meme moteur
+[FAIT POST-AUDIT] PolynomialDecider et PolynomialVerifier ne contiennent plus de champ cost libre; executeDecider / executeVerifier produisent result + stats et le cout polynomial est derive de stats.steps
+[FAIT POST-AUDIT] executeDecider_steps_ne_zero et executeVerifier_steps_ne_zero rendent impossible l'ancien probe cout fictif nul pour un code executable
+[FAIT POST-AUDIT] auditedDecisionProblem est un benchmark final distinct de F(n) : input 0 est YES, input 1 est NO
+[FAIT POST-AUDIT] executeAuditedDecision suit presented input -> structural discovery -> schedule produit depuis le witness trouve -> validation -> execution locale reelle -> scan terminal; aucune closure globale ni witness utile n'est fourni en entree
+[FAIT POST-AUDIT] discovery=1 query, schedule=1 atome, validation=1 query, execution=1 primitiveQuery / 0 compositionCandidate; le scan terminal produit lui-meme clauseChecks et le cout total execute est <= 6
+[FAIT POST-AUDIT] auditedTerminalDecision input = true <-> auditedDecisionProblem.Accept input
+[FAIT POST-AUDIT] auditedDecision_inP / auditedDecision_inNP donnent des interfaces executables positives; auditedDecision_pLike_projects / auditedDecision_npLike_projects raccordent les roles SearchSystem
+[FERME POST-AUDIT] AuditedNPAndPProgramClosed regroupe composabilite exacte, synthese quantitative structurale, benchmark decisionnel non constant, phases chargees et perte ungated
+[FERME POST-AUDIT] auditedNPAndPObjectiveComplete : OBJECTIF NP / P TERMINE au perimetre repare
+[QUALIFICATION P7d-d] les separateurs negatifs de ClosureSearch portent toujours sur des budgets recursifs canoniques, pas sur des lower bounds de runs. F(n) reste structurel/accounting seulement. Le benchmark decisionnel post-audit est volontairement minimal et ne vise ni SAT general ni toute CNF.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1756,9 +1773,9 @@ et la liste de candidats annonces.
 [FERME] toute revendication generale de classe de complexite avant fermeture des phases restantes
 ~~~
 
-## 24. Cloture formelle du programme
+## 24. Cloture formelle post-audit du programme
 
-Les obligations scientifiques internes de cloture sont maintenant fermees.
+La cloture pre-audit a ete reouverte uniquement pour les reparations Aristotle. Les obligations post-audit sont maintenant fermees sous la forme suivante.
 
 ~~~text
 1. schedule constitue
@@ -1766,76 +1783,107 @@ Les obligations scientifiques internes de cloture sont maintenant fermees.
    -> composition endpoint-to-endpoint exactement sous egalite des endpoints
    -> FlipSymmetricTrajectory de longueur >= 2 reste un schedule local de reductions sibling
 
-2. synthese quantitative
-   trajectoire constituee
-   -> schedule endogene
+2. synthese quantitative structurelle
+   F(n)
+   -> trajectoire et schedule endogenes
    -> production deja chargee dans certificateAtoms / provenanceUnits
    -> validation executable
    -> execution locale reelle
    -> profil total sans double comptage
    -> borne input-polynomiale
+   -> aucune interpretation decisionnelle finale de F(n)
 
-3. non-factorisation
-   oubli de constitution / organisation temporelle
-   -> perte de relation reconstructible
-   -> perte d'information sur le cout execute de recherche compositionnelle
+3. benchmark decisionnel final non constant
+   auditedDecisionProblem
+   -> YES: input 0
+   -> NO: input 1
+   -> structural discovery executable et chargee
+   -> schedule produit uniquement depuis le resultat de discovery
+   -> validation executable
+   -> execution locale reelle
+   -> scan terminal instrumente
+   -> decision correcte
+   -> cout source-level total input-polynomial
+
+4. non-factorisation ungated
+   meme projection sur les formules residuelles
+   + meme generatedStructuralFlipAtSearch [] 0
+   -> relation reconstructible dans un cas
+   -> non reconstructible dans l'autre a cause des histoires generees
+   -> largeur 1 vs 2 sous le meme moteur
 ~~~
 
-Declarations de cloture :
+Declaration post-audit du programme :
 
 ~~~text
-NPAndOrPProgramClosed
-npAndOrPProgramClosed
+AuditedNPAndPProgramClosed
+auditedNPAndPProgramClosed
 ~~~
 
-Le programme n'ouvre plus de nouvelle obligation scientifique interne. Sont explicitement hors objectif : SAT general, P = NP, P != NP, couverture de toute CNF, nouveaux generateurs, nouvelles familles parametriques, generalisation a tous les SearchSystem, nouveaux regimes candidateCount/fuel, regimes quasi-polynomiaux supplementaires, RepresentationMachineBridge vers un runtime concret et consequences supplementaires de classes de complexite.
+Les anciennes declarations NPAndOrPProgramClosed / npAndOrPProgramClosed sont conservees comme artefacts pre-audit et ne portent pas la nouvelle cloture.
 
-Les travaux restants sont des audits du resultat ferme : audit adversarial independant et audit de litterature / positionnement.
+Sont explicitement hors objectif : SAT general, P = NP, P != NP, couverture de toute CNF, nouveaux generateurs, nouvelles familles au-dela du benchmark minimal necessaire, generalisation a tous les SearchSystem, nouveaux regimes candidateCount/fuel, quasi-polynomialite, runtime machine concret et consequences supplementaires de classes de complexite.
 
-## 25. Pont classique minimal et marqueur d'arret
+## 25. Pont classique executable et marqueur d'arret post-audit
 
-Le pont final utilise volontairement des problemes de decision codes par Nat, conformement a l'interface InputPolynomiallyBounded deja presente dans le depot.
+Le pont final reste volontairement Nat-code, mais son cout n'est plus annonce separement du programme.
 
 ~~~text
-DecisionProblem
-PolynomialDecider
-InP
+DeciderCode
+-> executeDecider code input
+-> result + stats.steps
 
-PolynomialVerifier problem Witness
-InNP problem Witness
+VerifierCode
+-> executeVerifier code input witness
+-> result + stats.steps
 ~~~
 
-La projection est conditionnelle et explicite :
+PolynomialDecider contient un code et sa correction. Son executedCost est definitionnellement tire de executeDecider. PolynomialVerifier contient un code, une borne de certificat, sound et complete; son cout de verification est tire de executeVerifier. Aucun champ cost : Nat -> Nat ou cost : input -> witness -> Nat n'est fourni librement.
+
+Les regressions positives ferment les interfaces sur auditedDecisionProblem :
 
 ~~~text
-continuations structurelles
-+ SearchSystemPolynomialVerifier
--> InNP
+auditedDecision_inP
+auditedDecision_inNP
 
-calcul structurel de decision
-+ SearchSystemPolynomialDecider
--> InP
+auditedDecision_pLike_projects
+auditedDecision_npLike_projects
 ~~~
 
-Aucune appartenance de classe n'est fabriquee sans le decider ou le verificateur polynomial correspondant.
-
-Pour F(n), explicitFamilyDecisionProblem oublie schedule, provenance et organisation temporelle et ne conserve que la question extensionnelle de viabilite. explicitFamilyDecisionProjection_preserved prouve que la trajectoire constituee preserve cette decision entre racine et endpoint.
-
-Le pont conserve la reponse oui/non et les roles classiques seulement sous leurs interfaces explicites. Il oublie des donnees dont la non-factorisation est deja prouvee : relations reconstructibles dependantes de la constitution, organisation locale versus globale, et cout execute de recherche compositionnelle.
-
-Declarations finales :
+La projection extensionnelle conserve exactement la reponse oui/non :
 
 ~~~text
-NPAndOrPClassicalBridgeClosed
-npAndOrPClassicalBridgeClosed
+executeDecider auditedDecisionDeciderCode input
+=
+executeAuditedDecision input
+~~~
 
+mais la projection qui oublie la provenance n'est pas fidele aux proprietes operationnelles :
+
+~~~text
+actualUngatedRelationReconstructibility_not_factor_through_residuals
+ungatedWidth_not_factor_through_residuals
+~~~
+
+F(n) n'est pas le probleme decisionnel final. Il reste uniquement le benchmark structurel/schedule/accounting qui fournit la synthese quantitative deja auditee.
+
+Ancien marqueur, pre-audit uniquement :
+
+~~~text
 NPAndPObjectiveComplete
 npAndPObjectiveComplete
 ~~~
 
+Nouveau marqueur de cloture :
+
+~~~text
+AuditedNPAndPObjectiveComplete
+auditedNPAndPObjectiveComplete
+~~~
+
 OBJECTIF NP / P TERMINE. STOP scientifique.
 
-Les audits ulterieurs testent et positionnent ce resultat ferme; ils ne rouvrent pas le programme.
+Les etapes suivantes sont uniquement l'audit adversarial final du resultat repare et l'audit de litterature / positionnement. Elles testent et positionnent le resultat; elles ne rouvrent pas le programme scientifique.
 
 ---
 ## 26. Premier theorem SAT parametrique : statut
