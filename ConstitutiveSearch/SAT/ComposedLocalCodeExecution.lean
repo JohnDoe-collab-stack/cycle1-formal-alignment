@@ -61,31 +61,45 @@ candidate, with no candidate list and unit fuel.
 -/
 theorem composedConstitutedCode_localStats
     (count : Nat) :
-    let execution :=
+    ∃ path :
+        PrimitiveHitPath
+          (composedPrimitiveSearch count)
+          (composedSource count)
+          (composedTarget count),
+      path.length = 2 ∧
+        (path.sequentialStats
+            []
+            1).primitiveQueries = 2 ∧
+        (path.sequentialStats
+            []
+            1).compositionCandidates = 0 := by
+  rcases
       composedConstitutedCode_localSequentialExecution
-        count
-    (execution.path.sequentialStats
-        []
-        1).primitiveQueries = 2 ∧
-      (execution.path.sequentialStats
-        []
-        1).compositionCandidates = 0 := by
-  dsimp only
-  have execution :=
-    composedConstitutedCode_localSequentialExecution
-      count
-  constructor
+        count with
+    ⟨path,
+      pathLength,
+      primitiveExact,
+      compositionExact⟩
+  refine
+    ⟨path, ?_, ?_, compositionExact⟩
   · calc
-      (execution.path.sequentialStats
+      path.length
+          =
+        (composedConstitutedCode count).size :=
+          pathLength
+      _ =
+        2 :=
+          composedConstitutedCode_size count
+  · calc
+      (path.sequentialStats
           []
           1).primitiveQueries
           =
         (composedConstitutedCode count).size :=
-          execution.primitiveQueries
+          primitiveExact
       _ =
         2 :=
           composedConstitutedCode_size count
-  · exact execution.compositionCandidates
 
 /--
 Compared with the global source-to-target closure query, the candidate-free
@@ -93,28 +107,39 @@ local execution is strictly cheaper in both recorded control-flow coordinates.
 -/
 theorem composedConstitutedCode_localGlobalGap
     (count : Nat) :
-    let execution :=
-      composedConstitutedCode_localSequentialExecution
-        count
-    (execution.path.sequentialStats
-        []
-        1).primitiveQueries <
-        (composedClosureFuelTwo count).stats.primitiveQueries ∧
-      (execution.path.sequentialStats
-        []
-        1).compositionCandidates <
-        (composedClosureFuelTwo count).stats.compositionCandidates := by
-  dsimp only
-  have localStats :=
-    composedConstitutedCode_localStats count
-  constructor
+    ∃ path :
+        PrimitiveHitPath
+          (composedPrimitiveSearch count)
+          (composedSource count)
+          (composedTarget count),
+      path.length = 2 ∧
+        (path.sequentialStats
+            []
+            1).primitiveQueries <
+          (composedClosureFuelTwo count).stats.primitiveQueries ∧
+        (path.sequentialStats
+            []
+            1).compositionCandidates <
+          (composedClosureFuelTwo count).stats.compositionCandidates := by
+  rcases
+      composedConstitutedCode_localStats
+        count with
+    ⟨path,
+      lengthExact,
+      primitiveExact,
+      compositionExact⟩
+  refine
+    ⟨path,
+      lengthExact,
+      ?_,
+      ?_⟩
   · rw [
-      localStats.1,
+      primitiveExact,
       composedClosureFuelTwo_primitiveQueries
     ]
     decide
   · rw [
-      localStats.2,
+      compositionExact,
       composedClosureFuelTwo_compositionCandidates
     ]
     decide
