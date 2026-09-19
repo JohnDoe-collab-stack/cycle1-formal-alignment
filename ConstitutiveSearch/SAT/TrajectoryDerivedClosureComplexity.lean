@@ -239,7 +239,7 @@ theorem oneCandidatePrimitive_le_explicitFamilyTrajectoryBudget
   ]
   cases count with
   | zero =>
-      rfl
+      exact Nat.le_refl 0
   | succ count =>
       exact
         closurePrimitiveQueryBudget_mono_candidateCount
@@ -261,7 +261,7 @@ theorem oneCandidateComposition_le_explicitFamilyTrajectoryBudget
   ]
   cases count with
   | zero =>
-      rfl
+      exact Nat.le_refl 0
   | succ count =>
       exact
         closureCompositionCandidateBudget_mono_candidateCount
