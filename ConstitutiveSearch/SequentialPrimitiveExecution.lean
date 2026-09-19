@@ -172,28 +172,6 @@ theorem trans_length
       rw [inductionHypothesis]
       omega
 
-/-- A zero-length primitive-hit path has identical endpoints. -/
-theorem endpoints_eq_of_length_zero
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    {primitive : RelationSearch Generator}
-    {source target : State}
-    (path :
-      PrimitiveHitPath
-        primitive
-        source
-        target)
-    (lengthZero :
-      path.length = 0) :
-    source = target := by
-  cases path with
-  | identity state =>
-      rfl
-  | step hit tail =>
-      change
-        tail.length + 1 = 0 at lengthZero
-      omega
-
 /--
 Aggregate actual ClosureSearch statistics obtained by following path edges
 sequentially.
@@ -402,23 +380,15 @@ theorem directHit_of_length_one
       change 0 = 1 at lengthOne
       omega
   | @step source middle target witness hit tail =>
-      have tailZero :
-          tail.length = 0 := by
-        change
-          tail.length + 1 = 1 at lengthOne
-        omega
-      have middleEqTarget :
-          middle = target :=
-        endpoints_eq_of_length_zero
-          tail
-          tailZero
-      have edgeHit :
-          primitive.find source middle ≠ none :=
-        step_hit_ne_none
-          hit
-          tail
-      subst target
-      exact edgeHit
+      cases tail with
+      | identity state =>
+          rw [hit]
+          intro impossible
+          cases impossible
+      | step tailHit rest =>
+          change
+            (rest.length + 1) + 1 = 1 at lengthOne
+          omega
 
 /--
 Whenever the candidate-recursion layer returns a code, it carries an executable
@@ -860,7 +830,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveHitPath.toTransportCode_size
 #print axioms ConstitutiveSearch.PrimitiveHitPath.trans
 #print axioms ConstitutiveSearch.PrimitiveHitPath.trans_length
-#print axioms ConstitutiveSearch.PrimitiveHitPath.endpoints_eq_of_length_zero
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats
 #print axioms ConstitutiveSearch.PrimitiveHitPath.primitiveHit_run_stats
 #print axioms ConstitutiveSearch.PrimitiveHitPath.step_hit_ne_none
