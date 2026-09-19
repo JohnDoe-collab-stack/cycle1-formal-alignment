@@ -21,6 +21,12 @@ theorem decoyComesFirst :
       [2, 0, 1, 0, 1] :=
   rfl
 
+/-- Extraction counters are produced by the traversal, not inferred from output size. -/
+theorem decoyExtractionRunIsInstrumented :
+    (runCandidateExtraction decoyExplorationRoot).stats.clauseVisits = 3 /\
+      (runCandidateExtraction decoyExplorationRoot).stats.literalVisits = 5 :=
+  ⟨rfl, rfl⟩
+
 /-- Exploration rejects the decoy, finds the next candidate, and charges both attempts. -/
 theorem decoyIsExploredAndRejected :
     (runEndogenousFlipDiscovery
@@ -49,7 +55,7 @@ theorem endogenousDiscoverySeven :
 theorem fullPipelineYes :
     (executeCausalDecision 0).result = true :=
   (executeCausalDecision_correct 0).2
-    causalDecision_zero_accepts
+    (causalDecision_signal_true_accepts rfl)
 
 /-- The full typed pipeline rejects a genuine NO instance. -/
 theorem fullPipelineNo :
@@ -62,9 +68,58 @@ theorem fullPipelineNo :
         (executeCausalDecision_correct 1).1 result
       exact
         False.elim
-          ((causalDecision_nonzero_rejects
-            (by decide : (1 : Nat) ≠ 0))
+          ((causalDecision_signal_false_rejects rfl)
             accepted)
+
+/-- The semantic benchmark has unbounded, strictly growing YES witnesses. -/
+theorem unboundedYesWitness
+    (index : Nat) :
+    CausalDecisionAccept (causalDecisionYesInput index) /\
+      causalDecisionYesInput index <
+        causalDecisionYesInput (index + 1) :=
+  ⟨causalDecisionYesInput_accepts index,
+    causalDecisionYesInput_strict index⟩
+
+/-- It also has unbounded, strictly growing NO witnesses. -/
+theorem unboundedNoWitness
+    (index : Nat) :
+    ¬ CausalDecisionAccept (causalDecisionNoInput index) /\
+      causalDecisionNoInput index <
+        causalDecisionNoInput (index + 1) :=
+  ⟨causalDecisionNoInput_rejects index,
+    causalDecisionNoInput_strict index⟩
+
+/-- The public certified run retains a terminal tied to its execution. -/
+theorem certifiedRunRetainsCausalChain
+    (input : Nat) :
+    let run := executeCausalDecisionCertified input
+    run.execution.run.code? = some run.execution.code /\
+      run.terminal.scan =
+        scanExecutedTerminal
+          run.execution.producedState.context.formula :=
+  ⟨(executeCausalDecisionCertified input).execution_found,
+    (executeCausalDecisionCertified input).terminal_from_execution⟩
+
+/-- Schedule production is itself retained as an exact, charged run. -/
+theorem certifiedScheduleWasProduced
+    (input : Nat) :
+    let run := executeCausalDecisionCertified input
+    run.scheduleRun =
+        runDiscoveryScheduleProduction run.discovery /\
+      run.scheduleRun.atomsEmitted =
+        run.scheduleRun.schedule.entry.code.size :=
+  ⟨(executeCausalDecisionCertified input).scheduleRunExact,
+    (executeCausalDecisionCertified input).scheduleRun.atomsExact⟩
+
+/-- The published schedule charge is read from the retained producer run. -/
+theorem scheduleCostFromProducerRun
+    (input : Nat) :
+    let run := executeCausalDecisionCertified input
+    run.stats.scheduleAtoms = run.scheduleRun.atomsEmitted := by
+  dsimp
+  rw [(executeCausalDecisionCertified input).statsExact]
+  unfold causalDecisionStatsFromPhases
+  rfl
 
 /-- The announced procedure always produces an execution-indexed terminal. -/
 theorem terminalReallyProduced
@@ -124,10 +179,16 @@ end ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.selectedVariableMoves
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.decoyComesFirst
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.decoyExtractionRunIsInstrumented
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.decoyIsExploredAndRejected
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.endogenousDiscoverySeven
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.fullPipelineYes
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.fullPipelineNo
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.unboundedYesWitness
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.unboundedNoWitness
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.certifiedRunRetainsCausalChain
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.certifiedScheduleWasProduced
+#print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.scheduleCostFromProducerRun
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.terminalReallyProduced
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.validationCostFromRun
 #print axioms ConstitutiveSearch.Tests.SATSecondAuditCausalBenchmarkRegression.executionCostFromRun

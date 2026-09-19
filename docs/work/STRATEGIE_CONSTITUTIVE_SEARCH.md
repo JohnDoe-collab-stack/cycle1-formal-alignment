@@ -22,7 +22,7 @@ module qui le portait enregistre explicitement
 `FirstAuditClosureStatus.withdrawnAfterSecondAudit`. Aucun nouveau marqueur de
 cloture ne sera introduit avant un nouvel audit adversarial.
 
-La reparation en cours suit neuf obligations exactes :
+La reparation en cours suit maintenant douze obligations exactes :
 
 - modele calculatoire capable de parcourir une entree non bornee et de disposer
   d'une bande de travail bidirectionnelle non bornee ;
@@ -34,11 +34,37 @@ La reparation en cours suit neuf obligations exactes :
 - dependances inter-phases materialisees dans les types ;
 - terminal indexe par l'execution qui produit son etat ;
 - decision lisant uniquement cet objet terminal ;
-- couts lus dans les runs, sans nouveau marqueur final avant re-audit.
+- couts lus dans les runs, sans nouveau marqueur final avant re-audit ;
+- extraction instrumentee par visites de clauses et de litteraux, et non par
+  la seule taille de la liste produite ;
+- famille de discovery ou une liste non bornee de variables-leurres deux a deux
+  distinctes precede le candidat utile et ou le nombre d'essais croît avec
+  l'entree ;
+- sortie publique certifiee conservant discovery, schedule, validation,
+  execution, terminal et equation de readout avant toute projection observable.
 
-`BitMachineDecision` et `SecondAuditCausalBenchmark` realisent maintenant ces
-obligations dans leur perimetre de benchmark. Ce statut est une reparation
-formelle a auditer, pas une nouvelle cloture.
+`BitMachineDecision`, `SecondAuditCausalBenchmark` et
+`GrowingDiscoveryBenchmark` realisent maintenant ces obligations dans leur
+perimetre de benchmark. Ce statut est une reparation formelle a auditer, pas
+une nouvelle cloture.
+
+Le chemin vers une eventuelle nouvelle cloture est ordonne ainsi :
+
+~~~text
+I.   fermer instrumentation, causalite typee et discovery croissante
+II.  integrer les contre-regressions adversariales correspondantes
+III. etablir un raccord de simulation avec un modele standard, ou borner
+     explicitement toute conclusion au modele BitMachine
+IV.  faire re-auditer les couches I a III
+V.   seulement apres succes, reconsiderer un marqueur de cloture
+~~~
+
+Les couches I et II sont construites. La couche III est satisfaite ici par son
+option conservatrice : toutes les conclusions calculatoires nouvelles sont
+explicitement bornees au modele `BitMachine`. La parite est une gate
+anti-triche, pas un theorem d'equivalence de modeles. Toute future conclusion
+nommant P / NP classiques rouvrirait donc l'obligation distincte de simulation;
+aucun renommage ne peut la remplacer.
 
 F(n) reste un benchmark structurel de symetrie, trajectoire, schedule, accounting et execution locale. Il n'est plus utilise comme probleme decisionnel final.
 
@@ -1857,6 +1883,21 @@ Cette regression ne devient pas le nouvel objectif scientifique. Elle empeche
 seulement de nommer P une interface qui exclut un calcul elementaire par
 parcours.
 
+Deux gates supplementaires sont maintenant formalisees dans
+`BitMachineAdequacyStress` :
+
+~~~text
+certificateChannel_isOperational
+  meme programme + meme entree + certificat different -> resultat different
+
+workTapeGrowth_unbounded
+  pour toute borne B, un run produit une bande de travail gauche de longueur > B
+~~~
+
+`runWorkGrowthProgram_exact` donne en outre l'etat final et le cout exact
+`5 * input.length + 2`. Ces gates excluent respectivement un canal certificat
+inerte et une machine dont la memoire de travail serait en fait finie.
+
 Le depot dispose ainsi d'un raccord calculatoire executable et non
 finite-state. Il ne revendique pas encore un theorem d'equivalence entre
 `InBitMachineP` / `InBitMachineNP` et une bibliotheque externe de definitions
@@ -1867,42 +1908,85 @@ Le benchmark causal repare suit l'API suivante :
 
 ~~~text
 current generated state
--> extractStructuralCandidates
+-> runCandidateExtraction
 -> exploreStructuralCandidates
 -> EndogenousFlipDiscovery
--> DiscoverySchedule
+-> runDiscoveryScheduleProduction
+-> DiscoveryScheduleProductionRun contenant DiscoverySchedule
 -> ValidatedDiscoverySchedule
 -> ExecutedDiscoverySchedule
 -> ExecutedTerminalArtifact
 -> decideExecutedTerminal
 ~~~
 
-Les dependances sont structurelles. `ExecutedDiscoverySchedule` conserve le
-code effectivement retourne par son run (`codeExact`) et l'etat produit comme
+Les dependances sont structurelles. `CandidateExtractionRun` conserve les
+candidats et les compteurs `clauseVisits` / `literalVisits` produits par la
+recursion d'extraction. `ExecutedDiscoverySchedule` conserve le code
+effectivement retourne par son run (`codeExact`) et l'etat produit comme
 donnee. `terminalFromExecution` recoit cet objet d'execution; il ne recoit ni
 l'input initial ni un etat terminal recalcule.
 `ExecutedTerminalArtifact.scan_from_execution` fixe positivement que le scan
 porte sur `execution.producedState.context.formula`.
+`DiscoveryScheduleProductionRun` conserve de meme le schedule produit et le
+nombre d'atomes emis; la statistique publique `scheduleAtoms` est lue dans ce
+run, et non reconstruite independamment depuis l'entree.
 
-La famille concrete utilise `causalDecisionSplitVar input = input + 2`. La
-procedure de discovery ne recoit pas cette variable : elle la retrouve comme
-premier candidat de la formule courante, apres extraction executable. Le test
-sur l'entree 7 retrouve donc 9 et facture une tentative. Une regression
-separee place un decoy syntaxique avant le candidat utile : le moteur rejette
-le decoy, trouve le candidat suivant et facture exactement deux tentatives.
+La sortie constitutive publique est maintenant
+`CausalDecisionCertifiedRun input`. Elle conserve dans un seul objet dependant :
 
-`executeCausalDecision` a un YES et un NO et tous ses compteurs sont lus dans
-les donnees produites par les phases. Ce resultat interdit le bypass dans l'API
-annoncee : on ne peut construire le terminal certifie de cette procedure sans
-fournir son execution. Il ne pretend pas qu'aucun autre algorithme mathematique
-ne puisse calculer le meme booleen.
+~~~text
+discoveryRun
+-> discovery
+-> scheduleRun contenant le schedule et sa charge
+-> validated
+-> execution
+-> terminal
+-> result avec resultExact
+-> stats avec statsExact
+~~~
+
+`executeCausalDecision` n'est plus une seconde implementation avec une branche
+de repli. Il projette seulement le `CausalDecisionCertifiedRun` deja construit.
+Les theoremes `execution_found` et `terminal_from_execution` exposent les deux
+liens de provenance directement attaques par le second audit.
+
+La famille decisionnelle utilise `causalDecisionSplitVar input = input + 2`.
+La procedure de discovery ne recoit pas cette variable : elle la retrouve dans
+la formule courante, apres extraction executable. Son langage n'est plus le
+singleton `{0}` : `causalDecisionSignal` alterne constructivement les cas YES
+et NO, et deux familles strictement croissantes de temoins YES et NO sont
+prouvees par `causalDecisionYesInput_accepts` / `_strict` et
+`causalDecisionNoInput_rejects` / `_strict`.
+
+Une seconde famille, `distinctGrowingDiscoveryFormula n`, place dans une clause
+les `n + 1` variables-leurres distinctes `n, ..., 0` avant le candidat utile.
+`distinctDecoyVariables_nodup` interdit que cette croissance soit obtenue par
+simple repetition du meme leurre. Le meme moteur generique rejette chacune de
+ces variables pour une incompatibilite de formules effectivement prouvee,
+trouve ensuite la variable `n + 2`, et
+`distinctGrowingDiscovery_found_after_exact_attempts` prouve exactement `n + 2`
+tentatives. `distinctGrowingDiscovery_extraction_stats` prouve simultanement
+trois visites de clauses et `n + 5` visites de litteraux produites par le run;
+`distinctGrowingDiscovery_attempts_strict` prouve la croissance stricte des
+tentatives d'une entree a la suivante.
+
+`executeCausalDecision` possede des familles non bornees de YES et de NO et tous
+ses compteurs sont lus dans les donnees produites par les phases. Ce resultat
+interdit le bypass dans l'API annoncee : on ne peut construire le terminal
+certifie de cette procedure sans fournir son execution. Il ne pretend pas
+qu'aucun autre algorithme mathematique ne puisse calculer le meme booleen.
 
 Etat d'arret actuel :
 
 ~~~text
 reparation formelle construite
 regressions Aristotle integrees
+instrumentation d'extraction construite
+discovery croissante construite
+sortie causale certifiee construite
 aucun nouveau marqueur de cloture
+portee calculatoire explicitement bornee a BitMachine
+simulation vers un modele standard non revendiquee
 re-audit adversarial requis
 ~~~
 
@@ -2227,7 +2311,11 @@ les regimes annonces : normalisation quadratique en largeur, charges binaires,
 recherche dans TransportClosure, profils multidimensionnels, fermeture
 input-polynomiale et passage conditionnel vers un cout machine.
 
-Le programme annonce est clos. Les regimes supplementaires de fuel/candidats, SAT general, les ponts machine concrets et les consequences generales de classes ne sont plus des obligations de ce chantier.
+Le noyau constitutif annonce est ferme dans son perimetre. La cloture globale
+retiree apres le second audit ne l'est pas. Les regimes supplementaires de
+fuel/candidats et SAT general restent hors objectif ; en revanche, tout nouveau
+raccord a P/NP classiques exige soit une simulation formelle vers un modele
+standard, soit une limitation explicite de l'enonce au seul modele BitMachine.
 
 Le pont classique minimal conserve la decision extensionnelle mais n'est pas fidele a toute la structure constitutive : la perte de reconstructibilite relationnelle et la perte d'information sur le cout d'organisation sont formalisees par les theoremes de non-factorisation.
 
