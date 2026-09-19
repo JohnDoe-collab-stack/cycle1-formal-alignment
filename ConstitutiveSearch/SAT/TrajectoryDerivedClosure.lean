@@ -170,6 +170,72 @@ def splitCandidates
             fresh ::
           tail.splitCandidates
 
+/-- Structural true decision canonically associated with one trajectory variable. -/
+def trueDecisionOfVar
+    (var : Var) :
+    StructuralBranchDecision :=
+  { var := var
+    value := true }
+
+/--
+The extracted generator variables are not an auxiliary annotation: they are
+exactly the newly constituted prefix of the final structural history.
+
+Histories are stored newest-first, hence the reversal of chronological
+trajectory variables.
+-/
+theorem finish_decisions_eq_trajectoryVars
+    {rootFormula : Cnf}
+    {start finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    finish.context.decisions =
+      trajectory.decisionVars.reverse.map
+          trueDecisionOfVar ++
+        start.context.decisions := by
+  induction trajectory with
+  | done state =>
+      rfl
+  | step var fresh symmetric tail inductionHypothesis =>
+      rw [inductionHypothesis]
+      simp only [
+        decisionVars,
+        List.reverse_cons,
+        List.map_append,
+        List.map_singleton,
+        GeneratedStructuralBranchContext.child_decisions,
+        trueDecisionOfVar,
+        List.append_assoc
+      ]
+      rfl
+
+/--
+Projecting only variable names gives the same exact provenance statement.
+-/
+theorem finish_decisionVariables_eq_trajectoryVars
+    {rootFormula : Cnf}
+    {start finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory start finish length) :
+    finish.context.decisions.map
+        StructuralBranchDecision.var =
+      trajectory.decisionVars.reverse ++
+        start.context.decisions.map
+          StructuralBranchDecision.var := by
+  rw [
+    trajectory.finish_decisions_eq_trajectoryVars
+  ]
+  simp only [
+    List.map_append,
+    List.map_map,
+    trueDecisionOfVar,
+    Function.comp_apply
+  ]
+
 /-- The generator-variable list has exactly one entry per constitutive step. -/
 theorem decisionVars_length
     {rootFormula : Cnf}
@@ -403,6 +469,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.provenanceStructuralFlipSearch
 #print axioms ConstitutiveSearch.SAT.provenanceStructuralFlipAction
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.decisionVars
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.trueDecisionOfVar
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.finish_decisions_eq_trajectoryVars
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.finish_decisionVariables_eq_trajectoryVars
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.splitCandidates
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.decisionVars_length
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.splitCandidates_length
