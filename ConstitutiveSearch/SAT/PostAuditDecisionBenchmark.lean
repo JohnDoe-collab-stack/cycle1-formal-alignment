@@ -389,6 +389,7 @@ theorem auditedTerminalDecision_correct
       auditedTerminalDecision,
       terminalFormula,
       containsEmptyClause,
+      symmetricNegativeClause,
       inputZero
     ]
 
