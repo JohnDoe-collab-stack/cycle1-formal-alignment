@@ -9,7 +9,7 @@ This module closes the quantitative chain for the explicit family F(n):
 
   constituted trajectory
   -> endogenous local schedule
-  -> production already charged by the base constitutive profile
+  -> pure production charged from structural trajectory coordinates
   -> executable validation
   -> actual candidate-free local execution
   -> one total constitutive complexity profile
@@ -17,12 +17,14 @@ This module closes the quantitative chain for the explicit family F(n):
 
 Production, validation and execution remain distinct phases.
 
-Production does not create a new accounting vector: its certificateAtoms and
-provenanceUnits are exactly the coordinates already charged by
-explicitFamilyComplexityCounts.
+Production reuses the already-certified structural coordinates for syntax,
+frontier slots, provenance, certificate atoms and terminality, but deliberately
+sets relation-search and closure counters to zero.  The older 2n
+normalizationFindCallCount belongs to a different normalization execution and
+is not folded into production.
 
-Validation and execution therefore set certificateAtoms and provenanceUnits to
-zero.  They add only the counters they actually execute and their corresponding
+Validation and execution set certificateAtoms and provenanceUnits to zero.
+They add only the counters they actually execute and their corresponding
 representation charges.
 
 No recursive ClosureSearch upper envelope is substituted for executed counters.
@@ -30,6 +32,71 @@ No recursive ClosureSearch upper envelope is substituted for executed counters.
 
 namespace ConstitutiveSearch
 namespace SAT
+
+/-- Pure production counts for the constituted trajectory and its local schedule. -/
+def explicitFamilyConstitutedProductionCounts
+    (count : Nat) :
+    ComplexityCounts :=
+  { syntaxUnits := 4 * count
+    frontierSlots := 3 * count + 1
+    provenanceUnits := count
+    certificateAtoms := count
+    relationFindCalls := 0
+    closurePrimitiveQueries := 0
+    closureCompositionCandidates := 0
+    terminalChecks := 1 }
+
+/--
+Representation charge of pure production under the already-audited atomic
+representation model.
+-/
+def explicitFamilyConstitutedProductionRepresentationCharge
+    (count : Nat) :
+    Nat :=
+  chargedCost
+    (explicitFamilyConstitutedProductionCounts
+      count)
+    (explicitFamilyRepresentationAtomicCosts
+      count)
+
+/--
+Pure production is bounded by the older complete local-strategy charge because
+that older profile adds the nonnegative 2n normalization relation-find calls.
+-/
+theorem explicitFamilyConstitutedProductionRepresentationCharge_le_existing
+    (count : Nat) :
+    explicitFamilyConstitutedProductionRepresentationCharge
+        count ≤
+      explicitFamilyRepresentationChargedCost
+        count := by
+  unfold explicitFamilyConstitutedProductionRepresentationCharge
+  unfold explicitFamilyRepresentationChargedCost
+  unfold explicitFamilyChargedCost
+  unfold chargedCost
+  unfold explicitFamilyConstitutedProductionCounts
+  unfold explicitFamilyComplexityCounts
+  unfold explicitFamilyRepresentationAtomicCosts
+  omega
+
+/-- Production-only constitutive profile. -/
+def explicitFamilyConstitutedProductionProfile
+    (count : Nat) :
+    ConstitutiveComplexityProfile :=
+  { inputBits :=
+      explicitFamilyInputBitSize count
+    depth :=
+      count
+    maxFrontierWidth :=
+      (explicitFamilyResourceTrajectory
+        count).trajectory.widthTrace.foldl
+          Nat.max
+          0
+    events :=
+      explicitFamilyConstitutedProductionCounts
+        count
+    representationCharge :=
+      explicitFamilyConstitutedProductionRepresentationCharge
+        count }
 
 /-- Validation-only profile for the already-produced constituted local schedule. -/
 def explicitFamilyConstitutedValidationProfile
@@ -64,15 +131,15 @@ def explicitFamilyConstitutedExecutionProfile
 /--
 Total closed profile.
 
-The first phase is the existing local F(n) production/trajectory profile.
-Validation and actual execution are appended without recharging provenance or
-certificate production.
+The first phase is the pure production profile above.  Validation and actual
+execution are appended without recharging provenance or certificate production
+and without importing the older bidirectional normalization search.
 -/
 def explicitFamilyConstitutedTotalProfile
     (count : Nat) :
     ConstitutiveComplexityProfile :=
   ConstitutiveComplexityProfile.compose
-    (explicitFamilyConstitutiveProfile count)
+    (explicitFamilyConstitutedProductionProfile count)
     (ConstitutiveComplexityProfile.compose
       (explicitFamilyConstitutedValidationProfile
         count)
@@ -102,6 +169,87 @@ theorem explicitFamilyConstitutedLocalQueryCostPolynomial_eval
   rw [
     explicitFamilyRelationCostPolynomial_eval
   ]
+
+/-- Pure production profile is input-polynomial in concrete input size. -/
+theorem explicitFamilyConstitutedProductionProfile_inputPolynomiallyBounded :
+    ConstitutiveProfileFamilyInputPolynomiallyBounded
+      explicitFamilyConstitutedProductionProfile := by
+  let base :=
+    explicitFamilyConstitutiveProfile_inputPolynomiallyBounded
+  rcases base.representationCharge with
+    ⟨envelope, baseChargeLe⟩
+  exact
+    { depth := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutiveProfile
+        ] using
+          base.depth
+      width := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutiveProfile
+        ] using
+          base.width
+      syntaxUnits := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutedProductionCounts,
+          explicitFamilyConstitutiveProfile,
+          explicitFamilyComplexityCounts
+        ] using
+          base.syntaxUnits
+      frontierSlots := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutedProductionCounts,
+          explicitFamilyConstitutiveProfile,
+          explicitFamilyComplexityCounts
+        ] using
+          base.frontierSlots
+      provenance := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutedProductionCounts,
+          explicitFamilyConstitutiveProfile,
+          explicitFamilyComplexityCounts
+        ] using
+          base.provenance
+      certificates := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutedProductionCounts,
+          explicitFamilyConstitutiveProfile,
+          explicitFamilyComplexityCounts
+        ] using
+          base.certificates
+      relationFind :=
+        InputPolynomiallyBounded.constant
+          explicitFamilyInputBitSize
+          0
+      closurePrimitive :=
+        InputPolynomiallyBounded.constant
+          explicitFamilyInputBitSize
+          0
+      closureCandidates :=
+        InputPolynomiallyBounded.constant
+          explicitFamilyInputBitSize
+          0
+      terminal := by
+        simpa [
+          explicitFamilyConstitutedProductionProfile,
+          explicitFamilyConstitutedProductionCounts,
+          explicitFamilyConstitutiveProfile,
+          explicitFamilyComplexityCounts
+        ] using
+          base.terminal
+      representationCharge :=
+        ⟨envelope,
+          fun count =>
+            Nat.le_trans
+              (explicitFamilyConstitutedProductionRepresentationCharge_le_existing
+                count)
+              (baseChargeLe count)⟩ }
 
 /-- Validation profile is input-polynomial in the concrete input size. -/
 theorem explicitFamilyConstitutedValidationProfile_inputPolynomiallyBounded :
@@ -252,7 +400,7 @@ theorem explicitFamilyConstitutedTotalProfile_inputPolynomiallyBounded :
       explicitFamilyConstitutedTotalProfile := by
   exact
     ConstitutiveProfileFamilyInputPolynomiallyBounded.compose
-      explicitFamilyConstitutiveProfile_inputPolynomiallyBounded
+      explicitFamilyConstitutedProductionProfile_inputPolynomiallyBounded
       (ConstitutiveProfileFamilyInputPolynomiallyBounded.compose
         explicitFamilyConstitutedValidationProfile_inputPolynomiallyBounded
         explicitFamilyConstitutedExecutionProfile_inputPolynomiallyBounded)
@@ -278,20 +426,19 @@ theorem explicitFamilyConstitutedTotalProfile_relationFind
     (count : Nat) :
     (explicitFamilyConstitutedTotalProfile
       count).events.relationFindCalls =
-      3 * count := by
+      count := by
   simp only [
     explicitFamilyConstitutedTotalProfile,
     ConstitutiveComplexityProfile.compose,
     ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedProductionProfile,
+    explicitFamilyConstitutedProductionCounts,
     explicitFamilyConstitutedValidationProfile,
     explicitFamilyConstitutedValidationCounts,
     explicitFamilyConstitutedExecutionProfile,
     explicitFamilyConstitutedExecutionCounts,
     explicitFamilyConstitutedLocalValidationQueries
   ]
-  omega
 
 /-- Actual local execution contributes exactly n primitive closure queries. -/
 theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
@@ -340,7 +487,7 @@ theorem explicitFamilyConstitutedTotalProfile_representationCharge
     (count : Nat) :
     (explicitFamilyConstitutedTotalProfile
       count).representationCharge =
-      explicitFamilyRepresentationChargedCost count +
+      explicitFamilyConstitutedProductionRepresentationCharge count +
         (explicitFamilyConstitutedValidationRepresentationCharge count +
           explicitFamilyConstitutedExecutionRepresentationCharge count) := by
   rfl
@@ -420,6 +567,11 @@ end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProductionCounts
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProductionRepresentationCharge
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProductionRepresentationCharge_le_existing
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProductionProfile
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProductionProfile_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationProfile
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionProfile
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedTotalProfile
