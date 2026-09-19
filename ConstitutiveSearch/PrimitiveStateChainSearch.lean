@@ -115,7 +115,7 @@ theorem findPrimitiveHit?_some_of_exact
           target =
         some hit := by
   unfold findPrimitiveHit?
-  rw [exactFind]
+  simp only [exactFind]
   exact ⟨_, rfl⟩
 
 /-- Result of executable adjacent primitive search on one ordered state chain. -/
@@ -436,7 +436,6 @@ theorem searchPrimitiveStateChain_found_primitiveQueries
                 inductionHypothesis
                   laterFound
               ]
-              omega
 
 /-- Successful local path reconstruction compiles to a code of chain length. -/
 theorem searchPrimitiveStateChain_found_code_size
