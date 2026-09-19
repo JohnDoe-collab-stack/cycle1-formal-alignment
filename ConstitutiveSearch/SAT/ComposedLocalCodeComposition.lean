@@ -103,7 +103,7 @@ theorem composedFirstLocalCode_size_inputPolynomiallyBounded :
   refine
     ⟨CostPolynomial.constant 1, ?_⟩
   intro count
-  rw [composedFirstLocalCode_size]
+  change 1 ≤ 1
   exact Nat.le_refl 1
 
 /-- Second local code family has constant input-polynomial size one. -/
@@ -115,7 +115,7 @@ theorem composedSecondLocalCode_size_inputPolynomiallyBounded :
   refine
     ⟨CostPolynomial.constant 1, ?_⟩
   intro count
-  rw [composedSecondLocalCode_size]
+  change 1 ≤ 1
   exact Nat.le_refl 1
 
 /-- Pointwise local composition is exactly the existing constituted code. -/
