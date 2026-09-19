@@ -84,7 +84,6 @@ roots = [
   "ConstitutiveSearch.SAT.ComposedSearchableCode",
   "ConstitutiveSearch.SAT.ComposedSearchableCodeValidation",
   "ConstitutiveSearch.SAT.ConstitutedComposedPrimitivePath",
-  "ConstitutiveSearch.SAT.ProvenanceSearchCosts",
   "ConstitutiveSearch.SAT.TrajectoryConstitutedLocalSchedule",
   "ConstitutiveSearch.SAT.TrajectoryConstitutedLocalAccounting",
   "ConstitutiveSearch.SAT.ComposedLocalCodeExecution",
