@@ -872,35 +872,37 @@ def auditedDecisionSearchSystemVerifier :
       auditedDecisionWitnessDecode
     verifySound := by
       intro input witness verified
-      have inputZero : input = 0 := by
-        by_contra inputNonzero
-        simp [
-          auditedDecisionVerifierCode,
-          executeVerifier,
-          inputNonzero
-        ] at verified
-      have witnessZero : witness = 0 := by
-        by_contra witnessNonzero
-        simp [
-          auditedDecisionVerifierCode,
-          executeVerifier,
-          inputZero,
-          witnessNonzero
-        ] at verified
-      subst input
-      subst witness
-      refine
-        ⟨auditedYesAssignment, ?_, ?_⟩
+      by_cases inputZero : input = 0
+      · subst input
+        by_cases witnessZero : witness = 0
+        · subst witness
+          refine
+            ⟨auditedYesAssignment, ?_, ?_⟩
+          · simp [
+              auditedDecisionWitnessDecode
+            ]
+          · exact
+              auditedDecision_zero_satisfies
+        · simp [
+            auditedDecisionVerifierCode,
+            executeVerifier,
+            witnessZero
+          ] at verified
       · simp [
-          auditedDecisionWitnessDecode
-        ]
-      · exact
-          auditedDecision_zero_satisfies
+          auditedDecisionVerifierCode,
+          executeVerifier,
+          inputZero
+        ] at verified
     verifyComplete := by
       intro input viable
       have accepted :
-          auditedDecisionProblem.Accept input :=
-        viable
+          auditedDecisionProblem.Accept input := by
+        change
+          ∃ assignment : Assignment,
+            Satisfies
+              assignment
+              (auditedDecisionFormula input)
+        exact viable
       have inputZero :=
         (auditedDecisionProblem_accept_iff_zero
           input).1
@@ -933,23 +935,30 @@ def auditedDecisionSearchSystemDecider :
       intro input
       constructor
       · intro decided
-        have inputZero : input = 0 := by
-          by_contra inputNonzero
-          simp [
+        by_cases inputZero : input = 0
+        · subst input
+          change
+            ∃ assignment : Assignment,
+              Satisfies
+                assignment
+                (auditedDecisionFormula 0)
+          exact
+            ⟨auditedYesAssignment,
+              auditedDecision_zero_satisfies⟩
+        · simp [
             auditedDecisionDeciderCode,
             executeDecider,
-            inputNonzero
-          ] at decided
-        have accepted :
-            auditedDecisionProblem.Accept input :=
-          (auditedDecisionProblem_accept_iff_zero
-            input).2
             inputZero
-        exact accepted
+          ] at decided
       · intro viable
         have accepted :
-            auditedDecisionProblem.Accept input :=
-          viable
+            auditedDecisionProblem.Accept input := by
+          change
+            ∃ assignment : Assignment,
+              Satisfies
+                assignment
+                (auditedDecisionFormula input)
+          exact viable
         have inputZero :=
           (auditedDecisionProblem_accept_iff_zero
             input).1
