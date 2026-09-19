@@ -179,9 +179,11 @@ theorem composeSearchableCodeFamily_size_inputPolynomiallyBounded
         secondEnvelope,
       ?_⟩
   intro n
-  rw [
-    composeSearchableCodeFamily_size
-  ]
+  change
+    (first n).size +
+        (second n).size ≤
+      firstEnvelope.eval (inputBits n) +
+        secondEnvelope.eval (inputBits n)
   exact
     Nat.add_le_add
       (firstLe n)
