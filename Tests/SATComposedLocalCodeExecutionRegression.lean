@@ -12,13 +12,9 @@ theorem localExecution3 :
   composedConstitutedCode_localSequentialExecution 3
 
 theorem globalNeedAndLocal3 :
-    PrimitiveHitPath.GlobalCompositionRequired
-        (composedPrimitiveSearch 3)
-        (composedSource 3)
-        (composedTarget 3) ∧
-      TransportCode.LocalSequentialExecution
-        (composedPrimitiveSearch 3)
-        (composedConstitutedCode 3) :=
+    TransportCode.GlobalNeedWithLocalExecution
+      (composedPrimitiveSearch 3)
+      (composedConstitutedCode 3) :=
   composedConstitutedCode_globalNeed_and_localExecution 3
 
 theorem localStats3 :
