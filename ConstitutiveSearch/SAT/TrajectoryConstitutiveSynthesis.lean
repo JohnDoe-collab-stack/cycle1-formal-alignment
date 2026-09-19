@@ -76,6 +76,7 @@ theorem explicitFamilyConstitutedProductionRepresentationCharge_le_existing
   unfold explicitFamilyConstitutedProductionCounts
   unfold explicitFamilyComplexityCounts
   unfold explicitFamilyRepresentationAtomicCosts
+  simp
   omega
 
 /-- Production-only constitutive profile. -/
@@ -421,7 +422,7 @@ theorem explicitFamilyConstitutedTotalProfile_certificates
       count := by
   rfl
 
-/-- Existing trajectory relation-find work plus executable validation is recorded exactly. -/
+/-- Executable validation is the only relation-find phase in the closed profile. -/
 theorem explicitFamilyConstitutedTotalProfile_relationFind
     (count : Nat) :
     (explicitFamilyConstitutedTotalProfile
@@ -439,6 +440,7 @@ theorem explicitFamilyConstitutedTotalProfile_relationFind
     explicitFamilyConstitutedExecutionCounts,
     explicitFamilyConstitutedLocalValidationQueries
   ]
+  simp
 
 /-- Actual local execution contributes exactly n primitive closure queries. -/
 theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
@@ -450,8 +452,8 @@ theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
     explicitFamilyConstitutedTotalProfile,
     ConstitutiveComplexityProfile.compose,
     ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedProductionProfile,
+    explicitFamilyConstitutedProductionCounts,
     explicitFamilyConstitutedValidationProfile,
     explicitFamilyConstitutedValidationCounts,
     explicitFamilyConstitutedExecutionProfile,
@@ -470,14 +472,15 @@ theorem explicitFamilyConstitutedTotalProfile_closureCandidates
     explicitFamilyConstitutedTotalProfile,
     ConstitutiveComplexityProfile.compose,
     ComplexityCounts.add,
-    explicitFamilyConstitutiveProfile,
-    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedProductionProfile,
+    explicitFamilyConstitutedProductionCounts,
     explicitFamilyConstitutedValidationProfile,
     explicitFamilyConstitutedValidationCounts,
     explicitFamilyConstitutedExecutionProfile,
     explicitFamilyConstitutedExecutionCounts,
     explicitFamilyConstitutedLocalExecutionCompositionCandidates
   ]
+  simp
 
 /--
 The total representation charge is the sum of the three distinct accounting
