@@ -763,6 +763,198 @@ theorem searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
               target
 
 /--
+Every successfully found closure code admits a sequential replacement through
+the primitive-hit path reconstructed from the same executable search result.
+
+The replacement may use any positive fuel and any candidate list because each
+stored edge short-circuits at the primitive layer.
+-/
+theorem searchTransportClosureBounded_found_hasSequentialReplacement
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (globalCandidates : List State)
+    (globalFuel : Nat)
+    (source target : State)
+    {code :
+      TransportClosure
+        Generator
+        source
+        target}
+    (found :
+      (searchTransportClosureBounded
+        primitive
+        globalCandidates
+        globalFuel
+        source
+        target).code? =
+          some code)
+    (sequentialCandidates : List State)
+    (sequentialFuel : Nat)
+    (sequentialFuelPositive :
+      0 < sequentialFuel) :
+    ∃ path :
+        PrimitiveHitPath
+          primitive
+          source
+          target,
+      path.length = code.size ∧
+        (path.sequentialStats
+            sequentialCandidates
+            sequentialFuel).primitiveQueries =
+          code.size ∧
+        (path.sequentialStats
+            sequentialCandidates
+            sequentialFuel).compositionCandidates =
+          0 := by
+  rcases
+      searchTransportClosureBounded_found_hasPrimitiveHitPath
+        primitive
+        globalCandidates
+        globalFuel
+        source
+        target
+        code
+        found with
+    ⟨path, _pathPositive, pathLength⟩
+  refine
+    ⟨path, pathLength, ?_, ?_⟩
+  · calc
+      (path.sequentialStats
+          sequentialCandidates
+          sequentialFuel).primitiveQueries
+          =
+        path.length :=
+          path.sequentialStats_primitiveQueries
+            sequentialCandidates
+            sequentialFuel
+            sequentialFuelPositive
+      _ =
+        code.size :=
+          pathLength
+  · exact
+      path.sequentialStats_compositionCandidates
+        sequentialCandidates
+        sequentialFuel
+        sequentialFuelPositive
+
+/--
+If the successful global query is a direct primitive miss, the replacement path
+has at least two edges while the global run necessarily performs composition
+candidate search and the sequential replacement performs none.
+-/
+theorem searchTransportClosureBounded_directMiss_found_hasSequentialReplacement
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (globalCandidates : List State)
+    (globalFuel : Nat)
+    (source target : State)
+    (directMiss :
+      primitive.find source target = none)
+    {code :
+      TransportClosure
+        Generator
+        source
+        target}
+    (found :
+      (searchTransportClosureBounded
+        primitive
+        globalCandidates
+        globalFuel
+        source
+        target).code? =
+          some code)
+    (sequentialCandidates : List State)
+    (sequentialFuel : Nat)
+    (sequentialFuelPositive :
+      0 < sequentialFuel) :
+    ∃ path :
+        PrimitiveHitPath
+          primitive
+          source
+          target,
+      2 ≤ path.length ∧
+        path.length = code.size ∧
+        0 <
+          (searchTransportClosureBounded
+            primitive
+            globalCandidates
+            globalFuel
+            source
+            target).stats.compositionCandidates ∧
+        (path.sequentialStats
+            sequentialCandidates
+            sequentialFuel).primitiveQueries =
+          code.size ∧
+        (path.sequentialStats
+            sequentialCandidates
+            sequentialFuel).compositionCandidates =
+          0 := by
+  rcases
+      searchTransportClosureBounded_found_hasPrimitiveHitPath
+        primitive
+        globalCandidates
+        globalFuel
+        source
+        target
+        code
+        found with
+    ⟨path, pathPositive, pathLength⟩
+  have pathNotOne :
+      path.length ≠ 1 := by
+    intro pathOne
+    exact
+      (directHit_of_length_one
+        path
+        pathOne)
+        directMiss
+  have twoLe :
+      2 ≤ path.length := by
+    omega
+  have globalCompositionPositive :
+      0 <
+        (searchTransportClosureBounded
+          primitive
+          globalCandidates
+          globalFuel
+          source
+          target).stats.compositionCandidates :=
+    searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
+      primitive
+      globalCandidates
+      globalFuel
+      source
+      target
+      directMiss
+      found
+  refine
+    ⟨path,
+      twoLe,
+      pathLength,
+      globalCompositionPositive,
+      ?_,
+      ?_⟩
+  · calc
+      (path.sequentialStats
+          sequentialCandidates
+          sequentialFuel).primitiveQueries
+          =
+        path.length :=
+          path.sequentialStats_primitiveQueries
+            sequentialCandidates
+            sequentialFuel
+            sequentialFuelPositive
+      _ =
+        code.size :=
+          pathLength
+  · exact
+      path.sequentialStats_compositionCandidates
+        sequentialCandidates
+        sequentialFuel
+        sequentialFuelPositive
+
+/--
 A successful bounded closure query whose direct primitive query misses is
 necessarily a genuine global composition requirement.
 -/
@@ -961,6 +1153,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_found_hasPrimitiveHitPath
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchClosureViaCandidates_cons_compositionCandidates_pos
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_found_hasSequentialReplacement
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_hasSequentialReplacement
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_requiresComposition
 #print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_codeSize
 #print axioms ConstitutiveSearch.PrimitiveHitPath.GlobalCompositionRequired
