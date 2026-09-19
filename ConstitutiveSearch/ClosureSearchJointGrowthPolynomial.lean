@@ -486,7 +486,6 @@ theorem jointGrowing_candidateBitWidth
     jointGrowing_geometricBase,
     Nat.log2_two_pow
   ]
-  omega
 
 /-- The logarithm of the concrete input size is exactly (n+2)^2. -/
 theorem jointGrowing_inputLog
