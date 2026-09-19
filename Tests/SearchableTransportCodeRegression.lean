@@ -28,7 +28,13 @@ def demoCode :
 theorem demoSearchable :
     demoCode.SearchableBy
       demoPrimitive := by
-  constructor <;> simp [demoPrimitive]
+  constructor
+  · change
+      demoPrimitive.find 0 1 ≠ none
+    simp [demoPrimitive]
+  · change
+      demoPrimitive.find 1 2 ≠ none
+    simp [demoPrimitive]
 
 theorem demoRequired :
     PrimitiveHitPath.GlobalCompositionRequired
