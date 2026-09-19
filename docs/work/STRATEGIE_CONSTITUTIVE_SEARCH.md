@@ -4,11 +4,13 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique code auditee avant cette mise a jour documentaire :
+Base scientifique de cloture avant cette mise a jour documentaire :
 
 ~~~text
-cb92b94200139f11043879d47025ad952487dc31
+7270966eed7177236ba4db28051dae1d2613eaba
 ~~~
+
+Le programme NP AND/OR P est maintenant formellement clos au perimetre annonce. Les obligations de composabilite du schedule, de synthese quantitative et de non-factorisation sous oubli de constitution sont fermees. Le pont classique minimal vers des interfaces Nat-codees de probleme de decision, P et NP est egalement formalise. Le theorem npAndPObjectiveComplete constitue le marqueur d'arret de l'objectif NP / P. Il n'enonce ni P = NP ni P != NP.
 
 P1 a P6c et les couches quantitatives P7a a P7d-f sont maintenant formalises au niveau annonce dans ce document. Le head code ci-dessus a passe Linux et Windows. Le normaliseur generique possede une borne quadratique de controle-flow en largeur, la fermeture compositionnelle possede des lois de croissance explicites et des regimes polynomiaux prouves pour tout fuel fixe ainsi que pour tout fuel variable uniformement borne. Les longueurs de listes de candidats peuvent elles-memes croitre polynomialement avec la taille d'entree. Les profils constitutifs multidimensionnels se composent generiquement, deux familles SAT parametriques distinctes sont instanciees dans l'interface input-polynomiale, et le passage vers un cout machine polynomial est formalise uniquement sous un RepresentationMachineBridge explicite. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
 
@@ -1724,6 +1726,17 @@ et la liste de candidats annonces.
 [FAIT P7d-d] le nombre d'atomes produits coincide exactement avec transportCertificateAtomCount deja audite; sur F(n), production, validation et execution locale sont InputPolynomiallyBounded dans explicitFamilyInputBitSize
 [FAIT P7d-d] le cout de production n'est pas recompte : les n atomes et les n unites de provenance coincident avec certificateAtoms et provenanceUnits deja presents dans explicitFamilyComplexityCounts
 [FAIT P7d-d] validation et execution sont chargees comme phases distinctes : validation = n relationFindCalls directs; execution locale = n closurePrimitiveQueries / 0 closureCompositionCandidates; les deux utilisent le cout atomique du flip direct deja audite et leurs charges de representation restent bornees par un budget polynomial indexe par la taille binaire reelle de F(n)
+[FAIT CLOTURE] EndpointComposable caracterise exactement quand une suite non vide de transports locaux partage les endpoints necessaires pour compiler un TransportCode endpoint-to-endpoint; la taille du code compose est exactement la longueur du schedule
+[FAIT CLOTURE] pour toute FlipSymmetricTrajectory de longueur >= 2, le schedule constitue n'est pas EndpointComposable : la cible du premier flip sibling est a profondeur d+1 tandis que la source du flip sibling suivant est a profondeur d+2
+[FAIT CLOTURE] explicitFamilyConstitutedTotalProfile compose production, validation et execution sans recompter provenanceUnits ni certificateAtoms; les compteurs executes restent distincts des enveloppes recursives de ClosureSearch
+[FAIT CLOTURE] explicitFamilyConstitutedTotalProfile est ConstitutiveProfileFamilyInputPolynomiallyBounded dans explicitFamilyInputBitSize
+[FAIT CLOTURE] relation reconstructibility ne factorise pas par la projection frontier-only : meme frontiere, relation absente avant constitution du split exact, presente apres
+[FAIT CLOTURE] le cout execute de recherche compositionnelle ne factorise pas par les seuls endpoints : meme source/target, execution locale constituee = 0 compositionCandidate, requete globale aplatie = 1
+[FAIT CLOTURE] NPAndOrPProgramClosed regroupe composabilite exacte, schedule local, synthese quantitative et pertes par projection
+[FAIT PONT CLASSIQUE] DecisionProblem est Nat-code; InP exige un decider correct a cout InputPolynomiallyBounded; InNP est relatif a une famille explicite de certificats avec taille et verification polynomialement bornees
+[FAIT PONT CLASSIQUE] le role NP-like des continuations ne se projette vers InNP que sous SearchSystemPolynomialVerifier explicite; le role P-like ne se projette vers InP que sous SearchSystemPolynomialDecider explicite
+[FAIT PONT CLASSIQUE] la trajectoire AND/OR preserve la decision extensionnelle par viable_iff, tandis que ConstitutiveProjectionLossClosed enregistre ce que la projection classique oublie
+[FERME] npAndPObjectiveComplete : OBJECTIF NP / P TERMINE
 [QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. La fermeture locale montre que la recherche globale n'est pas necessaire lorsqu'un code searchable est deja constitue. Le cout de production/validation de ce code reste une obligation distincte a expliciter.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
@@ -1743,82 +1756,88 @@ et la liste de candidats annonces.
 [FERME] toute revendication generale de classe de complexite avant fermeture des phases restantes
 ~~~
 
-## 24. Sequence d'implementation immediate
+## 24. Cloture formelle du programme
 
-Ordre recommande a partir du head actuel :
-
-~~~text
-1. generaliser si necessaire le schedule endogene de codes locaux au-dela de FlipSymmetricTrajectory, sans confondre les arêtes de split avec les transports sibling
-2. caracteriser exactement quand une suite de codes locaux est composable en un transport endpoint-to-endpoint, et quand elle doit rester un schedule de reductions locales
-3. raccorder le schedule produit/valide/execute au profil constitutif total sans double comptage des certificateAtoms et provenanceUnits
-4. consolider la non-factorisation/provenance : mesurer ce qui est perdu lorsqu'on oublie le schedule constitue et qu'on ne conserve que des requetes globales
-5. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits) lorsque aucun code local n'est deja constitue
-6. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
-7. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
-8. effectuer P8 : audit externe de nouveaute et comparaison apres fermeture de l'objectif formel
-9. synchroniser ensuite la documentation canonique avant toute integration vers main
-10. seulement apres etudier les consequences generales de classe de complexite
-~~~
-
-Le verrou quantitatif courant est donc maintenant tres precis :
-
-> la distinction recherche globale / execution constituee est maintenant formelle.
-> Un direct miss avec code SearchableBy de taille >= 2 caracterise un besoin de
-> composition globale sans lancer ClosureSearch. Une fois ce code constitue, il
-> s'execute localement avec candidats=[] et fuel=1, pour exactement code.size
-> primitiveQueries et zero compositionCandidate. Cette politique est
-> input-polynomiale des que la taille du code l'est, et elle est fermee sous
-> composition locale additive. Le benchmark SAT a deux flips est ferme de bout en
-> bout de cette maniere. Pour FlipSymmetricTrajectory, la production endogene est
-> maintenant fermee sous la forme correcte : la trajectoire extrait son propre
-> schedule de witnesses sibling directement depuis les constructeurs de la
-> trajectoire, avec n atomes produits, n validations de flip direct indexees par
-> le var de chaque etape, n runs locaux ClosureSearch effectivement executes avec
-> candidats=[] / fuel=1 et zero compositionCandidate. La projection des vars du
-> schedule est exactement decisionVars : aucune provenance future n'est utilisee
-> pour valider ou executer une etape anterieure. Ce schedule n'est volontairement pas reinterprete comme
-> un unique chemin primitif start -> finish, car les transports locaux relient
-> des siblings alors que la trajectoire avance par split puis absorption. Le
-> verrou restant porte donc sur la caracterisation generale de cette structure
-> de schedule, son eventuelle composabilite endpoint-to-endpoint lorsque les
-> types le permettent, et la non-factorisation de cette information sous une
-> projection globale qui l'oublie.
-
-Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
-candidat, la recurrence :
+Les obligations scientifiques internes de cloture sont maintenant fermees.
 
 ~~~text
-B(0) = 0
-B(f+1) = 2 * B(f) + 1
+1. schedule constitue
+   EndpointComposable
+   -> composition endpoint-to-endpoint exactement sous egalite des endpoints
+   -> FlipSymmetricTrajectory de longueur >= 2 reste un schedule local de reductions sibling
+
+2. synthese quantitative
+   trajectoire constituee
+   -> schedule endogene
+   -> production deja chargee dans certificateAtoms / provenanceUnits
+   -> validation executable
+   -> execution locale reelle
+   -> profil total sans double comptage
+   -> borne input-polynomiale
+
+3. non-factorisation
+   oubli de constitution / organisation temporelle
+   -> perte de relation reconstructible
+   -> perte d'information sur le cout execute de recherche compositionnelle
 ~~~
 
-Les requetes sibling effectivement produites le long de la trajectoire sont
-quantifiees exactement : n primitiveQueries, zero compositionCandidate. Les
-requetes composees disposent maintenant d'une alternative locale lorsque le code
-est deja constitue et SearchableBy. Le prochain travail doit donc mesurer comment
-ces codes sont produits, verifies et accumules par la constitution elle-meme,
-plutot que traiter leur existence comme une donnee gratuite.
-
-Le normaliseur, la composition de profils, les profils input-polynomiaux, une
-deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
-bridge explicite sont maintenant fermes.
-
-## 25. Prochain theorem global vise
-
-Forme cible :
-
-> Pour toute trajectoire finie construite par splits structurels exacts, constitutions d'etat et absorptions certifiees par des transports preservant l'acceptation, la viabilite de la frontiere initiale est equivalente a la viabilite de la frontiere finale.
-
-Forme conceptuelle :
+Declarations de cloture :
 
 ~~~text
-ViableFrontier F0 <-> ViableFrontier Fn
+NPAndOrPProgramClosed
+npAndOrPProgramClosed
 ~~~
 
-sans exiger que les transports d'absorption soient inversibles.
+Le programme n'ouvre plus de nouvelle obligation scientifique interne. Sont explicitement hors objectif : SAT general, P = NP, P != NP, couverture de toute CNF, nouveaux generateurs, nouvelles familles parametriques, generalisation a tous les SearchSystem, nouveaux regimes candidateCount/fuel, regimes quasi-polynomiaux supplementaires, RepresentationMachineBridge vers un runtime concret et consequences supplementaires de classes de complexite.
 
-La trajectoire doit egalement enregistrer assez de provenance pour permettre de calculer quelles relations sont disponibles a chaque etape.
+Les travaux restants sont des audits du resultat ferme : audit adversarial independant et audit de litterature / positionnement.
 
+## 25. Pont classique minimal et marqueur d'arret
+
+Le pont final utilise volontairement des problemes de decision codes par Nat, conformement a l'interface InputPolynomiallyBounded deja presente dans le depot.
+
+~~~text
+DecisionProblem
+PolynomialDecider
+InP
+
+PolynomialVerifier problem Witness
+InNP problem Witness
+~~~
+
+La projection est conditionnelle et explicite :
+
+~~~text
+continuations structurelles
++ SearchSystemPolynomialVerifier
+-> InNP
+
+calcul structurel de decision
++ SearchSystemPolynomialDecider
+-> InP
+~~~
+
+Aucune appartenance de classe n'est fabriquee sans le decider ou le verificateur polynomial correspondant.
+
+Pour F(n), explicitFamilyDecisionProblem oublie schedule, provenance et organisation temporelle et ne conserve que la question extensionnelle de viabilite. explicitFamilyDecisionProjection_preserved prouve que la trajectoire constituee preserve cette decision entre racine et endpoint.
+
+Le pont conserve la reponse oui/non et les roles classiques seulement sous leurs interfaces explicites. Il oublie des donnees dont la non-factorisation est deja prouvee : relations reconstructibles dependantes de la constitution, organisation locale versus globale, et cout execute de recherche compositionnelle.
+
+Declarations finales :
+
+~~~text
+NPAndOrPClassicalBridgeClosed
+npAndOrPClassicalBridgeClosed
+
+NPAndPObjectiveComplete
+npAndPObjectiveComplete
+~~~
+
+OBJECTIF NP / P TERMINE. STOP scientifique.
+
+Les audits ulterieurs testent et positionnent ce resultat ferme; ils ne rouvrent pas le programme.
+
+---
 ## 26. Premier theorem SAT parametrique : statut
 
 Deux niveaux sont maintenant distingues.
@@ -2139,12 +2158,8 @@ les regimes annonces : normalisation quadratique en largeur, charges binaires,
 recherche dans TransportClosure, profils multidimensionnels, fermeture
 input-polynomiale et passage conditionnel vers un cout machine.
 
-Le verrou restant du moteur de fermeture est plus precis : caracteriser le cas
-ou la borne de fuel croit avec l'entree. Les candidats peuvent deja croitre
-polynomialement et un fuel variable uniformement borne est traite.
+Le programme annonce est clos. Les regimes supplementaires de fuel/candidats, SAT general, les ponts machine concrets et les consequences generales de classes ne sont plus des obligations de ce chantier.
 
-Aucune consequence generale de classe de complexite n'est tiree de ces resultats
-sans fermeture des hypotheses restantes.
+Le pont classique minimal conserve la decision extensionnelle mais n'est pas fidele a toute la structure constitutive : la perte de reconstructibilite relationnelle et la perte d'information sur le cout d'organisation sont formalisees par les theoremes de non-factorisation.
 
-Les comparaisons externes restent des audits de nouveaute. Elles ne definissent
-pas le mecanisme constitutif.
+Les comparaisons externes restent des audits de nouveaute et de positionnement. Elles ne definissent pas le mecanisme constitutif et ne rouvrent pas le programme scientifique.
