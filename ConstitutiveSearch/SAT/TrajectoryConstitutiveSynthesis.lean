@@ -149,9 +149,15 @@ theorem explicitFamilyConstitutedValidationProfile_inputPolynomiallyBounded :
         explicitFamilyInputBitSize
         0
     closureCandidates :=
-      InputPolynomiallyBounded.constant
-        explicitFamilyInputBitSize
-        0
+      ⟨CostPolynomial.constant 0,
+        fun count => by
+          change
+            (explicitFamilyConstitutedExecutionCounts
+              count).closureCompositionCandidates ≤
+              0
+          rw [
+            explicitFamilyConstitutedExecutionCounts_compositionCandidates
+          ]⟩
     terminal :=
       InputPolynomiallyBounded.constant
         explicitFamilyInputBitSize
@@ -272,9 +278,17 @@ theorem explicitFamilyConstitutedTotalProfile_relationFind
     (explicitFamilyConstitutedTotalProfile
       count).events.relationFindCalls =
       3 * count := by
+  unfold explicitFamilyConstitutedTotalProfile
   change
-    2 * count + (count + 0) =
+    (explicitFamilyComplexityCounts count).relationFindCalls +
+        ((explicitFamilyConstitutedValidationCounts count).relationFindCalls +
+          (explicitFamilyConstitutedExecutionCounts count).relationFindCalls) =
       3 * count
+  rw [
+    explicitFamilyConstitutedValidationCounts_relationFindCalls
+  ]
+  unfold explicitFamilyComplexityCounts
+  unfold explicitFamilyConstitutedExecutionCounts
   omega
 
 /-- Actual local execution contributes exactly n primitive closure queries. -/
@@ -283,9 +297,17 @@ theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
     (explicitFamilyConstitutedTotalProfile
       count).events.closurePrimitiveQueries =
       count := by
+  unfold explicitFamilyConstitutedTotalProfile
   change
-    0 + (0 + count) =
+    (explicitFamilyComplexityCounts count).closurePrimitiveQueries +
+        ((explicitFamilyConstitutedValidationCounts count).closurePrimitiveQueries +
+          (explicitFamilyConstitutedExecutionCounts count).closurePrimitiveQueries) =
       count
+  rw [
+    explicitFamilyConstitutedExecutionCounts_primitiveQueries
+  ]
+  unfold explicitFamilyComplexityCounts
+  unfold explicitFamilyConstitutedValidationCounts
   omega
 
 /-- No actual local execution phase inspects a composition candidate. -/
@@ -294,6 +316,17 @@ theorem explicitFamilyConstitutedTotalProfile_closureCandidates
     (explicitFamilyConstitutedTotalProfile
       count).events.closureCompositionCandidates =
       0 := by
+  unfold explicitFamilyConstitutedTotalProfile
+  change
+    (explicitFamilyComplexityCounts count).closureCompositionCandidates +
+        ((explicitFamilyConstitutedValidationCounts count).closureCompositionCandidates +
+          (explicitFamilyConstitutedExecutionCounts count).closureCompositionCandidates) =
+      0
+  rw [
+    explicitFamilyConstitutedExecutionCounts_compositionCandidates
+  ]
+  unfold explicitFamilyComplexityCounts
+  unfold explicitFamilyConstitutedValidationCounts
   rfl
 
 /--
