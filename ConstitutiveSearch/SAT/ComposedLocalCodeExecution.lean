@@ -42,13 +42,9 @@ composition need and candidate-free local execution.
 -/
 theorem composedConstitutedCode_globalNeed_and_localExecution
     (count : Nat) :
-    PrimitiveHitPath.GlobalCompositionRequired
-        (composedPrimitiveSearch count)
-        (composedSource count)
-        (composedTarget count) ∧
-      TransportCode.LocalSequentialExecution
-        (composedPrimitiveSearch count)
-        (composedConstitutedCode count) := by
+    TransportCode.GlobalNeedWithLocalExecution
+      (composedPrimitiveSearch count)
+      (composedConstitutedCode count) := by
   exact
     TransportCode.directMiss_searchableCode_hasLocalExecution
       (composedPrimitiveSearch count)
