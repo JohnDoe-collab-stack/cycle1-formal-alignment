@@ -144,28 +144,23 @@ theorem validateSearchableCode_success_iff
       code.SearchableBy primitive := by
   induction code with
   | identity state =>
-      simp only [
+      simp [
         validateSearchableCode,
         TransportCode.SearchableBy
       ]
   | @atom source target witness =>
       cases found :
           primitive.find source target <;>
-        simp only [
+        simp [
           validateSearchableCode,
-          found,
           TransportCode.SearchableBy,
-          Bool.false_eq_true,
-          false_iff,
-          true_iff,
-          Option.some_ne_none
+          found
         ]
   | compose first second firstHypothesis secondHypothesis =>
-      simp only [
+      simp [
         validateSearchableCode,
         SearchableCodeValidationRun.combine,
         TransportCode.SearchableBy,
-        Bool.and_eq_true,
         firstHypothesis,
         secondHypothesis
       ]
