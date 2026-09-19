@@ -252,6 +252,7 @@ ConstitutiveSearch/SAT/ParametricComposedWidthControlled.lean
 ConstitutiveSearch/SAT/TrajectoryDerivedClosure.lean
 ConstitutiveSearch/SAT/TrajectoryDerivedClosureComplexity.lean
 ConstitutiveSearch/SAT/SequentialGlobalClosureSeparator.lean
+ConstitutiveSearch/SAT/TrajectoryDerivedSequentialExecution.lean
 ConstitutiveSearch/SAT/WidthSeparators.lean
 ConstitutiveSearch/SAT/WidthSeparatorConstitutiveProfile.lean
 
@@ -1699,7 +1700,9 @@ et la liste de candidats annonces.
 [FAIT P7d-d] separateur sequential/global : la meme trajectoire F(n) a un profil sequential input-polynomial avec 2n find directs et zero compteur ClosureSearch, tandis que son enveloppe de fermeture globale derivee est non input-polynomiale
 [FAIT P7d-d] primitive-hit short circuit : pour tout fuel positif, si primitive.find reussit alors le run ClosureSearch charge exactement 1 primitiveQuery et 0 compositionCandidate
 [FAIT P7d-d] le premier sibling reel de toute FlipSymmetricTrajectory non vide satisfait ce short circuit dans la closure derivee
-[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. Le short circuit formalise explicitement cette distinction.
+[FAIT P7d-d] execution sequentielle derivee : en recombinant le run sibling de chaque suffixe, toute trajectoire certifiee de longueur n execute exactement n primitiveQueries et 0 compositionCandidate
+[FAIT P7d-d] sur F(n), ces deux compteurs executes sont InputPolynomiallyBounded dans explicitFamilyInputBitSize
+[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. Le short circuit et l'induction sequentielle formalisent explicitement cette distinction.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1723,8 +1726,8 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. quantifier les compteurs executes sur les requetes effectivement produites par toute la trajectoire, pas seulement le premier sibling
-2. comparer formellement l'execution sequentielle locale a une requete de fermeture globale qui exige reellement de la composition
+1. comparer formellement l'execution sequentielle locale a une requete de fermeture globale qui exige reellement de la composition
+2. caracteriser quand un besoin compositionnel ne peut pas etre resolu par les primitive hits successifs de la trajectoire
 3. determiner si une politique de candidats/fuel derivee localement de la constitution evite systematiquement l'enveloppe globale non polynomiale
 4. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits)
 5. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
@@ -1744,9 +1747,12 @@ Le verrou quantitatif courant est donc maintenant tres precis :
 > reelle de F(n), alors que l'execution constitutive sequentielle de la meme
 > trajectoire possede deja un profil input-polynomial. De plus, lorsqu'une requete
 > constitutive est un primitive hit, ClosureSearch court-circuite a exactement
-> 1 primitiveQuery et 0 compositionCandidate. Le verrou n'est donc plus seulement
-> l'endogeneite des parametres, mais la relation entre enveloppe globale,
-> decomposition sequentielle et compteurs effectivement executes.
+> 1 primitiveQuery et 0 compositionCandidate. Cette propriete est maintenant
+> composee sur toute trajectoire : longueur n => n primitiveQueries executees et
+> 0 compositionCandidate, et ces compteurs sont input-polynomiaux sur F(n).
+> Le verrou porte maintenant sur les requetes qui exigent reellement une
+> composition : comprendre quand elles apparaissent constitutivement et comment
+> leur recherche se compare a la decomposition sequentielle.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1756,12 +1762,11 @@ B(0) = 0
 B(f+1) = 2 * B(f) + 1
 ~~~
 
-Le prochain travail doit maintenant quantifier les requetes effectivement
-produites le long de la trajectoire et comparer leur cout execute au budget
-recursif de la fermeture globale aplatie. Le cas du premier sibling montre deja
-un ecart maximal entre enveloppe globale et execution locale : la relation
-primitive est trouvee immediatement, independamment de la taille de la liste de
-candidats et du fuel global.
+Les requetes sibling effectivement produites le long de la trajectoire sont
+maintenant quantifiees exactement : n primitiveQueries, zero compositionCandidate.
+Le prochain travail doit donc cibler les requetes qui ne sont pas des primitive
+hits et exigent reellement une composition, puis comparer leur cout execute a
+l'enveloppe recursive de la fermeture globale aplatie.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
