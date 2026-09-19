@@ -159,7 +159,11 @@ theorem trans_length
       first.length + second.length := by
   induction first with
   | identity state =>
-      rfl
+      simp only [
+        trans,
+        length,
+        Nat.zero_add
+      ]
   | step hit tail inductionHypothesis =>
       change
         (tail.trans second).length + 1 =
@@ -413,7 +417,8 @@ theorem directHit_of_length_one
         step_hit_ne_none
           hit
           tail
-      simpa only [middleEqTarget] using edgeHit
+      subst target
+      exact edgeHit
 
 /--
 Whenever the candidate-recursion layer returns a code, it carries an executable
@@ -616,8 +621,12 @@ theorem searchTransportClosureBounded_found_hasPrimitiveHitPath
             .step
               direct
               (.identity target)
-          exact
-            ⟨path, by rfl, by rfl⟩
+          refine
+            ⟨path, ?_, ?_⟩
+          · change 0 < 1
+            exact Nat.zero_lt_succ 0
+          · change 1 = 1
+            rfl
       | none =>
           simp only [
             searchTransportClosureBounded,
@@ -643,6 +652,24 @@ theorem searchTransportClosureBounded_found_hasPrimitiveHitPath
               target
               code
               found
+
+/--
+A global endpoint query is composition-required relative to a primitive search
+when the direct primitive query misses while a certified primitive-hit path of
+length at least two connects the same endpoints.
+-/
+def GlobalCompositionRequired
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (source target : State) : Prop :=
+  primitive.find source target = none ∧
+    ∃ path :
+        PrimitiveHitPath
+          primitive
+          source
+          target,
+      2 ≤ path.length
 
 /--
 A successful bounded closure query whose direct primitive query misses is
@@ -748,24 +775,6 @@ theorem searchTransportClosureBounded_directMiss_found_codeSize
     omega
   rw [pathLength] at twoLe
   exact twoLe
-
-/--
-A global endpoint query is composition-required relative to a primitive search
-when the direct primitive query misses while a certified primitive-hit path of
-length at least two connects the same endpoints.
--/
-def GlobalCompositionRequired
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    (primitive : RelationSearch Generator)
-    (source target : State) : Prop :=
-  primitive.find source target = none ∧
-    ∃ path :
-        PrimitiveHitPath
-          primitive
-          source
-          target,
-      2 ≤ path.length
 
 /--
 A global composition requirement carries an explicit closure code with at least
