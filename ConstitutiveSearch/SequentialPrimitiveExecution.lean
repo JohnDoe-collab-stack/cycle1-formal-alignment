@@ -110,6 +110,86 @@ theorem toTransportCode_size
       rw [inductionHypothesis]
       exact Nat.add_comm 1 tail.length
 
+
+/-- Concatenate two executable primitive-hit paths. -/
+def trans
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    {source middle target : State}
+    (first :
+      PrimitiveHitPath
+        primitive
+        source
+        middle)
+    (second :
+      PrimitiveHitPath
+        primitive
+        middle
+        target) :
+    PrimitiveHitPath
+      primitive
+      source
+      target :=
+  match first with
+  | .identity _ =>
+      second
+  | .step hit tail =>
+      .step
+        hit
+        (tail.trans second)
+
+/-- Concatenation adds primitive-edge lengths. -/
+theorem trans_length
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    {source middle target : State}
+    (first :
+      PrimitiveHitPath
+        primitive
+        source
+        middle)
+    (second :
+      PrimitiveHitPath
+        primitive
+        middle
+        target) :
+    (first.trans second).length =
+      first.length + second.length := by
+  induction first with
+  | identity state =>
+      rfl
+  | step hit tail inductionHypothesis =>
+      change
+        (tail.trans second).length + 1 =
+          (tail.length + 1) +
+            second.length
+      rw [inductionHypothesis]
+      omega
+
+/-- A zero-length primitive-hit path has identical endpoints. -/
+theorem endpoints_eq_of_length_zero
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    {source target : State}
+    (path :
+      PrimitiveHitPath
+        primitive
+        source
+        target)
+    (lengthZero :
+      path.length = 0) :
+    source = target := by
+  cases path with
+  | identity state =>
+      rfl
+  | step hit tail =>
+      change
+        tail.length + 1 = 0 at lengthZero
+      omega
+
 /--
 Aggregate actual ClosureSearch statistics obtained by following path edges
 sequentially.
@@ -295,6 +375,380 @@ theorem sequentialStats_compositionCandidates
         inductionHypothesis
       ]
 
+
+/--
+If a primitive-hit path has length one, its endpoints are themselves a direct
+primitive hit.
+-/
+theorem directHit_of_length_one
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    {source target : State}
+    (path :
+      PrimitiveHitPath
+        primitive
+        source
+        target)
+    (lengthOne :
+      path.length = 1) :
+    primitive.find source target ≠ none := by
+  cases path with
+  | identity state =>
+      change 0 = 1 at lengthOne
+      omega
+  | @step source middle target witness hit tail =>
+      have tailZero :
+          tail.length = 0 := by
+        change
+          tail.length + 1 = 1 at lengthOne
+        omega
+      have middleEqTarget :
+          middle = target :=
+        endpoints_eq_of_length_zero
+          tail
+          tailZero
+      have edgeHit :
+          primitive.find source middle ≠ none :=
+        step_hit_ne_none
+          hit
+          tail
+      simpa only [middleEqTarget] using edgeHit
+
+/--
+Whenever the candidate-recursion layer returns a code, it carries an executable
+primitive-hit path with the same atom count.
+
+The hypothesis states the corresponding property for each recursive subquery.
+-/
+theorem searchClosureViaCandidates_found_hasPrimitiveHitPath
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    (recurse :
+      (source target : State) →
+        ClosureSearchRun Generator source target)
+    (recursePath :
+      ∀ (source target : State)
+        (code :
+          TransportClosure
+            Generator
+            source
+            target),
+        (recurse source target).code? =
+            some code →
+          ∃ path :
+              PrimitiveHitPath
+                primitive
+                source
+                target,
+            0 < path.length ∧
+              path.length = code.size) :
+    ∀ (candidates : List State)
+      (source target : State)
+      (code :
+        TransportClosure
+          Generator
+          source
+          target),
+      (searchClosureViaCandidates
+        recurse
+        candidates
+        source
+        target).code? =
+          some code →
+        ∃ path :
+            PrimitiveHitPath
+              primitive
+              source
+              target,
+          0 < path.length ∧
+            path.length = code.size := by
+  intro candidates
+  induction candidates with
+  | nil =>
+      intro source target code found
+      simp only [
+        searchClosureViaCandidates,
+        ClosureSearchRun.empty
+      ] at found
+      cases found
+  | cons middle rest inductionHypothesis =>
+      intro source target code found
+      cases firstResult :
+          (recurse source middle).code? with
+      | none =>
+          simp only [
+            searchClosureViaCandidates,
+            firstResult
+          ] at found
+          exact
+            inductionHypothesis
+              source
+              target
+              code
+              found
+      | some firstCode =>
+          cases secondResult :
+              (recurse middle target).code? with
+          | none =>
+              simp only [
+                searchClosureViaCandidates,
+                firstResult,
+                secondResult
+              ] at found
+              exact
+                inductionHypothesis
+                  source
+                  target
+                  code
+                  found
+          | some secondCode =>
+              simp only [
+                searchClosureViaCandidates,
+                firstResult,
+                secondResult
+              ] at found
+              injection found with codeExact
+              subst code
+              rcases
+                  recursePath
+                    source
+                    middle
+                    firstCode
+                    firstResult with
+                ⟨firstPath,
+                  firstPositive,
+                  firstLength⟩
+              rcases
+                  recursePath
+                    middle
+                    target
+                    secondCode
+                    secondResult with
+                ⟨secondPath,
+                  secondPositive,
+                  secondLength⟩
+              let path :=
+                firstPath.trans
+                  secondPath
+              refine
+                ⟨path, ?_, ?_⟩
+              · rw [show
+                    path.length =
+                      firstPath.length +
+                        secondPath.length from
+                    trans_length
+                      firstPath
+                      secondPath]
+                omega
+              · change
+                  path.length =
+                    firstCode.size +
+                      secondCode.size
+                rw [
+                  show
+                    path.length =
+                      firstPath.length +
+                        secondPath.length from
+                      trans_length
+                        firstPath
+                        secondPath,
+                  firstLength,
+                  secondLength
+                ]
+
+/--
+Every code actually found by bounded ClosureSearch has an executable
+primitive-hit path with exactly the same number of primitive atoms.
+-/
+theorem searchTransportClosureBounded_found_hasPrimitiveHitPath
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State) :
+    ∀ (fuel : Nat)
+      (source target : State)
+      (code :
+        TransportClosure
+          Generator
+          source
+          target),
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).code? =
+          some code →
+        ∃ path :
+            PrimitiveHitPath
+              primitive
+              source
+              target,
+          0 < path.length ∧
+            path.length = code.size := by
+  intro fuel
+  induction fuel with
+  | zero =>
+      intro source target code found
+      simp only [
+        searchTransportClosureBounded,
+        ClosureSearchRun.empty
+      ] at found
+      cases found
+  | succ fuel inductionHypothesis =>
+      intro source target code found
+      cases direct :
+          primitive.find source target with
+      | some witness =>
+          simp only [
+            searchTransportClosureBounded,
+            direct
+          ] at found
+          injection found with codeExact
+          subst code
+          let path :
+              PrimitiveHitPath
+                primitive
+                source
+                target :=
+            .step
+              direct
+              (.identity target)
+          exact
+            ⟨path, by rfl, by rfl⟩
+      | none =>
+          simp only [
+            searchTransportClosureBounded,
+            direct
+          ] at found
+          exact
+            searchClosureViaCandidates_found_hasPrimitiveHitPath
+              (fun left right =>
+                searchTransportClosureBounded
+                  primitive
+                  candidates
+                  fuel
+                  left
+                  right)
+              (fun left right recursiveCode recursiveFound =>
+                inductionHypothesis
+                  left
+                  right
+                  recursiveCode
+                  recursiveFound)
+              candidates
+              source
+              target
+              code
+              found
+
+/--
+A successful bounded closure query whose direct primitive query misses is
+necessarily a genuine global composition requirement.
+-/
+theorem searchTransportClosureBounded_directMiss_found_requiresComposition
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State)
+    (fuel : Nat)
+    (source target : State)
+    (directMiss :
+      primitive.find source target = none)
+    {code :
+      TransportClosure
+        Generator
+        source
+        target}
+    (found :
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).code? =
+          some code) :
+    GlobalCompositionRequired
+      primitive
+      source
+      target := by
+  rcases
+      searchTransportClosureBounded_found_hasPrimitiveHitPath
+        primitive
+        candidates
+        fuel
+        source
+        target
+        code
+        found with
+    ⟨path, pathPositive, pathLength⟩
+  have pathNotOne :
+      path.length ≠ 1 := by
+    intro pathOne
+    exact
+      (directHit_of_length_one
+        path
+        pathOne)
+        directMiss
+  have twoLe :
+      2 ≤ path.length := by
+    omega
+  exact
+    ⟨directMiss,
+      ⟨path, twoLe⟩⟩
+
+/--
+The code returned in a direct-miss success has at least two primitive atoms.
+-/
+theorem searchTransportClosureBounded_directMiss_found_codeSize
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (candidates : List State)
+    (fuel : Nat)
+    (source target : State)
+    (directMiss :
+      primitive.find source target = none)
+    {code :
+      TransportClosure
+        Generator
+        source
+        target}
+    (found :
+      (searchTransportClosureBounded
+        primitive
+        candidates
+        fuel
+        source
+        target).code? =
+          some code) :
+    2 ≤ code.size := by
+  rcases
+      searchTransportClosureBounded_found_hasPrimitiveHitPath
+        primitive
+        candidates
+        fuel
+        source
+        target
+        code
+        found with
+    ⟨path, pathPositive, pathLength⟩
+  have pathNotOne :
+      path.length ≠ 1 := by
+    intro pathOne
+    exact
+      (directHit_of_length_one
+        path
+        pathOne)
+        directMiss
+  have twoLe :
+      2 ≤ path.length := by
+    omega
+  rw [pathLength] at twoLe
+  exact twoLe
+
 /--
 A global endpoint query is composition-required relative to a primitive search
 when the direct primitive query misses while a certified primitive-hit path of
@@ -395,11 +849,19 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.PrimitiveHitPath.length
 #print axioms ConstitutiveSearch.PrimitiveHitPath.toTransportCode
 #print axioms ConstitutiveSearch.PrimitiveHitPath.toTransportCode_size
+#print axioms ConstitutiveSearch.PrimitiveHitPath.trans
+#print axioms ConstitutiveSearch.PrimitiveHitPath.trans_length
+#print axioms ConstitutiveSearch.PrimitiveHitPath.endpoints_eq_of_length_zero
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats
 #print axioms ConstitutiveSearch.PrimitiveHitPath.primitiveHit_run_stats
 #print axioms ConstitutiveSearch.PrimitiveHitPath.step_hit_ne_none
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats_primitiveQueries
 #print axioms ConstitutiveSearch.PrimitiveHitPath.sequentialStats_compositionCandidates
+#print axioms ConstitutiveSearch.PrimitiveHitPath.directHit_of_length_one
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchClosureViaCandidates_found_hasPrimitiveHitPath
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_found_hasPrimitiveHitPath
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_requiresComposition
+#print axioms ConstitutiveSearch.PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_codeSize
 #print axioms ConstitutiveSearch.PrimitiveHitPath.GlobalCompositionRequired
 #print axioms ConstitutiveSearch.PrimitiveHitPath.globalCompositionRequired_hasCode
 #print axioms ConstitutiveSearch.PrimitiveHitPath.globalCompositionRequired_hasSequentialExecution
