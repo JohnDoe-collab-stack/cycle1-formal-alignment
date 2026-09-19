@@ -149,15 +149,9 @@ theorem explicitFamilyConstitutedValidationProfile_inputPolynomiallyBounded :
         explicitFamilyInputBitSize
         0
     closureCandidates :=
-      ⟨CostPolynomial.constant 0,
-        fun count => by
-          change
-            (explicitFamilyConstitutedExecutionCounts
-              count).closureCompositionCandidates ≤
-              0
-          rw [
-            explicitFamilyConstitutedExecutionCounts_compositionCandidates
-          ]⟩
+      InputPolynomiallyBounded.constant
+        explicitFamilyInputBitSize
+        0
     terminal :=
       InputPolynomiallyBounded.constant
         explicitFamilyInputBitSize
@@ -223,9 +217,15 @@ theorem explicitFamilyConstitutedExecutionProfile_inputPolynomiallyBounded :
             explicitFamilyIndex_le_inputBitSize
               count⟩
     closureCandidates :=
-      InputPolynomiallyBounded.constant
-        explicitFamilyInputBitSize
-        0
+      ⟨CostPolynomial.constant 0,
+        fun count => by
+          change
+            (explicitFamilyConstitutedExecutionCounts
+              count).closureCompositionCandidates ≤
+              0
+          rw [
+            explicitFamilyConstitutedExecutionCounts_compositionCandidates
+          ]⟩
     terminal :=
       InputPolynomiallyBounded.constant
         explicitFamilyInputBitSize
@@ -278,17 +278,18 @@ theorem explicitFamilyConstitutedTotalProfile_relationFind
     (explicitFamilyConstitutedTotalProfile
       count).events.relationFindCalls =
       3 * count := by
-  unfold explicitFamilyConstitutedTotalProfile
-  change
-    (explicitFamilyComplexityCounts count).relationFindCalls +
-        ((explicitFamilyConstitutedValidationCounts count).relationFindCalls +
-          (explicitFamilyConstitutedExecutionCounts count).relationFindCalls) =
-      3 * count
-  rw [
-    explicitFamilyConstitutedValidationCounts_relationFindCalls
+  simp only [
+    explicitFamilyConstitutedTotalProfile,
+    ConstitutiveComplexityProfile.compose,
+    ComplexityCounts.add,
+    explicitFamilyConstitutiveProfile,
+    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedValidationProfile,
+    explicitFamilyConstitutedValidationCounts,
+    explicitFamilyConstitutedExecutionProfile,
+    explicitFamilyConstitutedExecutionCounts,
+    explicitFamilyConstitutedLocalValidationQueries
   ]
-  unfold explicitFamilyComplexityCounts
-  unfold explicitFamilyConstitutedExecutionCounts
   omega
 
 /-- Actual local execution contributes exactly n primitive closure queries. -/
@@ -297,18 +298,18 @@ theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
     (explicitFamilyConstitutedTotalProfile
       count).events.closurePrimitiveQueries =
       count := by
-  unfold explicitFamilyConstitutedTotalProfile
-  change
-    (explicitFamilyComplexityCounts count).closurePrimitiveQueries +
-        ((explicitFamilyConstitutedValidationCounts count).closurePrimitiveQueries +
-          (explicitFamilyConstitutedExecutionCounts count).closurePrimitiveQueries) =
-      count
-  rw [
-    explicitFamilyConstitutedExecutionCounts_primitiveQueries
+  simp only [
+    explicitFamilyConstitutedTotalProfile,
+    ConstitutiveComplexityProfile.compose,
+    ComplexityCounts.add,
+    explicitFamilyConstitutiveProfile,
+    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedValidationProfile,
+    explicitFamilyConstitutedValidationCounts,
+    explicitFamilyConstitutedExecutionProfile,
+    explicitFamilyConstitutedExecutionCounts,
+    explicitFamilyConstitutedLocalExecutionQueries
   ]
-  unfold explicitFamilyComplexityCounts
-  unfold explicitFamilyConstitutedValidationCounts
-  omega
 
 /-- No actual local execution phase inspects a composition candidate. -/
 theorem explicitFamilyConstitutedTotalProfile_closureCandidates
@@ -316,18 +317,18 @@ theorem explicitFamilyConstitutedTotalProfile_closureCandidates
     (explicitFamilyConstitutedTotalProfile
       count).events.closureCompositionCandidates =
       0 := by
-  unfold explicitFamilyConstitutedTotalProfile
-  change
-    (explicitFamilyComplexityCounts count).closureCompositionCandidates +
-        ((explicitFamilyConstitutedValidationCounts count).closureCompositionCandidates +
-          (explicitFamilyConstitutedExecutionCounts count).closureCompositionCandidates) =
-      0
-  rw [
-    explicitFamilyConstitutedExecutionCounts_compositionCandidates
+  simp only [
+    explicitFamilyConstitutedTotalProfile,
+    ConstitutiveComplexityProfile.compose,
+    ComplexityCounts.add,
+    explicitFamilyConstitutiveProfile,
+    explicitFamilyComplexityCounts,
+    explicitFamilyConstitutedValidationProfile,
+    explicitFamilyConstitutedValidationCounts,
+    explicitFamilyConstitutedExecutionProfile,
+    explicitFamilyConstitutedExecutionCounts,
+    explicitFamilyConstitutedLocalExecutionCompositionCandidates
   ]
-  unfold explicitFamilyComplexityCounts
-  unfold explicitFamilyConstitutedValidationCounts
-  rfl
 
 /--
 The total representation charge is the sum of the three distinct accounting
