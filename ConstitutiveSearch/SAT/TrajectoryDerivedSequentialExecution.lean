@@ -167,7 +167,7 @@ theorem sequentialDerivedClosureStats_primitiveQueries
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      have local :=
+      have stepStats :=
         firstSiblingClosureStats_exact
           var
           fresh
@@ -182,7 +182,7 @@ theorem sequentialDerivedClosureStats_primitiveQueries
             tail.sequentialDerivedClosureStats.primitiveQueries =
           _ + 1
       rw [
-        local.1,
+        stepStats.1,
         inductionHypothesis
       ]
 
@@ -200,7 +200,7 @@ theorem sequentialDerivedClosureStats_compositionCandidates
   | done state =>
       rfl
   | step var fresh symmetric tail inductionHypothesis =>
-      have local :=
+      have stepStats :=
         firstSiblingClosureStats_exact
           var
           fresh
@@ -215,7 +215,7 @@ theorem sequentialDerivedClosureStats_compositionCandidates
             tail.sequentialDerivedClosureStats.compositionCandidates =
           0
       rw [
-        local.2,
+        stepStats.2,
         inductionHypothesis
       ]
 
@@ -232,16 +232,16 @@ theorem explicitFamilySequentialDerivedClosureStats_primitiveQueries
     (count : Nat) :
     (explicitFamilySequentialDerivedClosureStats count).primitiveQueries =
       count :=
-  (explicitFamilyResourceTrajectory count).trajectory
-    .sequentialDerivedClosureStats_primitiveQueries
+  FlipSymmetricTrajectory.sequentialDerivedClosureStats_primitiveQueries
+    (explicitFamilyResourceTrajectory count).trajectory
 
 /-- F(n) executes no composition candidate in this sequential schedule. -/
 theorem explicitFamilySequentialDerivedClosureStats_compositionCandidates
     (count : Nat) :
     (explicitFamilySequentialDerivedClosureStats count).compositionCandidates =
       0 :=
-  (explicitFamilyResourceTrajectory count).trajectory
-    .sequentialDerivedClosureStats_compositionCandidates
+  FlipSymmetricTrajectory.sequentialDerivedClosureStats_compositionCandidates
+    (explicitFamilyResourceTrajectory count).trajectory
 
 /--
 The actually executed primitive-query counter of the sequential derived
