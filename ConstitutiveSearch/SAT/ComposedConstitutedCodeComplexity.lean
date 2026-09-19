@@ -34,8 +34,12 @@ theorem composedConstitutedCodeSize_inputPolynomiallyBounded :
         (composedConstitutedCode count).size) :=
   ⟨CostPolynomial.constant 2,
     fun count => by
-      rw [composedConstitutedCode_size]
-      exact Nat.le_refl 2⟩
+      change
+        (composedConstitutedCode count).size ≤
+          2
+      exact
+        Nat.le_of_eq
+          (composedConstitutedCode_size count)⟩
 
 /--
 The directly constituted composed code family admits a uniformly
