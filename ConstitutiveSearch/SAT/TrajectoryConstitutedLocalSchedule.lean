@@ -166,6 +166,85 @@ theorem validation_primitiveQueries
     _ = 1 :=
       entry.code_size
 
+/--
+Actual candidate-free ClosureSearch run for one locally constituted sibling
+relation.  The run has no intermediate candidates and unit fuel.
+-/
+def executionRun
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (entry :
+      ConstitutedLocalWitness
+        rootFormula
+        vars) :
+    ClosureSearchRun
+      (ProvenanceStructuralFlipWitness
+        (rootFormula := rootFormula)
+        vars)
+      entry.source
+      entry.target :=
+  searchTransportClosureBounded
+    (provenanceStructuralFlipSearch
+      rootFormula
+      vars)
+    []
+    1
+    entry.source
+    entry.target
+
+/-- The actual local run succeeds because the constituted sibling is a primitive hit. -/
+theorem executionRun_found
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (entry :
+      ConstitutedLocalWitness
+        rootFormula
+        vars) :
+    entry.executionRun.code? ≠ none := by
+  unfold executionRun
+  simp only [
+    searchTransportClosureBounded
+  ]
+  cases found :
+      (provenanceStructuralFlipSearch
+        rootFormula
+        vars).find
+          entry.source
+          entry.target with
+  | none =>
+      exact
+        False.elim
+          (entry.code_searchable found)
+  | some witness =>
+      simp only [found]
+      intro impossible
+      cases impossible
+
+/--
+Actual candidate-free run statistics: one primitive query and no composition
+candidate inspection.
+-/
+theorem executionRun_stats
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (entry :
+      ConstitutedLocalWitness
+        rootFormula
+        vars) :
+    entry.executionRun.stats.primitiveQueries = 1 ∧
+      entry.executionRun.stats.compositionCandidates = 0 := by
+  simpa only [executionRun] using
+    PrimitiveHitPath.primitiveHit_run_stats
+      (provenanceStructuralFlipSearch
+        rootFormula
+        vars)
+      []
+      1
+      entry.source
+      entry.target
+      (by decide)
+      entry.code_searchable
+
 /-- Every constituted entry code admits the minimal candidate-free execution. -/
 theorem localSequentialExecution
     {rootFormula : Cnf}
@@ -393,10 +472,25 @@ def validationPrimitiveQueries
           rest
 
 /--
-Primitive-query budget of the candidate-free local executions admitted by the
-schedule. Every local code is one atom, so this is exactly the produced atom
-count.
+Aggregate statistics of the actual candidate-free ClosureSearch runs issued
+for every locally constituted sibling relation.
 -/
+def executionStats
+    {rootFormula : Cnf}
+    {vars : List Var} :
+    List
+      (ConstitutedLocalWitness
+        rootFormula
+        vars) →
+      ClosureSearchStats
+  | [] =>
+      ClosureSearchStats.zero
+  | entry :: rest =>
+      ClosureSearchStats.combine
+        entry.executionRun.stats
+        (executionStats rest)
+
+/-- Actual primitive-query count of the candidate-free local schedule. -/
 def executionPrimitiveQueries
     {rootFormula : Cnf}
     {vars : List Var}
@@ -406,22 +500,19 @@ def executionPrimitiveQueries
           rootFormula
           vars)) :
     Nat :=
-  atomCount schedule
+  (executionStats schedule).primitiveQueries
 
-/--
-Composition-candidate budget of the local schedule. Every entry executes with
-candidates=[] and fuel=1, hence no composition candidate is inspected.
--/
+/-- Actual composition-candidate count of the candidate-free local schedule. -/
 def executionCompositionCandidates
     {rootFormula : Cnf}
     {vars : List Var}
-    (_schedule :
+    (schedule :
       List
         (ConstitutedLocalWitness
           rootFormula
           vars)) :
     Nat :=
-  0
+  (executionStats schedule).compositionCandidates
 
 /-- Every entry code in the schedule validates successfully. -/
 def ValidationSucceeds
@@ -518,7 +609,7 @@ theorem validationPrimitiveQueries_eq_length
       exact
         Nat.add_comm 1 rest.length
 
-/-- Local execution primitive-query budget is exactly schedule length. -/
+/-- Actual local execution performs exactly one primitive query per schedule entry. -/
 theorem executionPrimitiveQueries_eq_length
     {rootFormula : Cnf}
     {vars : List Var}
@@ -529,12 +620,27 @@ theorem executionPrimitiveQueries_eq_length
           vars)) :
     executionPrimitiveQueries schedule =
       schedule.length := by
-  unfold executionPrimitiveQueries
-  exact
-    atomCount_eq_length
-      schedule
+  induction schedule with
+  | nil =>
+      rfl
+  | cons entry rest inductionHypothesis =>
+      have entryStats :=
+        entry.executionRun_stats
+      change
+        entry.executionRun.stats.primitiveQueries +
+            (executionStats rest).primitiveQueries =
+          rest.length + 1
+      rw [
+        entryStats.1,
+        show
+          (executionStats rest).primitiveQueries =
+            rest.length from
+          inductionHypothesis
+      ]
+      exact
+        Nat.add_comm 1 rest.length
 
-/-- Local execution composition-candidate budget is exactly zero. -/
+/-- Actual local execution inspects no composition candidates. -/
 theorem executionCompositionCandidates_eq_zero
     {rootFormula : Cnf}
     {vars : List Var}
@@ -545,7 +651,23 @@ theorem executionCompositionCandidates_eq_zero
           vars)) :
     executionCompositionCandidates schedule =
       0 := by
-  rfl
+  induction schedule with
+  | nil =>
+      rfl
+  | cons entry rest inductionHypothesis =>
+      have entryStats :=
+        entry.executionRun_stats
+      change
+        entry.executionRun.stats.compositionCandidates +
+            (executionStats rest).compositionCandidates =
+          0
+      rw [
+        entryStats.2,
+        show
+          (executionStats rest).compositionCandidates =
+            0 from
+          inductionHypothesis
+      ]
 
 /-- Every extracted schedule validates successfully. -/
 theorem validationSucceeds
@@ -891,6 +1013,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.code_searchable
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.validation_success
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.validation_primitiveQueries
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.executionRun
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.executionRun_found
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.executionRun_stats
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalWitness.localSequentialExecution
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalWitnessesUnder
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalWitnesses
@@ -898,6 +1023,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalWitnesses_length
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.atomCount
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.validationPrimitiveQueries
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionStats
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionPrimitiveQueries
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionCompositionCandidates
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.ValidationSucceeds
