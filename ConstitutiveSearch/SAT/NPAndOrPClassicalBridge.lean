@@ -4,9 +4,16 @@ import ConstitutiveSearch.SAT.NPAndOrPProgramClosure
 /-!
 # Final minimal bridge from NP AND/OR P to classical P / NP interfaces
 
-The constitutive program is already closed before this module.
+PRE-AUDIT BRIDGE ONLY.
 
-This file only projects the closed result to an extensional decision view:
+The post-audit review found that the original cost interface was too weak and
+that F(n) is a constant-YES decision projection.  This module is retained only
+for historical compatibility with the pre-audit closure package.
+
+The repaired final bridge is defined separately after the nonconstant
+post-audit benchmark and executable-cost gates are closed.
+
+This file projects the pre-audit result to an extensional decision view:
 
 * the explicit family F(n) becomes a decision problem indexed by n;
 * its constituted AND/OR trajectory preserves the yes/no viability answer;
@@ -77,10 +84,7 @@ theorem constitutiveNPStyle_projects_to_classicalNP
       (searchSystemDecisionProblem
         system
         stateAt
-        inputSize)
-      (fun input =>
-        system.Continuation
-          (stateAt input)) :=
+        inputSize) :=
   npLike_projects_to_InNP
     bridge
 
@@ -137,17 +141,18 @@ theorem npAndOrPClassicalBridgeClosed :
       constitutiveProjectionLossClosed }
 
 /--
-Final stop marker for the announced NP / P objective.
+Pre-audit stop marker.
 
-It contains the closed constitutive program and its minimal classical
-projection, including the proved loss of constitutive computational structure.
-It carries no further complexity-class consequence.
+Retained for compatibility only.  The Aristotle audit found that this marker
+overstated closure because the old P/NP cost interface was vacuous and the F(n)
+decision projection is constant-YES.  It must not be used as evidence of the
+post-audit objective.
 -/
 structure NPAndPObjectiveComplete : Prop where
   bridge :
     NPAndOrPClassicalBridgeClosed
 
-/-- OBJECTIF NP / P TERMINE. -/
+/-- PRE-AUDIT OBJECTIVE MARKER ONLY.  Not post-audit closure evidence. -/
 theorem npAndPObjectiveComplete :
     NPAndPObjectiveComplete :=
   { bridge :=
