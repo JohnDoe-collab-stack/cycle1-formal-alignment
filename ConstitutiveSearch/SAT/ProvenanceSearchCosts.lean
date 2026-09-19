@@ -74,7 +74,10 @@ theorem provenanceStructuralFlipSearchVariableQueries_le_length
   induction vars with
   | nil =>
       intro source target
-      rfl
+      simp only [
+        provenanceStructuralFlipSearchVariableQueries,
+        List.length_nil
+      ]
   | cons var rest inductionHypothesis =>
       intro source target
       cases found :
@@ -96,12 +99,11 @@ theorem provenanceStructuralFlipSearchVariableQueries_le_length
             found,
             List.length_cons
           ]
-          exact
-            Nat.add_le_add_left
-              (inductionHypothesis
-                source
-                target)
-              1
+          have tailLe :=
+            inductionHypothesis
+              source
+              target
+          omega
 
 end SAT
 end ConstitutiveSearch
