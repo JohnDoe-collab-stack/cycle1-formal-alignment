@@ -275,7 +275,6 @@ theorem localClosureStats_compositionCandidates
         localSiblingClosureRun_compositionCandidates,
         inductionHypothesis
       ]
-      rfl
 
 end FlipSymmetricTrajectory
 
@@ -312,6 +311,9 @@ theorem explicitFamilyTrajectoryLocalPrimitiveQueries_inputPolynomiallyBounded :
         (explicitFamilyTrajectoryLocalClosureStats count).primitiveQueries) :=
   ⟨CostPolynomial.input,
     fun count => by
+      change
+        (explicitFamilyTrajectoryLocalClosureStats count).primitiveQueries ≤
+          explicitFamilyInputBitSize count
       rw [
         explicitFamilyTrajectoryLocalClosureStats_primitiveQueries
       ]
@@ -325,9 +327,14 @@ theorem explicitFamilyTrajectoryLocalCompositionCandidates_inputPolynomiallyBoun
       explicitFamilyInputBitSize
       (fun count =>
         (explicitFamilyTrajectoryLocalClosureStats count).compositionCandidates) :=
-  InputPolynomiallyBounded.constant
-    explicitFamilyInputBitSize
-    0
+  ⟨CostPolynomial.constant 0,
+    fun count => by
+      change
+        (explicitFamilyTrajectoryLocalClosureStats count).compositionCandidates ≤
+          0
+      rw [
+        explicitFamilyTrajectoryLocalClosureStats_compositionCandidates
+      ]⟩
 
 end SAT
 end ConstitutiveSearch
