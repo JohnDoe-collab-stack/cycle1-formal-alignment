@@ -1,5 +1,4 @@
 import ConstitutiveSearch.SAT.TrajectoryConstitutedLocalSchedule
-import ConstitutiveSearch.SAT.ProvenanceSearchCosts
 import ConstitutiveSearch.SAT.ExplicitFamilyConstitutiveProfile
 import ConstitutiveSearch.SAT.ExplicitFamilyInputComplexity
 
@@ -7,134 +6,34 @@ import ConstitutiveSearch.SAT.ExplicitFamilyInputComplexity
 # Accounting for trajectory-constituted local schedules
 
 TrajectoryConstitutedLocalSchedule extracts one proof-relevant local sibling
-witness per constitutive step of F(n), validates those codes executably, and
-admits candidate-free local execution.
+relation per constitutive step of F(n), validates each relation with the exact
+step-local generatedStructuralFlipAtSearch indexed by that step's own var, and
+executes each relation by an actual candidate-free ClosureSearch run.
 
-This module connects that new schedule to the pre-existing complexity profile
+This module connects that schedule to the pre-existing complexity profile
 without double counting.
 
 Production is not introduced as a new phase:
 * the produced local transport atoms are exactly the certificateAtoms already
   charged by explicitFamilyComplexityCounts;
-* the provenance domain is exactly the trajectory decision-variable history
-  already charged by provenanceUnits.
+* the schedule variable projection is exactly trajectory.decisionVars, whose
+  length is already charged by provenanceUnits.
 
 Validation and local execution are kept separate:
-* validation contributes one relationFindCall per constituted local code;
-* local execution contributes one closurePrimitiveQuery per local code and zero
-  closureCompositionCandidates.
+* validation contributes one direct relationFindCall per constituted step;
+* local execution contributes one direct closurePrimitiveQuery per step and
+  zero closureCompositionCandidates.
 
-A provenance-restricted primitive query may scan several trajectory variables.
-That internal cost is exposed explicitly and bounded by the provenance length;
-the validation/execution AtomicCosts therefore charge one top-level primitive
-query by the full provenance-scan envelope rather than by one direct equality
-test.  This remains a representation-level charge, not a machine-runtime
-theorem.
+Because each schedule entry uses the exact var carried by that constitutive
+step, there is no scan over future trajectory variables and no global provenance
+search hidden inside these local calls.
+
+The representation charge uses the existing direct-flip AtomicCosts model.  It
+remains a representation-level charge, not a machine-runtime theorem.
 -/
 
 namespace ConstitutiveSearch
 namespace SAT
-
-namespace ConstitutedLocalSchedule
-
-/--
-Total number of variable-level generatedStructuralFlipAtSearch attempts made by
-the provenance search while validating or executing one complete local schedule.
--/
-def provenanceVariableQueries
-    {rootFormula : Cnf}
-    {vars : List Var} :
-    List
-      (ConstitutedLocalWitness
-        rootFormula
-        vars) →
-      Nat
-  | [] =>
-      0
-  | entry :: rest =>
-      provenanceStructuralFlipSearchVariableQueries
-          rootFormula
-          vars
-          entry.source
-          entry.target +
-        provenanceVariableQueries rest
-
-/--
-A schedule with k entries over a provenance domain of m variables performs at
-most k*m variable-level generated flip searches.
--/
-theorem provenanceVariableQueries_le_length_mul_varsLength
-    {rootFormula : Cnf}
-    {vars : List Var}
-    (schedule :
-      List
-        (ConstitutedLocalWitness
-          rootFormula
-          vars)) :
-    provenanceVariableQueries schedule ≤
-      schedule.length * vars.length := by
-  induction schedule with
-  | nil =>
-      simp [
-        provenanceVariableQueries
-      ]
-  | cons entry rest inductionHypothesis =>
-      have headLe :
-          provenanceStructuralFlipSearchVariableQueries
-              rootFormula
-              vars
-              entry.source
-              entry.target ≤
-            vars.length :=
-        provenanceStructuralFlipSearchVariableQueries_le_length
-          rootFormula
-          vars
-          entry.source
-          entry.target
-      calc
-        provenanceVariableQueries
-            (entry :: rest)
-            =
-          provenanceStructuralFlipSearchVariableQueries
-              rootFormula
-              vars
-              entry.source
-              entry.target +
-            provenanceVariableQueries rest :=
-              rfl
-        _ ≤
-          vars.length +
-            rest.length * vars.length :=
-              Nat.add_le_add
-                headLe
-                inductionHypothesis
-        _ =
-          (entry :: rest).length *
-            vars.length := by
-              change
-                vars.length +
-                    rest.length * vars.length =
-                  (rest.length + 1) * vars.length
-              calc
-                vars.length +
-                    rest.length * vars.length
-                    =
-                  rest.length * vars.length +
-                    vars.length :=
-                      Nat.add_comm _ _
-                _ =
-                  rest.length * vars.length +
-                    1 * vars.length := by
-                      rw [Nat.one_mul]
-                _ =
-                  (rest.length + 1) *
-                    vars.length :=
-                      (Nat.add_mul
-                        rest.length
-                        1
-                        vars.length).symm
-
-end ConstitutedLocalSchedule
 
 /--
 The endogenous schedule production count is exactly the certificateAtoms
@@ -157,7 +56,21 @@ theorem explicitFamilyConstitutedProduction_matchesCertificateAtoms
       count).symm
 
 /--
-The trajectory-derived provenance domain has exactly the provenanceUnits already
+The extracted schedule records exactly the trajectory decision variables, in
+the same order.
+-/
+theorem explicitFamilyConstitutedProduction_variablesExact
+    (count : Nat) :
+    (explicitFamilyConstitutedLocalWitnesses
+      count).map
+        (fun entry => entry.var) =
+      (explicitFamilyResourceTrajectory
+        count).trajectory.decisionVars :=
+  explicitFamilyConstitutedLocalWitnesses_vars
+    count
+
+/--
+The trajectory-derived provenance length is exactly the provenanceUnits already
 charged by the local F(n) profile.
 -/
 theorem explicitFamilyConstitutedProduction_matchesProvenanceUnits
@@ -173,70 +86,6 @@ theorem explicitFamilyConstitutedProduction_matchesProvenanceUnits
   exact
     ((explicitFamilyResourceTrajectory
       count).trajectory.decisionVars_length).symm
-
-/-- Variable-level provenance-search work of the endogenous F(n) schedule. -/
-def explicitFamilyConstitutedProvenanceVariableQueries
-    (count : Nat) :
-    Nat :=
-  ConstitutedLocalSchedule.provenanceVariableQueries
-    (explicitFamilyConstitutedLocalWitnesses
-      count)
-
-/--
-The internal provenance-search work is at most n^2: there are n local queries,
-and each can inspect at most the n variables constituted by the trajectory.
--/
-theorem explicitFamilyConstitutedProvenanceVariableQueries_le_square
-    (count : Nat) :
-    explicitFamilyConstitutedProvenanceVariableQueries
-        count ≤
-      count * count := by
-  unfold explicitFamilyConstitutedProvenanceVariableQueries
-  have bounded :=
-    ConstitutedLocalSchedule.provenanceVariableQueries_le_length_mul_varsLength
-      (explicitFamilyConstitutedLocalWitnesses
-        count)
-  rw [
-    explicitFamilyConstitutedLocalWitnesses_length,
-    (explicitFamilyResourceTrajectory
-      count).trajectory.decisionVars_length
-  ] at bounded
-  exact bounded
-
-/--
-Representation envelope for one top-level provenance-restricted primitive
-query.  One query examines at most n variable-specific structural flips.
--/
-def explicitFamilyConstitutedProvenanceQueryRepresentationBudget
-    (count : Nat) :
-    Nat :=
-  count *
-    explicitFamilyRelationEqualityChargeBudget
-      count
-
-/--
-Atomic-cost model for validation and local execution of the provenance-derived
-schedule.  Only the two event classes used by these phases receive nonzero
-charges.
-
-Unlike the direct-flip F(n) profile, one top-level primitive query is charged by
-the full provenance-scan envelope rather than by one equality test.
--/
-def explicitFamilyConstitutedScheduleAtomicCosts
-    (count : Nat) :
-    AtomicCosts :=
-  { syntaxUnit := 0
-    frontierSlot := 0
-    provenanceUnit := 0
-    certificateAtom := 0
-    relationFindCall :=
-      explicitFamilyConstitutedProvenanceQueryRepresentationBudget
-        count
-    closurePrimitiveQuery :=
-      explicitFamilyConstitutedProvenanceQueryRepresentationBudget
-        count
-    closureCompositionCandidate := 0
-    terminalCheck := 0 }
 
 /--
 Executable validation phase for the already-produced local schedule.
@@ -261,8 +110,7 @@ def explicitFamilyConstitutedValidationCounts
 /--
 Candidate-free local execution phase for the already-validated schedule.
 
-Execution performs one primitive query per local code and no composition
-candidate inspection.
+These are actual ClosureSearch statistics aggregated from the step-local runs.
 -/
 def explicitFamilyConstitutedExecutionCounts
     (count : Nat) :
@@ -282,7 +130,7 @@ def explicitFamilyConstitutedExecutionCounts
           count)
     terminalChecks := 0 }
 
-/-- Validation contributes exactly n relation-find calls. -/
+/-- Validation performs exactly n direct step-local relation-find calls. -/
 theorem explicitFamilyConstitutedValidationCounts_relationFindCalls
     (count : Nat) :
     (explicitFamilyConstitutedValidationCounts
@@ -297,7 +145,7 @@ theorem explicitFamilyConstitutedValidationCounts_relationFindCalls
     explicitFamilyConstitutedLocalValidationQueries
       count
 
-/-- Local execution contributes exactly n primitive queries. -/
+/-- Local execution performs exactly n direct primitive queries. -/
 theorem explicitFamilyConstitutedExecutionCounts_primitiveQueries
     (count : Nat) :
     (explicitFamilyConstitutedExecutionCounts
@@ -312,7 +160,7 @@ theorem explicitFamilyConstitutedExecutionCounts_primitiveQueries
     explicitFamilyConstitutedLocalExecutionQueries
       count
 
-/-- Local execution contributes no composition-candidate inspections. -/
+/-- Local execution performs no composition-candidate inspections. -/
 theorem explicitFamilyConstitutedExecutionCounts_compositionCandidates
     (count : Nat) :
     (explicitFamilyConstitutedExecutionCounts
@@ -327,59 +175,55 @@ theorem explicitFamilyConstitutedExecutionCounts_compositionCandidates
     explicitFamilyConstitutedLocalExecutionCompositionCandidates
       count
 
-/-- Representation charge of executable validation under the provenance-scan model. -/
+/-- Representation charge of executable step-local validation. -/
 def explicitFamilyConstitutedValidationRepresentationCharge
     (count : Nat) :
     Nat :=
   chargedCost
     (explicitFamilyConstitutedValidationCounts
       count)
-    (explicitFamilyConstitutedScheduleAtomicCosts
+    (explicitFamilyRepresentationAtomicCosts
       count)
 
-/-- Representation charge of candidate-free local execution. -/
+/-- Representation charge of actual candidate-free local execution. -/
 def explicitFamilyConstitutedExecutionRepresentationCharge
     (count : Nat) :
     Nat :=
   chargedCost
     (explicitFamilyConstitutedExecutionCounts
       count)
-    (explicitFamilyConstitutedScheduleAtomicCosts
+    (explicitFamilyRepresentationAtomicCosts
       count)
 
-/-- Validation charge is n top-level queries, each charged by an n-variable scan. -/
+/-- Validation charge is exactly n direct relation-query charges. -/
 theorem explicitFamilyConstitutedValidationRepresentationCharge_eq
     (count : Nat) :
     explicitFamilyConstitutedValidationRepresentationCharge
         count =
       count *
-        (count *
-          explicitFamilyRelationEqualityChargeBudget
-            count) := by
+        explicitFamilyRelationEqualityChargeBudget
+          count := by
   unfold explicitFamilyConstitutedValidationRepresentationCharge
   unfold chargedCost
   unfold explicitFamilyConstitutedValidationCounts
-  unfold explicitFamilyConstitutedScheduleAtomicCosts
-  unfold explicitFamilyConstitutedProvenanceQueryRepresentationBudget
+  unfold explicitFamilyRepresentationAtomicCosts
   rw [
     explicitFamilyConstitutedLocalValidationQueries
   ]
   simp
 
-/-- Local execution has the same conservative provenance-scan representation charge. -/
+/-- Local execution charge is exactly n direct primitive-query charges. -/
 theorem explicitFamilyConstitutedExecutionRepresentationCharge_eq
     (count : Nat) :
     explicitFamilyConstitutedExecutionRepresentationCharge
         count =
       count *
-        (count *
-          explicitFamilyRelationEqualityChargeBudget
-            count) := by
+        explicitFamilyRelationEqualityChargeBudget
+          count := by
   unfold explicitFamilyConstitutedExecutionRepresentationCharge
   unfold chargedCost
   unfold explicitFamilyConstitutedExecutionCounts
-  unfold explicitFamilyConstitutedScheduleAtomicCosts
-  unfold explicitFamilyConstitutedProvenanceQueryRepresentationBudget
+  unfold explicitFamilyRepresentationAtomicCosts
   rw [
     explicitFamilyConstitutedLocalExecutionQueries,
     explicitFamilyConstitutedLocalExecutionCompositionCandidates
@@ -388,94 +232,14 @@ theorem explicitFamilyConstitutedExecutionRepresentationCharge_eq
 
 /--
 Input-indexed polynomial envelope used for either validation or local execution
-representation charge.  The two inputBits factors respectively bound the number
-of schedule entries and the provenance variables inspected by each query.
+representation charge.
 -/
 def explicitFamilyConstitutedLocalQueryInputBudget
     (count : Nat) :
     Nat :=
   explicitFamilyInputBitSize count *
-    (explicitFamilyInputBitSize count *
-      explicitFamilyRelationPolynomialBudget
-        (explicitFamilyInputBitSize count))
-
-/--
-Representation charge of the instrumented variable-level provenance-search
-attempts themselves.
--/
-def explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-    (count : Nat) :
-    Nat :=
-  explicitFamilyConstitutedProvenanceVariableQueries
-      count *
-    explicitFamilyRelationEqualityChargeBudget
-      count
-
-/--
-The phase AtomicCosts envelope covers the instrumented internal provenance-search
-work.  This closes the gap between top-level primitive-query counting and the
-variable-level searches performed inside provenanceStructuralFlipSearch.
--/
-theorem explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_validationCharge
-    (count : Nat) :
-    explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-        count ≤
-      explicitFamilyConstitutedValidationRepresentationCharge
-        count := by
-  unfold explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-  rw [
-    explicitFamilyConstitutedValidationRepresentationCharge_eq
-  ]
-  calc
-    explicitFamilyConstitutedProvenanceVariableQueries count *
-        explicitFamilyRelationEqualityChargeBudget count
-        ≤
-      (count * count) *
-        explicitFamilyRelationEqualityChargeBudget count :=
-          natMulLeMul
-            (explicitFamilyConstitutedProvenanceVariableQueries_le_square
-              count)
-            (Nat.le_refl _)
-    _ =
-      count *
-        (count *
-          explicitFamilyRelationEqualityChargeBudget count) :=
-            Nat.mul_assoc
-              count
-              count
-              (explicitFamilyRelationEqualityChargeBudget
-                count)
-
-/-- The same envelope covers the provenance work performed by local execution. -/
-theorem explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_executionCharge
-    (count : Nat) :
-    explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-        count ≤
-      explicitFamilyConstitutedExecutionRepresentationCharge
-        count := by
-  unfold explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-  rw [
-    explicitFamilyConstitutedExecutionRepresentationCharge_eq
-  ]
-  calc
-    explicitFamilyConstitutedProvenanceVariableQueries count *
-        explicitFamilyRelationEqualityChargeBudget count
-        ≤
-      (count * count) *
-        explicitFamilyRelationEqualityChargeBudget count :=
-          natMulLeMul
-            (explicitFamilyConstitutedProvenanceVariableQueries_le_square
-              count)
-            (Nat.le_refl _)
-    _ =
-      count *
-        (count *
-          explicitFamilyRelationEqualityChargeBudget count) :=
-            Nat.mul_assoc
-              count
-              count
-              (explicitFamilyRelationEqualityChargeBudget
-                count)
+    explicitFamilyRelationPolynomialBudget
+      (explicitFamilyInputBitSize count)
 
 /-- Validation representation charge is polynomially bounded in actual input size. -/
 theorem explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
@@ -493,12 +257,9 @@ theorem explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
     natMulLeMul
       (explicitFamilyIndex_le_inputBitSize
         count)
-      (natMulLeMul
+      (explicitFamilyRelationPolynomialBudget_mono
         (explicitFamilyIndex_le_inputBitSize
-          count)
-        (explicitFamilyRelationPolynomialBudget_mono
-          (explicitFamilyIndex_le_inputBitSize
-            count)))
+          count))
 
 /-- Local execution representation charge is polynomially bounded in actual input size. -/
 theorem explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
@@ -516,16 +277,14 @@ theorem explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
     natMulLeMul
       (explicitFamilyIndex_le_inputBitSize
         count)
-      (natMulLeMul
+      (explicitFamilyRelationPolynomialBudget_mono
         (explicitFamilyIndex_le_inputBitSize
-          count)
-        (explicitFamilyRelationPolynomialBudget_mono
-          (explicitFamilyIndex_le_inputBitSize
-            count)))
+          count))
 
 /--
 Single evidence bundle tying endogenous production, executable validation, and
-candidate-free local execution to the announced F(n) accounting coordinates.
+actual candidate-free local execution to the announced F(n) accounting
+coordinates.
 -/
 structure ExplicitFamilyConstitutedLocalAccountingEvidence
     (count : Nat) : Prop where
@@ -535,6 +294,12 @@ structure ExplicitFamilyConstitutedLocalAccountingEvidence
       ConstitutedLocalSchedule.atomCount
         (explicitFamilyConstitutedLocalWitnesses
           count)
+  productionVariablesExact :
+    (explicitFamilyConstitutedLocalWitnesses
+      count).map
+        (fun entry => entry.var) =
+      (explicitFamilyResourceTrajectory
+        count).trajectory.decisionVars
   productionProvenanceExact :
     (explicitFamilyComplexityCounts
         count).provenanceUnits =
@@ -544,10 +309,6 @@ structure ExplicitFamilyConstitutedLocalAccountingEvidence
     ConstitutedLocalSchedule.ValidationSucceeds
       (explicitFamilyConstitutedLocalWitnesses
         count)
-  provenanceVariableQueriesBound :
-    explicitFamilyConstitutedProvenanceVariableQueries
-        count ≤
-      count * count
   validationFindExact :
     (explicitFamilyConstitutedValidationCounts
       count).relationFindCalls =
@@ -573,14 +334,14 @@ theorem explicitFamilyConstitutedLocalAccountingEvidence
   { productionCertificateExact :=
       explicitFamilyConstitutedProduction_matchesCertificateAtoms
         count
+    productionVariablesExact :=
+      explicitFamilyConstitutedProduction_variablesExact
+        count
     productionProvenanceExact :=
       explicitFamilyConstitutedProduction_matchesProvenanceUnits
         count
     validationSucceeds :=
       explicitFamilyConstitutedLocalValidationSucceeds
-        count
-    provenanceVariableQueriesBound :=
-      explicitFamilyConstitutedProvenanceVariableQueries_le_square
         count
     validationFindExact :=
       explicitFamilyConstitutedValidationCounts_relationFindCalls
@@ -600,13 +361,8 @@ end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProduction_matchesCertificateAtoms
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProduction_variablesExact
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProduction_matchesProvenanceUnits
-#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.provenanceVariableQueries
-#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.provenanceVariableQueries_le_length_mul_varsLength
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProvenanceVariableQueries
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProvenanceVariableQueries_le_square
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedProvenanceQueryRepresentationBudget
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedScheduleAtomicCosts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionCounts
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationCounts_relationFindCalls
@@ -617,9 +373,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationRepresentationCharge_eq
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionRepresentationCharge_eq
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalQueryInputBudget
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_validationCharge
-#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedInternalProvenanceRepresentationCharge_le_executionCharge
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedValidationRepresentationCharge_le_inputBudget
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget
 #print axioms ConstitutiveSearch.SAT.ExplicitFamilyConstitutedLocalAccountingEvidence
