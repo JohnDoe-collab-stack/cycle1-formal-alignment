@@ -74,10 +74,8 @@ theorem provenanceStructuralFlipSearchVariableQueries_le_length
   induction vars with
   | nil =>
       intro source target
-      simp only [
-        provenanceStructuralFlipSearchVariableQueries,
-        List.length_nil
-      ]
+      change 0 ≤ 0
+      exact Nat.le_refl 0
   | cons var rest inductionHypothesis =>
       intro source target
       cases found :
