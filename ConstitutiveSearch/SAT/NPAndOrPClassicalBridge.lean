@@ -33,8 +33,7 @@ organization are intentionally absent from this classical projection.
 -/
 def explicitFamilyDecisionProblem :
     DecisionProblem :=
-  { Input := Nat
-    inputSize :=
+  { inputSize :=
       explicitFamilyInputBitSize
     Accept := fun count =>
       FrontierViable
@@ -67,15 +66,21 @@ explicit polynomial verifier interface.
 -/
 theorem constitutiveNPStyle_projects_to_classicalNP
     {system : SearchSystem}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialVerifier
         system
-        stateSize) :
+        stateAt
+        inputSize) :
     InNP
       (searchSystemDecisionProblem
         system
-        stateSize) :=
+        stateAt
+        inputSize)
+      (fun input =>
+        system.Continuation
+          (stateAt input)) :=
   npLike_projects_to_InNP
     bridge
 
@@ -86,15 +91,18 @@ polynomial decision procedure in the declared cost model.
 -/
 theorem constitutivePStyle_projects_to_classicalP
     {system : SearchSystem}
-    {stateSize : system.State → Nat}
+    {stateAt : Nat → system.State}
+    {inputSize : Nat → Nat}
     (bridge :
       SearchSystemPolynomialDecider
         system
-        stateSize) :
+        stateAt
+        inputSize) :
     InP
       (searchSystemDecisionProblem
         system
-        stateSize) :=
+        stateAt
+        inputSize) :=
   pLike_projects_to_InP
     bridge
 
