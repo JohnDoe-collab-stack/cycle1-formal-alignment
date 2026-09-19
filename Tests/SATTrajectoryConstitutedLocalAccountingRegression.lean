@@ -41,6 +41,10 @@ theorem executionChargeBound3 :
       explicitFamilyConstitutedLocalQueryInputBudget 3 :=
   explicitFamilyConstitutedExecutionRepresentationCharge_le_inputBudget 3
 
+theorem accountingEvidence3 :
+    ExplicitFamilyConstitutedLocalAccountingEvidence 3 :=
+  explicitFamilyConstitutedLocalAccountingEvidence 3
+
 end ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -51,4 +55,5 @@ end ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.executionComposition3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.validationChargeBound3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.executionChargeBound3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalAccountingRegression.accountingEvidence3
 /- AXIOM_AUDIT_END -/
