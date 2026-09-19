@@ -38,7 +38,7 @@ structure LocalSequentialExecution
       TransportCode
         Generator
         source
-        target) : Prop where
+        target) : Type uGenerator where
   path :
     PrimitiveHitPath
       primitive
@@ -95,6 +95,30 @@ theorem localSequentialExecution_of_searchable
       compositionCandidates := compositionExact }
 
 /--
+Package carrying both the global-composition certificate and the local
+candidate-free execution of the same constituted code.
+-/
+structure GlobalNeedWithLocalExecution
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    {source target : State}
+    (code :
+      TransportCode
+        Generator
+        source
+        target) : Type uGenerator where
+  globalCompositionRequired :
+    PrimitiveHitPath.GlobalCompositionRequired
+      primitive
+      source
+      target
+  localExecution :
+    LocalSequentialExecution
+      primitive
+      code
+
+/--
 A direct primitive miss together with a searchable constituted code of size at
 least two simultaneously certifies:
 * genuine global composition requirement;
@@ -117,28 +141,24 @@ theorem directMiss_searchableCode_hasLocalExecution
       code.SearchableBy primitive)
     (codeSize :
       2 ≤ code.size) :
-    PrimitiveHitPath.GlobalCompositionRequired
-        primitive
-        source
-        target ∧
-      LocalSequentialExecution
-        primitive
-        code := by
-  constructor
-  · exact
-      (PrimitiveHitPath.globalCompositionRequired_iff_searchableCode
-        primitive
-        source
-        target).2
-        ⟨directMiss,
-          ⟨code,
-            searchable,
-            codeSize⟩⟩
-  · exact
-      localSequentialExecution_of_searchable
-        primitive
-        code
-        searchable
+    GlobalNeedWithLocalExecution
+      primitive
+      code := by
+  exact
+    { globalCompositionRequired :=
+        (PrimitiveHitPath.globalCompositionRequired_iff_searchableCode
+          primitive
+          source
+          target).2
+          ⟨directMiss,
+            ⟨code,
+              searchable,
+              codeSize⟩⟩
+      localExecution :=
+        localSequentialExecution_of_searchable
+          primitive
+          code
+          searchable }
 
 end TransportCode
 
@@ -147,5 +167,6 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.TransportCode.LocalSequentialExecution
 #print axioms ConstitutiveSearch.TransportCode.localSequentialExecution_of_searchable
+#print axioms ConstitutiveSearch.TransportCode.GlobalNeedWithLocalExecution
 #print axioms ConstitutiveSearch.TransportCode.directMiss_searchableCode_hasLocalExecution
 /- AXIOM_AUDIT_END -/
