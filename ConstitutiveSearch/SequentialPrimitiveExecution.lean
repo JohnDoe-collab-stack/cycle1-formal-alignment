@@ -103,14 +103,12 @@ theorem toTransportCode_size
   induction path with
   | identity state =>
       rfl
-  | step hit tail inductionHypothesis =>
-      simp only [
-        toTransportCode,
-        TransportCode.size,
-        length
-      ]
+  | step hit tail inductionHypothesis => by
+      change
+        1 + tail.toTransportCode.size =
+          tail.length + 1
       rw [inductionHypothesis]
-      omega
+      exact Nat.add_comm 1 tail.length
 
 /--
 Aggregate actual ClosureSearch statistics obtained by following path edges
