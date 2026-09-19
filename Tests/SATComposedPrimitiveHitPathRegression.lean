@@ -99,6 +99,28 @@ theorem foundRunCodeSize3 :
           (composedPrimitiveSearch_source_target_none 3)
           found
 
+
+theorem foundRunUsesCompositionCandidate3 :
+    0 <
+      (composedClosureFuelTwo 3).stats.compositionCandidates := by
+  cases found :
+      (composedClosureFuelTwo 3).code? with
+  | none =>
+      exact
+        False.elim
+          ((composedClosureFuelTwo_found 3)
+            found)
+  | some code =>
+      exact
+        PrimitiveHitPath.searchTransportClosureBounded_directMiss_found_compositionCandidates_pos
+          (composedPrimitiveSearch 3)
+          [composedMiddle 3]
+          2
+          (composedSource 3)
+          (composedTarget 3)
+          (composedPrimitiveSearch_source_target_none 3)
+          found
+
 end ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression
 
 /- AXIOM_AUDIT_BEGIN -/
@@ -108,4 +130,5 @@ end ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.gap3
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.foundRunRequiresComposition3
 #print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.foundRunCodeSize3
+#print axioms ConstitutiveSearch.Tests.SATComposedPrimitiveHitPathRegression.foundRunUsesCompositionCandidate3
 /- AXIOM_AUDIT_END -/
