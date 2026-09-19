@@ -75,9 +75,9 @@ theorem DeciderCode.size_pos
     0 < code.size := by
   induction code with
   | returnBool value =>
-      decide
+      simp [DeciderCode.size]
   | inputEq expected =>
-      decide
+      simp [DeciderCode.size]
   | negate code inductionHypothesis =>
       simp only [DeciderCode.size]
       omega
@@ -211,6 +211,13 @@ theorem executeDecider_inputPolynomiallyBounded
         code.size,
       ?_⟩
   intro input
+  change
+    (executeDecider
+        code
+        input).stats.steps ≤
+      (CostPolynomial.constant
+        code.size).eval
+          (problem.inputSize input)
   rw [
     executeDecider_steps
   ]
@@ -295,13 +302,13 @@ theorem VerifierCode.size_pos
     0 < code.size := by
   induction code with
   | returnBool value =>
-      decide
+      simp [VerifierCode.size]
   | inputEq expected =>
-      decide
+      simp [VerifierCode.size]
   | witnessEq expected =>
-      decide
+      simp [VerifierCode.size]
   | inputEqWitness =>
-      decide
+      simp [VerifierCode.size]
   | negate code inductionHypothesis =>
       simp only [VerifierCode.size]
       omega
