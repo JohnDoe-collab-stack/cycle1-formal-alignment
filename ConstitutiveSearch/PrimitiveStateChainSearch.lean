@@ -2,7 +2,7 @@ import Init.Omega
 import ConstitutiveSearch.SequentialPrimitiveExecution
 
 /-!
-# Local primitive-path search on an ordered state chain
+# Local primitive-code search on an ordered state chain
 
 Global ClosureSearch explores an unordered candidate domain to discover a
 composed relation between two endpoints.  When the constitution already
@@ -10,11 +10,12 @@ supplies an ordered chain of intermediate states, that global discovery problem
 can be replaced by adjacent primitive searches.
 
 PrimitiveStateChain stores only the ordered states, not relation witnesses.
-searchPrimitiveStateChain reconstructs those witnesses executablely by querying
-the announced primitive RelationSearch on each adjacent pair.
+searchPrimitiveStateChain queries the announced primitive RelationSearch on
+each adjacent pair and directly compiles successful witnesses into a
+TransportCode.
 
-If all adjacent queries succeed, the result is a PrimitiveHitPath and therefore
-a TransportCode.  The search then has exact source-level control cost:
+If all adjacent queries succeed, the result is a code whose atom count is
+exactly the chain length.  The executable control cost is then:
 * one primitive query per chain edge;
 * zero composition-candidate queries.
 
@@ -63,73 +64,15 @@ def length
 
 end PrimitiveStateChain
 
-/-- One executable primitive-search hit, with the exact returned witness. -/
-structure PrimitiveSearchHit
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    (primitive : RelationSearch Generator)
-    (source target : State) where
-  witness : Generator source target
-  exactFind :
-    primitive.find source target =
-      some witness
-
-/-- Package one RelationSearch result into explicit hit evidence when present. -/
-def findPrimitiveHit?
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    (primitive : RelationSearch Generator)
-    (source target : State) :
-    Option
-      (PrimitiveSearchHit
-        primitive
-        source
-        target) :=
-  match exactFind :
-      primitive.find source target with
-  | none =>
-      none
-  | some witness =>
-      some
-        { witness := witness
-          exactFind := exactFind }
-
-/-- A nonempty primitive-search result gives a nonempty packaged hit. -/
-theorem findPrimitiveHit?_ne_none_of_find_ne_none
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    {primitive : RelationSearch Generator}
-    {source target : State}
-    (primitiveHit :
-      primitive.find source target ≠ none) :
-    findPrimitiveHit?
-        primitive
-        source
-        target ≠
-      none :=
-  match found :
-      primitive.find source target with
-  | none =>
-      False.elim
-        (primitiveHit found)
-  | some witness => by
-      simp only [
-        findPrimitiveHit?,
-        found
-      ]
-      intro impossible
-      cases impossible
-
 /-- Result of executable adjacent primitive search on one ordered state chain. -/
 structure PrimitiveStateChainSearchRun
     {State : Type}
-    {Generator : State → State → Type uGenerator}
-    (primitive : RelationSearch Generator)
+    (Generator : State → State → Type uGenerator)
     (source target : State) where
-  path? :
+  code? :
     Option
-      (PrimitiveHitPath
-        primitive
+      (TransportClosure
+        Generator
         source
         target)
   stats : ClosureSearchStats
@@ -137,8 +80,8 @@ structure PrimitiveStateChainSearchRun
 /--
 Search only adjacent pairs of an already ordered chain.
 
-On the first failed adjacent primitive query, the search stops.  Successful
-prefix queries are therefore never followed by candidate enumeration.
+On the first failed adjacent primitive query, the search stops.  On success,
+the found witness is composed directly with the recursively reconstructed code.
 -/
 def searchPrimitiveStateChain
     {State : Type}
@@ -150,43 +93,40 @@ def searchPrimitiveStateChain
         source
         target →
       PrimitiveStateChainSearchRun
-        primitive
+        Generator
         source
         target
   | _, _, .identity state =>
-      { path? :=
+      { code? :=
           some
             (.identity state)
         stats :=
           ClosureSearchStats.zero }
   | source, target, .step middle tail =>
       match
-        findPrimitiveHit?
-          primitive
-          source
-          middle with
+        primitive.find source middle with
       | none =>
-          { path? := none
+          { code? := none
             stats :=
               ClosureSearchStats.withPrimitiveQuery
                 ClosureSearchStats.zero }
-      | some edge =>
+      | some witness =>
           let later :=
             searchPrimitiveStateChain
               primitive
               tail
-          match later.path? with
+          match later.code? with
           | none =>
-              { path? := none
+              { code? := none
                 stats :=
                   ClosureSearchStats.withPrimitiveQuery
                     later.stats }
-          | some path =>
-              { path? :=
+          | some code =>
+              { code? :=
                   some
-                    (.step
-                      edge.exactFind
-                      path)
+                    (.compose
+                      (.atom witness)
+                      code)
                 stats :=
                   ClosureSearchStats.withPrimitiveQuery
                     later.stats }
@@ -210,35 +150,32 @@ theorem searchPrimitiveStateChain_compositionCandidates_zero
   | identity state =>
       rfl
   | @step source target middle tail inductionHypothesis =>
-      cases firstHit :
-          findPrimitiveHit?
-            primitive
-            source
-            middle with
+      cases firstFound :
+          primitive.find source middle with
       | none =>
           simp only [
             searchPrimitiveStateChain,
-            firstHit,
+            firstFound,
             ClosureSearchStats.withPrimitiveQuery,
             ClosureSearchStats.zero
           ]
-      | some edge =>
+      | some witness =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
-                tail).path? with
+                tail).code? with
           | none =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery
               ]
               exact inductionHypothesis
-          | some path =>
+          | some code =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery
               ]
@@ -263,118 +200,42 @@ theorem searchPrimitiveStateChain_primitiveQueries_le_length
   | identity state =>
       exact Nat.le_refl 0
   | @step source target middle tail inductionHypothesis =>
-      cases firstHit :
-          findPrimitiveHit?
-            primitive
-            source
-            middle with
+      cases firstFound :
+          primitive.find source middle with
       | none =>
           simp only [
             searchPrimitiveStateChain,
-            firstHit,
+            firstFound,
             ClosureSearchStats.withPrimitiveQuery,
             ClosureSearchStats.zero,
             PrimitiveStateChain.length
           ]
           omega
-      | some edge =>
+      | some witness =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
-                tail).path? with
+                tail).code? with
           | none =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
               ]
               omega
-          | some path =>
+          | some code =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
               ]
               omega
 
-/-- A successful local chain search reconstructs a path with the same length. -/
-theorem searchPrimitiveStateChain_found_path_length
-    {State : Type}
-    {Generator : State → State → Type uGenerator}
-    (primitive : RelationSearch Generator)
-    {source target : State}
-    (chain :
-      PrimitiveStateChain
-        State
-        source
-        target)
-    {path :
-      PrimitiveHitPath
-        primitive
-        source
-        target}
-    (found :
-      (searchPrimitiveStateChain
-        primitive
-        chain).path? =
-          some path) :
-    path.length =
-      chain.length := by
-  induction chain with
-  | identity state =>
-      simp only [
-        searchPrimitiveStateChain
-      ] at found
-      injection found with pathExact
-      subst path
-      rfl
-  | @step source target middle tail inductionHypothesis =>
-      cases firstHit :
-          findPrimitiveHit?
-            primitive
-            source
-            middle with
-      | none =>
-          simp only [
-            searchPrimitiveStateChain,
-            firstHit
-          ] at found
-          cases found
-      | some edge =>
-          cases laterFound :
-              (searchPrimitiveStateChain
-                primitive
-                tail).path? with
-          | none =>
-              simp only [
-                searchPrimitiveStateChain,
-                firstHit,
-                laterFound
-              ] at found
-              cases found
-          | some tailPath =>
-              simp only [
-                searchPrimitiveStateChain,
-                firstHit,
-                laterFound
-              ] at found
-              injection found with pathExact
-              subst path
-              change
-                tailPath.length + 1 =
-                  tail.length + 1
-              rw [
-                inductionHypothesis
-                  laterFound
-              ]
-
-/--
-On success, local chain search performs exactly one primitive query per edge.
--/
+/-- On success, local chain search performs exactly one primitive query per edge. -/
 theorem searchPrimitiveStateChain_found_primitiveQueries
     {State : Type}
     {Generator : State → State → Type uGenerator}
@@ -385,16 +246,16 @@ theorem searchPrimitiveStateChain_found_primitiveQueries
         State
         source
         target)
-    {path :
-      PrimitiveHitPath
-        primitive
+    {code :
+      TransportClosure
+        Generator
         source
         target}
     (found :
       (searchPrimitiveStateChain
         primitive
-        chain).path? =
-          some path) :
+        chain).code? =
+          some code) :
     (searchPrimitiveStateChain
       primitive
       chain).stats.primitiveQueries =
@@ -403,33 +264,30 @@ theorem searchPrimitiveStateChain_found_primitiveQueries
   | identity state =>
       rfl
   | @step source target middle tail inductionHypothesis =>
-      cases firstHit :
-          findPrimitiveHit?
-            primitive
-            source
-            middle with
+      cases firstFound :
+          primitive.find source middle with
       | none =>
           simp only [
             searchPrimitiveStateChain,
-            firstHit
+            firstFound
           ] at found
           cases found
-      | some edge =>
+      | some witness =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
-                tail).path? with
+                tail).code? with
           | none =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound
               ] at found
               cases found
-          | some tailPath =>
+          | some tailCode =>
               simp only [
                 searchPrimitiveStateChain,
-                firstHit,
+                firstFound,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
@@ -439,7 +297,7 @@ theorem searchPrimitiveStateChain_found_primitiveQueries
                   laterFound
               ]
 
-/-- Successful local path reconstruction compiles to a code of chain length. -/
+/-- A successfully reconstructed local code has exactly one atom per chain edge. -/
 theorem searchPrimitiveStateChain_found_code_size
     {State : Type}
     {Generator : State → State → Type uGenerator}
@@ -450,43 +308,76 @@ theorem searchPrimitiveStateChain_found_code_size
         State
         source
         target)
-    {path :
-      PrimitiveHitPath
-        primitive
+    {code :
+      TransportClosure
+        Generator
         source
         target}
     (found :
       (searchPrimitiveStateChain
         primitive
-        chain).path? =
-          some path) :
-    path.toTransportCode.size =
+        chain).code? =
+          some code) :
+    code.size =
       chain.length := by
-  calc
-    path.toTransportCode.size
-        =
-      path.length :=
-        path.toTransportCode_size
-    _ =
-      chain.length :=
-        searchPrimitiveStateChain_found_path_length
-          primitive
-          chain
-          found
+  induction chain with
+  | identity state =>
+      simp only [
+        searchPrimitiveStateChain
+      ] at found
+      injection found with codeExact
+      subst code
+      rfl
+  | @step source target middle tail inductionHypothesis =>
+      cases firstFound :
+          primitive.find source middle with
+      | none =>
+          simp only [
+            searchPrimitiveStateChain,
+            firstFound
+          ] at found
+          cases found
+      | some witness =>
+          cases laterFound :
+              (searchPrimitiveStateChain
+                primitive
+                tail).code? with
+          | none =>
+              simp only [
+                searchPrimitiveStateChain,
+                firstFound,
+                laterFound
+              ] at found
+              cases found
+          | some tailCode =>
+              simp only [
+                searchPrimitiveStateChain,
+                firstFound,
+                laterFound
+              ] at found
+              injection found with codeExact
+              subst code
+              change
+                1 + tailCode.size =
+                  tail.length + 1
+              rw [
+                inductionHypothesis
+                  laterFound
+              ]
+              exact
+                Nat.add_comm
+                  1
+                  tail.length
 
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.PrimitiveStateChain
 #print axioms ConstitutiveSearch.PrimitiveStateChain.length
-#print axioms ConstitutiveSearch.PrimitiveSearchHit
-#print axioms ConstitutiveSearch.findPrimitiveHit?
-#print axioms ConstitutiveSearch.findPrimitiveHit?_ne_none_of_find_ne_none
 #print axioms ConstitutiveSearch.PrimitiveStateChainSearchRun
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_compositionCandidates_zero
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_primitiveQueries_le_length
-#print axioms ConstitutiveSearch.searchPrimitiveStateChain_found_path_length
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_found_primitiveQueries
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_found_code_size
 /- AXIOM_AUDIT_END -/
