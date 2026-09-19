@@ -10,6 +10,12 @@ theorem witnessCount3 :
       3 :=
   explicitFamilyConstitutedLocalWitnesses_length 3
 
+theorem variablesExact3 :
+    (explicitFamilyConstitutedLocalWitnesses 3).map
+        (fun entry => entry.var) =
+      (explicitFamilyResourceTrajectory 3).trajectory.decisionVars :=
+  explicitFamilyConstitutedLocalWitnesses_vars 3
+
 theorem atomCount3 :
     ConstitutedLocalSchedule.atomCount
         (explicitFamilyConstitutedLocalWitnesses 3) =
@@ -80,6 +86,7 @@ end ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.witnessCount3
+#print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.variablesExact3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.atomCount3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.validationQueries3
 #print axioms ConstitutiveSearch.Tests.SATTrajectoryConstitutedLocalScheduleRegression.executionQueries3
