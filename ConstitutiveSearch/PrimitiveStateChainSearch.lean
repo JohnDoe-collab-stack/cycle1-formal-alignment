@@ -63,6 +63,61 @@ def length
 
 end PrimitiveStateChain
 
+/-- One executable primitive-search hit, with the exact returned witness. -/
+structure PrimitiveSearchHit
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (source target : State) where
+  witness : Generator source target
+  exactFind :
+    primitive.find source target =
+      some witness
+
+/-- Package one RelationSearch result into explicit hit evidence when present. -/
+def findPrimitiveHit?
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    (source target : State) :
+    Option
+      (PrimitiveSearchHit
+        primitive
+        source
+        target) :=
+  match exactFind :
+      primitive.find source target with
+  | none =>
+      none
+  | some witness =>
+      some
+        { witness := witness
+          exactFind := exactFind }
+
+/-- Any exact primitive-search equality yields a packaged primitive hit. -/
+theorem findPrimitiveHit?_some_of_exact
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {primitive : RelationSearch Generator}
+    {source target : State}
+    {witness : Generator source target}
+    (exactFind :
+      primitive.find source target =
+        some witness) :
+    ∃ hit :
+        PrimitiveSearchHit
+          primitive
+          source
+          target,
+      findPrimitiveHit?
+          primitive
+          source
+          target =
+        some hit := by
+  unfold findPrimitiveHit?
+  rw [exactFind]
+  exact ⟨_, rfl⟩
+
 /-- Result of executable adjacent primitive search on one ordered state chain. -/
 structure PrimitiveStateChainSearchRun
     {State : Type}
@@ -103,14 +158,17 @@ def searchPrimitiveStateChain
         stats :=
           ClosureSearchStats.zero }
   | source, target, .step middle tail =>
-      match found :
-          primitive.find source middle with
+      match
+        findPrimitiveHit?
+          primitive
+          source
+          middle with
       | none =>
           { path? := none
             stats :=
               ClosureSearchStats.withPrimitiveQuery
                 ClosureSearchStats.zero }
-      | some witness =>
+      | some edge =>
           let later :=
             searchPrimitiveStateChain
               primitive
@@ -125,7 +183,7 @@ def searchPrimitiveStateChain
               { path? :=
                   some
                     (.step
-                      found
+                      edge.exactFind
                       path)
                 stats :=
                   ClosureSearchStats.withPrimitiveQuery
@@ -150,26 +208,35 @@ theorem searchPrimitiveStateChain_compositionCandidates_zero
   | identity state =>
       rfl
   | @step source target middle tail inductionHypothesis =>
-      simp only [searchPrimitiveStateChain]
-      cases found :
-          primitive.find source middle with
+      cases firstHit :
+          findPrimitiveHit?
+            primitive
+            source
+            middle with
       | none =>
-          rfl
-      | some witness =>
+          simp only [
+            searchPrimitiveStateChain,
+            firstHit,
+            ClosureSearchStats.withPrimitiveQuery,
+            ClosureSearchStats.zero
+          ]
+      | some edge =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
                 tail).path? with
           | none =>
               simp only [
-                found,
+                searchPrimitiveStateChain,
+                firstHit,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery
               ]
               exact inductionHypothesis
           | some path =>
               simp only [
-                found,
+                searchPrimitiveStateChain,
+                firstHit,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery
               ]
@@ -194,25 +261,29 @@ theorem searchPrimitiveStateChain_primitiveQueries_le_length
   | identity state =>
       exact Nat.le_refl 0
   | @step source target middle tail inductionHypothesis =>
-      simp only [searchPrimitiveStateChain]
-      cases found :
-          primitive.find source middle with
+      cases firstHit :
+          findPrimitiveHit?
+            primitive
+            source
+            middle with
       | none =>
           simp only [
-            found,
+            searchPrimitiveStateChain,
+            firstHit,
             ClosureSearchStats.withPrimitiveQuery,
             ClosureSearchStats.zero,
             PrimitiveStateChain.length
           ]
           omega
-      | some witness =>
+      | some edge =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
                 tail).path? with
           | none =>
               simp only [
-                found,
+                searchPrimitiveStateChain,
+                firstHit,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
@@ -220,7 +291,8 @@ theorem searchPrimitiveStateChain_primitiveQueries_le_length
               omega
           | some path =>
               simp only [
-                found,
+                searchPrimitiveStateChain,
+                firstHit,
                 laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
@@ -259,23 +331,35 @@ theorem searchPrimitiveStateChain_found_path_length
       subst path
       rfl
   | @step source target middle tail inductionHypothesis =>
-      simp only [searchPrimitiveStateChain] at found
-      cases firstFound :
-          primitive.find source middle with
+      cases firstHit :
+          findPrimitiveHit?
+            primitive
+            source
+            middle with
       | none =>
-          rw [firstFound] at found
+          simp only [
+            searchPrimitiveStateChain,
+            firstHit
+          ] at found
           cases found
-      | some witness =>
-          rw [firstFound] at found
+      | some edge =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
                 tail).path? with
           | none =>
-              rw [laterFound] at found
+              simp only [
+                searchPrimitiveStateChain,
+                firstHit,
+                laterFound
+              ] at found
               cases found
           | some tailPath =>
-              rw [laterFound] at found
+              simp only [
+                searchPrimitiveStateChain,
+                firstHit,
+                laterFound
+              ] at found
               injection found with pathExact
               subst path
               change
@@ -317,27 +401,37 @@ theorem searchPrimitiveStateChain_found_primitiveQueries
   | identity state =>
       rfl
   | @step source target middle tail inductionHypothesis =>
-      simp only [searchPrimitiveStateChain] at found ⊢
-      cases firstFound :
-          primitive.find source middle with
+      cases firstHit :
+          findPrimitiveHit?
+            primitive
+            source
+            middle with
       | none =>
-          rw [firstFound] at found
+          simp only [
+            searchPrimitiveStateChain,
+            firstHit
+          ] at found
           cases found
-      | some witness =>
-          rw [firstFound] at found ⊢
+      | some edge =>
           cases laterFound :
               (searchPrimitiveStateChain
                 primitive
                 tail).path? with
           | none =>
-              rw [laterFound] at found
+              simp only [
+                searchPrimitiveStateChain,
+                firstHit,
+                laterFound
+              ] at found
               cases found
           | some tailPath =>
-              rw [laterFound] at found ⊢
               simp only [
+                searchPrimitiveStateChain,
+                firstHit,
+                laterFound,
                 ClosureSearchStats.withPrimitiveQuery,
                 PrimitiveStateChain.length
-              ]
+              ] at found ⊢
               rw [
                 inductionHypothesis
                   laterFound
@@ -384,6 +478,9 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.PrimitiveStateChain
 #print axioms ConstitutiveSearch.PrimitiveStateChain.length
+#print axioms ConstitutiveSearch.PrimitiveSearchHit
+#print axioms ConstitutiveSearch.findPrimitiveHit?
+#print axioms ConstitutiveSearch.findPrimitiveHit?_some_of_exact
 #print axioms ConstitutiveSearch.PrimitiveStateChainSearchRun
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain
 #print axioms ConstitutiveSearch.searchPrimitiveStateChain_compositionCandidates_zero
