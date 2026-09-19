@@ -2,9 +2,9 @@ import ConstitutiveSearch.SAT.TrajectoryConstitutedLocalSchedule
 import ConstitutiveSearch.SAT.ParametricSymmetricFamily
 
 /-!
-# Second-audit causal decision benchmark
+# Historical second-audit typed-provenance benchmark
 
-This module repairs the two causal gaps left by the earlier benchmark.
+This module records the architecture submitted to the second re-audit.
 
 Discovery is endogenous: candidate variables are extracted from the current
 residual formula, freshness is checked executably, candidates are explored in
@@ -15,10 +15,12 @@ The successful pipeline is indexed phase by phase:
 `EndogenousFlipDiscovery -> DiscoverySchedule -> ValidatedDiscoverySchedule
   -> ExecutedDiscoverySchedule -> ExecutedTerminalArtifact -> Bool`.
 
-The terminal constructor receives an execution object, not the original input.
-Its scan can only inspect the state produced at the endpoint of that execution.
-This is an API-level causal claim about this procedure; it is not a claim that
-no other mathematical algorithm could decide the same extensional language.
+The third adversarial audit established that its `producedState` field is the
+already indexed target and that the returned code is not applied.  Consequently
+this file certifies typed phase provenance only; it is not the repository's
+operational-production witness.  The active operational replacement is
+`OperationalProjectionInadequacy`, where the code is evaluated on an actual
+source continuation before the terminal bit is read.
 -/
 
 namespace ConstitutiveSearch
@@ -500,10 +502,10 @@ def validateDiscoverySchedule
       ] }
 
 /--
-Local execution is indexed by the validated schedule.  A value of this type
-contains the actual closure-search run and positive evidence that it found a
-code for the schedule endpoints.  It also stores that returned code and the
-state produced at its indexed target as data for the next phase.
+Historical typed phase indexed by the validated schedule.  A value contains
+the closure-search run and a returned code, but `producedState` below is an
+endpoint copy, not the result of evaluating that code.  No operational claim
+is made for this compatibility structure.
 -/
 structure ExecutedDiscoverySchedule
     {rootFormula : Cnf}
@@ -595,7 +597,7 @@ theorem executeValidatedDiscoverySchedule_stats
   ]
   exact ⟨rfl, rfl⟩
 
-/-- The execution-produced state is exactly the target indexed by its returned code. -/
+/-- The historical endpoint-copy field is exactly the schedule target. -/
 theorem ExecutedDiscoverySchedule.producedState_eq_target
     {rootFormula : Cnf}
     {state : GeneratedStructuralBranchContext rootFormula}
@@ -626,8 +628,9 @@ def scanExecutedTerminal : Cnf -> ExecutedTerminalScan
           clauseChecks := tail.clauseChecks + 1 }
 
 /--
-Terminal artifact indexed by the execution that produced its state.  There is
-no input or independently supplied state in this interface.
+Historical terminal artifact indexed by the typed phase record.  Its scan is
+causally downstream of that record, but the record itself does not operationally
+produce its endpoint-copy state.
 -/
 structure ExecutedTerminalArtifact
     {rootFormula : Cnf}

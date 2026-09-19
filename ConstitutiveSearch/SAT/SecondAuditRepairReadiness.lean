@@ -5,17 +5,17 @@ import ConstitutiveSearch.SAT.CausalProjectionNonFactorization
 import ConstitutiveSearch.SAT.ParametricProvenanceNonFactorization
 
 /-!
-# Exact readiness boundary after the second-audit repair
+# Historical readiness boundary submitted after the second-audit repair
 
-This module marks the objectives that have been constructively reached before
-independent adversarial review.  It is deliberately not a replacement for the
-withdrawn global closure marker.
+This module preserves the exact evidence package that was submitted to the
+third adversarial review.  That review found material scope gaps, so this status
+is historical and is superseded by `OperationalProjectionInadequacy`.  It is
+deliberately not a replacement for the withdrawn global closure marker.
 
 The computational claims in this package are scoped to `BitMachine`.  No field
-asserts an equivalence with classical P or NP.  The remaining transition is an
-external one: attack this exact evidence package, integrate any successful
-counterprobe, and only then reconsider a closure statement whose scope is no
-stronger than its premises.
+asserts an equivalence with classical P or NP.  Its former readiness value is
+preserved so the audited commit remains reproducible; it is not the active
+readiness boundary after the successful counterprobes.
 -/
 
 namespace ConstitutiveSearch
@@ -26,7 +26,7 @@ inductive SecondAuditComputationalScope where
   | bitMachineOnly
   deriving DecidableEq, Repr
 
-/-- Exact pre-audit status; this is not a completion or closure status. -/
+/-- Historical pre-third-audit status; not a completion or closure status. -/
 inductive SecondAuditRepairStatus where
   | readyForIndependentAdversarialAudit
   deriving DecidableEq, Repr
@@ -126,7 +126,7 @@ theorem secondAuditRepairEvidence :
     causalProjectionLoss := causalCertifiedProjectionLoss
     parametricProjectionLoss := parametricProvenanceProjectionLoss }
 
-/-- The formal status remains readiness for audit, not global completion. -/
+/-- The historical submitted status remains reproducible. -/
 theorem secondAuditRepair_isReadyForIndependentAudit :
     secondAuditRepairStatus =
       .readyForIndependentAdversarialAudit :=

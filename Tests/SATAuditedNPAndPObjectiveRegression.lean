@@ -11,7 +11,7 @@ theorem formerMarkerWithdrawn :
       FirstAuditClosureStatus.withdrawnAfterSecondAudit :=
   firstAuditClosure_isWithdrawn
 
-/-- The replacement work records terminal production without claiming closure. -/
+/-- The historical API flag remains stable without being an operational claim. -/
 theorem repairedPipelineProducesTerminal
     (input : Nat) :
     (executeCausalDecision input).terminalProduced = true :=

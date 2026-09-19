@@ -36,7 +36,11 @@ theorem firstAuditClosure_isWithdrawn :
       .withdrawnAfterSecondAudit :=
   rfl
 
-/-- The repaired benchmark has a terminal produced by its typed execution chain. -/
+/--
+Legacy compatibility theorem for the historical `terminalProduced` flag.  The
+flag records typed phase reachability, not operational state production; the
+active operational theorem is in `OperationalProjectionInadequacy`.
+-/
 theorem secondAuditRepair_producesTerminal
     (input : Nat) :
     (executeCausalDecision input).terminalProduced = true :=

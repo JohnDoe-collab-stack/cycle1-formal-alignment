@@ -5,6 +5,7 @@ namespace ConstitutiveSearch.Tests.SATNPAndOrPProgramClosureRegression
 open ConstitutiveSearch
 open SAT
 
+/-- The historical local package remains constructible under its legacy name. -/
 theorem closed :
     NPAndOrPProgramClosed :=
   npAndOrPProgramClosed

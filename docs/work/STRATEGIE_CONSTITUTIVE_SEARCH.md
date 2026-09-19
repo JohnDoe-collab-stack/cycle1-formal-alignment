@@ -10,6 +10,81 @@ Base auditee par Aristotle II avant la presente reparation :
 332c796eef7c087fe6259c18773a10fdef19ca0b
 ~~~
 
+### Mise a jour apres Aristotle III
+
+Le paquet de reparation soumis au head `52fb265f6074cec0e23b3438b5ddb7c210b727f1`
+a resiste sur la machine bit-a-bit, la parite, la discovery croissante et
+l'hygiene formelle, mais il n'a pas ferme le raccord operationnel. L'audit a
+montre notamment que l'ancien `producedState` etait l'endpoint deja indexe,
+que le code retourne n'etait pas applique, que la non-factorisation restait
+separee sur des entrees distinctes et que certains compteurs ne visitaient pas
+le contenu complet des CNF.
+
+La reparation active est maintenant
+`ConstitutiveSearch/SAT/OperationalProjectionInadequacy.lean`. Elle construit,
+pour chaque meme entree :
+
+~~~text
+CNF croissante
+-> extraction recursive et discovery endogene instrumentee candidat par candidat
+-> trace de donnees non subsingleton conservant chaque rejet et le succes
+-> schedule indexe par la variable effectivement retournee
+-> validation instrumentee de la formule et de la provenance
+-> code produit seulement depuis la relation trouvee
+-> evaluation du code sur une continuation source concrete
+-> lecture du bit sur la continuation retournee
+~~~
+
+Les deux organisations ont la meme entree, la meme racine, les memes formules
+source et cible, les memes profondeurs et la meme trace publique de discovery.
+Leur provenance differe apres un prefixe de longueur croissante. L'une execute
+un atome et retourne `some true`; l'autre ne produit aucun code et retourne
+`none`. Il en resulte, pour chaque indice, une non-factorisation a travers une
+projection extensionnelle qui conserve explicitement l'entree.
+
+Les visites de clauses, de litteraux, de decisions et de constructeurs de
+variables sont produites par les recursions. Chaque candidat effectivement
+tente conserve ses propres statistiques de transformation et de comparaison;
+leur agregat est un pli de cette trace, jamais un cout choisi apres coup. La
+relation retenue et ces statistiques sortent du meme run instrumente : aucun
+finder parallele non charge ne choisit le resultat de discovery. La
+profondeur, les tentatives de discovery, les visites d'extraction et les visites
+de comparaison de provenance croissent strictement avec l'entree. Une lecture
+terminale est comptee seulement dans la branche qui a effectivement produit et
+execute un code. Le point d'entree public de l'experience,
+`runOperationalProjectionExperiment`, ne recoit que l'indice d'entree.
+
+Cette reparation etablit l'inadequation contextuelle de la projection declaree
+pour l'observation operationnelle declaree. Elle ne revendique ni equivalence
+avec un modele standard de P/NP, ni egalite ou inegalite de classes, ni cloture
+globale du programme. Son statut formel est uniquement
+`readyForIndependentAdversarialAudit`.
+
+Matrice exacte des constats Aristotle III :
+
+~~~text
+D-1 code non applique                 corrige dans le run actif
+D-2 discovery subsingleton             corrigee par la trace complete des essais
+D-3 perte factorisable par input       corrige par deux organisations du meme input
+D-4 index spectateur                   corrige par profondeur et travail croissants
+D-5 separateur au seul index zero      corrige par separation pour tout input
+D-6 tests de relation non instruments  corrige par compteurs recursifs par essai
+D-7 ancienne prose de cloture          retiree et qualifiee historique
+D-8 canal NP non trivial               hors conclusion active; aucune promotion P/NP
+D-9 cout de programme inflatable       aucune lower bound revendiquee
+D-10 ancien raccourci decisionnel      benchmark historique, non utilise ici
+D-11 separateurs disjoints             corrige dans une seule famille integree
+~~~
+
+`operationalProjectionInadequacyCertified` rassemble uniquement ces faits
+scopes. Il n'est pas un marqueur de cloture et ne transforme pas les lignes
+explicitement hors scope en theoremes.
+
+Les compteurs actifs sont exacts pour les phases explicitement instrumentees
+(extraction, transformation, comparaison, code et readout). Ils ne sont ni un
+modele de temps machine, ni une lower bound, ni une affirmation que chaque
+reduction interne de l'evaluateur Lean a ete chargee.
+
 Le second audit adversarial n'a falsifie aucun theorem du noyau constitutif,
 mais il a invalide la cloture annoncee au head ci-dessus. Deux counterprobes
 sont materiels : `DeciderCode` / `VerifierCode` ne modelisent pas P / NP
@@ -48,15 +123,17 @@ La reparation en cours suit maintenant quatorze obligations exactes :
   projection publique complete : meme decision et memes compteurs publies ne
   reconstruisent pas la variable effectivement decouverte.
 
-`BitMachineDecision`, `SecondAuditCausalBenchmark` et
-`GrowingDiscoveryBenchmark` realisent les obligations calculatoires et
-causales dans leur perimetre de benchmark.
+Le paragraphe suivant decrit maintenant la soumission historique a Aristotle
+III, et non l'etat probant actif. `BitMachineDecision`,
+`SecondAuditCausalBenchmark` et `GrowingDiscoveryBenchmark` realisaient les
+obligations calculatoires et causales dans leur perimetre de benchmark.
 `ParametricProvenanceNonFactorization` et
-`CausalProjectionNonFactorization` ferment les deux obligations de projection
-ci-dessus. `SecondAuditRepairReadiness` les rassemble dans un paquet de preuves
-dont le statut formel est `readyForIndependentAdversarialAudit` et dont la
-portee calculatoire est `bitMachineOnly`. Ce statut est une reparation formelle
-a auditer, pas une nouvelle cloture.
+`CausalProjectionNonFactorization` fournissaient alors deux separateurs encore
+disjoints. `SecondAuditRepairReadiness` rassemblait ce paquet au statut
+`readyForIndependentAdversarialAudit` et a la portee `bitMachineOnly`.
+`OperationalProjectionInadequacy` remplace aujourd'hui ce raccord causal et
+projectionnel; les anciens modules restent uniquement pour la reproductibilite
+des audits.
 
 Le chemin vers une eventuelle nouvelle cloture est ordonne ainsi :
 
@@ -69,12 +146,14 @@ IV.  faire re-auditer les couches I a III
 V.   seulement apres succes, reconsiderer un marqueur de cloture
 ~~~
 
-Les couches I et II sont construites. La couche III est satisfaite ici par son
-option conservatrice : toutes les conclusions calculatoires nouvelles sont
-explicitement bornees au modele `BitMachine`. La parite est une gate
-anti-triche, pas un theorem d'equivalence de modeles. Toute future conclusion
-nommant P / NP classiques rouvrirait donc l'obligation distincte de simulation;
-aucun renommage ne peut la remplacer.
+Dans la soumission historique, les couches I et II etaient construites et la
+couche III suivait son option conservatrice. Dans l'etat actif, la conclusion
+nouvelle ne nomme plus les classes : elle porte exactement sur l'inadequation
+contextuelle d'une projection extensionnelle conservant l'entree. La parite
+reste une gate anti-triche du seul modele `BitMachine`, pas un theorem
+d'equivalence de modeles. Toute future conclusion nommant P / NP classiques
+rouvrirait donc l'obligation distincte de simulation; aucun renommage ne peut
+la remplacer.
 
 F(n) reste un benchmark structurel de symetrie, trajectoire, schedule, accounting et execution locale. Il n'est plus utilise comme probleme decisionnel final.
 

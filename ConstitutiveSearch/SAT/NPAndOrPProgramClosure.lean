@@ -3,7 +3,7 @@ import ConstitutiveSearch.SAT.TrajectoryConstitutiveSynthesis
 import ConstitutiveSearch.SAT.ConstitutiveProjectionSeparators
 
 /-!
-# Formal closure of the NP AND/OR P constitutive program
+# Historical first-audit package for the NP AND/OR P program
 
 This module does not add a new search mechanism.
 
@@ -17,16 +17,19 @@ It packages the three closure obligations already proved:
 3. forgetting constitution or temporal organization provably loses
    computationally relevant information.
 
-This theorem closes the announced constitutive program.  It is not a theorem
-about equality or inequality of classical complexity classes.
+The original file described this package as closing the announced program.
+That description was withdrawn after the second adversarial audit: the three
+fields below remain valid at their exact local scopes, but they do not establish
+an operationally produced terminal or an adequate classical projection.  The
+legacy declaration names are retained only for source compatibility.  This is
+not an active completion marker and is not a theorem about equality or
+inequality of classical complexity classes.
 -/
 
 namespace ConstitutiveSearch
 namespace SAT
 
-/--
-Closed evidence package for the announced NP AND/OR P constitutive program.
--/
+/-- Historical package of three locally proved first-audit obligations. -/
 structure NPAndOrPProgramClosed : Prop where
   endpointComposition :
     ∀ {rootFormula : Cnf}
@@ -65,9 +68,7 @@ structure NPAndOrPProgramClosed : Prop where
   projectionLoss :
     ConstitutiveProjectionLossClosed
 
-/--
-The NP AND/OR P constitutive program is formally closed at the announced scope.
--/
+/-- Legacy constructor for the historical package; not a current closure claim. -/
 theorem npAndOrPProgramClosed :
     NPAndOrPProgramClosed :=
   { endpointComposition :=

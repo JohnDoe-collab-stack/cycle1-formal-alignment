@@ -10,7 +10,7 @@ theorem repairedEvidence :
     SecondAuditRepairEvidence :=
   secondAuditRepairEvidence
 
-/-- Independent adversarial review is still the active boundary. -/
+/-- Historical status submitted to the third audit remains reproducible. -/
 theorem statusExact :
     secondAuditRepairStatus =
       SecondAuditRepairStatus.readyForIndependentAdversarialAudit :=
