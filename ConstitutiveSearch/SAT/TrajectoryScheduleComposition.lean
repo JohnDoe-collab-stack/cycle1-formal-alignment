@@ -43,6 +43,29 @@ end ConstitutedLocalWitness
 
 namespace ConstitutedLocalSchedule
 
+universe uGenerator
+
+/-- Transport a closure code along equality of its source endpoint. -/
+def castTransportSource
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {source source' target : State}
+    (sourceExact : source = source')
+    (code : TransportClosure Generator source target) :
+    TransportClosure Generator source' target :=
+  sourceExact ▸ code
+
+/-- Source transport does not change transport-code atom count. -/
+theorem castTransportSource_size
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    {source source' target : State}
+    (sourceExact : source = source')
+    (code : TransportClosure Generator source target) :
+    (castTransportSource sourceExact code).size = code.size := by
+  cases sourceExact
+  rfl
+
 /--
 Exact endpoint-adjacency condition for a local schedule.
 
@@ -138,19 +161,34 @@ theorem endpointComposable_hasTransportCode
             rest
             tailComposable with
         ⟨target, tailCode, tailSize⟩
-      cases linked
+      let alignedTailCode :
+          TransportClosure
+            (GeneratedStructuralFlipWitness
+              (rootFormula := rootFormula))
+            first.target
+            target :=
+        castTransportSource
+          linked.symm
+          tailCode
       refine
         ⟨target,
           TransportClosure.compose
             (TransportClosure.ofGenerator
               first.packaged)
-            tailCode,
+            alignedTailCode,
           ?_⟩
       change
-        1 + tailCode.size =
+        1 + alignedTailCode.size =
           Nat.succ
             (second :: rest).length
-      rw [tailSize]
+      rw [
+        show alignedTailCode.size = tailCode.size by
+          exact
+            castTransportSource_size
+              linked.symm
+              tailCode,
+        tailSize
+      ]
       exact
         Nat.add_comm
           1
@@ -181,11 +219,98 @@ end ConstitutedLocalSchedule
 
 namespace FlipSymmetricTrajectory
 
+/-- Two successive trajectory steps produce non-adjacent sibling transports. -/
+theorem step_step_constitutedLocalWitnesses_not_endpointComposable
+    {rootFormula : Cnf}
+    {parent finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (var : Var)
+    (fresh :
+      StructuralDecisionsAvoid
+        var
+        parent.context.decisions)
+    (symmetric :
+      FlipSymmetricAt
+        parent.context.formula
+        var)
+    (nextVar : Var)
+    (nextFresh :
+      StructuralDecisionsAvoid
+        nextVar
+        (GeneratedStructuralBranchContext.child
+          parent
+          var
+          true
+          fresh).context.decisions)
+    (nextSymmetric :
+      FlipSymmetricAt
+        (GeneratedStructuralBranchContext.child
+          parent
+          var
+          true
+          fresh).context.formula
+        nextVar)
+    (nextTail :
+      FlipSymmetricTrajectory
+        (GeneratedStructuralBranchContext.child
+          (GeneratedStructuralBranchContext.child
+            parent
+            var
+            true
+            fresh)
+          nextVar
+          true
+          nextFresh)
+        finish
+        length) :
+    ¬
+      ConstitutedLocalSchedule.EndpointComposable
+        (FlipSymmetricTrajectory.step
+          var
+          fresh
+          symmetric
+          (FlipSymmetricTrajectory.step
+            nextVar
+            nextFresh
+            nextSymmetric
+            nextTail)).constitutedLocalWitnesses := by
+  have gap :
+      (GeneratedStructuralBranchContext.child
+        parent
+        var
+        true
+        fresh) ≠
+      (GeneratedStructuralBranchContext.child
+        (GeneratedStructuralBranchContext.child
+          parent
+          var
+          true
+          fresh)
+        nextVar
+        false
+        nextFresh) := by
+    intro equalEndpoints
+    have depthEqual :=
+      congrArg
+        GeneratedStructuralBranchContext.depth
+        equalEndpoints
+    rw [
+      GeneratedStructuralBranchContext.child_depth,
+      GeneratedStructuralBranchContext.child_depth,
+      GeneratedStructuralBranchContext.child_depth
+    ] at depthEqual
+    omega
+  exact
+    ConstitutedLocalSchedule.not_endpointComposable_of_first_gap
+      _
+      _
+      _
+      gap
+
 /--
 Every flip-symmetric trajectory-derived schedule with at least two local
 reductions is not endpoint-composable.
-
-It must therefore remain a schedule of local sibling reductions.
 -/
 theorem constitutedLocalWitnesses_not_endpointComposable_of_two_le
     {rootFormula : Cnf}
@@ -197,119 +322,27 @@ theorem constitutedLocalWitnesses_not_endpointComposable_of_two_le
         start
         finish
         length)
-    (twoLe :
-      2 ≤ length) :
+    (twoLe : 2 ≤ length) :
     ¬
       ConstitutedLocalSchedule.EndpointComposable
         trajectory.constitutedLocalWitnesses := by
   cases trajectory with
   | done state =>
       omega
-  | @step parent finish tailLength var fresh symmetric tail =>
+  | step var fresh symmetric tail =>
       cases tail with
       | done child =>
           omega
-      | @step nextParent nextFinish nextLength nextVar nextFresh nextSymmetric nextTail =>
-          have gap :
-              (GeneratedStructuralBranchContext.child
-                parent
-                var
-                true
-                fresh) ≠
-              (GeneratedStructuralBranchContext.child
-                (GeneratedStructuralBranchContext.child
-                  parent
-                  var
-                  true
-                  fresh)
-                nextVar
-                false
-                nextFresh) := by
-            intro equalEndpoints
-            have depthEqual :
-                (GeneratedStructuralBranchContext.child
-                  parent
-                  var
-                  true
-                  fresh).depth =
-                (GeneratedStructuralBranchContext.child
-                  (GeneratedStructuralBranchContext.child
-                    parent
-                    var
-                    true
-                    fresh)
-                  nextVar
-                  false
-                  nextFresh).depth :=
-              congrArg
-                GeneratedStructuralBranchContext.depth
-                equalEndpoints
-            rw [
-              GeneratedStructuralBranchContext.child_depth,
-              GeneratedStructuralBranchContext.child_depth,
-              GeneratedStructuralBranchContext.child_depth
-            ] at depthEqual
-            omega
-          change
-            ¬
-              ConstitutedLocalSchedule.EndpointComposable
-                ({ var := var
-                   source :=
-                     GeneratedStructuralBranchContext.child
-                       parent
-                       var
-                       false
-                       fresh
-                   target :=
-                     GeneratedStructuralBranchContext.child
-                       parent
-                       var
-                       true
-                       fresh
-                   relation :=
-                     flipSymmetricSiblingRelation
-                       parent
-                       var
-                       fresh
-                       symmetric } ::
-                 { var := nextVar
-                   source :=
-                     GeneratedStructuralBranchContext.child
-                       (GeneratedStructuralBranchContext.child
-                         parent
-                         var
-                         true
-                         fresh)
-                       nextVar
-                       false
-                       nextFresh
-                   target :=
-                     GeneratedStructuralBranchContext.child
-                       (GeneratedStructuralBranchContext.child
-                         parent
-                         var
-                         true
-                         fresh)
-                       nextVar
-                       true
-                       nextFresh
-                   relation :=
-                     flipSymmetricSiblingRelation
-                       (GeneratedStructuralBranchContext.child
-                         parent
-                         var
-                         true
-                         fresh)
-                       nextVar
-                       nextFresh
-                       nextSymmetric } ::
-                 nextTail.constitutedLocalWitnesses)
+      | step nextVar nextFresh nextSymmetric nextTail =>
           exact
-            ConstitutedLocalSchedule.not_endpointComposable_of_first_gap
-              _
-              _
-              _
-              gap
+            step_step_constitutedLocalWitnesses_not_endpointComposable
+              var
+              fresh
+              symmetric
+              nextVar
+              nextFresh
+              nextSymmetric
+              nextTail
 
 end FlipSymmetricTrajectory
 
