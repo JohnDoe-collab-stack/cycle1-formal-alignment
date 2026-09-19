@@ -255,7 +255,9 @@ theorem jointGrowingFuel_le_width
   have powerLt :
       n < 2 ^ n :=
     Nat.lt_two_pow_self
-  omega
+  exact
+    Nat.le_sub_one_of_lt
+      powerLt
 
 /--
 The explicit candidate list fills exactly the announced constitutive width,
