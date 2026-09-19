@@ -144,20 +144,61 @@ theorem splitRelation_reconstructible_after
       anchor.var
       anchor.fresh
       symmetric
+  have formulaExact :
+      anchor.trueChild.context.formula =
+        Cnf.flipAt
+          anchor.var
+          anchor.falseChild.context.formula := by
+    simpa only [
+      GeneratedSplitAnchor.falseChild,
+      GeneratedSplitAnchor.trueChild
+    ] using
+      relation.formulaExact
+  have decisionsExact :
+      anchor.trueChild.context.decisions =
+        flipStructuralDecisionsAt
+          anchor.var
+          anchor.falseChild.context.decisions := by
+    simpa only [
+      GeneratedSplitAnchor.falseChild,
+      GeneratedSplitAnchor.trueChild
+    ] using
+      relation.decisionsExact
+  have primitiveFound :
+      (generatedStructuralFlipAtSearch
+        rootFormula
+        anchor.var).find
+          anchor.falseChild
+          anchor.trueChild ≠
+        none := by
+    dsimp [
+      generatedStructuralFlipAtSearch
+    ]
+    rw [
+      dif_pos formulaExact,
+      dif_pos decisionsExact
+    ]
+    intro impossible
+    cases impossible
   unfold SplitRelationReconstructible
-  unfold splitFrontierAfterConstitution
   simp only [
+    splitFrontierAfterConstitution,
     constitutedSplitFlipSearch
   ]
-  dsimp [
-    generatedStructuralFlipAtSearch
-  ]
-  rw [
-    dif_pos relation.formulaExact,
-    dif_pos relation.decisionsExact
-  ]
-  intro impossible
-  cases impossible
+  cases found :
+      (generatedStructuralFlipAtSearch
+        rootFormula
+        anchor.var).find
+          anchor.falseChild
+          anchor.trueChild with
+  | none =>
+      exact
+        False.elim
+          (primitiveFound found)
+  | some flip =>
+      simp only [found]
+      intro impossible
+      cases impossible
 
 /--
 Relation reconstructibility cannot be recovered from the frontier alone.
