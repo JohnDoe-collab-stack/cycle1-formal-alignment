@@ -225,7 +225,8 @@ theorem explicitFamilyConstitutedExecutionProfile_inputPolynomiallyBounded :
               0
           rw [
             explicitFamilyConstitutedExecutionCounts_compositionCandidates
-          ]⟩
+          ]
+          exact Nat.le_refl 0⟩
     terminal :=
       InputPolynomiallyBounded.constant
         explicitFamilyInputBitSize
@@ -310,6 +311,7 @@ theorem explicitFamilyConstitutedTotalProfile_closurePrimitive
     explicitFamilyConstitutedExecutionCounts,
     explicitFamilyConstitutedLocalExecutionQueries
   ]
+  simp
 
 /-- No actual local execution phase inspects a composition candidate. -/
 theorem explicitFamilyConstitutedTotalProfile_closureCandidates
