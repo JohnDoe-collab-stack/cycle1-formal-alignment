@@ -47,16 +47,16 @@ theorem composedPrimitiveStateChain_length
   rfl
 
 /-- Executable local adjacency search on the constituted chain. -/
-def composedLocalPrimitivePathRun
+def composedLocalPrimitiveCodeRun
     (count : Nat) :=
   searchPrimitiveStateChain
     (composedPrimitiveSearch count)
     (composedPrimitiveStateChain count)
 
 /-- Both adjacent primitive searches succeed, so the local path is found. -/
-theorem composedLocalPrimitivePathRun_found
+theorem composedLocalPrimitiveCodeRun_found
     (count : Nat) :
-    (composedLocalPrimitivePathRun count).path? ≠
+    (composedLocalPrimitiveCodeRun count).code? ≠
       none := by
   rcases
       composedPrimitiveSearch_source_middle_some
@@ -66,83 +66,33 @@ theorem composedLocalPrimitivePathRun_found
       composedPrimitiveSearch_middle_target_some
         count with
     ⟨secondWitness, secondExact⟩
-  have firstPrimitiveNonempty :
-      (composedPrimitiveSearch count).find
-          (composedSource count)
-          (composedMiddle count) ≠
-        none := by
-    rw [firstExact]
-    intro impossible
-    cases impossible
-  have secondPrimitiveNonempty :
-      (composedPrimitiveSearch count).find
-          (composedMiddle count)
-          (composedTarget count) ≠
-        none := by
-    rw [secondExact]
-    intro impossible
-    cases impossible
-  have firstPackagedNonempty :
-      findPrimitiveHit?
-          (composedPrimitiveSearch count)
-          (composedSource count)
-          (composedMiddle count) ≠
-        none :=
-    findPrimitiveHit?_ne_none_of_find_ne_none
-      firstPrimitiveNonempty
-  have secondPackagedNonempty :
-      findPrimitiveHit?
-          (composedPrimitiveSearch count)
-          (composedMiddle count)
-          (composedTarget count) ≠
-        none :=
-    findPrimitiveHit?_ne_none_of_find_ne_none
-      secondPrimitiveNonempty
-  cases firstFound :
-      findPrimitiveHit?
-        (composedPrimitiveSearch count)
-        (composedSource count)
-        (composedMiddle count) with
-  | none =>
-      exact False.elim
-        (firstPackagedNonempty firstFound)
-  | some firstHit =>
-      cases secondFound :
-          findPrimitiveHit?
-            (composedPrimitiveSearch count)
-            (composedMiddle count)
-            (composedTarget count) with
-      | none =>
-          exact False.elim
-            (secondPackagedNonempty secondFound)
-      | some secondHit =>
-          unfold
-            composedLocalPrimitivePathRun
-            composedPrimitiveStateChain
-          simp only [
-            searchPrimitiveStateChain,
-            firstFound,
-            secondFound
-          ]
-          intro impossible
-          cases impossible
+  unfold
+    composedLocalPrimitiveCodeRun
+    composedPrimitiveStateChain
+  simp only [searchPrimitiveStateChain]
+  rw [
+    firstExact,
+    secondExact
+  ]
+  intro impossible
+  cases impossible
 
 /-- Local path discovery executes exactly two primitive queries. -/
-theorem composedLocalPrimitivePathRun_primitiveQueries
+theorem composedLocalPrimitiveCodeRun_primitiveQueries
     (count : Nat) :
-    (composedLocalPrimitivePathRun count).stats.primitiveQueries =
+    (composedLocalPrimitiveCodeRun count).stats.primitiveQueries =
       2 := by
   cases found :
-      (composedLocalPrimitivePathRun count).path? with
+      (composedLocalPrimitiveCodeRun count).code? with
   | none =>
       exact
         False.elim
-          ((composedLocalPrimitivePathRun_found
+          ((composedLocalPrimitiveCodeRun_found
             count)
             found)
   | some path =>
       calc
-        (composedLocalPrimitivePathRun count).stats.primitiveQueries
+        (composedLocalPrimitiveCodeRun count).stats.primitiveQueries
             =
           (composedPrimitiveStateChain count).length :=
             searchPrimitiveStateChain_found_primitiveQueries
@@ -154,34 +104,34 @@ theorem composedLocalPrimitivePathRun_primitiveQueries
             composedPrimitiveStateChain_length count
 
 /-- Local path discovery never enters composition-candidate search. -/
-theorem composedLocalPrimitivePathRun_compositionCandidates
+theorem composedLocalPrimitiveCodeRun_compositionCandidates
     (count : Nat) :
-    (composedLocalPrimitivePathRun count).stats.compositionCandidates =
+    (composedLocalPrimitiveCodeRun count).stats.compositionCandidates =
       0 :=
   searchPrimitiveStateChain_compositionCandidates_zero
     (composedPrimitiveSearch count)
     (composedPrimitiveStateChain count)
 
 /-- The locally reconstructed path compiles to a transport code of size two. -/
-theorem composedLocalPrimitivePathRun_codeSize
+theorem composedLocalPrimitiveCodeRun_codeSize
     (count : Nat) :
     match
-      (composedLocalPrimitivePathRun count).path? with
+      (composedLocalPrimitiveCodeRun count).code? with
     | none =>
         False
-    | some path =>
-        path.toTransportCode.size = 2 := by
+    | some code =>
+        code.size = 2 := by
   cases found :
-      (composedLocalPrimitivePathRun count).path? with
+      (composedLocalPrimitiveCodeRun count).code? with
   | none =>
       exact
         False.elim
-          ((composedLocalPrimitivePathRun_found
+          ((composedLocalPrimitiveCodeRun_found
             count)
             found)
-  | some path =>
+  | some code =>
       calc
-        path.toTransportCode.size
+        code.size
             =
           (composedPrimitiveStateChain count).length :=
             searchPrimitiveStateChain_found_code_size
@@ -193,23 +143,23 @@ theorem composedLocalPrimitivePathRun_codeSize
             composedPrimitiveStateChain_length count
 
 /-- Local constituted-chain discovery uses fewer primitive queries than global closure. -/
-theorem composedLocalPrimitivePathRun_primitiveQueries_lt_global
+theorem composedLocalPrimitiveCodeRun_primitiveQueries_lt_global
     (count : Nat) :
-    (composedLocalPrimitivePathRun count).stats.primitiveQueries <
+    (composedLocalPrimitiveCodeRun count).stats.primitiveQueries <
       (composedClosureFuelTwo count).stats.primitiveQueries := by
   rw [
-    composedLocalPrimitivePathRun_primitiveQueries,
+    composedLocalPrimitiveCodeRun_primitiveQueries,
     composedClosureFuelTwo_primitiveQueries
   ]
   decide
 
 /-- Local constituted-chain discovery avoids the composition candidate used globally. -/
-theorem composedLocalPrimitivePathRun_compositionCandidates_lt_global
+theorem composedLocalPrimitiveCodeRun_compositionCandidates_lt_global
     (count : Nat) :
-    (composedLocalPrimitivePathRun count).stats.compositionCandidates <
+    (composedLocalPrimitiveCodeRun count).stats.compositionCandidates <
       (composedClosureFuelTwo count).stats.compositionCandidates := by
   rw [
-    composedLocalPrimitivePathRun_compositionCandidates,
+    composedLocalPrimitiveCodeRun_compositionCandidates,
     composedClosureFuelTwo_compositionCandidates
   ]
   decide
@@ -220,11 +170,11 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SAT.composedPrimitiveStateChain
 #print axioms ConstitutiveSearch.SAT.composedPrimitiveStateChain_length
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_found
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_primitiveQueries
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_compositionCandidates
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_codeSize
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_primitiveQueries_lt_global
-#print axioms ConstitutiveSearch.SAT.composedLocalPrimitivePathRun_compositionCandidates_lt_global
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_found
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_primitiveQueries
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_compositionCandidates
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_codeSize
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_primitiveQueries_lt_global
+#print axioms ConstitutiveSearch.SAT.composedLocalPrimitiveCodeRun_compositionCandidates_lt_global
 /- AXIOM_AUDIT_END -/
