@@ -77,7 +77,6 @@ theorem explicitFamilyConstitutedProductionRepresentationCharge_le_existing
   unfold explicitFamilyComplexityCounts
   unfold explicitFamilyRepresentationAtomicCosts
   simp
-  omega
 
 /-- Production-only constitutive profile. -/
 def explicitFamilyConstitutedProductionProfile
@@ -480,7 +479,6 @@ theorem explicitFamilyConstitutedTotalProfile_closureCandidates
     explicitFamilyConstitutedExecutionCounts,
     explicitFamilyConstitutedLocalExecutionCompositionCandidates
   ]
-  simp
 
 /--
 The total representation charge is the sum of the three distinct accounting
