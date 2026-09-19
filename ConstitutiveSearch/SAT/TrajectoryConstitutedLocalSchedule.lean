@@ -5,7 +5,7 @@ import ConstitutiveSearch.SAT.ExplicitFamilyTransportCosts
 import ConstitutiveSearch.SAT.ExplicitFamilyInputComplexity
 
 /-!
-# Constituted local-code schedule extracted from SAT trajectories
+# Constituted entry-code schedule extracted from SAT trajectories
 
 A FlipSymmetricTrajectory is not itself a linear path of primitive flips:
 each constitutive step expands a parent into two children and then absorbs the
@@ -15,18 +15,18 @@ between siblings, not from the trajectory parent to its retained child.
 This module preserves that distinction.
 
 It extracts, directly from the proof-relevant trajectory, the finite schedule
-of local sibling witnesses actually constituted at its steps.  No witness list,
+of entry sibling witnesses actually constituted at its steps.  No witness list,
 candidate list, closure fuel, or global ClosureSearch result is supplied
 separately.
 
 Every extracted witness:
 * carries a variable from the trajectory's own decisionVars provenance;
-* compiles to a one-atom local TransportCode;
+* compiles to a one-atom entry TransportCode;
 * is executable by the provenance-derived primitive search;
 * validates with exactly one primitive query;
-* admits candidate-free local execution.
+* admits candidate-free entry execution.
 
-The complete extracted schedule has exactly one local witness and one transport
+The complete extracted schedule has exactly one entry witness and one transport
 atom per constitutive step.  Consequently its production-atom count and
 executable validation-query count are exactly the trajectory length.
 -/
@@ -59,11 +59,11 @@ structure ConstitutedLocalWitness
 
 namespace ConstitutedLocalWitness
 
-/-- Compile one constituted local witness to its one-atom transport code. -/
+/-- Compile one constituted entry witness to its one-atom transport code. -/
 def code
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
@@ -71,20 +71,20 @@ def code
       (ProvenanceStructuralFlipWitness
         (rootFormula := rootFormula)
         vars)
-      local.source
-      local.target :=
+      entry.source
+      entry.target :=
   TransportClosure.ofGenerator
-    local.witness
+    entry.witness
 
-/-- Every packaged local witness contributes exactly one transport atom. -/
+/-- Every packaged entry witness contributes exactly one transport atom. -/
 theorem code_size
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
-    local.code.size = 1 := by
+    entry.code.size = 1 := by
   rfl
 
 /--
@@ -94,11 +94,11 @@ search over the same constituted variable list.
 theorem code_searchable
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
-    local.code.SearchableBy
+    entry.code.SearchableBy
       (provenanceStructuralFlipSearch
         rootFormula
         vars) := by
@@ -106,20 +106,20 @@ theorem code_searchable
     (provenanceStructuralFlipSearch
         rootFormula
         vars).find
-      local.source
-      local.target ≠
+      entry.source
+      entry.target ≠
     none
   exact
     (provenanceStructuralFlipSearch_witnessComplete
       rootFormula
       vars)
-      local.witness
+      entry.witness
 
-/-- Executable SearchableBy validation of one local code succeeds. -/
+/-- Executable SearchableBy validation of one entry code succeeds. -/
 theorem validation_success
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
@@ -127,20 +127,20 @@ theorem validation_success
         (provenanceStructuralFlipSearch
           rootFormula
           vars)
-        local.code).success =
+        entry.code).success =
       true :=
   validateSearchableCode_success_of_searchable
     (provenanceStructuralFlipSearch
       rootFormula
       vars)
-    local.code
-    local.code_searchable
+    entry.code
+    entry.code_searchable
 
-/-- Executable validation performs exactly one primitive query per local code. -/
+/-- Executable validation performs exactly one primitive query per entry code. -/
 theorem validation_primitiveQueries
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
@@ -148,29 +148,29 @@ theorem validation_primitiveQueries
         (provenanceStructuralFlipSearch
           rootFormula
           vars)
-        local.code).primitiveQueries =
+        entry.code).primitiveQueries =
       1 := by
   calc
     (validateSearchableCode
         (provenanceStructuralFlipSearch
           rootFormula
           vars)
-        local.code).primitiveQueries
+        entry.code).primitiveQueries
         =
-      local.code.size :=
+      entry.code.size :=
         validateSearchableCode_primitiveQueries
           (provenanceStructuralFlipSearch
             rootFormula
             vars)
-          local.code
+          entry.code
     _ = 1 :=
-      local.code_size
+      entry.code_size
 
-/-- Every constituted local code admits the minimal candidate-free execution. -/
+/-- Every constituted entry code admits the minimal candidate-free execution. -/
 theorem localSequentialExecution
     {rootFormula : Cnf}
     {vars : List Var}
-    (local :
+    (entry :
       ConstitutedLocalWitness
         rootFormula
         vars) :
@@ -178,23 +178,23 @@ theorem localSequentialExecution
       (provenanceStructuralFlipSearch
         rootFormula
         vars)
-      local.code :=
+      entry.code :=
   TransportCode.localSequentialExecution_of_searchable
     (provenanceStructuralFlipSearch
       rootFormula
       vars)
-    local.code
-    local.code_searchable
+    entry.code
+    entry.code_searchable
 
 end ConstitutedLocalWitness
 
 namespace FlipSymmetricTrajectory
 
 /--
-Extract the local sibling witnesses of a trajectory into any finite provenance
+Extract the entry sibling witnesses of a trajectory into any finite provenance
 list known to contain all variables constituted by that trajectory.
 
-The containment proof is used only to package the already-present local
+The containment proof is used only to package the already-present entry
 witnesses.  No search is performed.
 -/
 def constitutedLocalWitnessesUnder
@@ -277,7 +277,7 @@ def constitutedLocalWitnessesUnder
           tailContains
 
 /--
-Canonical local schedule: the provenance domain is exactly decisionVars
+Canonical entry schedule: the provenance domain is exactly decisionVars
 extracted from the trajectory itself.
 -/
 def constitutedLocalWitnesses
@@ -299,7 +299,7 @@ def constitutedLocalWitnesses
     (fun _query member =>
       member)
 
-/-- The extracted schedule contains exactly one local witness per step. -/
+/-- The extracted schedule contains exactly one entry witness per step. -/
 theorem constitutedLocalWitnessesUnder_length
     {rootFormula : Cnf}
     {start finish :
@@ -332,8 +332,6 @@ theorem constitutedLocalWitnessesUnder_length
       rw [
         inductionHypothesis
       ]
-      exact
-        Nat.succ_eq_add_one _
 
 /-- Canonical trajectory-derived schedule length is the trajectory length. -/
 theorem constitutedLocalWitnesses_length
@@ -359,7 +357,7 @@ end FlipSymmetricTrajectory
 
 namespace ConstitutedLocalSchedule
 
-/-- Total number of transport atoms produced by an extracted local schedule. -/
+/-- Total number of transport atoms produced by an extracted entry schedule. -/
 def atomCount
     {rootFormula : Cnf}
     {vars : List Var} :
@@ -370,8 +368,8 @@ def atomCount
       Nat
   | [] =>
       0
-  | local :: rest =>
-      local.code.size +
+  | entry :: rest =>
+      entry.code.size +
         atomCount rest
 
 /-- Total executable validation primitive queries for an extracted schedule. -/
@@ -385,16 +383,16 @@ def validationPrimitiveQueries
       Nat
   | [] =>
       0
-  | local :: rest =>
+  | entry :: rest =>
       (validateSearchableCode
           (provenanceStructuralFlipSearch
             rootFormula
             vars)
-          local.code).primitiveQueries +
+          entry.code).primitiveQueries +
         validationPrimitiveQueries
           rest
 
-/-- Every local code in the schedule validates successfully. -/
+/-- Every entry code in the schedule validates successfully. -/
 def ValidationSucceeds
     {rootFormula : Cnf}
     {vars : List Var} :
@@ -405,16 +403,16 @@ def ValidationSucceeds
       Prop
   | [] =>
       True
-  | local :: rest =>
+  | entry :: rest =>
       (validateSearchableCode
           (provenanceStructuralFlipSearch
             rootFormula
             vars)
-          local.code).success =
+          entry.code).success =
           true ∧
         ValidationSucceeds rest
 
-/-- Every local code in the schedule admits candidate-free local execution. -/
+/-- Every entry code in the schedule admits candidate-free entry execution. -/
 def HasLocalExecutions
     {rootFormula : Cnf}
     {vars : List Var} :
@@ -425,12 +423,12 @@ def HasLocalExecutions
       Prop
   | [] =>
       True
-  | local :: rest =>
+  | entry :: rest =>
       TransportCode.LocalSequentialExecution
           (provenanceStructuralFlipSearch
             rootFormula
             vars)
-          local.code ∧
+          entry.code ∧
         HasLocalExecutions rest
 
 /-- Production atom count is exactly schedule length. -/
@@ -447,13 +445,13 @@ theorem atomCount_eq_length
   induction schedule with
   | nil =>
       rfl
-  | cons local rest inductionHypothesis =>
+  | cons entry rest inductionHypothesis =>
       change
-        local.code.size +
+        entry.code.size +
             atomCount rest =
           rest.length + 1
       rw [
-        local.code_size,
+        entry.code_size,
         inductionHypothesis
       ]
       exact
@@ -473,17 +471,17 @@ theorem validationPrimitiveQueries_eq_length
   induction schedule with
   | nil =>
       rfl
-  | cons local rest inductionHypothesis =>
+  | cons entry rest inductionHypothesis =>
       change
         (validateSearchableCode
             (provenanceStructuralFlipSearch
               rootFormula
               vars)
-            local.code).primitiveQueries +
+            entry.code).primitiveQueries +
               validationPrimitiveQueries rest =
           rest.length + 1
       rw [
-        local.validation_primitiveQueries,
+        entry.validation_primitiveQueries,
         inductionHypothesis
       ]
       exact
@@ -502,12 +500,12 @@ theorem validationSucceeds
   induction schedule with
   | nil =>
       exact True.intro
-  | cons local rest inductionHypothesis =>
+  | cons entry rest inductionHypothesis =>
       exact
-        ⟨local.validation_success,
+        ⟨entry.validation_success,
           inductionHypothesis⟩
 
-/-- Every extracted schedule admits local candidate-free executions stepwise. -/
+/-- Every extracted schedule admits entry candidate-free executions stepwise. -/
 theorem hasLocalExecutions
     {rootFormula : Cnf}
     {vars : List Var}
@@ -520,16 +518,16 @@ theorem hasLocalExecutions
   induction schedule with
   | nil =>
       exact True.intro
-  | cons local rest inductionHypothesis =>
+  | cons entry rest inductionHypothesis =>
       exact
-        ⟨local.localSequentialExecution,
+        ⟨entry.localSequentialExecution,
           inductionHypothesis⟩
 
 end ConstitutedLocalSchedule
 
 namespace FlipSymmetricTrajectory
 
-/-- Produced local transport atoms are exactly the constitutive trajectory length. -/
+/-- Produced entry transport atoms are exactly the constitutive trajectory length. -/
 theorem constitutedLocalAtomCount_eq_length
     {rootFormula : Cnf}
     {start finish :
@@ -583,7 +581,7 @@ theorem constitutedLocalValidationSucceeds
   ConstitutedLocalSchedule.validationSucceeds
     trajectory.constitutedLocalWitnesses
 
-/-- Every code produced from the trajectory has a candidate-free local execution. -/
+/-- Every code produced from the trajectory has a candidate-free entry execution. -/
 theorem constitutedLocalHasLocalExecutions
     {rootFormula : Cnf}
     {start finish :
@@ -623,13 +621,13 @@ theorem constitutedLocalAtomCount_eq_transportCertificateAtomCount
 
 end FlipSymmetricTrajectory
 
-/-- Canonical constituted local schedule for the closed explicit SAT family. -/
+/-- Canonical constituted entry schedule for the closed explicit SAT family. -/
 def explicitFamilyConstitutedLocalWitnesses
     (count : Nat) :=
   (explicitFamilyResourceTrajectory
     count).trajectory.constitutedLocalWitnesses
 
-/-- F(n) produces exactly n local constituted witnesses. -/
+/-- F(n) produces exactly n entry constituted witnesses. -/
 theorem explicitFamilyConstitutedLocalWitnesses_length
     (count : Nat) :
     (explicitFamilyConstitutedLocalWitnesses
