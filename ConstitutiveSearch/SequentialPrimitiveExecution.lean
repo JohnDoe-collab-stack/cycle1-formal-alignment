@@ -103,7 +103,7 @@ theorem toTransportCode_size
   induction path with
   | identity state =>
       rfl
-  | step hit tail inductionHypothesis => by
+  | step hit tail inductionHypothesis =>
       change
         1 + tail.toTransportCode.size =
           tail.length + 1
