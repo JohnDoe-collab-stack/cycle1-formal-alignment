@@ -106,13 +106,17 @@ theorem findPrimitiveHit?_ne_none_of_find_ne_none
         primitive
         source
         target ≠
-      none := by
-  unfold findPrimitiveHit?
-  cases found :
+      none :=
+  match found :
       primitive.find source target with
   | none =>
-      exact False.elim (primitiveHit found)
-  | some witness =>
+      False.elim
+        (primitiveHit found)
+  | some witness => by
+      simp only [
+        findPrimitiveHit?,
+        found
+      ]
       intro impossible
       cases impossible
 
