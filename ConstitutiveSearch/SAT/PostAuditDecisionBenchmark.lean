@@ -839,6 +839,135 @@ theorem auditedDecision_inNP :
       auditedDecisionProblem :=
   ⟨auditedDecisionPolynomialVerifier⟩
 
+/--
+Decode the sole accepted Nat certificate into the concrete SAT continuation
+used by the NP-like SearchSystem view.
+-/
+def auditedDecisionWitnessDecode
+    (input witness : Nat) :
+    Option
+      (satSystem.Continuation
+        (auditedDecisionFormula input)) :=
+  if witness = 0 then
+    some auditedYesAssignment
+  else
+    none
+
+/--
+Executable bridge from the constitutive NP-like continuation role to the
+repaired Nat-coded verifier interface.
+-/
+def auditedDecisionSearchSystemVerifier :
+    SearchSystemPolynomialVerifier
+      satSystem
+      auditedDecisionFormula
+      auditedDecisionInputSize :=
+  { code :=
+      auditedDecisionVerifierCode
+    certificateBound :=
+      CostPolynomial.constant 1
+    decode :=
+      auditedDecisionWitnessDecode
+    verifySound := by
+      intro input witness verified
+      have inputZero : input = 0 := by
+        by_contra inputNonzero
+        simp [
+          auditedDecisionVerifierCode,
+          executeVerifier,
+          inputNonzero
+        ] at verified
+      have witnessZero : witness = 0 := by
+        by_contra witnessNonzero
+        simp [
+          auditedDecisionVerifierCode,
+          executeVerifier,
+          inputZero,
+          witnessNonzero
+        ] at verified
+      subst input
+      subst witness
+      refine
+        ⟨auditedYesAssignment, ?_, ?_⟩
+      · simp [
+          auditedDecisionWitnessDecode
+        ]
+      · exact
+          auditedDecision_zero_satisfies
+    verifyComplete := by
+      intro input viable
+      have accepted :
+          auditedDecisionProblem.Accept input :=
+        viable
+      have inputZero :=
+        (auditedDecisionProblem_accept_iff_zero
+          input).1
+          accepted
+      subst input
+      refine
+        ⟨0, ?_, ?_⟩
+      · decide
+      · rfl }
+
+/-- NP-like structural continuations project non-vacuously through executable verification. -/
+theorem auditedDecision_npLike_projects :
+    InNP
+      (searchSystemDecisionProblem
+        satSystem
+        auditedDecisionFormula
+        auditedDecisionInputSize) :=
+  npLike_projects_to_InNP
+    auditedDecisionSearchSystemVerifier
+
+/-- Executable P-like bridge for the same presented SAT states. -/
+def auditedDecisionSearchSystemDecider :
+    SearchSystemPolynomialDecider
+      satSystem
+      auditedDecisionFormula
+      auditedDecisionInputSize :=
+  { code :=
+      auditedDecisionDeciderCode
+    correct := by
+      intro input
+      constructor
+      · intro decided
+        have inputZero : input = 0 := by
+          by_contra inputNonzero
+          simp [
+            auditedDecisionDeciderCode,
+            executeDecider,
+            inputNonzero
+          ] at decided
+        have accepted :
+            auditedDecisionProblem.Accept input :=
+          (auditedDecisionProblem_accept_iff_zero
+            input).2
+            inputZero
+        exact accepted
+      · intro viable
+        have accepted :
+            auditedDecisionProblem.Accept input :=
+          viable
+        have inputZero :=
+          (auditedDecisionProblem_accept_iff_zero
+            input).1
+            accepted
+        simp [
+          auditedDecisionDeciderCode,
+          executeDecider,
+          inputZero
+        ] }
+
+/-- P-like structural computation projects non-vacuously through executable decision code. -/
+theorem auditedDecision_pLike_projects :
+    InP
+      (searchSystemDecisionProblem
+        satSystem
+        auditedDecisionFormula
+        auditedDecisionInputSize) :=
+  pLike_projects_to_InP
+    auditedDecisionSearchSystemDecider
+
 end SAT
 end ConstitutiveSearch
 
@@ -868,4 +997,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.auditedDecision_inP
 #print axioms ConstitutiveSearch.SAT.auditedDecisionPolynomialVerifier
 #print axioms ConstitutiveSearch.SAT.auditedDecision_inNP
+#print axioms ConstitutiveSearch.SAT.auditedDecisionWitnessDecode
+#print axioms ConstitutiveSearch.SAT.auditedDecisionSearchSystemVerifier
+#print axioms ConstitutiveSearch.SAT.auditedDecision_npLike_projects
+#print axioms ConstitutiveSearch.SAT.auditedDecisionSearchSystemDecider
+#print axioms ConstitutiveSearch.SAT.auditedDecision_pLike_projects
 /- AXIOM_AUDIT_END -/
