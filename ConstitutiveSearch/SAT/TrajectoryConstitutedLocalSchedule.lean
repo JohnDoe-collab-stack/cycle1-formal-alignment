@@ -487,6 +487,35 @@ theorem validationPrimitiveQueries_eq_length
       exact
         Nat.add_comm 1 rest.length
 
+/-- Local execution primitive-query budget is exactly schedule length. -/
+theorem executionPrimitiveQueries_eq_length
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (schedule :
+      List
+        (ConstitutedLocalWitness
+          rootFormula
+          vars)) :
+    executionPrimitiveQueries schedule =
+      schedule.length := by
+  unfold executionPrimitiveQueries
+  exact
+    atomCount_eq_length
+      schedule
+
+/-- Local execution composition-candidate budget is exactly zero. -/
+theorem executionCompositionCandidates_eq_zero
+    {rootFormula : Cnf}
+    {vars : List Var}
+    (schedule :
+      List
+        (ConstitutedLocalWitness
+          rootFormula
+          vars)) :
+    executionCompositionCandidates schedule =
+      0 := by
+  rfl
+
 /-- Every extracted schedule validates successfully. -/
 theorem validationSucceeds
     {rootFormula : Cnf}
@@ -564,6 +593,43 @@ theorem constitutedLocalValidationQueries_eq_length
     ConstitutedLocalSchedule.validationPrimitiveQueries_eq_length,
     trajectory.constitutedLocalWitnesses_length
   ]
+
+/-- Candidate-free local execution uses exactly one primitive query per step. -/
+theorem constitutedLocalExecutionQueries_eq_length
+    {rootFormula : Cnf}
+    {start finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory
+        start
+        finish
+        length) :
+    ConstitutedLocalSchedule.executionPrimitiveQueries
+        trajectory.constitutedLocalWitnesses =
+      length := by
+  rw [
+    ConstitutedLocalSchedule.executionPrimitiveQueries_eq_length,
+    trajectory.constitutedLocalWitnesses_length
+  ]
+
+/-- Candidate-free local execution inspects no composition candidates. -/
+theorem constitutedLocalExecutionCompositionCandidates_eq_zero
+    {rootFormula : Cnf}
+    {start finish :
+      GeneratedStructuralBranchContext rootFormula}
+    {length : Nat}
+    (trajectory :
+      FlipSymmetricTrajectory
+        start
+        finish
+        length) :
+    ConstitutedLocalSchedule.executionCompositionCandidates
+        trajectory.constitutedLocalWitnesses =
+      0 := by
+  exact
+    ConstitutedLocalSchedule.executionCompositionCandidates_eq_zero
+      trajectory.constitutedLocalWitnesses
 
 /-- Every code produced from the trajectory validates successfully. -/
 theorem constitutedLocalValidationSucceeds
@@ -656,6 +722,26 @@ theorem explicitFamilyConstitutedLocalValidationQueries
   (explicitFamilyResourceTrajectory
     count).trajectory.constitutedLocalValidationQueries_eq_length
 
+/-- F(n) local execution budget is exactly n primitive queries. -/
+theorem explicitFamilyConstitutedLocalExecutionQueries
+    (count : Nat) :
+    ConstitutedLocalSchedule.executionPrimitiveQueries
+        (explicitFamilyConstitutedLocalWitnesses
+          count) =
+      count :=
+  (explicitFamilyResourceTrajectory
+    count).trajectory.constitutedLocalExecutionQueries_eq_length
+
+/-- F(n) local execution inspects no composition candidates. -/
+theorem explicitFamilyConstitutedLocalExecutionCompositionCandidates
+    (count : Nat) :
+    ConstitutedLocalSchedule.executionCompositionCandidates
+        (explicitFamilyConstitutedLocalWitnesses
+          count) =
+      0 :=
+  (explicitFamilyResourceTrajectory
+    count).trajectory.constitutedLocalExecutionCompositionCandidates_eq_zero
+
 /-- Every locally constituted F(n) code validates successfully. -/
 theorem explicitFamilyConstitutedLocalValidationSucceeds
     (count : Nat) :
@@ -697,6 +783,50 @@ theorem explicitFamilyConstitutedLocalAtomCount_inputPolynomiallyBounded :
     explicitFamilyIndex_le_inputBitSize
       count
 
+/-- Local execution primitive-query budget of F(n) is input-polynomial. -/
+theorem explicitFamilyConstitutedLocalExecution_inputPolynomiallyBounded :
+    InputPolynomiallyBounded
+      explicitFamilyInputBitSize
+      (fun count =>
+        ConstitutedLocalSchedule.executionPrimitiveQueries
+          (explicitFamilyConstitutedLocalWitnesses
+            count)) := by
+  refine
+    ⟨CostPolynomial.input, ?_⟩
+  intro count
+  change
+    ConstitutedLocalSchedule.executionPrimitiveQueries
+        (explicitFamilyConstitutedLocalWitnesses
+          count) ≤
+      explicitFamilyInputBitSize count
+  rw [
+    explicitFamilyConstitutedLocalExecutionQueries
+  ]
+  exact
+    explicitFamilyIndex_le_inputBitSize
+      count
+
+/-- Local execution composition-candidate budget is constantly zero. -/
+theorem explicitFamilyConstitutedLocalExecutionComposition_inputPolynomiallyBounded :
+    InputPolynomiallyBounded
+      explicitFamilyInputBitSize
+      (fun count =>
+        ConstitutedLocalSchedule.executionCompositionCandidates
+          (explicitFamilyConstitutedLocalWitnesses
+            count)) := by
+  refine
+    ⟨CostPolynomial.constant 0, ?_⟩
+  intro count
+  change
+    ConstitutedLocalSchedule.executionCompositionCandidates
+        (explicitFamilyConstitutedLocalWitnesses
+          count) ≤
+      0
+  rw [
+    explicitFamilyConstitutedLocalExecutionCompositionCandidates
+  ]
+  exact Nat.le_refl 0
+
 /-- Validation query count of the endogenous F(n) schedule is input-polynomial. -/
 theorem explicitFamilyConstitutedLocalValidation_inputPolynomiallyBounded :
     InputPolynomiallyBounded
@@ -737,14 +867,20 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalWitnesses_length
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.atomCount
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.validationPrimitiveQueries
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionPrimitiveQueries
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionCompositionCandidates
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.ValidationSucceeds
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.HasLocalExecutions
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.atomCount_eq_length
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.validationPrimitiveQueries_eq_length
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionPrimitiveQueries_eq_length
+#print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.executionCompositionCandidates_eq_zero
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.validationSucceeds
 #print axioms ConstitutiveSearch.SAT.ConstitutedLocalSchedule.hasLocalExecutions
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalAtomCount_eq_length
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalValidationQueries_eq_length
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalExecutionQueries_eq_length
+#print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalExecutionCompositionCandidates_eq_zero
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalValidationSucceeds
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalHasLocalExecutions
 #print axioms ConstitutiveSearch.SAT.FlipSymmetricTrajectory.constitutedLocalAtomCount_eq_transportCertificateAtomCount
@@ -752,8 +888,12 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalWitnesses_length
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalAtomCount
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalValidationQueries
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalExecutionQueries
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalExecutionCompositionCandidates
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalValidationSucceeds
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalHasLocalExecutions
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalAtomCount_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalExecution_inputPolynomiallyBounded
+#print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalExecutionComposition_inputPolynomiallyBounded
 #print axioms ConstitutiveSearch.SAT.explicitFamilyConstitutedLocalValidation_inputPolynomiallyBounded
 /- AXIOM_AUDIT_END -/
