@@ -10,11 +10,12 @@ This module fixes the local execution policy completely:
 * no intermediate candidate list;
 * fuel exactly one on every primitive atom.
 
-For every searchable code, that policy executes exactly one primitive query per
-atom and zero composition-candidate inspections.
+For every searchable code, there exists a sequential primitive-hit execution
+with exactly one primitive query per atom and zero composition-candidate
+inspections.
 
-Thus candidate generation and global closure fuel are unnecessary once the
-relevant composed code is already constituted locally.
+The execution remains propositionally witnessed.  No nonconstructive choice is
+used to extract a path as data from a proof of SearchableBy.
 -/
 
 namespace ConstitutiveSearch
@@ -24,12 +25,12 @@ universe uGenerator
 namespace TransportCode
 
 /--
-Exact local execution package for one constituted code.
+Candidate-free local execution property for one constituted code.
 
-The path is executed with the minimal local ClosureSearch control:
-empty candidate list and fuel one.
+The witness path is existential, keeping the statement in Prop and avoiding any
+choice principle when SearchableBy is itself only propositional evidence.
 -/
-structure LocalSequentialExecution
+def LocalSequentialExecution
     {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
@@ -38,25 +39,21 @@ structure LocalSequentialExecution
       TransportCode
         Generator
         source
-        target) : Type uGenerator where
-  path :
-    PrimitiveHitPath
-      primitive
-      source
-      target
-  pathLength :
-    path.length =
-      code.size
-  primitiveQueries :
-    (path.sequentialStats
-        []
-        1).primitiveQueries =
-      code.size
-  compositionCandidates :
-    (path.sequentialStats
-        []
-        1).compositionCandidates =
-      0
+        target) : Prop :=
+  ∃ path :
+      PrimitiveHitPath
+        primitive
+        source
+        target,
+    path.length = code.size ∧
+      (path.sequentialStats
+          []
+          1).primitiveQueries =
+        code.size ∧
+      (path.sequentialStats
+          []
+          1).compositionCandidates =
+        0
 
 /--
 Every searchable constituted code admits the minimal local execution policy.
@@ -77,28 +74,20 @@ theorem localSequentialExecution_of_searchable
     LocalSequentialExecution
       primitive
       code := by
-  rcases
-      code.hasSequentialExecution_of_searchable
-        primitive
-        []
-        1
-        (by decide)
-        searchable with
-    ⟨path,
-      pathLength,
-      primitiveExact,
-      compositionExact⟩
   exact
-    { path := path
-      pathLength := pathLength
-      primitiveQueries := primitiveExact
-      compositionCandidates := compositionExact }
+    code.hasSequentialExecution_of_searchable
+      primitive
+      []
+      1
+      (by decide)
+      searchable
 
 /--
-Package carrying both the global-composition certificate and the local
-candidate-free execution of the same constituted code.
+Package, still proposition-valued, saying that the same constituted code both
+witnesses genuine global composition need and admits candidate-free local
+execution.
 -/
-structure GlobalNeedWithLocalExecution
+def GlobalNeedWithLocalExecution
     {State : Type}
     {Generator : State → State → Type uGenerator}
     (primitive : RelationSearch Generator)
@@ -107,13 +96,11 @@ structure GlobalNeedWithLocalExecution
       TransportCode
         Generator
         source
-        target) : Type uGenerator where
-  globalCompositionRequired :
-    PrimitiveHitPath.GlobalCompositionRequired
+        target) : Prop :=
+  PrimitiveHitPath.GlobalCompositionRequired
       primitive
       source
-      target
-  localExecution :
+      target ∧
     LocalSequentialExecution
       primitive
       code
@@ -144,21 +131,21 @@ theorem directMiss_searchableCode_hasLocalExecution
     GlobalNeedWithLocalExecution
       primitive
       code := by
-  exact
-    { globalCompositionRequired :=
-        (PrimitiveHitPath.globalCompositionRequired_iff_searchableCode
-          primitive
-          source
-          target).2
-          ⟨directMiss,
-            ⟨code,
-              searchable,
-              codeSize⟩⟩
-      localExecution :=
-        localSequentialExecution_of_searchable
-          primitive
-          code
-          searchable }
+  constructor
+  · exact
+      (PrimitiveHitPath.globalCompositionRequired_iff_searchableCode
+        primitive
+        source
+        target).2
+        ⟨directMiss,
+          ⟨code,
+            searchable,
+            codeSize⟩⟩
+  · exact
+      localSequentialExecution_of_searchable
+        primitive
+        code
+        searchable
 
 end TransportCode
 
