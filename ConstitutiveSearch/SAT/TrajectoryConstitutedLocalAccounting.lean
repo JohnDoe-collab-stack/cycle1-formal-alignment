@@ -75,7 +75,8 @@ theorem provenanceVariableQueries_le_length_mul_varsLength
       schedule.length * vars.length := by
   induction schedule with
   | nil =>
-      rfl
+      change 0 ≤ 0
+      exact Nat.le_refl 0
   | cons entry rest inductionHypothesis =>
       have headLe :
           provenanceStructuralFlipSearchVariableQueries
@@ -109,13 +110,28 @@ theorem provenanceVariableQueries_le_length_mul_varsLength
         _ =
           (entry :: rest).length *
             vars.length := by
-              rw [
-                List.length_cons,
-                Nat.succ_eq_add_one,
-                Nat.add_mul,
-                Nat.one_mul,
-                Nat.add_comm
-              ]
+              change
+                vars.length +
+                    rest.length * vars.length =
+                  (rest.length + 1) * vars.length
+              calc
+                vars.length +
+                    rest.length * vars.length
+                    =
+                  rest.length * vars.length +
+                    vars.length :=
+                      Nat.add_comm _ _
+                _ =
+                  rest.length * vars.length +
+                    1 * vars.length := by
+                      rw [Nat.one_mul]
+                _ =
+                  (rest.length + 1) *
+                    vars.length :=
+                      (Nat.add_mul
+                        rest.length
+                        1
+                        vars.length).symm
 
 end ConstitutedLocalSchedule
 
