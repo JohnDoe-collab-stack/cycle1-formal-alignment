@@ -7,7 +7,7 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-39429cf124d5eac698f3f7c42d6522ee145a4e63
+cb92b94200139f11043879d47025ad952487dc31
 ~~~
 
 P1 a P6c et les couches quantitatives P7a a P7d-f sont maintenant formalises au niveau annonce dans ce document. Le head code ci-dessus a passe Linux et Windows. Le normaliseur generique possede une borne quadratique de controle-flow en largeur, la fermeture compositionnelle possede des lois de croissance explicites et des regimes polynomiaux prouves pour tout fuel fixe ainsi que pour tout fuel variable uniformement borne. Les longueurs de listes de candidats peuvent elles-memes croitre polynomialement avec la taille d'entree. Les profils constitutifs multidimensionnels se composent generiquement, deux familles SAT parametriques distinctes sont instanciees dans l'interface input-polynomiale, et le passage vers un cout machine polynomial est formalise uniquement sous un RepresentationMachineBridge explicite. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
@@ -249,6 +249,9 @@ ConstitutiveSearch/SAT/ParametricComposedComplexity.lean
 ConstitutiveSearch/SAT/ParametricComposedBitComplexity.lean
 ConstitutiveSearch/SAT/ParametricComposedPolynomialCosts.lean
 ConstitutiveSearch/SAT/ParametricComposedWidthControlled.lean
+ConstitutiveSearch/SAT/TrajectoryDerivedClosure.lean
+ConstitutiveSearch/SAT/TrajectoryDerivedClosureComplexity.lean
+ConstitutiveSearch/SAT/SequentialGlobalClosureSeparator.lean
 ConstitutiveSearch/SAT/WidthSeparators.lean
 ConstitutiveSearch/SAT/WidthSeparatorConstitutiveProfile.lean
 
@@ -1689,7 +1692,14 @@ et la liste de candidats annonces.
 [FAIT P7d-d] temoin executable avec maxFrontierWidth et fuel tous deux non bornes mais compteurs input-polynomiaux
 [FAIT P7d-d] instance SAT composee : [middle], fuel=2, tous deux certifies sous la largeur constitutive 2
 [FAIT P7d-d] separateur conjoint negatif : candidateCount=inputBits et fuel=log2(inputBits) donnent des budgets primitifs et compositionnels non InputPolynomiallyBounded
-[QUALIFICATION P7d-d] le separateur negatif porte sur les budgets recursifs canoniques, qui sont des majorants des compteurs executables; il ne constitue pas une borne inferieure de temps d'execution
+[FAIT P7d-d] TrajectoryDerivedClosure reconstruit decisionVars, splitCandidates et closureFuel depuis la trajectoire proof-relevant elle-meme
+[FAIT P7d-d] sur F(n) : candidats derives = 2n et fuel derive = n
+[FAIT P7d-d] la taille binaire reelle de F(n) est bornee par le CostPolynomial explicite de formule
+[FAIT P7d-d] les deux budgets recursifs canoniques du schedule global derive 2n/n ne sont pas InputPolynomiallyBounded dans explicitFamilyInputBitSize
+[FAIT P7d-d] separateur sequential/global : la meme trajectoire F(n) a un profil sequential input-polynomial avec 2n find directs et zero compteur ClosureSearch, tandis que son enveloppe de fermeture globale derivee est non input-polynomiale
+[FAIT P7d-d] primitive-hit short circuit : pour tout fuel positif, si primitive.find reussit alors le run ClosureSearch charge exactement 1 primitiveQuery et 0 compositionCandidate
+[FAIT P7d-d] le premier sibling reel de toute FlipSymmetricTrajectory non vide satisfait ce short circuit dans la closure derivee
+[QUALIFICATION P7d-d] les separateurs negatifs portent sur les budgets recursifs canoniques, qui sont des majorants; ils ne sont pas des bornes inferieures des compteurs executes. Le short circuit formalise explicitement cette distinction.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1713,30 +1723,30 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. relier candidats et fuel a des donnees produites endogenement par les trajectoires/provenances
-2. instancier le critere conjoint sur une famille constitutive/SAT a largeur croissante non synthetique
-3. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits)
-4. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
-5. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
-6. consolider l'audit de non-factorisation/provenance si necessaire
-7. effectuer P8 : audit externe de nouveaute et comparaison
-8. synchroniser ensuite la documentation canonique avant toute integration vers main
-9. seulement apres etudier les consequences generales de classe de complexite
+1. quantifier les compteurs executes sur les requetes effectivement produites par toute la trajectoire, pas seulement le premier sibling
+2. comparer formellement l'execution sequentielle locale a une requete de fermeture globale qui exige reellement de la composition
+3. determiner si une politique de candidats/fuel derivee localement de la constitution evite systematiquement l'enveloppe globale non polynomiale
+4. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits)
+5. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
+6. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
+7. consolider l'audit de non-factorisation/provenance si necessaire
+8. effectuer P8 : audit externe de nouveaute et comparaison
+9. synchroniser ensuite la documentation canonique avant toute integration vers main
+10. seulement apres etudier les consequences generales de classe de complexite
 ~~~
 
 Le verrou quantitatif courant est donc maintenant tres precis :
 
-> la classification combinee possede maintenant des regimes positifs et negatifs.
-> Le critere suffisant interne
-> (log2(2*candidateCount+2)+1)*fuel <= d*log2(inputBits)
-> donne une enveloppe inputBits^d, et il permet des candidats et un fuel tous
-> deux non bornes. Le meme critere est raccorde a maxFrontierWidth pour les
-> schedules width-controlled, y compris avec largeur croissante. En sens oppose,
-> la famille candidateCount=inputBits et fuel=log2(inputBits) a des budgets
-> recursifs non InputPolynomiallyBounded. Le verrou n'est donc plus la simple
-> croissance conjointe, mais l'endogeneite : montrer comment les trajectoires et
-> provenances du calcul produisent effectivement les listes de candidats et le
-> fuel satisfaisant (ou violant) ces regimes.
+> la classification combinee possede maintenant des regimes positifs et negatifs,
+> et l'endogeneite est fermee sur la famille F(n) au niveau du domaine de controle :
+> la trajectoire produit elle-meme 2n candidats et fuel n. L'enveloppe recursive
+> globale correspondante n'est pas InputPolynomiallyBounded dans la taille binaire
+> reelle de F(n), alors que l'execution constitutive sequentielle de la meme
+> trajectoire possede deja un profil input-polynomial. De plus, lorsqu'une requete
+> constitutive est un primitive hit, ClosureSearch court-circuite a exactement
+> 1 primitiveQuery et 0 compositionCandidate. Le verrou n'est donc plus seulement
+> l'endogeneite des parametres, mais la relation entre enveloppe globale,
+> decomposition sequentielle et compteurs effectivement executes.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1746,10 +1756,12 @@ B(0) = 0
 B(f+1) = 2 * B(f) + 1
 ~~~
 
-Le prochain travail doit donc quitter les schedules seulement annonces et
-raccorder candidats, fuel et largeur aux donnees effectivement constituees par
-les trajectoires et leurs provenances. La classification quantitative combinee
-dispose maintenant d'un critere positif et d'un separateur negatif explicites.
+Le prochain travail doit maintenant quantifier les requetes effectivement
+produites le long de la trajectoire et comparer leur cout execute au budget
+recursif de la fermeture globale aplatie. Le cas du premier sibling montre deja
+un ecart maximal entre enveloppe globale et execution locale : la relation
+primitive est trouvee immediatement, independamment de la taille de la liste de
+candidats et du fuel global.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
