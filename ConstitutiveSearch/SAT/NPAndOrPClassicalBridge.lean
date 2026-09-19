@@ -1,173 +1,39 @@
 import ConstitutiveSearch.ClassicalDecisionComplexity
-import ConstitutiveSearch.SAT.NPAndOrPProgramClosure
 
 /-!
-# Final minimal bridge from NP AND/OR P to classical P / NP interfaces
+# Withdrawn pre-audit classical bridge
 
-PRE-AUDIT BRIDGE ONLY.
+The former bridge projected the constitutive program into predicates named
+`InP` and `InNP`.  Aristotle II proved that the underlying finite-equality code
+languages do not model classical P or NP.  The predicates have been renamed to
+`InFiniteEqualityP` and `InFiniteEqualityNP`, and the old bridge/completion
+bundles are removed from the active API.
 
-The post-audit review found that the original cost interface was too weak and
-that F(n) is a constant-YES decision projection.  This module is retained only
-for historical compatibility with the pre-audit closure package.
-
-The repaired final bridge is defined separately after the nonconstant
-post-audit benchmark and executable-cost gates are closed.
-
-This file projects the pre-audit result to an extensional decision view:
-
-* the explicit family F(n) becomes a decision problem indexed by n;
-* its constituted AND/OR trajectory preserves the yes/no viability answer;
-* the generic NP-like continuation role projects to InNP only when an explicit
-  polynomial verifier interface is supplied;
-* the generic P-like computational role projects to InP only when an explicit
-  correct polynomial decider is supplied;
-* the classical extensional projection is not faithful to the constitutive
-  computation: existing non-factorization theorems show loss of reconstructible
-  relations and execution-organization cost.
-
-No statement of P = NP or P != NP is made or required.
+This module retains only an explicit withdrawal status.  No statement of
+`P = NP` or `P != NP` is made.
 -/
 
 namespace ConstitutiveSearch
 namespace SAT
 
-/--
-Extensional decision problem obtained from the closed explicit family.
+inductive PreAuditClassicalBridgeStatus where
+  | withdrawnBecauseInterfaceWasFiniteEqualityOnly
+  deriving DecidableEq, Repr
 
-The input is only the family index.  The accepted proposition is viability of
-the initial generated frontier.  The internal schedule, provenance and temporal
-organization are intentionally absent from this classical projection.
--/
-def explicitFamilyDecisionProblem :
-    DecisionProblem :=
-  { inputSize :=
-      explicitFamilyInputBitSize
-    Accept := fun count =>
-      FrontierViable
-        (generatedStructuralBranchSystem
-          (explicitStackedSymmetricFamily
-            count))
-        [explicitStackedRoot count] }
+def preAuditClassicalBridgeStatus :
+    PreAuditClassicalBridgeStatus :=
+  .withdrawnBecauseInterfaceWasFiniteEqualityOnly
 
-/--
-The AND/OR constitutive computation preserves exactly the classical yes/no
-decision projected from F(n).
--/
-theorem explicitFamilyDecisionProjection_preserved
-    (count : Nat) :
-    explicitFamilyDecisionProblem.Accept
-        count ↔
-      FrontierViable
-        (generatedStructuralBranchSystem
-          (explicitStackedSymmetricFamily
-            count))
-        [(explicitFamilyResourceTrajectory
-          count).finish] :=
-  explicitFamilyResourceTrajectory_viable_iff
-    count
-
-/--
-Alias emphasizing the classical NP projection principle:
-continuations become witnesses, but NP membership is obtained only from an
-explicit polynomial verifier interface.
--/
-theorem constitutiveNPStyle_projects_to_classicalNP
-    {system : SearchSystem}
-    {stateAt : Nat → system.State}
-    {inputSize : Nat → Nat}
-    (bridge :
-      SearchSystemPolynomialVerifier
-        system
-        stateAt
-        inputSize) :
-    InNP
-      (searchSystemDecisionProblem
-        system
-        stateAt
-        inputSize) :=
-  npLike_projects_to_InNP
-    bridge
-
-/--
-Alias emphasizing the classical P projection principle:
-P-like structural computation becomes P only when it supplies a correct
-polynomial decision procedure in the declared cost model.
--/
-theorem constitutivePStyle_projects_to_classicalP
-    {system : SearchSystem}
-    {stateAt : Nat → system.State}
-    {inputSize : Nat → Nat}
-    (bridge :
-      SearchSystemPolynomialDecider
-        system
-        stateAt
-        inputSize) :
-    InP
-      (searchSystemDecisionProblem
-        system
-        stateAt
-        inputSize) :=
-  pLike_projects_to_InP
-    bridge
-
-/--
-The minimal bridge preserves the extensional decision but records that the
-projection loses computationally relevant constitutive structure.
--/
-structure NPAndOrPClassicalBridgeClosed : Prop where
-  programClosed :
-    NPAndOrPProgramClosed
-  decisionPreserved :
-    ∀ count : Nat,
-      explicitFamilyDecisionProblem.Accept
-          count ↔
-        FrontierViable
-          (generatedStructuralBranchSystem
-            (explicitStackedSymmetricFamily
-              count))
-          [(explicitFamilyResourceTrajectory
-            count).finish]
-  projectionLoss :
-    ConstitutiveProjectionLossClosed
-
-/-- Final classical bridge for the already-closed constitutive program. -/
-theorem npAndOrPClassicalBridgeClosed :
-    NPAndOrPClassicalBridgeClosed :=
-  { programClosed :=
-      npAndOrPProgramClosed
-    decisionPreserved :=
-      explicitFamilyDecisionProjection_preserved
-    projectionLoss :=
-      constitutiveProjectionLossClosed }
-
-/--
-Pre-audit stop marker.
-
-Retained for compatibility only.  The Aristotle audit found that this marker
-overstated closure because the old P/NP cost interface was vacuous and the F(n)
-decision projection is constant-YES.  It must not be used as evidence of the
-post-audit objective.
--/
-structure NPAndPObjectiveComplete : Prop where
-  bridge :
-    NPAndOrPClassicalBridgeClosed
-
-/-- PRE-AUDIT OBJECTIVE MARKER ONLY.  Not post-audit closure evidence. -/
-theorem npAndPObjectiveComplete :
-    NPAndPObjectiveComplete :=
-  { bridge :=
-      npAndOrPClassicalBridgeClosed }
+theorem preAuditClassicalBridge_isWithdrawn :
+    preAuditClassicalBridgeStatus =
+      .withdrawnBecauseInterfaceWasFiniteEqualityOnly :=
+  rfl
 
 end SAT
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms ConstitutiveSearch.SAT.explicitFamilyDecisionProblem
-#print axioms ConstitutiveSearch.SAT.explicitFamilyDecisionProjection_preserved
-#print axioms ConstitutiveSearch.SAT.constitutiveNPStyle_projects_to_classicalNP
-#print axioms ConstitutiveSearch.SAT.constitutivePStyle_projects_to_classicalP
-#print axioms ConstitutiveSearch.SAT.NPAndOrPClassicalBridgeClosed
-#print axioms ConstitutiveSearch.SAT.npAndOrPClassicalBridgeClosed
-#print axioms ConstitutiveSearch.SAT.NPAndPObjectiveComplete
-#print axioms ConstitutiveSearch.SAT.npAndPObjectiveComplete
+#print axioms ConstitutiveSearch.SAT.PreAuditClassicalBridgeStatus
+#print axioms ConstitutiveSearch.SAT.preAuditClassicalBridgeStatus
+#print axioms ConstitutiveSearch.SAT.preAuditClassicalBridge_isWithdrawn
 /- AXIOM_AUDIT_END -/

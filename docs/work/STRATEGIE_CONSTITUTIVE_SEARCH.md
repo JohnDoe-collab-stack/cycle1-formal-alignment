@@ -4,21 +4,41 @@
 
 Ce document est le plan scientifique de travail de la branche research/np-and-or-p.
 
-Base scientifique post-audit avant cette synchronisation documentaire :
+Base auditee par Aristotle II avant la presente reparation :
 
 ~~~text
-c084348aadec589d2378739f0e66e07ce39cecfd
+332c796eef7c087fe6259c18773a10fdef19ca0b
 ~~~
 
-L'audit adversarial Aristotle a rouvert le programme uniquement pour correction. Aucun theorem Lean pre-audit n'a ete falsifie, mais trois interpretations de cloture etaient trop fortes : cout P/NP decouple de l'execution, usage de F(n) comme projection decisionnelle finale alors que cette famille est constamment satisfiable, et non-factorisation centrale portee par un moteur explicitement gate par la constitution.
+Le second audit adversarial n'a falsifie aucun theorem du noyau constitutif,
+mais il a invalide la cloture annoncee au head ci-dessus. Deux counterprobes
+sont materiels : `DeciderCode` / `VerifierCode` ne modelisent pas P / NP
+classiques, et la reponse de `executeAuditedDecision` pouvait etre reproduite
+en supprimant discovery, schedule, validation et execution. La variable et les
+endpoints de discovery etaient en outre preslectionnes.
 
-Ces points sont maintenant repares au niveau formel annonce. Le marqueur npAndPObjectiveComplete est conserve uniquement comme marqueur historique pre-audit et ne constitue plus une preuve de cloture actuelle. Le nouveau marqueur est auditedNPAndPObjectiveComplete.
+Le marqueur `auditedNPAndPObjectiveComplete` est donc retire de l'API. Le
+module qui le portait enregistre explicitement
+`FirstAuditClosureStatus.withdrawnAfterSecondAudit`. Aucun nouveau marqueur de
+cloture ne sera introduit avant un nouvel audit adversarial.
 
-La cloture post-audit repose sur quatre obligations exactes :
-- cout P/NP derive de runs executables DeciderCode / VerifierCode, sans champ cost libre ;
-- benchmark decisionnel final non constant, distinct de F(n), avec YES, NO et terminalDecision correct ;
-- non-factorisation ungated sous le meme generatedStructuralFlipAtSearch des deux cotes ;
-- decouverte, production de schedule, validation, execution et decision terminale explicitement chargees.
+La reparation en cours suit neuf obligations exactes :
+
+- modele calculatoire capable de parcourir une entree non bornee et de disposer
+  d'une bande de travail bidirectionnelle non bornee ;
+- verification par certificat sur un canal separe, avec taille du certificat
+  et fuel tous deux bornes polynomialement par la taille de l'entree ;
+- parite admise comme regression anti-triche et cout execute strictement croissant ;
+- discovery endogene : etat courant -> extraction -> exploration -> relation ;
+- variable utile non fixee par la procedure et endpoints derives de sa decouverte ;
+- dependances inter-phases materialisees dans les types ;
+- terminal indexe par l'execution qui produit son etat ;
+- decision lisant uniquement cet objet terminal ;
+- couts lus dans les runs, sans nouveau marqueur final avant re-audit.
+
+`BitMachineDecision` et `SecondAuditCausalBenchmark` realisent maintenant ces
+obligations dans leur perimetre de benchmark. Ce statut est une reparation
+formelle a auditer, pas une nouvelle cloture.
 
 F(n) reste un benchmark structurel de symetrie, trajectoire, schedule, accounting et execution locale. Il n'est plus utilise comme probleme decisionnel final.
 
@@ -1745,15 +1765,19 @@ et la liste de candidats annonces.
 [PRE-AUDIT] NPAndOrPProgramClosed et npAndPObjectiveComplete restent compilables pour compatibilite historique, mais leur portee de cloture a ete jugee surestimee par l'audit
 [FAIT POST-AUDIT] ActualUngatedRelationReconstructible utilise exactement le meme generatedStructuralFlipAtSearch [] 0 sur deux paires generees ayant la meme projection de formules residuelles; la paire sibling est trouvee, la paire a provenances distinctes ne l'est pas
 [FAIT POST-AUDIT] actualUngatedRelationReconstructibility_not_factor_through_residuals prouve la non-factorisation sans gate; ungatedWidth_not_factor_through_residuals donne en plus largeur 1 vs 2 sous le meme moteur
-[FAIT POST-AUDIT] PolynomialDecider et PolynomialVerifier ne contiennent plus de champ cost libre; executeDecider / executeVerifier produisent result + stats et le cout polynomial est derive de stats.steps
-[FAIT POST-AUDIT] executeDecider_steps_ne_zero et executeVerifier_steps_ne_zero rendent impossible l'ancien probe cout fictif nul pour un code executable
-[FAIT POST-AUDIT] auditedDecisionProblem est un benchmark final distinct de F(n) : input 0 est YES, input 1 est NO
-[FAIT POST-AUDIT] executeAuditedDecision suit presented input -> structural discovery -> schedule produit depuis le witness trouve -> validation -> execution locale reelle -> scan terminal; aucune closure globale ni witness utile n'est fourni en entree
-[FAIT POST-AUDIT] discovery=1 query, schedule=1 atome, validation=1 query, execution=1 primitiveQuery / 0 compositionCandidate; le scan terminal produit lui-meme clauseChecks et le cout total execute est <= 6
-[FAIT POST-AUDIT] auditedTerminalDecision input = true <-> auditedDecisionProblem.Accept input
-[FAIT POST-AUDIT] auditedDecision_inP / auditedDecision_inNP donnent des interfaces executables positives; auditedDecision_pLike_projects / auditedDecision_npLike_projects raccordent les roles SearchSystem
-[FERME POST-AUDIT] AuditedNPAndPProgramClosed regroupe composabilite exacte, synthese quantitative structurale, benchmark decisionnel non constant, phases chargees et perte ungated
-[FERME POST-AUDIT] auditedNPAndPObjectiveComplete : OBJECTIF NP / P TERMINE au perimetre repare
+[SECOND AUDIT - PARTIEL] les anciens PolynomialDecider et PolynomialVerifier bloquaient le cout fictif libre, mais leur syntaxe historique ne modelisait pas P / NP classiques; ils sont renommes FiniteEqualityPolynomialDecider / FiniteEqualityPolynomialVerifier
+[SECOND AUDIT - ECHEC CAUSAL] auditedDecisionProblem possede bien YES et NO, mais executeAuditedDecision permet le counterprobe stripped_agrees
+[SECOND AUDIT - ECHEC DISCOVERY] auditedDecisionDiscover verifie une variable et des endpoints preslectionnes au lieu de les extraire puis explorer
+[SECOND AUDIT - RETRAIT] AuditedNPAndPProgramClosed et auditedNPAndPObjectiveComplete sont retires; FirstAuditClosureStatus enregistre explicitement le retrait
+[REPARATION II] BitMachineDecision fournit une machine a programme fini avec flux entree/certificat separes, bande de travail bidirectionnelle non bornee, branchements, boucles, fuel polynomial et statistiques executees
+[REPARATION II] PolynomialBitMachineVerifier borne explicitement certificat et fuel; bitMachineP_subset_bitMachineNP construit positivement le certificat vide pour tout decider deterministe
+[REPARATION II] bitParity_inBitMachineP et bitParity_inBitMachineNP sont les regressions anti-triche; executeBitParityProgram_steps prouve le cout exact 4 * input.length + 2 et bitParityProgram_cost_strict_append sa croissance stricte
+[REPARATION II] runEndogenousFlipDiscovery extrait les variables de l'etat courant, verifie leur fraicheur, explore les candidats et charge chaque tentative
+[REPARATION II] causalDecisionSplitVar depend de l'entree et n'est jamais passe comme argument au moteur de discovery du benchmark
+[REPARATION II] DiscoverySchedule -> ValidatedDiscoverySchedule -> ExecutedDiscoverySchedule -> ExecutedTerminalArtifact materialise les dependances dans les types
+[REPARATION II] terminalFromExecution ne recoit ni input ni etat independant; decideExecutedTerminal lit uniquement le terminal indexe par son execution
+[REPARATION II] executeCausalDecision possede un YES, un NO, produit toujours son terminal et derive tous ses compteurs des runs de phase
+[EN ATTENTE AUDIT] aucun nouveau marqueur de cloture; les reparations doivent resister aux counterprobes Aristotle avant toute reconsideration
 [QUALIFICATION P7d-d] les separateurs negatifs de ClosureSearch portent toujours sur des budgets recursifs canoniques, pas sur des lower bounds de runs. F(n) reste structurel/accounting seulement. Le benchmark decisionnel post-audit est volontairement minimal et ne vise ni SAT general ni toute CNF.
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
@@ -1773,117 +1797,114 @@ et la liste de candidats annonces.
 [FERME] toute revendication generale de classe de complexite avant fermeture des phases restantes
 ~~~
 
-## 24. Cloture formelle post-audit du programme
+## 24. Retrait de la cloture apres le second audit
 
-La cloture pre-audit a ete reouverte uniquement pour les reparations Aristotle. Les obligations post-audit sont maintenant fermees sous la forme suivante.
-
-~~~text
-1. schedule constitue
-   EndpointComposable
-   -> composition endpoint-to-endpoint exactement sous egalite des endpoints
-   -> FlipSymmetricTrajectory de longueur >= 2 reste un schedule local de reductions sibling
-
-2. synthese quantitative structurelle
-   F(n)
-   -> trajectoire et schedule endogenes
-   -> production deja chargee dans certificateAtoms / provenanceUnits
-   -> validation executable
-   -> execution locale reelle
-   -> profil total sans double comptage
-   -> borne input-polynomiale
-   -> aucune interpretation decisionnelle finale de F(n)
-
-3. benchmark decisionnel final non constant
-   auditedDecisionProblem
-   -> YES: input 0
-   -> NO: input 1
-   -> structural discovery executable et chargee
-   -> schedule produit uniquement depuis le resultat de discovery
-   -> validation executable
-   -> execution locale reelle
-   -> scan terminal instrumente
-   -> decision correcte
-   -> cout source-level total input-polynomial
-
-4. non-factorisation ungated
-   meme projection sur les formules residuelles
-   + meme generatedStructuralFlipAtSearch [] 0
-   -> relation reconstructible dans un cas
-   -> non reconstructible dans l'autre a cause des histoires generees
-   -> largeur 1 vs 2 sous le meme moteur
-~~~
-
-Declaration post-audit du programme :
+Le second audit impose une distinction nette entre les resultats qui restent
+et le raccord qui a echoue.
 
 ~~~text
-AuditedNPAndPProgramClosed
-auditedNPAndPProgramClosed
+noyau trajectoire / provenance / transports       maintenu
+non-composabilite des schedules de longueur >= 2  maintenue
+non-factorisation ungated minimale                maintenue
+accounting local sans double comptage             maintenu
+
+interfaces historiques InFiniteEqualityP / NP     inadequates
+benchmark executeAuditedDecision                   causalement bypassable
+discovery historique                              preslectionnee
+marqueur de cloture                                retire
 ~~~
 
-Les anciennes declarations NPAndOrPProgramClosed / npAndOrPProgramClosed sont conservees comme artefacts pre-audit et ne portent pas la nouvelle cloture.
-
-Sont explicitement hors objectif : SAT general, P = NP, P != NP, couverture de toute CNF, nouveaux generateurs, nouvelles familles au-dela du benchmark minimal necessaire, generalisation a tous les SearchSystem, nouveaux regimes candidateCount/fuel, quasi-polynomialite, runtime machine concret et consequences supplementaires de classes de complexite.
-
-## 25. Pont classique executable et marqueur d'arret post-audit
-
-Le pont final reste volontairement Nat-code, mais son cout n'est plus annonce separement du programme.
+Le retrait est formalise, et non seulement documentaire :
 
 ~~~text
-DeciderCode
--> executeDecider code input
--> result + stats.steps
-
-VerifierCode
--> executeVerifier code input witness
--> result + stats.steps
+FirstAuditClosureStatus.withdrawnAfterSecondAudit
+firstAuditClosure_isWithdrawn
 ~~~
 
-PolynomialDecider contient un code et sa correction. Son executedCost est definitionnellement tire de executeDecider. PolynomialVerifier contient un code, une borne de certificat, sound et complete; son cout de verification est tire de executeVerifier. Aucun champ cost : Nat -> Nat ou cost : input -> witness -> Nat n'est fourni librement.
+Les anciennes declarations structurelles restent dans leurs modules propres.
+Le bundle qui les transformait en conclusion globale n'est plus exporte.
 
-Les regressions positives ferment les interfaces sur auditedDecisionProblem :
+Sont toujours explicitement hors objectif : prouver `P = NP`, prouver
+`P != NP`, resoudre SAT general, couvrir toute CNF ou annoncer une consequence
+generale de classes de complexite.
+
+## 25. Reparation calculatoire et causale avant re-audit
+
+Le raccord calculatoire de reference n'utilise plus le petit langage historique
+de combinaisons finies de tests `inputEq`. `BitMachineDecision` fournit une
+machine a programme fini avec deux flux separes pour l'entree et le certificat,
+ainsi qu'une bande de travail bidirectionnelle non bornee. Son interprete est
+une recursion structurelle bornee par fuel. Le cout est le nombre
+d'instructions effectivement executees.
+
+`PolynomialBitMachineDecider` borne ce fuel par la taille de l'entree.
+`PolynomialBitMachineVerifier` borne simultanement la taille du certificat et
+le fuel par des polynomes de la taille de l'entree; soundness et completeness
+portent sur le run execute. `bitMachineP_subset_bitMachineNP` construit
+positivement le certificat vide, sans hypothese externe.
+
+La regression minimale obligatoire est :
 
 ~~~text
-auditedDecision_inP
-auditedDecision_inNP
-
-auditedDecision_pLike_projects
-auditedDecision_npLike_projects
+bitParity_inBitMachineP
+bitParity_inBitMachineNP
+executeBitParityProgram_steps
+  cost(input) = 4 * input.length + 2
+bitParityProgram_cost_strict_append
 ~~~
 
-La projection extensionnelle conserve exactement la reponse oui/non :
+Cette regression ne devient pas le nouvel objectif scientifique. Elle empeche
+seulement de nommer P une interface qui exclut un calcul elementaire par
+parcours.
+
+Le depot dispose ainsi d'un raccord calculatoire executable et non
+finite-state. Il ne revendique pas encore un theorem d'equivalence entre
+`InBitMachineP` / `InBitMachineNP` et une bibliotheque externe de definitions
+classiques de P / NP; une telle equivalence serait une obligation distincte et
+devrait etre prouvee avant toute nouvelle cloture globale.
+
+Le benchmark causal repare suit l'API suivante :
 
 ~~~text
-executeDecider auditedDecisionDeciderCode input
-=
-executeAuditedDecision input
+current generated state
+-> extractStructuralCandidates
+-> exploreStructuralCandidates
+-> EndogenousFlipDiscovery
+-> DiscoverySchedule
+-> ValidatedDiscoverySchedule
+-> ExecutedDiscoverySchedule
+-> ExecutedTerminalArtifact
+-> decideExecutedTerminal
 ~~~
 
-mais la projection qui oublie la provenance n'est pas fidele aux proprietes operationnelles :
+Les dependances sont structurelles. `ExecutedDiscoverySchedule` conserve le
+code effectivement retourne par son run (`codeExact`) et l'etat produit comme
+donnee. `terminalFromExecution` recoit cet objet d'execution; il ne recoit ni
+l'input initial ni un etat terminal recalcule.
+`ExecutedTerminalArtifact.scan_from_execution` fixe positivement que le scan
+porte sur `execution.producedState.context.formula`.
+
+La famille concrete utilise `causalDecisionSplitVar input = input + 2`. La
+procedure de discovery ne recoit pas cette variable : elle la retrouve comme
+premier candidat de la formule courante, apres extraction executable. Le test
+sur l'entree 7 retrouve donc 9 et facture une tentative. Une regression
+separee place un decoy syntaxique avant le candidat utile : le moteur rejette
+le decoy, trouve le candidat suivant et facture exactement deux tentatives.
+
+`executeCausalDecision` a un YES et un NO et tous ses compteurs sont lus dans
+les donnees produites par les phases. Ce resultat interdit le bypass dans l'API
+annoncee : on ne peut construire le terminal certifie de cette procedure sans
+fournir son execution. Il ne pretend pas qu'aucun autre algorithme mathematique
+ne puisse calculer le meme booleen.
+
+Etat d'arret actuel :
 
 ~~~text
-actualUngatedRelationReconstructibility_not_factor_through_residuals
-ungatedWidth_not_factor_through_residuals
+reparation formelle construite
+regressions Aristotle integrees
+aucun nouveau marqueur de cloture
+re-audit adversarial requis
 ~~~
-
-F(n) n'est pas le probleme decisionnel final. Il reste uniquement le benchmark structurel/schedule/accounting qui fournit la synthese quantitative deja auditee.
-
-Ancien marqueur, pre-audit uniquement :
-
-~~~text
-NPAndPObjectiveComplete
-npAndPObjectiveComplete
-~~~
-
-Nouveau marqueur de cloture :
-
-~~~text
-AuditedNPAndPObjectiveComplete
-auditedNPAndPObjectiveComplete
-~~~
-
-OBJECTIF NP / P TERMINE. STOP scientifique.
-
-Les etapes suivantes sont uniquement l'audit adversarial final du resultat repare et l'audit de litterature / positionnement. Elles testent et positionnent le resultat; elles ne rouvrent pas le programme scientifique.
 
 ---
 ## 26. Premier theorem SAT parametrique : statut

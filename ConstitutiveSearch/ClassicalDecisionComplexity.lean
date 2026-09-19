@@ -1,10 +1,9 @@
-import Init.Omega
 import ConstitutiveSearch.ConstitutiveComplexityInputPolynomial
 import ConstitutiveSearch.FrontierTrajectory
 import ConstitutiveSearch.RepresentationCost
 
 /-!
-# Executable source-level bridge to decision-complexity interfaces
+# Historical finite-equality decision-code interface
 
 Post-audit repair: cost is no longer an independent field attached to an
 arbitrary Boolean function.
@@ -13,8 +12,7 @@ A decider or verifier is finite syntax interpreted by an executable semantics.
 The interpreter returns both the Boolean result and source-level statistics.
 Polynomial cost is defined from those statistics.
 
-The language is deliberately minimal.  It is sufficient for the final
-Nat-coded benchmark and prevents the pre-audit construction
+The language is deliberately minimal.  It prevents the pre-audit construction
 
   decide := arbitraryFunction
   cost := 0
@@ -22,8 +20,11 @@ Nat-coded benchmark and prevents the pre-audit construction
 because there is no independently supplied cost function and no constructor
 embedding an arbitrary Boolean callback.
 
-This remains a source-level model.  Primitive Nat comparisons are charged as
-one source-level instruction; no concrete machine runtime is postulated.
+The second adversarial audit proved that these codes express only
+finite/cofinite languages and that their executed cost is input-independent.
+Accordingly, the exported membership predicates below are explicitly named
+`InFiniteEqualityP` and `InFiniteEqualityNP`.  They are historical bounded
+code-language interfaces, not definitions of classical P or NP.
 -/
 
 namespace ConstitutiveSearch
@@ -75,18 +76,15 @@ theorem DeciderCode.size_pos
     0 < code.size := by
   induction code with
   | returnBool value =>
-      simp [DeciderCode.size]
+      exact Nat.zero_lt_succ 0
   | inputEq expected =>
-      simp [DeciderCode.size]
+      exact Nat.zero_lt_succ 0
   | negate code inductionHypothesis =>
-      simp only [DeciderCode.size]
-      omega
+      exact Nat.zero_lt_succ code.size
   | both left right leftIH rightIH =>
-      simp only [DeciderCode.size]
-      omega
+      exact Nat.zero_lt_succ (left.size + right.size)
   | either left right leftIH rightIH =>
-      simp only [DeciderCode.size]
-      omega
+      exact Nat.zero_lt_succ (left.size + right.size)
 
 /-- Executable semantics of the finite decider language. -/
 def executeDecider :
@@ -161,25 +159,22 @@ theorem executeDecider_steps
   | inputEq expected =>
       rfl
   | negate code inductionHypothesis =>
-      simp only [
-        executeDecider,
-        DeciderCode.size,
-        inductionHypothesis
-      ]
+      change
+        (executeDecider code input).stats.steps + 1 =
+          code.size + 1
+      rw [inductionHypothesis]
   | both left right leftIH rightIH =>
-      simp only [
-        executeDecider,
-        DeciderCode.size,
-        leftIH,
-        rightIH
-      ]
+      change
+        (executeDecider left input).stats.steps +
+              (executeDecider right input).stats.steps + 1 =
+          left.size + right.size + 1
+      rw [leftIH, rightIH]
   | either left right leftIH rightIH =>
-      simp only [
-        executeDecider,
-        DeciderCode.size,
-        leftIH,
-        rightIH
-      ]
+      change
+        (executeDecider left input).stats.steps +
+              (executeDecider right input).stats.steps + 1 =
+          left.size + right.size + 1
+      rw [leftIH, rightIH]
 
 /-- The old fictional zero-cost probe is impossible for every executable decider. -/
 theorem executeDecider_steps_ne_zero
@@ -229,7 +224,7 @@ Correct deterministic decision procedure.
 
 There is no cost field.  Complexity is derived from executeDecider.
 -/
-structure PolynomialDecider
+structure FiniteEqualityPolynomialDecider
     (problem : DecisionProblem) where
   code : DeciderCode
   correct :
@@ -241,18 +236,18 @@ structure PolynomialDecider
         problem.Accept input
 
 /-- Executed cost function induced by a polynomial decider. -/
-def PolynomialDecider.executedCost
+def FiniteEqualityPolynomialDecider.executedCost
     {problem : DecisionProblem}
-    (decider : PolynomialDecider problem)
+    (decider : FiniteEqualityPolynomialDecider problem)
     (input : Nat) : Nat :=
   (executeDecider
     decider.code
     input).stats.steps
 
 /-- Polynomial cost follows from the actual interpreter run. -/
-theorem PolynomialDecider.executedCostPolynomial
+theorem FiniteEqualityPolynomialDecider.executedCostPolynomial
     {problem : DecisionProblem}
-    (decider : PolynomialDecider problem) :
+    (decider : FiniteEqualityPolynomialDecider problem) :
     InputPolynomiallyBounded
       problem.inputSize
       decider.executedCost :=
@@ -260,11 +255,11 @@ theorem PolynomialDecider.executedCostPolynomial
     problem
     decider.code
 
-/-- Source-level P interface relative to the executable code language. -/
-def InP
+/-- Membership in the historical finite-equality decider language. -/
+def InFiniteEqualityP
     (problem : DecisionProblem) : Prop :=
   Nonempty
-    (PolynomialDecider problem)
+    (FiniteEqualityPolynomialDecider problem)
 
 /--
 Finite verifier syntax over Nat-coded input and Nat-coded certificate.
@@ -302,22 +297,19 @@ theorem VerifierCode.size_pos
     0 < code.size := by
   induction code with
   | returnBool value =>
-      simp [VerifierCode.size]
+      exact Nat.zero_lt_succ 0
   | inputEq expected =>
-      simp [VerifierCode.size]
+      exact Nat.zero_lt_succ 0
   | witnessEq expected =>
-      simp [VerifierCode.size]
+      exact Nat.zero_lt_succ 0
   | inputEqWitness =>
-      simp [VerifierCode.size]
+      exact Nat.zero_lt_succ 0
   | negate code inductionHypothesis =>
-      simp only [VerifierCode.size]
-      omega
+      exact Nat.zero_lt_succ code.size
   | both left right leftIH rightIH =>
-      simp only [VerifierCode.size]
-      omega
+      exact Nat.zero_lt_succ (left.size + right.size)
   | either left right leftIH rightIH =>
-      simp only [VerifierCode.size]
-      omega
+      exact Nat.zero_lt_succ (left.size + right.size)
 
 /-- Executable verifier semantics. -/
 def executeVerifier :
@@ -417,25 +409,22 @@ theorem executeVerifier_steps
   | inputEqWitness =>
       rfl
   | negate code inductionHypothesis =>
-      simp only [
-        executeVerifier,
-        VerifierCode.size,
-        inductionHypothesis
-      ]
+      change
+        (executeVerifier code input witness).stats.steps + 1 =
+          code.size + 1
+      rw [inductionHypothesis]
   | both left right leftIH rightIH =>
-      simp only [
-        executeVerifier,
-        VerifierCode.size,
-        leftIH,
-        rightIH
-      ]
+      change
+        (executeVerifier left input witness).stats.steps +
+              (executeVerifier right input witness).stats.steps + 1 =
+          left.size + right.size + 1
+      rw [leftIH, rightIH]
   | either left right leftIH rightIH =>
-      simp only [
-        executeVerifier,
-        VerifierCode.size,
-        leftIH,
-        rightIH
-      ]
+      change
+        (executeVerifier left input witness).stats.steps +
+              (executeVerifier right input witness).stats.steps + 1 =
+          left.size + right.size + 1
+      rw [leftIH, rightIH]
 
 /-- The analogous fictional zero-cost verifier probe is impossible. -/
 theorem executeVerifier_steps_ne_zero
@@ -459,7 +448,7 @@ Polynomial verifier relative to Nat-coded certificates.
 Certificate size is the concrete binary representation size.  Verification
 cost is not supplied: it is the executed interpreter step count.
 -/
-structure PolynomialVerifier
+structure FiniteEqualityPolynomialVerifier
     (problem : DecisionProblem) where
   code : VerifierCode
   certificateBound :
@@ -487,9 +476,9 @@ structure PolynomialVerifier
               true
 
 /-- Executed verifier cost function. -/
-def PolynomialVerifier.executedCost
+def FiniteEqualityPolynomialVerifier.executedCost
     {problem : DecisionProblem}
-    (verifier : PolynomialVerifier problem)
+    (verifier : FiniteEqualityPolynomialVerifier problem)
     (input witness : Nat) : Nat :=
   (executeVerifier
     verifier.code
@@ -500,9 +489,9 @@ def PolynomialVerifier.executedCost
 On every certificate, verifier execution cost is bounded by one constant
 polynomial derived from the actual code syntax.
 -/
-theorem PolynomialVerifier.executedCostBound
+theorem FiniteEqualityPolynomialVerifier.executedCostBound
     {problem : DecisionProblem}
-    (verifier : PolynomialVerifier problem)
+    (verifier : FiniteEqualityPolynomialVerifier problem)
     (input witness : Nat) :
     verifier.executedCost
         input
@@ -510,18 +499,18 @@ theorem PolynomialVerifier.executedCostBound
       (CostPolynomial.constant
         verifier.code.size).eval
           (problem.inputSize input) := by
-  unfold PolynomialVerifier.executedCost
+  unfold FiniteEqualityPolynomialVerifier.executedCost
   rw [
     executeVerifier_steps
   ]
   exact
     Nat.le_refl _
 
-/-- Source-level NP verifier interface with executable cost semantics. -/
-def InNP
+/-- Membership in the historical finite-equality verifier language. -/
+def InFiniteEqualityNP
     (problem : DecisionProblem) : Prop :=
   Nonempty
-    (PolynomialVerifier problem)
+    (FiniteEqualityPolynomialVerifier problem)
 
 /--
 Extensional decision problem obtained by selecting one SearchSystem state for
@@ -560,7 +549,7 @@ Executable NP-like bridge.
 The verifier code is fixed syntax.  Soundness and completeness connect its
 Nat-coded certificates to accepted structural continuations.
 -/
-structure SearchSystemPolynomialVerifier
+structure SearchSystemFiniteEqualityVerifier
     (system : SearchSystem.{uState,uContinuation})
     (stateAt : Nat → system.State)
     (inputSize : Nat → Nat) where
@@ -602,16 +591,16 @@ structure SearchSystemPolynomialVerifier
             witness).result =
               true
 
-def SearchSystemPolynomialVerifier.toPolynomialVerifier
+def SearchSystemFiniteEqualityVerifier.toFiniteEqualityVerifier
     {system : SearchSystem.{uState,uContinuation}}
     {stateAt : Nat → system.State}
     {inputSize : Nat → Nat}
     (bridge :
-      SearchSystemPolynomialVerifier
+      SearchSystemFiniteEqualityVerifier
         system
         stateAt
         inputSize) :
-    PolynomialVerifier
+    FiniteEqualityPolynomialVerifier
       (searchSystemDecisionProblem
         system
         stateAt
@@ -640,24 +629,24 @@ def SearchSystemPolynomialVerifier.toPolynomialVerifier
           input
           viable }
 
-theorem npLike_projects_to_InNP
+theorem npLike_projects_to_finiteEqualityNP
     {system : SearchSystem.{uState,uContinuation}}
     {stateAt : Nat → system.State}
     {inputSize : Nat → Nat}
     (bridge :
-      SearchSystemPolynomialVerifier
+      SearchSystemFiniteEqualityVerifier
         system
         stateAt
         inputSize) :
-    InNP
+    InFiniteEqualityNP
       (searchSystemDecisionProblem
         system
         stateAt
         inputSize) :=
-  ⟨bridge.toPolynomialVerifier⟩
+  ⟨bridge.toFiniteEqualityVerifier⟩
 
 /-- Executable P-like bridge: only code and correctness are supplied. -/
-structure SearchSystemPolynomialDecider
+structure SearchSystemFiniteEqualityDecider
     (system : SearchSystem.{uState,uContinuation})
     (stateAt : Nat → system.State)
     (inputSize : Nat → Nat) where
@@ -671,16 +660,16 @@ structure SearchSystemPolynomialDecider
         system.Viable
           (stateAt input)
 
-def SearchSystemPolynomialDecider.toPolynomialDecider
+def SearchSystemFiniteEqualityDecider.toFiniteEqualityDecider
     {system : SearchSystem.{uState,uContinuation}}
     {stateAt : Nat → system.State}
     {inputSize : Nat → Nat}
     (bridge :
-      SearchSystemPolynomialDecider
+      SearchSystemFiniteEqualityDecider
         system
         stateAt
         inputSize) :
-    PolynomialDecider
+    FiniteEqualityPolynomialDecider
       (searchSystemDecisionProblem
         system
         stateAt
@@ -690,21 +679,21 @@ def SearchSystemPolynomialDecider.toPolynomialDecider
     correct :=
       bridge.correct }
 
-theorem pLike_projects_to_InP
+theorem pLike_projects_to_finiteEqualityP
     {system : SearchSystem.{uState,uContinuation}}
     {stateAt : Nat → system.State}
     {inputSize : Nat → Nat}
     (bridge :
-      SearchSystemPolynomialDecider
+      SearchSystemFiniteEqualityDecider
         system
         stateAt
         inputSize) :
-    InP
+    InFiniteEqualityP
       (searchSystemDecisionProblem
         system
         stateAt
         inputSize) :=
-  ⟨bridge.toPolynomialDecider⟩
+  ⟨bridge.toFiniteEqualityDecider⟩
 
 /-- Nat-indexed frontier decision problem obtained by forgetting constitution. -/
 def frontierDecisionProblem
@@ -757,26 +746,26 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.executeDecider
 #print axioms ConstitutiveSearch.executeDecider_steps
 #print axioms ConstitutiveSearch.executeDecider_steps_ne_zero
-#print axioms ConstitutiveSearch.PolynomialDecider
-#print axioms ConstitutiveSearch.PolynomialDecider.executedCost
-#print axioms ConstitutiveSearch.PolynomialDecider.executedCostPolynomial
-#print axioms ConstitutiveSearch.InP
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialDecider
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialDecider.executedCost
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialDecider.executedCostPolynomial
+#print axioms ConstitutiveSearch.InFiniteEqualityP
 #print axioms ConstitutiveSearch.VerifierCode
 #print axioms ConstitutiveSearch.VerifierCode.size
 #print axioms ConstitutiveSearch.executeVerifier
 #print axioms ConstitutiveSearch.executeVerifier_steps
 #print axioms ConstitutiveSearch.executeVerifier_steps_ne_zero
-#print axioms ConstitutiveSearch.PolynomialVerifier
-#print axioms ConstitutiveSearch.PolynomialVerifier.executedCost
-#print axioms ConstitutiveSearch.PolynomialVerifier.executedCostBound
-#print axioms ConstitutiveSearch.InNP
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialVerifier
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialVerifier.executedCost
+#print axioms ConstitutiveSearch.FiniteEqualityPolynomialVerifier.executedCostBound
+#print axioms ConstitutiveSearch.InFiniteEqualityNP
 #print axioms ConstitutiveSearch.searchSystemDecisionProblem
-#print axioms ConstitutiveSearch.SearchSystemPolynomialVerifier
-#print axioms ConstitutiveSearch.SearchSystemPolynomialVerifier.toPolynomialVerifier
-#print axioms ConstitutiveSearch.npLike_projects_to_InNP
-#print axioms ConstitutiveSearch.SearchSystemPolynomialDecider
-#print axioms ConstitutiveSearch.SearchSystemPolynomialDecider.toPolynomialDecider
-#print axioms ConstitutiveSearch.pLike_projects_to_InP
+#print axioms ConstitutiveSearch.SearchSystemFiniteEqualityVerifier
+#print axioms ConstitutiveSearch.SearchSystemFiniteEqualityVerifier.toFiniteEqualityVerifier
+#print axioms ConstitutiveSearch.npLike_projects_to_finiteEqualityNP
+#print axioms ConstitutiveSearch.SearchSystemFiniteEqualityDecider
+#print axioms ConstitutiveSearch.SearchSystemFiniteEqualityDecider.toFiniteEqualityDecider
+#print axioms ConstitutiveSearch.pLike_projects_to_finiteEqualityP
 #print axioms ConstitutiveSearch.frontierDecisionProblem
 #print axioms ConstitutiveSearch.andOrTrajectory_projects_to_decision_equivalence
 /- AXIOM_AUDIT_END -/

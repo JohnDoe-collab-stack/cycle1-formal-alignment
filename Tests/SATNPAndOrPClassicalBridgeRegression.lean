@@ -5,28 +5,14 @@ namespace ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression
 open ConstitutiveSearch
 open SAT
 
-theorem decisionProjection3 :
-    explicitFamilyDecisionProblem.Accept
-        3 ↔
-      FrontierViable
-        (generatedStructuralBranchSystem
-          (explicitStackedSymmetricFamily 3))
-        [(explicitFamilyResourceTrajectory
-          3).finish] :=
-  explicitFamilyDecisionProjection_preserved 3
-
-theorem bridgeClosed :
-    NPAndOrPClassicalBridgeClosed :=
-  npAndOrPClassicalBridgeClosed
-
-theorem objectiveComplete :
-    NPAndPObjectiveComplete :=
-  npAndPObjectiveComplete
+/-- The finite-equality projection cannot regain a classical-bridge status. -/
+theorem historicalBridgeWithdrawn :
+    preAuditClassicalBridgeStatus =
+      PreAuditClassicalBridgeStatus.withdrawnBecauseInterfaceWasFiniteEqualityOnly :=
+  preAuditClassicalBridge_isWithdrawn
 
 end ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression
 
 /- AXIOM_AUDIT_BEGIN -/
-#print axioms ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression.decisionProjection3
-#print axioms ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression.bridgeClosed
-#print axioms ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression.objectiveComplete
+#print axioms ConstitutiveSearch.Tests.SATNPAndOrPClassicalBridgeRegression.historicalBridgeWithdrawn
 /- AXIOM_AUDIT_END -/
