@@ -106,7 +106,11 @@ theorem validateSearchableCode_primitiveQueries
   | @atom source target witness =>
       cases found :
           primitive.find source target <;>
-        rfl
+        simp only [
+          validateSearchableCode,
+          found,
+          TransportCode.size
+        ]
   | compose first second firstHypothesis secondHypothesis =>
       change
         (validateSearchableCode
@@ -140,40 +144,28 @@ theorem validateSearchableCode_success_iff
       code.SearchableBy primitive := by
   induction code with
   | identity state =>
-      rfl
+      simp only [
+        validateSearchableCode,
+        TransportCode.SearchableBy
+      ]
   | @atom source target witness =>
       cases found :
-          primitive.find source target with
-      | none =>
-          simp only [
-            validateSearchableCode,
-            found,
-            TransportCode.SearchableBy,
-            Bool.false_eq_true,
-            false_iff
-          ]
-          exact
-            fun searchable =>
-              searchable found
-      | some executableWitness =>
-          simp only [
-            validateSearchableCode,
-            found,
-            TransportCode.SearchableBy,
-            Bool.true_eq_true,
-            true_iff
-          ]
-          rw [found]
-          intro impossible
-          cases impossible
+          primitive.find source target <;>
+        simp only [
+          validateSearchableCode,
+          found,
+          TransportCode.SearchableBy,
+          Bool.false_eq_true,
+          false_iff,
+          true_iff,
+          Option.some_ne_none
+        ]
   | compose first second firstHypothesis secondHypothesis =>
       simp only [
         validateSearchableCode,
         SearchableCodeValidationRun.combine,
+        TransportCode.SearchableBy,
         Bool.and_eq_true,
-        TransportCode.SearchableBy
-      ]
-      rw [
         firstHypothesis,
         secondHypothesis
       ]
