@@ -452,7 +452,7 @@ theorem auditedTerminalDecision_correct
     rw [
       auditedTerminalRun_zero
     ]
-    rfl
+    decide
   · rw [
       auditedTerminalRun_nonzero
         inputZero
