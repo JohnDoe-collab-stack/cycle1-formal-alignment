@@ -18,16 +18,29 @@ def demoPrimitive :
 theorem demoComplete :
     demoPrimitive.WitnessComplete := by
   intro source target witness
-  rfl
+  intro impossible
+  cases impossible
 
 def demoCode :
     TransportClosure
       DemoGenerator
       0
       2 :=
-  .compose
-    (.atom ())
-    (.atom ())
+  TransportClosure.compose
+    (Generator := DemoGenerator)
+    (source := 0)
+    (middle := 1)
+    (target := 2)
+    (TransportClosure.ofGenerator
+      (Generator := DemoGenerator)
+      (source := 0)
+      (target := 1)
+      ())
+    (TransportClosure.ofGenerator
+      (Generator := DemoGenerator)
+      (source := 1)
+      (target := 2)
+      ())
 
 theorem demoCodeSize :
     demoCode.size = 2 := by
