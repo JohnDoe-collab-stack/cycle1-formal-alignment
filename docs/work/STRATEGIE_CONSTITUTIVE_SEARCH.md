@@ -7,7 +7,7 @@ Ce document est le plan scientifique de travail de la branche research/np-and-or
 Base scientifique code auditee avant cette mise a jour documentaire :
 
 ~~~text
-b8c1851af96e236206f16c417efa87629bf659ea
+39429cf124d5eac698f3f7c42d6522ee145a4e63
 ~~~
 
 P1 a P6c et les couches quantitatives P7a a P7d-f sont maintenant formalises au niveau annonce dans ce document. Le head code ci-dessus a passe Linux et Windows. Le normaliseur generique possede une borne quadratique de controle-flow en largeur, la fermeture compositionnelle possede des lois de croissance explicites et des regimes polynomiaux prouves pour tout fuel fixe ainsi que pour tout fuel variable uniformement borne. Les longueurs de listes de candidats peuvent elles-memes croitre polynomialement avec la taille d'entree. Les profils constitutifs multidimensionnels se composent generiquement, deux familles SAT parametriques distinctes sont instanciees dans l'interface input-polynomiale, et le passage vers un cout machine polynomial est formalise uniquement sous un RepresentationMachineBridge explicite. Le CI final du head documentaire doit confirmer de nouveau l'ensemble apres synchronisation du plan.
@@ -149,7 +149,11 @@ ConstitutiveSearch/ClosureSearchGrowingFuelSeparator.lean
 ConstitutiveSearch/PolynomialExponentialSeparator.lean
 ConstitutiveSearch/ClosureSearchLogFuelPolynomial.lean
 ConstitutiveSearch/ClosureSearchScaledLogFuelPolynomial.lean
+ConstitutiveSearch/ClosureSearchBoundedCandidatesLogFuelPolynomial.lean
+ConstitutiveSearch/ClosureSearchJointGrowthPolynomial.lean
 ConstitutiveSearch/ClosureSearchWidthControlled.lean
+ConstitutiveSearch/ClosureSearchWidthGrowthPolynomial.lean
+ConstitutiveSearch/ClosureSearchJointGrowthSeparator.lean
 
 ConstitutiveSearch/ComplexityInterface.lean
 ConstitutiveSearch/RepresentationCost.lean
@@ -1676,10 +1680,16 @@ et la liste de candidats annonces.
 [FAIT P7d-d] avec un candidat et fuel <= c*log2(inputBits), les deux compteurs ont l'enveloppe interne explicite X^c
 [FAIT P7d-d] famille temoin inputBits(n)=2^n, fuel(n)=c*n : budget(n)+1 = inputBits(n)^c
 [FAIT P7d-d] pour c>0 cette famille de fuel est non bornee tout en restant input-polynomiale
+[FAIT P7d-d] avec candidateCount <= M constant et fuel <= c*log2(inputBits), les budgets et compteurs executables sont input-polynomiaux
+[FAIT P7d-d] critere conjoint : (log2(2*candidateCount+2)+1)*fuel <= d*log2(inputBits) => budgets <= inputBits^d
+[FAIT P7d-d] famille temoin conjointe : candidateCount=2^n-1 et fuel=n sont tous deux non bornes mais les budgets restent lineaires dans inputBits=2^((n+2)^2)
 [FAIT P7d-d] schedule de closure controle par maxFrontierWidth, avec types d'etats dependants de l'instance
 [FAIT P7d-d] largeur uniformement bornee + candidats/fuel sous cette largeur => compteurs executables input-polynomiaux
+[FAIT P7d-d] critere largeur croissante : bitWidth(maxFrontierWidth)*fuel <= d*log2(inputBits) suffit pour les compteurs executables
+[FAIT P7d-d] temoin executable avec maxFrontierWidth et fuel tous deux non bornes mais compteurs input-polynomiaux
 [FAIT P7d-d] instance SAT composee : [middle], fuel=2, tous deux certifies sous la largeur constitutive 2
-[QUALIFICATION P7d-d] la non-polynomialite est fermee pour le regime concret un candidat + fuel(input)=input; elle n'est pas extrapolee a tout fuel non borne ni aux regimes multi-candidats
+[FAIT P7d-d] separateur conjoint negatif : candidateCount=inputBits et fuel=log2(inputBits) donnent des budgets primitifs et compositionnels non InputPolynomiallyBounded
+[QUALIFICATION P7d-d] le separateur negatif porte sur les budgets recursifs canoniques, qui sont des majorants des compteurs executables; il ne constitue pas une borne inferieure de temps d'execution
 
 [FAIT P7d-e] isolatedFrontier est profile par la serialization concrete de toute sa frontiere
 [FAIT P7d-e] count <= isolatedFrontierInputBitSize count
@@ -1703,10 +1713,10 @@ et la liste de candidats annonces.
 Ordre recommande a partir du head actuel :
 
 ~~~text
-1. generaliser la classification fuel/candidats au-dela du cas un candidat
-2. caracteriser les regimes combines candidateCount(input) et fuel(input) qui restent input-polynomiaux
-3. tester les generations endogenes lorsque maxFrontierWidth croit avec l'entree
-4. relier ces regimes aux trajectoires/provenances qui produisent effectivement candidats et fuel
+1. relier candidats et fuel a des donnees produites endogenement par les trajectoires/provenances
+2. instancier le critere conjoint sur une famille constitutive/SAT a largeur croissante non synthetique
+3. etudier la necessite ou la precision du critere bitWidth(candidateCount)*fuel = O(log inputBits)
+4. isoler les regimes intermediaires eventuellement quasi-polynomiaux du moteur actuel
 5. instancier, si souhaite, un RepresentationMachineBridge vers un modele machine concret
 6. consolider l'audit de non-factorisation/provenance si necessaire
 7. effectuer P8 : audit externe de nouveaute et comparaison
@@ -1716,17 +1726,17 @@ Ordre recommande a partir du head actuel :
 
 Le verrou quantitatif courant est donc maintenant tres precis :
 
-> les candidats peuvent croitre polynomialement avec l'entree et le fuel peut
-> varier tant qu'il reste uniformement borne par une constante. Une politique
-> dont candidats et fuel restent sous une largeur constitutive uniformement
-> bornee est maintenant fermee, y compris sur l'instance SAT composee. Pour
-> avec un seul candidat, la frontiere est maintenant separee en valeur :
-> fuel(input)=input donne budget(input)+1 = 2^input et n'est pas
-> PolynomiallyBounded, tandis que fuel <= c*log2(inputBits) admet l'enveloppe
-> explicite X^c. Un fuel peut donc etre non borne et rester polynomial si sa
-> croissance est suffisamment faible relativement a la taille concrete d'entree.
-> Le cas non ferme est la classification combinee lorsque candidateCount croit
-> lui aussi avec inputBits et que fuel n'est plus uniformement borne.
+> la classification combinee possede maintenant des regimes positifs et negatifs.
+> Le critere suffisant interne
+> (log2(2*candidateCount+2)+1)*fuel <= d*log2(inputBits)
+> donne une enveloppe inputBits^d, et il permet des candidats et un fuel tous
+> deux non bornes. Le meme critere est raccorde a maxFrontierWidth pour les
+> schedules width-controlled, y compris avec largeur croissante. En sens oppose,
+> la famille candidateCount=inputBits et fuel=log2(inputBits) a des budgets
+> recursifs non InputPolynomiallyBounded. Le verrou n'est donc plus la simple
+> croissance conjointe, mais l'endogeneite : montrer comment les trajectoires et
+> provenances du calcul produisent effectivement les listes de candidats et le
+> fuel satisfaisant (ou violant) ces regimes.
 
 Cette limite n'est pas masquee. ClosureSearchGrowth montre deja, avec un seul
 candidat, la recurrence :
@@ -1736,10 +1746,10 @@ B(0) = 0
 B(f+1) = 2 * B(f) + 1
 ~~~
 
-Le prochain travail doit donc generaliser cette classification au moteur
-multi-candidats : quantifier conjointement la croissance de candidateCount et
-de fuel, puis raccorder ces hypotheses aux quantites effectivement constituees
-par les trajectoires, sans postuler leur benignite.
+Le prochain travail doit donc quitter les schedules seulement annonces et
+raccorder candidats, fuel et largeur aux donnees effectivement constituees par
+les trajectoires et leurs provenances. La classification quantitative combinee
+dispose maintenant d'un critere positif et d'un separateur negatif explicites.
 
 Le normaliseur, la composition de profils, les profils input-polynomiaux, une
 deuxieme famille parametrique et le theorem abstrait vers un cout machine sous
