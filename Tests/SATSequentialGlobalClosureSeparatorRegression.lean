@@ -5,6 +5,37 @@ namespace ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression
 open ConstitutiveSearch
 open SAT
 
+abbrev DemoGenerator
+    (_source _target : Nat) : Type :=
+  Unit
+
+def alwaysPrimitive :
+    RelationSearch DemoGenerator :=
+  { find := fun _source _target =>
+      some () }
+
+theorem primitiveHitShortCircuit :
+    let run :=
+      searchTransportClosureBounded
+        alwaysPrimitive
+        [0, 1, 2, 3]
+        7
+        0
+        3
+    run.stats.primitiveQueries = 1 ∧
+      run.stats.compositionCandidates = 0 := by
+  exact
+    searchTransportClosureBounded_primitiveHit_stats
+      alwaysPrimitive
+      [0, 1, 2, 3]
+      7
+      0
+      3
+      (by decide)
+      (by
+        intro impossible
+        cases impossible)
+
 theorem separatorExists :
     SequentialGlobalClosureAccountingSeparator :=
   explicitFamilySequentialGlobalClosureAccountingSeparator
@@ -42,6 +73,8 @@ theorem globalCompositionBudgetNotPolynomial :
 end ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression.alwaysPrimitive
+#print axioms ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression.primitiveHitShortCircuit
 #print axioms ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression.separatorExists
 #print axioms ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression.sequentialRelationFind3
 #print axioms ConstitutiveSearch.Tests.SATSequentialGlobalClosureSeparatorRegression.sequentialClosureZero3
