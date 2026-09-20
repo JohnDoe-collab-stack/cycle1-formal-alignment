@@ -1,0 +1,33 @@
+name: Export exact Aristotle audit source
+
+on:
+  push:
+    branches:
+      - validation/aristotle-source-export
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout audited commit
+        uses: actions/checkout@v4
+        with:
+          ref: dd977e56fc0dfc2a2bdf9e8be2d15875ed8dabf0
+          fetch-depth: 0
+
+      - name: Record audited commit
+        run: |
+          git rev-parse HEAD | tee AUDITED_COMMIT.txt
+          test "$(git rev-parse HEAD)" = "dd977e56fc0dfc2a2bdf9e8be2d15875ed8dabf0"
+
+      - name: Upload exact source tree
+        uses: actions/upload-artifact@v4
+        with:
+          name: cycle1-formal-alignment-dd977e56-source
+          path: .
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
