@@ -1243,6 +1243,33 @@ theorem ConstitutiveExecutionHistory.continuationApplications_eq_count
         head.stats.continuationApplications = _
       rw [inductionHypothesis, headExact]
 
+theorem ConstitutiveExecutionHistory.testedCandidates_eq_attempts
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toSequentialHistory.stats.testedCandidates =
+      run.toSequentialHistory.stats.discoveryAttempts := by
+  induction run with
+  | nil => rfl
+  | step head headRun tailRun inductionHypothesis =>
+      have activeOutcome : head.discoveryRun.outcome = headRun.discoveryRun.outcome := by
+        calc
+          head.discoveryRun.outcome =
+              (executeSequentialStageFromActiveRecorded _ _ _
+                headRun.discoveryRun.asRecorded
+                headRun.discoveryRun.extractionExact headRun.discovery
+                headRun.recordedDiscoveryFound headRun.discoveryExact
+                headRun.discoveryWorkLeCanonical).discoveryRun.outcome :=
+            congrArg (fun stage => stage.discoveryRun.outcome)
+              headRun.stageFromDiscovery
+          _ = headRun.discoveryRun.outcome := rfl
+      change tailRun.toSequentialHistory.stats.testedCandidates +
+          head.discoveryRun.outcome.testedCandidates.length =
+        tailRun.toSequentialHistory.stats.discoveryAttempts +
+          head.discoveryRun.outcome.attempts
+      rw [inductionHypothesis, activeOutcome, headRun.discoveryRun.outcomeExact,
+        exploreRecordedCandidates_tested_length]
+
 theorem ConstitutiveExecutionHistory.relationQueries_eq_attempts
     {depth count : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
@@ -2008,6 +2035,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.executeThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.testedCandidates_eq_attempts
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.executedBits_length
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.decisionAccumulations_eq_count
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.provenanceVisits_eq_count
