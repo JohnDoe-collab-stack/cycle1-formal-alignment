@@ -539,7 +539,7 @@ theorem filterCandidatesByProvenance_matches_history
         inspectCandidateProvenance_map_compatible candidate decisions
       have visits :=
         inspectCandidateProvenance_map_visits candidate decisions
-      rw [filterCandidatesByProvenance.eq_def, filterCandidatesByHistory]
+      rw [filterCandidatesByProvenance, filterCandidatesByHistory]
       cases provenanceAccepted :
           (inspectCandidateProvenance candidate
             (decisions.map (fun decision => decision.var))).compatible with
