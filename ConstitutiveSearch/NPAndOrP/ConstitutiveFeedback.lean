@@ -505,6 +505,13 @@ theorem inspectCandidateProvenance_visits_le (candidate : Var) :
         exact Nat.succ_le_succ
           (inspectCandidateProvenance_visits_le candidate rest)
 
+theorem listMapLengthConstructive {alpha beta : Type}
+    (map : alpha → beta) :
+    ∀ values : List alpha, (values.map map).length = values.length
+  | [] => rfl
+  | _head :: rest =>
+      congrArg Nat.succ (listMapLengthConstructive map rest)
+
 theorem filterCandidatesByProvenance_visits_le
     (provenance : List Var) :
     ∀ candidates : List Var,
@@ -1806,11 +1813,36 @@ theorem ConstitutiveExecutionHistory.inspections_bound
               2 * depth + 13
           exact executeSequentialStage_extractedCandidates depth assignment
         have provenanceLength :
-            state.provenance.length = state.decisions.length := by
-          rw [state.provenanceExact, List.length_map]
-        rw [headRun.discoveryRun.filteringExact]
-        rw [candidateLength, provenanceLength] at generic
-        exact generic
+            state.provenance.length = state.decisions.length :=
+          Eq.trans
+            (congrArg List.length state.provenanceExact)
+            (listMapLengthConstructive
+              (fun decision : StructuralBranchDecision => decision.var)
+              state.decisions)
+        have filteringExact :=
+          congrArg CandidateProvenanceFilterRun.visits
+            headRun.discoveryRun.filteringExact
+        have lengthProduct :
+            headRun.discoveryRun.generated.extraction.candidates.length *
+                state.provenance.length =
+              (2 * depth + 13) * state.decisions.length := by
+          exact Eq.trans
+            (congrArg
+              (fun length => length * state.provenance.length)
+              candidateLength)
+            (congrArg
+              (fun length => (2 * depth + 13) * length)
+              provenanceLength)
+        calc
+          headRun.discoveryRun.filtering.visits =
+              (filterCandidatesByProvenance state.provenance
+                headRun.discoveryRun.generated.extraction.candidates).visits :=
+            filteringExact
+          _ ≤ headRun.discoveryRun.generated.extraction.candidates.length *
+                state.provenance.length :=
+            generic
+          _ = (2 * depth + 13) * state.decisions.length :=
+            lengthProduct
       dsimp only [ConstitutiveExecutionHistory.feedbackStats,
         ConstitutiveFeedbackStats.addStage]
       have sameEnvelope :
@@ -2418,6 +2450,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.inspectCandidateProvenance
 #print axioms ConstitutiveSearch.NPAndOrP.provenanceAvoidCheck_decisions
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance
+#print axioms ConstitutiveSearch.NPAndOrP.listMapLengthConstructive
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_matches_history
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_retained_decisions
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_retained_length_le
