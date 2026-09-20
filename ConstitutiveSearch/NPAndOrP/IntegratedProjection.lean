@@ -236,6 +236,84 @@ theorem integrated_negative_result {depth : Nat} {input : SequentialAssignment d
   dsimp only
   rw [integrated_negative_missed]
 
+theorem integrated_positive_codeAtoms {depth : Nat} {input : SequentialAssignment depth}
+    (run : SequentialStageRun depth input) :
+    (integratedOrganizationObservation run .compatible).codeAtoms = 1 := by
+  change (runMeasuredProjection _ _ _ _ _).codeAtoms = 1
+  unfold runMeasuredProjection
+  dsimp only
+  rw [integrated_positive_found]
+  rfl
+
+theorem integrated_negative_codeAtoms {depth : Nat} {input : SequentialAssignment depth}
+    (run : SequentialStageRun depth input) :
+    (integratedOrganizationObservation run .incompatible).codeAtoms = 0 := by
+  change (runMeasuredProjection _ _ _ _ _).codeAtoms = 0
+  unfold runMeasuredProjection
+  dsimp only
+  rw [integrated_negative_missed]
+
+/-- Executable reference semantics of the §3.1 primitives: search the exact
+generated relation, turn the witness into finite code, apply that code, and
+read the returned continuation. This is independent of all measured helpers. -/
+def runSection31ReferenceProjection {root : Cnf} (selected : Var)
+    (source target : GeneratedStructuralBranchContext root)
+    (continuation : GeneratedStructuralBranchContinuation source) : Option Bool × Nat :=
+  match (generatedStructuralFlipAtSearch root selected).find source target with
+  | none => (none, 0)
+  | some relation =>
+    let code := TransportCode.ofGenerator relation
+    let returned := (code.eval (generatedStructuralFlipAtAction root selected)).map continuation
+    (some (returned.1 selected), code.size)
+
+/-- The measured implementation refines the unmeasured §3.1 semantics for
+every source, target and continuation, not only for the concrete benchmark. -/
+theorem runMeasuredProjection_refines_section31 {root : Cnf} (selected : Var)
+    (source target : GeneratedStructuralBranchContext root)
+    (continuation : GeneratedStructuralBranchContinuation source)
+    (reader : MeasuredAssignment continuation.1) :
+    ((runMeasuredProjection selected source target continuation reader).terminalBit,
+      (runMeasuredProjection selected source target continuation reader).codeAtoms) =
+      runSection31ReferenceProjection selected source target continuation := by
+  unfold runMeasuredProjection runSection31ReferenceProjection
+  generalize measuredExact : searchMeasuredRelation selected source target = measured
+  have resultExact := searchMeasuredRelation_exact selected source target
+  rw [measuredExact] at resultExact
+  dsimp only
+  rw [resultExact]
+  generalize found :
+    (generatedStructuralFlipAtSearch root selected).find source target = relation?
+  cases relation? with
+  | none => rfl
+  | some relation =>
+      dsimp only
+      rw [(readTransportedAssignment selected (TransportCode.ofGenerator relation)
+        continuation reader selected).valueExact]
+
+/-- Formal justification for replacing the historical §3.1 instrumentation:
+the integrated experiment uses an implementation that refines its complete
+search/apply/read semantics, while additionally emitting measured work. -/
+structure Section31PrimitiveRaccord {depth : Nat} {input : SequentialAssignment depth}
+    (run : SequentialStageRun depth input) : Prop where
+  positiveAgreement :
+    ((integratedOrganizationObservation run .compatible).terminalBit,
+      (integratedOrganizationObservation run .compatible).codeAtoms) =
+    runSection31ReferenceProjection run.storedSchedule.entry.var
+      (integratedMarkedSource run) (integratedMarkedTarget run 2 (by decide))
+      (integratedMarkedContinuation run)
+  negativeAgreement :
+    ((integratedOrganizationObservation run .incompatible).terminalBit,
+      (integratedOrganizationObservation run .incompatible).codeAtoms) =
+    runSection31ReferenceProjection run.storedSchedule.entry.var
+      (integratedMarkedSource run) (integratedMarkedTarget run 4 (by decide))
+      (integratedMarkedContinuation run)
+
+theorem integrated_section31_primitiveRaccord {depth : Nat}
+    {input : SequentialAssignment depth} (run : SequentialStageRun depth input) :
+    Section31PrimitiveRaccord run := by
+  exact ⟨runMeasuredProjection_refines_section31 _ _ _ _ _,
+    runMeasuredProjection_refines_section31 _ _ _ _ _⟩
+
 /-- The successful marked run reads the bit produced by the main stage's action. -/
 theorem integrated_positive_agrees_with_main {depth : Nat} {input : SequentialAssignment depth}
     (run : SequentialStageRun depth input) :
@@ -280,8 +358,11 @@ structure IntegratedProjectionExperiment {depth : Nat} {input : SequentialAssign
   negativeTarget : MeasuredValue (integratedMarkedTarget run 4 (by decide))
   positiveRun : MeasuredProjectionOutcome
   positiveRunExact : positiveRun = integratedOrganizationObservation run .compatible
+  positiveCodeAtoms : positiveRun.codeAtoms = 1
   negativeRun : MeasuredProjectionOutcome
   negativeRunExact : negativeRun = integratedOrganizationObservation run .incompatible
+  negativeCodeAtoms : negativeRun.codeAtoms = 0
+  section31Raccord : Section31PrimitiveRaccord run
   constructionWork : ComparisonWork
   constructionWorkExact : constructionWork = (source.work.add positiveTarget.work).add negativeTarget.work
 
@@ -299,9 +380,18 @@ def runIntegratedProjectionExperiment {depth : Nat} {input : SequentialAssignmen
     positiveRun := runMeasuredProjectionFromData run.storedSchedule.entry.var source positiveTarget
       (integratedMarkedContinuation run) input.reader
     positiveRunExact := runMeasuredProjectionFromData_exact _ _ _ _ _
+    positiveCodeAtoms := Eq.trans
+      (congrArg (fun outcome => outcome.codeAtoms)
+        (runMeasuredProjectionFromData_exact _ _ _ _ _))
+      (integrated_positive_codeAtoms run)
     negativeRun := runMeasuredProjectionFromData run.storedSchedule.entry.var source negativeTarget
       (integratedMarkedContinuation run) input.reader
     negativeRunExact := runMeasuredProjectionFromData_exact _ _ _ _ _
+    negativeCodeAtoms := Eq.trans
+      (congrArg (fun outcome => outcome.codeAtoms)
+        (runMeasuredProjectionFromData_exact _ _ _ _ _))
+      (integrated_negative_codeAtoms run)
+    section31Raccord := integrated_section31_primitiveRaccord run
     constructionWork := (source.work.add positiveTarget.work).add negativeTarget.work
     constructionWorkExact := rfl }
 
@@ -360,6 +450,11 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.integratedOrganizationObservation
 #print axioms ConstitutiveSearch.NPAndOrP.integrated_positive_result
 #print axioms ConstitutiveSearch.NPAndOrP.integrated_negative_result
+#print axioms ConstitutiveSearch.NPAndOrP.integrated_positive_codeAtoms
+#print axioms ConstitutiveSearch.NPAndOrP.integrated_negative_codeAtoms
+#print axioms ConstitutiveSearch.NPAndOrP.runSection31ReferenceProjection
+#print axioms ConstitutiveSearch.NPAndOrP.runMeasuredProjection_refines_section31
+#print axioms ConstitutiveSearch.NPAndOrP.integrated_section31_primitiveRaccord
 #print axioms ConstitutiveSearch.NPAndOrP.integrated_positive_agrees_with_main
 #print axioms ConstitutiveSearch.NPAndOrP.runMeasuredProjectionFromData
 #print axioms ConstitutiveSearch.NPAndOrP.runMeasuredProjectionFromData_exact

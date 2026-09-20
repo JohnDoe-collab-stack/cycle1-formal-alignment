@@ -338,10 +338,20 @@ theorem regression_validated_atoms_are_run_emitted (input : Nat) :
       (executeConstitutiveResolution input).stats.validatedAtoms :=
   rfl
 
-/-- Regression 29: the final family carries the exhaustive §7 certificate. -/
+/-- Regression 29: each final per-input evidence carries the exhaustive §7 certificate. -/
 theorem regression_section7_accounting_is_in_final_family (input : Nat) :
     Section7AccountingCoverage (executeConstitutiveResolution input) :=
-  constitutiveAndOrResolutionFamily.section7Coverage input
+  by
+    have coverage :=
+      (constitutiveAndOrResolutionPerInputEvidence input).section7Coverage
+    rw [(constitutiveAndOrResolutionPerInputEvidence input).core.runExact] at coverage
+    exact coverage
+
+/-- Regression 29b: the per-input final evidence exposes its exact canonical total. -/
+theorem regression_accounting_exact_in_final_per_input (input : Nat) :
+    (constitutiveAndOrResolutionPerInputEvidence input).canonicalAccounting.total =
+      (constitutiveAndOrResolutionPerInputEvidence input).core.run.instrumentedWork :=
+  (constitutiveAndOrResolutionPerInputEvidence input).totalWorkExact
 
 /-- Regression 30: the closed generic interface performs actual discovery. -/
 theorem regression_concrete_interface_discovers (input : Nat) :
@@ -522,6 +532,28 @@ theorem regression_projection_consumes_executed_stage (input : Nat) :
     (executeConstitutiveResolution input).projectionExperiment =
       runIntegratedProjectionExperiment (executeConstitutiveResolution input).history.firstStage :=
   (executeConstitutiveResolution input).projectionExperimentExact
+
+/-- The final evidence package exposes the formal refinement of the §3.1
+search/apply/read semantics, so the replacement cannot remain documentary. -/
+theorem regression_integrated_projection_refines_section31 (input : Nat) :
+    Section31PrimitiveRaccord
+      (executeConstitutiveResolution input).history.firstStage :=
+  (constitutiveAndOrResolutionEvidence input).projectionUsesSection31Primitives
+
+/-- The successful integrated organization executes one transport atom; the
+incompatible organization executes none. Both counts are public run data. -/
+theorem regression_integrated_projection_codeAtoms (input : Nat) :
+    let run := executeConstitutiveResolution input
+    run.projectionExperiment.positiveRun.codeAtoms = 1 ∧
+      run.projectionExperiment.negativeRun.codeAtoms = 0 := by
+  dsimp only
+  exact ⟨(constitutiveAndOrResolutionEvidence input).projectionPositiveCodeAtoms,
+    (constitutiveAndOrResolutionEvidence input).projectionNegativeCodeAtoms⟩
+
+/-- The §6 obligations are exposed together for the actual public run. -/
+def regression_section6_operational_succession (input : Nat) :
+    Section6OperationalSuccessionEvidence (executeConstitutiveResolution input) :=
+  (constitutiveAndOrResolutionEvidence input).section6Succession
 
 theorem regression_projection_positive_reads_main_action (input : Nat) :
     let run := executeConstitutiveResolution input
@@ -715,6 +747,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_discovery_measured_bound
 #print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_validation_execution_measured_bound
 #print axioms ConstitutiveSearch.NPAndOrP.regression_projection_consumes_executed_stage
+#print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_projection_refines_section31
+#print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_projection_codeAtoms
+#print axioms ConstitutiveSearch.NPAndOrP.regression_section6_operational_succession
 #print axioms ConstitutiveSearch.NPAndOrP.regression_projection_positive_reads_main_action
 #print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_projection_not_factors
 #print axioms ConstitutiveSearch.NPAndOrP.regression_generic_exploration_full_data
@@ -768,6 +803,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_extracted_candidates_are_run_emitted
 #print axioms ConstitutiveSearch.NPAndOrP.regression_validated_atoms_are_run_emitted
 #print axioms ConstitutiveSearch.NPAndOrP.regression_section7_accounting_is_in_final_family
+#print axioms ConstitutiveSearch.NPAndOrP.regression_accounting_exact_in_final_per_input
 #print axioms ConstitutiveSearch.NPAndOrP.regression_concrete_interface_discovers
 #print axioms ConstitutiveSearch.NPAndOrP.regression_projection_experiment_uses_constituted_index
 #print axioms ConstitutiveSearch.NPAndOrP.regression_generation_accounting_is_exact

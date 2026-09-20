@@ -799,23 +799,67 @@ theorem executeConstitutiveResolution_section7Coverage (input : Nat) :
   exact executedHistory_testedCandidates input (resolutionLength input)
     (initialSequentialAssignment input)
 
+/--
+Final evidence for one concrete input.  The constitutive evidence and its
+accounting certificate are carried by the same value: the ledger is the one
+projected from `core.run`, its total is exactly that run's instrumented work,
+every §7 operation has an owner, and the polynomial bound applies to this very
+run.  No family-level theorem has to be consulted to recover these facts.
+-/
+structure ConstitutiveAndOrResolutionPerInputEvidence (input : Nat) : Type 3 where
+  core : ConstitutiveAndOrResolutionEvidence input
+  canonicalAccounting : CanonicalMeasuredAccounting input
+  phaseWorkExact : canonicalAccounting.phaseWork = core.run.phaseWork
+  totalWorkExact : canonicalAccounting.total = core.run.instrumentedWork
+  section7Coverage : Section7AccountingCoverage core.run
+  phaseOwnershipUnique : ∀ phase, phaseOccurrences phase measuredPhases = 1
+  accountingPartition :
+    core.run.instrumentedWork =
+      core.run.mainInstrumentedWork + core.run.projectionExperiment.measuredWork
+  totalWorkBound :
+    core.run.instrumentedWork ≤ resolutionInstrumentedPolynomial.eval input
+
+/-- The exact final evidence is constructed independently for every input. -/
+def constitutiveAndOrResolutionPerInputEvidence (input : Nat) :
+    ConstitutiveAndOrResolutionPerInputEvidence input := by
+  let core := constitutiveAndOrResolutionEvidence input
+  let accounting := canonicalMeasuredAccounting input
+  refine
+    { core := core
+      canonicalAccounting := accounting
+      phaseWorkExact := ?_
+      totalWorkExact := ?_
+      section7Coverage := ?_
+      phaseOwnershipUnique := measuredPhase_occurs_once
+      accountingPartition := ?_
+      totalWorkBound := ?_ }
+  · rw [core.runExact, accounting.phaseWorkExact]
+  · rw [core.runExact]
+    exact accounting.total_is_canonical
+  · rw [core.runExact]
+    exact executeConstitutiveResolution_section7Coverage input
+  · rw [core.runExact]
+    exact (executeConstitutiveResolution input).instrumentedWork_partition
+  · rw [core.runExact]
+    exact (executeConstitutiveResolution input).instrumentedWork_polynomial_bound
+
 /-- Final integrated family for the construction currently proved. Its work
 field is the canonical phase-owned ledger, not the legacy structural surface.
 This is a synthesis of the concrete family only, not a universal closure claim. -/
 structure ConstitutiveAndOrResolutionFamily : Type 3 where
-  perInput : ∀ input, ConstitutiveAndOrResolutionEvidence input
+  perInput : ∀ input, ConstitutiveAndOrResolutionPerInputEvidence input
   integratedDiscoveryWorkStrict :
     ∀ input,
-      (perInput input).run.stats.discoveryAttempts <
-        (perInput (input + 1)).run.stats.discoveryAttempts
+      (perInput input).core.run.stats.discoveryAttempts <
+        (perInput (input + 1)).core.run.stats.discoveryAttempts
   integratedDiscoveryWorkStrictBetween :
     ∀ {first second}, first < second →
-      (perInput first).run.stats.discoveryAttempts <
-        (perInput second).run.stats.discoveryAttempts
+      (perInput first).core.run.stats.discoveryAttempts <
+        (perInput second).core.run.stats.discoveryAttempts
   generatedWorkStrict :
     ∀ input,
-      (perInput input).run.stats.generatedSteps <
-        (perInput (input + 1)).run.stats.generatedSteps
+      (perInput input).core.run.stats.generatedSteps <
+        (perInput (input + 1)).core.run.stats.generatedSteps
   discoveryAttemptsStrict :
     ∀ input,
       (stageRecordedDiscoveryRun input).outcome.attempts <
@@ -832,7 +876,7 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
   structuralSurfaceBound :
     InputPolynomiallyBounded
       (fun input => input)
-      (fun input => (perInput input).run.structuralProfileCost)
+      (fun input => (perInput input).core.run.structuralProfileCost)
   totalWorkBound :
     InputPolynomiallyBounded (fun input => (encodeConstitutiveInput input).length)
       (fun input => (executeConstitutiveResolution input).instrumentedWork)
@@ -847,14 +891,14 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
   projectionCannotRecoverConstitution :
     ∀ input,
       ¬ ValueFactorsThrough
-          (integratedInputProjection (perInput input).run.history.firstStage)
+          (integratedInputProjection (perInput input).core.run.history.firstStage)
           (fun organization =>
             (integratedOrganizationObservation
-              (perInput input).run.history.firstStage organization).terminalBit)
+              (perInput input).core.run.history.firstStage organization).terminalBit)
 
 /-- The complete measured concrete family is constructed rather than assumed. -/
 def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
-  { perInput := constitutiveAndOrResolutionEvidence
+  { perInput := constitutiveAndOrResolutionPerInputEvidence
     integratedDiscoveryWorkStrict := resolution_discoveryAttempts_strict
     integratedDiscoveryWorkStrictBetween := resolution_discoveryAttempts_strict_between
     generatedWorkStrict := resolution_generatedSteps_strict
@@ -873,7 +917,7 @@ def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
       (executeConstitutiveResolution input).instrumentedWork_partition
     projectionCannotRecoverConstitution :=
       fun input => integrated_projection_not_factors
-        (constitutiveAndOrResolutionEvidence input).run.history.firstStage }
+        (constitutiveAndOrResolutionPerInputEvidence input).core.run.history.firstStage }
 
 /-- Family-level synthesis of the implemented, measured constitutive procedure.
 The full-work field includes the separately owned projection experiment. -/
@@ -957,6 +1001,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.instrumentedWork_polynomial_bound
 #print axioms ConstitutiveSearch.NPAndOrP.instrumentedWork_inputPolynomial
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_section7Coverage
+#print axioms ConstitutiveSearch.NPAndOrP.constitutiveAndOrResolutionPerInputEvidence
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveAndOrResolutionFamily
 #print axioms ConstitutiveSearch.NPAndOrP.measuredConstitutiveFamily
 /- AXIOM_AUDIT_END -/

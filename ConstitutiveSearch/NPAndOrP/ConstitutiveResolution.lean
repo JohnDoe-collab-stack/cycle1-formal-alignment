@@ -549,6 +549,62 @@ def constitutiveCausalStageEvidence
     outputIsAccepted := run.outputAccepted }
 
 /--
+The exact aggregate required by §6.  The fields do not reconstruct a second
+execution: they expose, in one typed package, the equalities and recursive
+witnesses already carried by the unique public run.
+-/
+structure Section6OperationalSuccessionEvidence {input : Nat}
+    (run : ConstitutiveResolutionRun input) : Type 2 where
+  sourceIsInitial :
+    executeGeneratedHistory run.generatedHistory
+        (initialSequentialAssignment input) = run.history
+  discoveryTraversalReturnsHistory :
+    run.discoveryTraversal.execution? = some run.history
+  successionIsTyped : FullHistoryExecution run.history
+  discoveryProvenanceIsRetained : GenericRefinedHistory run.history
+  returnedCodesComeFromDiscoveredPath :
+    run.history.localPath.map LocalPrimitiveAtom.compile = run.history.returnedCodes
+  terminalComesFromExecution :
+    run.terminal = terminalFromSequentialHistory run.history
+  targetIsHistoryEndpoint :
+    run.terminal.assignment = run.history.final.assignment
+  executedAtomsAreGeneratedSteps :
+    run.stats.appliedCodeAtoms = run.generatedHistory.stepCount
+  compositionCandidatesAreZero :
+    run.stats.compositionCandidates = 0
+  terminalContinuationIsOperationalFold :
+    run.terminal.assignment =
+      foldOperationalSteps run.history.returnedCodes
+        (initialSequentialAssignment input).assignment
+
+def section6OperationalSuccessionEvidence {input : Nat}
+    (run : ConstitutiveResolutionRun input) :
+    Section6OperationalSuccessionEvidence run :=
+  { sourceIsInitial := run.historyConsumesGeneration
+    discoveryTraversalReturnsHistory := run.discoveryTraversalExecutionExact
+    successionIsTyped := run.fullHistoryExecution
+    discoveryProvenanceIsRetained := run.genericRefinement
+    returnedCodesComeFromDiscoveredPath := localPath_compiles_to_returnedCodes run.history
+    terminalComesFromExecution := run.terminalExact
+    targetIsHistoryEndpoint := run.terminal.assignmentExact
+    executedAtomsAreGeneratedSteps := by
+      calc
+        run.stats.appliedCodeAtoms = input + 1 := by
+          rw [run.statsExact, run.historyExact]
+          exact executedHistory_appliedAtoms input (resolutionLength input)
+            (initialSequentialAssignment input)
+        _ = run.generatedHistory.stepCount := by
+          rw [run.generatedHistoryExact, resolutionGeneratedHistory_eq_reference]
+          exact (producedHistory_stepCount input (resolutionLength input)).symm
+    compositionCandidatesAreZero := by
+      rw [run.statsExact, run.historyExact]
+      exact executedHistory_compositionCandidates input (resolutionLength input)
+        (initialSequentialAssignment input)
+    terminalContinuationIsOperationalFold :=
+      Eq.trans run.terminal.assignmentExact
+        (terminalAssignment_is_operational_fold run.history) }
+
+/--
 Exact evidence exposed for every input.  Each field names a construction or a
 theorem already tied to the executed run; no conditional operational premise
 is left open.
@@ -627,6 +683,7 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
   successfulDiscoveriesExact :
     run.discoveryTraversal.successfulDiscoveries = input + 1
   noDiscoveryFailure : run.discoveryTraversal.failureDepth? = none
+  section6Succession : Section6OperationalSuccessionEvidence run
   acceptedExecutionHistory : AcceptedSequentialHistory run.history
   compiledPathIsReturnedCode :
     run.history.localPath.map LocalPrimitiveAtom.compile = run.history.returnedCodes
@@ -679,6 +736,12 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
     ¬ ValueFactorsThrough
         (integratedInputProjection run.history.firstStage)
         (fun organization => (integratedOrganizationObservation run.history.firstStage organization).terminalBit)
+  projectionUsesSection31Primitives :
+    Section31PrimitiveRaccord run.history.firstStage
+  projectionPositiveCodeAtoms :
+    run.projectionExperiment.positiveRun.codeAtoms = 1
+  projectionNegativeCodeAtoms :
+    run.projectionExperiment.negativeRun.codeAtoms = 0
   projectionRunsIntegrated :
     run.projectionExperiment = runIntegratedProjectionExperiment run.history.firstStage
 
@@ -740,6 +803,7 @@ def constitutiveAndOrResolutionEvidence
     discoveryRunsExact := run.discoveryTraversalRunsExact
     successfulDiscoveriesExact := run.successfulDiscoveriesExact
     noDiscoveryFailure := run.discoveryFailureAbsent
+    section6Succession := section6OperationalSuccessionEvidence run
     acceptedExecutionHistory := run.acceptedHistory
     compiledPathIsReturnedCode := localPath_compiles_to_returnedCodes run.history
     producedPathLength := localPath_length run.history
@@ -800,6 +864,9 @@ def constitutiveAndOrResolutionEvidence
       (integrated_marked_projection_equal run.history.firstStage)
     operationalProjectionNonFactorization :=
       integrated_projection_not_factors run.history.firstStage
+    projectionUsesSection31Primitives := run.projectionExperiment.section31Raccord
+    projectionPositiveCodeAtoms := run.projectionExperiment.positiveCodeAtoms
+    projectionNegativeCodeAtoms := run.projectionExperiment.negativeCodeAtoms
     projectionRunsIntegrated := run.projectionExperimentExact }
 
 /-- Execution retains the precise generated steps supplied to its traversal. -/
@@ -924,5 +991,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_surface_le
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveResolutionSurface_inputPolynomial
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveCausalStageEvidence
+#print axioms ConstitutiveSearch.NPAndOrP.section6OperationalSuccessionEvidence
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveAndOrResolutionEvidence
 /- AXIOM_AUDIT_END -/
