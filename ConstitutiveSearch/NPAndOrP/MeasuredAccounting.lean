@@ -227,12 +227,28 @@ theorem ConstitutiveResolutionRun.extractedCandidateWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.extractedCandidateWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.extractedCandidateWork
-  rw [run.statsExact, run.historyFromCausalExecution]
-  rw [(run.constitutiveFeedbackHistory.controlStats_exact).1]
+  have statsCausal :
+      run.stats = run.constitutiveFeedbackHistory.toSequentialHistory.stats :=
+    Eq.trans run.statsExact
+      (congrArg (fun history => history.stats) run.historyFromCausalExecution)
+  have control := run.constitutiveFeedbackHistory.controlStats_exact
   have bound := run.extractionWork_bound
   change run.stats.extractionClauseVisits + run.stats.extractionLiteralVisits ≤ _ at bound
-  rw [run.statsExact, run.historyFromCausalExecution] at bound
-  exact Nat.le_trans (Nat.le_add_left _ _) bound
+  calc
+    run.stats.extractedCandidates =
+        run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractedCandidates :=
+      congrArg (fun stats : SequentialHistoryStats => stats.extractedCandidates) statsCausal
+    _ = run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractionLiteralVisits :=
+      control.1
+    _ ≤ run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractionClauseVisits +
+        run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractionLiteralVisits :=
+      Nat.le_add_left _ _
+    _ = run.stats.extractionClauseVisits + run.stats.extractionLiteralVisits :=
+      congrArg
+        (fun stats : SequentialHistoryStats =>
+          stats.extractionClauseVisits + stats.extractionLiteralVisits)
+        statsCausal.symm
+    _ ≤ resolutionExtractionPolynomial.eval input := bound
 
 def resolutionAttemptPolynomial : CostPolynomial :=
   let count : CostPolynomial := .add .input (.constant 1)
@@ -249,24 +265,43 @@ theorem ConstitutiveResolutionRun.candidateTestWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.candidateTestWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.candidateTestWork
-  rw [run.statsExact, run.historyFromCausalExecution]
+  have statsCausal :
+      run.stats = run.constitutiveFeedbackHistory.toSequentialHistory.stats :=
+    Eq.trans run.statsExact
+      (congrArg (fun history => history.stats) run.historyFromCausalExecution)
   have extracted := run.extractedCandidateWork_bound
   unfold ConstitutiveResolutionRun.extractedCandidateWork at extracted
-  rw [run.statsExact, run.historyFromCausalExecution] at extracted
-  exact Nat.le_trans (run.constitutiveFeedbackHistory.controlStats_exact).2.1
-    extracted
+  calc
+    run.stats.discoveryAttempts =
+        run.constitutiveFeedbackHistory.toSequentialHistory.stats.discoveryAttempts :=
+      congrArg (fun stats : SequentialHistoryStats => stats.discoveryAttempts) statsCausal
+    _ ≤ run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractedCandidates :=
+      (run.constitutiveFeedbackHistory.controlStats_exact).2.1
+    _ = run.stats.extractedCandidates :=
+      congrArg (fun stats : SequentialHistoryStats => stats.extractedCandidates) statsCausal.symm
+    _ ≤ resolutionExtractionPolynomial.eval input := extracted
 
 theorem ConstitutiveResolutionRun.relationQueryWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.relationQueryWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.relationQueryWork
-  rw [run.statsExact, run.historyFromCausalExecution,
-    run.constitutiveFeedbackHistory.relationQueries_eq_attempts]
+  have statsCausal :
+      run.stats = run.constitutiveFeedbackHistory.toSequentialHistory.stats :=
+    Eq.trans run.statsExact
+      (congrArg (fun history => history.stats) run.historyFromCausalExecution)
   have extracted := run.extractedCandidateWork_bound
   unfold ConstitutiveResolutionRun.extractedCandidateWork at extracted
-  rw [run.statsExact, run.historyFromCausalExecution] at extracted
-  exact Nat.le_trans (run.constitutiveFeedbackHistory.controlStats_exact).2.1
-    extracted
+  calc
+    run.stats.relationQueries =
+        run.constitutiveFeedbackHistory.toSequentialHistory.stats.relationQueries :=
+      congrArg (fun stats : SequentialHistoryStats => stats.relationQueries) statsCausal
+    _ = run.constitutiveFeedbackHistory.toSequentialHistory.stats.discoveryAttempts :=
+      run.constitutiveFeedbackHistory.relationQueries_eq_attempts
+    _ ≤ run.constitutiveFeedbackHistory.toSequentialHistory.stats.extractedCandidates :=
+      (run.constitutiveFeedbackHistory.controlStats_exact).2.1
+    _ = run.stats.extractedCandidates :=
+      congrArg (fun stats : SequentialHistoryStats => stats.extractedCandidates) statsCausal.symm
+    _ ≤ resolutionExtractionPolynomial.eval input := extracted
 
 def resolutionValidatedAtomPolynomial : CostPolynomial :=
   .add .input (.constant 1)
@@ -275,9 +310,18 @@ theorem ConstitutiveResolutionRun.validatedAtomWork_exact {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.validatedAtomWork = resolutionValidatedAtomPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.validatedAtomWork resolutionValidatedAtomPolynomial
-  rw [run.statsExact, run.historyFromCausalExecution,
-    (run.constitutiveFeedbackHistory.controlStats_exact).2.2]
-  rfl
+  have statsCausal :
+      run.stats = run.constitutiveFeedbackHistory.toSequentialHistory.stats :=
+    Eq.trans run.statsExact
+      (congrArg (fun history => history.stats) run.historyFromCausalExecution)
+  change run.stats.validatedAtoms = input + 1
+  calc
+    run.stats.validatedAtoms =
+        run.constitutiveFeedbackHistory.toSequentialHistory.stats.validatedAtoms :=
+      congrArg (fun stats : SequentialHistoryStats => stats.validatedAtoms) statsCausal
+    _ = resolutionLength input :=
+      (run.constitutiveFeedbackHistory.controlStats_exact).2.2
+    _ = input + 1 := rfl
 
 /-- The §7 counters not already owned by recursive comparison/search work.
 Candidate traces are not charged twice: the emitted attempt is the unique
@@ -778,11 +822,11 @@ theorem ConstitutiveResolutionRun.projectionEnvelope_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     integratedProjectionEnvelope run.history.firstStage ≤
       resolutionProjectionPolynomial.eval input := by
-  rw [run.historyExact]
-  change integratedProjectionEnvelope
-      (executeSequentialStage input (initialSequentialAssignment input)) ≤ _
-  exact Nat.le_trans (canonicalIntegratedProjectionEnvelope_bound input)
-    (Nat.le_of_eq (projectionStagePolynomial_eval (.add .input (.constant 1)) input).symm)
+  exact Nat.le_trans
+    (integratedProjectionEnvelope_stage_bound run.history.firstStage
+      (readAlternatingAssignment_bound _))
+    (Nat.le_of_eq
+      (projectionStagePolynomial_eval (.add .input (.constant 1)) input).symm)
 
 def resolutionInstrumentedPolynomial : CostPolynomial :=
   .add resolutionMainInstrumentedPolynomial resolutionProjectionPolynomial
@@ -893,11 +937,16 @@ theorem executeConstitutiveResolution_section7Coverage (input : Nat) :
       terminalOwned := rfl
       projectionOwned := rfl
       canonicalTotalExact := rfl }
-  rw [(executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact]
-  unfold resolutionHistory
-  exact executedHistory_testedCandidates input (resolutionLength input)
-    (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  have statsCausal :
+      run.stats = run.constitutiveFeedbackHistory.toSequentialHistory.stats :=
+    Eq.trans run.statsExact
+      (congrArg (fun history => history.stats) run.historyFromCausalExecution)
+  exact Eq.trans
+    (congrArg (fun stats : SequentialHistoryStats => stats.testedCandidates) statsCausal)
+    (Eq.trans run.constitutiveFeedbackHistory.testedCandidates_eq_attempts
+      (congrArg (fun stats : SequentialHistoryStats => stats.discoveryAttempts)
+        statsCausal).symm)
 
 /--
 Final evidence for one concrete input.  The constitutive evidence and its
