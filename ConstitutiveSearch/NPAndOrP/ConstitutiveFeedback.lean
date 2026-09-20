@@ -797,6 +797,25 @@ theorem stageNext_preserves_threadedDecisions {depth : Nat}
   rw [sequentialStage_selected_exact]
   exact different
 
+/-- The AND determination is formed from the bit returned by the executed
+transport.  Its canonical `true` value is a theorem about that execution,
+not the datum used to construct the determination. -/
+def executedAndDecision {depth : Nat} {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) : StructuralBranchDecision :=
+  ⟨stageSelectedVar (depth + 1),
+    stage.application.output.1 (stageSelectedVar (depth + 1))⟩
+
+theorem executedAndDecision_eq_selected_true {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) :
+    executedAndDecision stage =
+      ⟨stageSelectedVar (depth + 1), true⟩ := by
+  unfold executedAndDecision
+  have selected :
+      stage.schedule.entry.var = stageSelectedVar (depth + 1) :=
+    sequentialStage_selected_exact stage
+  rw [← selected, stage.output_selected]
+
 /-- Instrumented realization of the complete next state.  It consumes the
 actual generated target, the executed continuation and the accumulated AND
 history; the next discovery is then computed from the returned state. -/
@@ -810,6 +829,8 @@ structure NextOperationalStateRun {depth : Nat}
   generationFromProducedTarget :
     next.generation =
       generateCanonicalStageFromSource state.generation.target state.generation.targetExact
+  decisionsFromExecutedOutput :
+    next.decisions = executedAndDecision stage :: state.decisions
   decisionsFromExecution :
     next.decisions =
       ⟨stageSelectedVar (depth + 1), true⟩ :: state.decisions
@@ -831,28 +852,36 @@ def realizeNextOperationalState {depth : Nat}
   let provenanceRun := prependProvenanceMeasured selected state.provenance
   let nextGeneration :=
     generateCanonicalStageFromSource state.generation.target state.generation.targetExact
-  have selectedTrue : stage.next.assignment selected = true := by
-    rw [sequentialStage_next_from_input, sequentialStage_selected_exact,
-      Assignment.flipAt_selected, assignment.futureSelectedFalse _ (Nat.le_refl _)]
-    rfl
+  let executedDecision := executedAndDecision stage
+  have executedDecisionHolds :
+      stage.next.assignment executedDecision.var = executedDecision.value := by
+    unfold executedDecision executedAndDecision
+    exact congrArg
+      (fun produced => produced (stageSelectedVar (depth + 1)))
+      stage.nextAssignmentExact
   have oldHold : StructuralDecisionsHold stage.next.assignment state.decisions :=
     stageNext_preserves_threadedDecisions state stage avoid
   let next : ThreadedConstitutiveState (depth + 1) stage.next :=
     { threadedAssignment := stage.next
       threadedAssignmentExact := rfl
       generation := nextGeneration
-      decisions := ⟨selected, true⟩ :: state.decisions
+      decisions := executedDecision :: state.decisions
       provenance := provenanceRun.output
       provenanceExact := by
         rw [provenanceRun.outputExact, state.provenanceExact]
         rfl
-      decisionsHold := ⟨selectedTrue, oldHold⟩ }
+      decisionsHold := ⟨executedDecisionHolds, oldHold⟩ }
   exact
     { provenanceRun := provenanceRun
       next := next
       assignmentFromExecution := rfl
       generationFromProducedTarget := rfl
-      decisionsFromExecution := rfl
+      decisionsFromExecutedOutput := rfl
+      decisionsFromExecution := by
+        change executedDecision :: state.decisions =
+          ⟨stageSelectedVar (depth + 1), true⟩ :: state.decisions
+        exact congrArg (fun decision => decision :: state.decisions)
+          (executedAndDecision_eq_selected_true stage)
       provenanceFromExecution := provenanceRun.outputExact
       decisionAccumulationWork := 1
       decisionAccumulationWorkExact := rfl
@@ -1569,6 +1598,7 @@ structure ThreadedConstitutiveRoleStage {depth : Nat}
     ((constructStage (depth + 1)).operationalRoot.child stage.discovery.var false stage.discovery.fresh)
     ((constructStage (depth + 1)).operationalRoot.child stage.discovery.var true stage.discovery.fresh)
   andDecision : StructuralBranchDecision
+  andDecisionFromExecution : andDecision = executedAndDecision stage
   andDecisionExact : andDecision = ⟨stageSelectedVar (depth + 1), true⟩
   pRelationComesFromTransmittedState :
     run.discoveryRun.outcome.discovered? = some stage.discovery
@@ -1591,12 +1621,23 @@ def threadedConstitutiveRoleStage {depth : Nat}
     npStateExact := rfl
     orOpening := generatedStructuralSplit
       (constructStage (depth + 1)).operationalRoot stage.discovery.var stage.discovery.fresh
-    andDecision := ⟨stageSelectedVar (depth + 1), true⟩
-    andDecisionExact := rfl
+    andDecision := executedAndDecision stage
+    andDecisionFromExecution := rfl
+    andDecisionExact := executedAndDecision_eq_selected_true stage
     pRelationComesFromTransmittedState := run.relationFromTransmittedState
     pExecutionProducesContinuation := run.executedOutputFromThatCode
     nextNpState := run.nextRun.next
     nextNpStateExact := rfl }
+
+theorem roleStage_andDecision_reads_executedOutput {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    (threadedConstitutiveRoleStage run).andDecision =
+      ⟨stageSelectedVar (depth + 1),
+        stage.application.output.1 (stageSelectedVar (depth + 1))⟩ := by
+  rfl
 
 theorem roleStage_output_constitutes_nextOperationalState {depth : Nat}
     {assignment : SequentialAssignment depth}
@@ -2071,6 +2112,8 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.prependProvenanceMeasured
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsHold_transport
 #print axioms ConstitutiveSearch.NPAndOrP.stageNext_preserves_threadedDecisions
+#print axioms ConstitutiveSearch.NPAndOrP.executedAndDecision
+#print axioms ConstitutiveSearch.NPAndOrP.executedAndDecision_eq_selected_true
 #print axioms ConstitutiveSearch.NPAndOrP.realizeNextOperationalState
 #print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.fresh
 #print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.generationCanonical
@@ -2092,6 +2135,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.inspections_bound
 #print axioms ConstitutiveSearch.NPAndOrP.executedFeedbackHistory_provenanceVisits
 #print axioms ConstitutiveSearch.NPAndOrP.executedFeedbackHistory_inspections_bound
+#print axioms ConstitutiveSearch.NPAndOrP.roleStage_andDecision_reads_executedOutput
 #print axioms ConstitutiveSearch.NPAndOrP.roleStage_output_constitutes_nextOperationalState
 #print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveRoleHistory
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscoveryCommonOrigin
