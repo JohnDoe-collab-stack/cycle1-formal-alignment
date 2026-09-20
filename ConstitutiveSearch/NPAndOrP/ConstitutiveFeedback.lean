@@ -235,16 +235,12 @@ theorem filterCandidatesByHistory_retained_length_le
   | [] => Nat.le_refl 0
   | candidate :: rest => by
       rw [filterCandidatesByHistory]
-      cases checked : (inspectCandidateHistory candidate decisions).compatible with
-      | false =>
-          dsimp only
-          exact Nat.le_trans
-            (filterCandidatesByHistory_retained_length_le decisions rest)
-            (Nat.le_succ _)
-      | true =>
-          dsimp only
-          exact Nat.succ_le_succ
-            (filterCandidatesByHistory_retained_length_le decisions rest)
+      split
+      · exact Nat.succ_le_succ
+          (filterCandidatesByHistory_retained_length_le decisions rest)
+      · exact Nat.le_trans
+          (filterCandidatesByHistory_retained_length_le decisions rest)
+          (Nat.le_succ _)
 
 theorem exploreRecordedCandidates_attempts_le_length
     {rootFormula : Cnf}
@@ -254,14 +250,10 @@ theorem exploreRecordedCandidates_attempts_le_length
   | [] => Nat.le_refl 0
   | candidate :: rest => by
       rw [exploreRecordedCandidates]
-      cases found : (tryMeasuredCandidate state candidate).produced? with
-      | none =>
-          dsimp only
-          exact Nat.succ_le_succ
-            (exploreRecordedCandidates_attempts_le_length state rest)
-      | some produced =>
-          dsimp only
-          exact Nat.succ_le_succ (Nat.zero_le _)
+      split
+      · exact Nat.succ_le_succ (Nat.zero_le _)
+      · exact Nat.succ_le_succ
+          (exploreRecordedCandidates_attempts_le_length state rest)
 
 theorem extractClauseCandidateRun_length (clause : Clause) :
     (extractClauseCandidateRun clause).candidates.length =
@@ -1833,11 +1825,46 @@ theorem erasedHistory_retains_priorSelected (depth : Nat) :
       (runThreadedNextDiscovery
         (erasedNextDiscoveryState depth).state).candidates := by
   let run := runThreadedNextDiscovery (erasedNextDiscoveryState depth).state
-  rw [run.candidatesExact, run.filteringExact]
-  change stageSelectedVar (depth + 1) ∈
-    (filterCandidatesByHistory [] run.generated.extraction.candidates).retained
-  rw [filterCandidatesByHistory_empty, run.generated.extractionExact]
-  exact priorSelected_extracted_next depth
+  have filteringExact :
+      run.filtering.retained =
+        (filterCandidatesByHistory [] run.generated.extraction.candidates).retained := by
+    exact congrArg (fun filtered => filtered.retained) run.filteringExact
+  have candidatesExact :
+      run.candidates =
+        (filterCandidatesByHistory [] run.generated.extraction.candidates).retained :=
+    Eq.trans run.candidatesExact filteringExact
+  have emptyExact :
+      (filterCandidatesByHistory [] run.generated.extraction.candidates).retained =
+        run.generated.extraction.candidates :=
+    filterCandidatesByHistory_empty _
+  have extractionExact :
+      run.generated.extraction.candidates =
+        (stageRecordedDiscoveryRun ((depth + 1) + 1)).extraction.candidates :=
+    congrArg (fun extraction => extraction.candidates) run.generated.extractionExact
+  have prior :
+      stageSelectedVar (depth + 1) ∈
+        (stageRecordedDiscoveryRun ((depth + 1) + 1)).extraction.candidates := by
+    exact priorSelected_extracted_next depth
+  have generatedMember :
+      stageSelectedVar (depth + 1) ∈ run.generated.extraction.candidates :=
+    Eq.mp
+      (congrArg
+        (fun candidates => stageSelectedVar (depth + 1) ∈ candidates)
+        extractionExact).symm
+      prior
+  have filteredMember :
+      stageSelectedVar (depth + 1) ∈
+        (filterCandidatesByHistory [] run.generated.extraction.candidates).retained :=
+    Eq.mp
+      (congrArg
+        (fun candidates => stageSelectedVar (depth + 1) ∈ candidates)
+        emptyExact).symm
+      generatedMember
+  exact Eq.mp
+    (congrArg
+      (fun candidates => stageSelectedVar (depth + 1) ∈ candidates)
+      candidatesExact).symm
+    filteredMember
 
 theorem retainedHistory_rejects_priorSelected (depth : Nat) :
     stageSelectedVar (depth + 1) ∉
@@ -2170,6 +2197,8 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.exploreRecordedCandidates_attempts_le_length
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory_retained_length_le
 #print axioms ConstitutiveSearch.NPAndOrP.runCandidateExtraction_length
+#print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory_empty
+#print axioms ConstitutiveSearch.NPAndOrP.priorSelected_extracted_next
 #print axioms ConstitutiveSearch.NPAndOrP.erasedHistory_retains_priorSelected
 #print axioms ConstitutiveSearch.NPAndOrP.retainedHistory_rejects_priorSelected
 #print axioms ConstitutiveSearch.NPAndOrP.reachableHistory_candidateTraces_different
