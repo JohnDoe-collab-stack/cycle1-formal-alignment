@@ -17,6 +17,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
+      - name: Check repaired task diff whitespace
+        run: |
+          git fetch --no-tags --depth=1 origin f0c75ec3ea75b217f362d26b8836df4830deaa93
+          git fetch --no-tags --depth=1 origin dd977e56fc0dfc2a2bdf9e8be2d15875ed8dabf0
+          git diff --check f0c75ec3ea75b217f362d26b8836df4830deaa93 dd977e56fc0dfc2a2bdf9e8be2d15875ed8dabf0 --
+
       - name: Build Lean project
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
 
