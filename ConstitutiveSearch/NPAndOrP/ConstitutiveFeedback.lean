@@ -531,6 +531,7 @@ theorem filterCandidatesByProvenance_matches_history
       byProvenance.rejected = byHistory.rejected ∧
       byProvenance.trace = byHistory.trace ∧
       byProvenance.visits = byHistory.visits := by
+  dsimp only
   induction candidates with
   | nil => exact ⟨rfl, rfl, rfl, rfl⟩
   | cons candidate rest inductionHypothesis =>
@@ -585,7 +586,7 @@ theorem filterCandidatesByProvenance_retained_length_le
         candidates.length
   | [] => Nat.le_refl 0
   | candidate :: rest => by
-      rw [filterCandidatesByProvenance.eq_def]
+      rw [filterCandidatesByProvenance]
       split
       · exact Nat.succ_le_succ
           (filterCandidatesByProvenance_retained_length_le provenance rest)
