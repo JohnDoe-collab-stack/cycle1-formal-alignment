@@ -20,6 +20,14 @@ jobs:
       - name: Build Lean project
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
 
+      - name: Build AuditRegression
+        run: lake build AuditRegression
+
+      - name: Check task diff whitespace
+        run: |
+          git fetch --no-tags --depth=1 origin f0c75ec3ea75b217f362d26b8836df4830deaa93
+          git diff --check f0c75ec3ea75b217f362d26b8836df4830deaa93 HEAD --
+
       - name: Verify constructive axiom audits
         run: bash scripts/verify-axiom-audits.sh
 
