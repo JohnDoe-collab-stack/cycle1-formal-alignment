@@ -538,7 +538,7 @@ theorem filterCandidatesByProvenance_matches_history
         inspectCandidateProvenance_map_compatible candidate decisions
       have visits :=
         inspectCandidateProvenance_map_visits candidate decisions
-      rw [filterCandidatesByProvenance, filterCandidatesByHistory]
+      rw [filterCandidatesByProvenance.eq_def, filterCandidatesByHistory]
       cases provenanceAccepted :
           (inspectCandidateProvenance candidate
             (decisions.map (fun decision => decision.var))).compatible with
@@ -566,6 +566,32 @@ theorem filterCandidatesByProvenance_matches_history
               inductionHypothesis.2.1,
               congrArg (List.cons (candidate, true)) inductionHypothesis.2.2.1,
               by rw [visits, inductionHypothesis.2.2.2]⟩
+
+theorem filterCandidatesByProvenance_retained_decisions
+    (decisions : List StructuralBranchDecision)
+    (candidates : List Var) :
+    (filterCandidatesByProvenance
+      (decisions.map (fun decision => decision.var)) candidates).retained =
+      candidates.filter (fun candidate =>
+        structuralDecisionsAvoidCheck candidate decisions) := by
+  exact Eq.trans
+    (filterCandidatesByProvenance_matches_history decisions candidates).1
+    (filterCandidatesByHistory_retained decisions candidates)
+
+theorem filterCandidatesByProvenance_retained_length_le
+    (provenance : List Var) :
+    ∀ candidates : List Var,
+      (filterCandidatesByProvenance provenance candidates).retained.length ≤
+        candidates.length
+  | [] => Nat.le_refl 0
+  | candidate :: rest => by
+      rw [filterCandidatesByProvenance.eq_def]
+      split
+      · exact Nat.succ_le_succ
+          (filterCandidatesByProvenance_retained_length_le provenance rest)
+      · exact Nat.le_trans
+          (filterCandidatesByProvenance_retained_length_le provenance rest)
+          (Nat.le_succ _)
 
 theorem provenanceAvoidCheck_head_selected
     (selected : Var) (rest : List Var) :
@@ -931,9 +957,8 @@ theorem runThreadedNextDiscovery_discovered_exact {depth : Nat}
       removedFailDecisions
   unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
   dsimp only
-  rw [filterCandidatesByProvenance_retained]
   rw [state.provenanceExact]
-  simp only [provenanceAvoidCheck_decisions]
+  rw [filterCandidatesByProvenance_retained_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
   exact preserved
 
@@ -962,9 +987,8 @@ theorem runThreadedNextDiscovery_work_le_canonical {depth : Nat}
       removedFailDecisions
   unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
   dsimp only
-  rw [filterCandidatesByProvenance_retained]
   rw [state.provenanceExact]
-  simp only [provenanceAvoidCheck_decisions]
+  rw [filterCandidatesByProvenance_retained_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
   exact bounded
 
@@ -1557,8 +1581,8 @@ theorem ConstitutiveExecutionHistory.controlStats_exact
           (constructStage (depth + 1)).operationalRoot
           headRun.discoveryRun.candidates
         rw [← headRun.discoveryRun.outcomeExact] at attempted
-        have retained := filterCandidatesByHistory_retained_length_le
-          state.decisions headRun.discoveryRun.generated.extraction.candidates
+        have retained := filterCandidatesByProvenance_retained_length_le
+          state.provenance headRun.discoveryRun.generated.extraction.candidates
         rw [← headRun.discoveryRun.filteringExact,
           ← headRun.discoveryRun.candidatesExact] at retained
         have emitted :
@@ -2394,6 +2418,8 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.provenanceAvoidCheck_decisions
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_matches_history
+#print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_retained_decisions
+#print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_retained_length_le
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery_discovered_exact
 #print axioms ConstitutiveSearch.NPAndOrP.appendProvenanceMeasured
 #print axioms ConstitutiveSearch.NPAndOrP.prependProvenanceMeasured
