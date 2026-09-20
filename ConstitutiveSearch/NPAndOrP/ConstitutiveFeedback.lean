@@ -1783,18 +1783,41 @@ theorem member_append_left_constructive {alpha : Type} (value : alpha) :
 theorem priorSelected_extracted_next (depth : Nat) :
     stageSelectedVar (depth + 1) ∈
       stageExtractedCandidates ((depth + 1) + 1) := by
-  rw [stageExtractedCandidates_exact]
-  apply member_append_left_constructive
-  apply distinctDecoyVariables_mem_of_lt
   have advance := stageSelectedVar_succ (depth + 1)
   unfold stageSelectedVar growingDiscoverySplitVar at advance
   have sameSearch :
       (constructStage ((depth + 1) + 1)).searchIndex =
         (constructStage (depth + 1)).searchIndex + 2 :=
     Nat.add_right_cancel advance
-  rw [sameSearch]
-  unfold stageSelectedVar growingDiscoverySplitVar
-  exact Nat.lt_succ_self _
+  have below :
+      stageSelectedVar (depth + 1) <
+        (constructStage ((depth + 1) + 1)).searchIndex + 1 := by
+    rw [sameSearch]
+    unfold stageSelectedVar growingDiscoverySplitVar
+    exact Nat.lt_succ_self _
+  have inDecoys :
+      stageSelectedVar (depth + 1) ∈
+        distinctDecoyVariables
+          ((constructStage ((depth + 1) + 1)).searchIndex + 1) :=
+    distinctDecoyVariables_mem_of_lt _ _ below
+  have inExpanded :
+      stageSelectedVar (depth + 1) ∈
+        distinctDecoyVariables
+            ((constructStage ((depth + 1) + 1)).searchIndex + 1) ++
+          [growingDiscoverySplitVar
+              (constructStage ((depth + 1) + 1)).searchIndex,
+            growingDiscoveryAnchorVar
+              (constructStage ((depth + 1) + 1)).searchIndex,
+            growingDiscoverySplitVar
+              (constructStage ((depth + 1) + 1)).searchIndex,
+            growingDiscoveryAnchorVar
+              (constructStage ((depth + 1) + 1)).searchIndex] :=
+    member_append_left_constructive _ inDecoys
+  exact Eq.mp
+    (congrArg
+      (fun candidates => stageSelectedVar (depth + 1) ∈ candidates)
+      (stageExtractedCandidates_exact ((depth + 1) + 1))).symm
+    inExpanded
 
 theorem filterCandidatesByHistory_empty (candidates : List Var) :
     (filterCandidatesByHistory [] candidates).retained = candidates := by
