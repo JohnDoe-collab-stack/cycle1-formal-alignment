@@ -267,12 +267,33 @@ theorem extractClauseCandidateRun_length (clause : Clause) :
 
 theorem listLengthAppendConstructive {alpha : Type} :
     ∀ (left right : List alpha),
-      (left ++ right).length = left.length + right.length
-  | [], _ => rfl
-  | _ :: tail, right => by
+      (left ++ right).length = left.length + right.length := by
+  have zeroAdd : ∀ n : Nat, 0 + n = n := by
+    intro n
+    induction n with
+    | zero => rfl
+    | succ n inductionHypothesis =>
+        change Nat.succ (0 + n) = Nat.succ n
+        exact congrArg Nat.succ inductionHypothesis
+  have succAdd : ∀ a b : Nat, Nat.succ a + b = Nat.succ (a + b) := by
+    intro a b
+    induction b with
+    | zero => rfl
+    | succ b inductionHypothesis =>
+        change Nat.succ (Nat.succ a + b) =
+          Nat.succ (Nat.succ (a + b))
+        exact congrArg Nat.succ inductionHypothesis
+  intro left right
+  induction left with
+  | nil =>
+      change right.length = 0 + right.length
+      exact (zeroAdd right.length).symm
+  | cons head tail inductionHypothesis =>
       change Nat.succ (tail ++ right).length =
         Nat.succ tail.length + right.length
-      rw [listLengthAppendConstructive tail right, Nat.succ_add]
+      exact Eq.trans
+        (congrArg Nat.succ inductionHypothesis)
+        (succAdd tail.length right.length).symm
 
 theorem extractCnfCandidateRun_length (formula : Cnf) :
     (extractCnfCandidateRun formula).candidates.length =
