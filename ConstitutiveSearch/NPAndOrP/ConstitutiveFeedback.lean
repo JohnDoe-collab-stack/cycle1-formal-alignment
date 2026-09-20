@@ -235,12 +235,16 @@ theorem filterCandidatesByHistory_retained_length_le
   | [] => Nat.le_refl 0
   | candidate :: rest => by
       rw [filterCandidatesByHistory]
-      split
-      · exact Nat.succ_le_succ
-          (filterCandidatesByHistory_retained_length_le decisions rest)
-      · exact Nat.le_trans
-          (filterCandidatesByHistory_retained_length_le decisions rest)
-          (Nat.le_succ _)
+      cases checked : (inspectCandidateHistory candidate decisions).compatible with
+      | false =>
+          dsimp only
+          exact Nat.le_trans
+            (filterCandidatesByHistory_retained_length_le decisions rest)
+            (Nat.le_succ _)
+      | true =>
+          dsimp only
+          exact Nat.succ_le_succ
+            (filterCandidatesByHistory_retained_length_le decisions rest)
 
 theorem exploreRecordedCandidates_attempts_le_length
     {rootFormula : Cnf}
@@ -250,10 +254,14 @@ theorem exploreRecordedCandidates_attempts_le_length
   | [] => Nat.le_refl 0
   | candidate :: rest => by
       rw [exploreRecordedCandidates]
-      split
-      · exact Nat.succ_le_succ (Nat.zero_le _)
-      · exact Nat.succ_le_succ
-          (exploreRecordedCandidates_attempts_le_length state rest)
+      cases found : (tryMeasuredCandidate state candidate).produced? with
+      | none =>
+          dsimp only
+          exact Nat.succ_le_succ
+            (exploreRecordedCandidates_attempts_le_length state rest)
+      | some produced =>
+          dsimp only
+          exact Nat.succ_le_succ (Nat.zero_le _)
 
 theorem extractClauseCandidateRun_length (clause : Clause) :
     (extractClauseCandidateRun clause).candidates.length =
