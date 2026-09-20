@@ -50,15 +50,23 @@ if ($null -ne $lakeCommand) {
     $lakeExecutable = Join-Path -Path $env:USERPROFILE -ChildPath '.elan\bin\lake.exe'
 }
 
-$auditLines = @(& $lakeExecutable build AuditRegression 2>&1)
-$buildStatus = $LASTEXITCODE
-$auditLines | ForEach-Object { Write-Host $_ }
+$mainLines = @(& $lakeExecutable build 2>&1)
+$mainStatus = $LASTEXITCODE
+$mainLines | ForEach-Object { Write-Host $_ }
 
-if ($buildStatus -ne 0) {
-    exit $buildStatus
+if ($mainStatus -ne 0) {
+    exit $mainStatus
 }
 
-$auditText = $auditLines -join [Environment]::NewLine
+$auditLines = @(& $lakeExecutable build AuditRegression 2>&1)
+$auditStatus = $LASTEXITCODE
+$auditLines | ForEach-Object { Write-Host $_ }
+
+if ($auditStatus -ne 0) {
+    exit $auditStatus
+}
+
+$auditText = @($mainLines + $auditLines) -join [Environment]::NewLine
 if ($auditText -match 'depends on axioms:|sorryAx') {
     [System.Console]::Error.WriteLine(
         'Axiom dependency detected in audited declarations.')
