@@ -1195,11 +1195,36 @@ theorem ConstitutiveExecutionHistory.controlStats_exact
           head.discoveryRun.extraction.stats.literalVisits
         rw [head.extractionExact]
         exact runCandidateExtraction_candidatesEmitted _
+      have activeOutcome :
+          head.discoveryRun.outcome = headRun.discoveryRun.outcome := by
+        calc
+          head.discoveryRun.outcome =
+              (executeSequentialStageFromActiveRecorded _ _ _
+                headRun.discoveryRun.asRecorded
+                headRun.discoveryRun.extractionExact headRun.discovery
+                headRun.recordedDiscoveryFound headRun.discoveryExact
+                headRun.discoveryWorkLeCanonical).discoveryRun.outcome :=
+            congrArg (fun stage => stage.discoveryRun.outcome)
+              headRun.stageFromDiscovery
+          _ = headRun.discoveryRun.outcome := rfl
+      have activeExtraction :
+          head.discoveryRun.extraction =
+            headRun.discoveryRun.generated.extraction := by
+        calc
+          head.discoveryRun.extraction =
+              (executeSequentialStageFromActiveRecorded _ _ _
+                headRun.discoveryRun.asRecorded
+                headRun.discoveryRun.extractionExact headRun.discovery
+                headRun.recordedDiscoveryFound headRun.discoveryExact
+                headRun.discoveryWorkLeCanonical).discoveryRun.extraction :=
+            congrArg (fun stage => stage.discoveryRun.extraction)
+              headRun.stageFromDiscovery
+          _ = headRun.discoveryRun.generated.extraction := rfl
       have headAttempts :
           head.stats.discoveryAttempts ≤ head.stats.extractedCandidates := by
-        rw [headRun.stageFromDiscovery]
-        change headRun.discoveryRun.outcome.attempts ≤
-          headRun.discoveryRun.generated.extraction.stats.candidatesEmitted
+        change head.discoveryRun.outcome.attempts ≤
+          head.discoveryRun.extraction.stats.candidatesEmitted
+        rw [activeOutcome, activeExtraction]
         have attempted := exploreRecordedCandidates_attempts_le_length
           (constructStage (depth + 1)).operationalRoot
           headRun.discoveryRun.candidates
