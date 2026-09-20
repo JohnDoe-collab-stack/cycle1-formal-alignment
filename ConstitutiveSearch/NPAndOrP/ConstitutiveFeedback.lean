@@ -2198,6 +2198,10 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory_retained_length_le
 #print axioms ConstitutiveSearch.NPAndOrP.runCandidateExtraction_length
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory_empty
+#print axioms ConstitutiveSearch.NPAndOrP.stageExtractedCandidates_exact
+#print axioms ConstitutiveSearch.NPAndOrP.distinctDecoyVariables_mem_of_lt
+#print axioms ConstitutiveSearch.NPAndOrP.member_append_left_constructive
+#print axioms ConstitutiveSearch.NPAndOrP.stageSelectedVar_succ
 #print axioms ConstitutiveSearch.NPAndOrP.priorSelected_extracted_next
 #print axioms ConstitutiveSearch.NPAndOrP.erasedHistory_retains_priorSelected
 #print axioms ConstitutiveSearch.NPAndOrP.retainedHistory_rejects_priorSelected
