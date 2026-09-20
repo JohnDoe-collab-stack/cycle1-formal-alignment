@@ -291,6 +291,37 @@ theorem runCandidateExtraction_length {rootFormula : Cnf}
       (runCandidateExtraction state).stats.candidatesEmitted :=
   extractCnfCandidateRun_length state.context.formula
 
+theorem extractClauseCandidateRun_emitted_eq_literalVisits (clause : Clause) :
+    (extractClauseCandidateRun clause).stats.candidatesEmitted =
+      (extractClauseCandidateRun clause).stats.literalVisits := by
+  induction clause with
+  | nil => rfl
+  | cons literal rest inductionHypothesis =>
+      change
+        (extractClauseCandidateRun rest).stats.candidatesEmitted + 1 =
+          (extractClauseCandidateRun rest).stats.literalVisits + 1
+      rw [inductionHypothesis]
+
+theorem extractCnfCandidateRun_emitted_eq_literalVisits (formula : Cnf) :
+    (extractCnfCandidateRun formula).stats.candidatesEmitted =
+      (extractCnfCandidateRun formula).stats.literalVisits := by
+  induction formula with
+  | nil => rfl
+  | cons clause rest inductionHypothesis =>
+      change
+        (extractClauseCandidateRun clause).stats.candidatesEmitted +
+            (extractCnfCandidateRun rest).stats.candidatesEmitted =
+          (extractClauseCandidateRun clause).stats.literalVisits +
+            (extractCnfCandidateRun rest).stats.literalVisits
+      rw [extractClauseCandidateRun_emitted_eq_literalVisits, inductionHypothesis]
+
+theorem runCandidateExtraction_emitted_eq_literalVisits
+    {rootFormula : Cnf}
+    (state : GeneratedStructuralBranchContext rootFormula) :
+    (runCandidateExtraction state).stats.candidatesEmitted =
+      (runCandidateExtraction state).stats.literalVisits :=
+  extractCnfCandidateRun_emitted_eq_literalVisits state.context.formula
+
 theorem memberOfFilter_original {alpha : Type} (predicate : alpha → Bool)
     (value : alpha) : ∀ values : List alpha,
     value ∈ values.filter predicate → value ∈ values
@@ -1194,7 +1225,7 @@ theorem ConstitutiveExecutionHistory.controlStats_exact
         change head.discoveryRun.extraction.stats.candidatesEmitted =
           head.discoveryRun.extraction.stats.literalVisits
         rw [head.extractionExact]
-        exact runCandidateExtraction_candidatesEmitted _
+        exact runCandidateExtraction_emitted_eq_literalVisits _
       have activeOutcome :
           head.discoveryRun.outcome = headRun.discoveryRun.outcome := by
         calc
@@ -2048,6 +2079,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.runFeedbackDiscoveryFromData
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory
+#print axioms ConstitutiveSearch.NPAndOrP.runCandidateExtraction_emitted_eq_literalVisits
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery_discovered_exact
 #print axioms ConstitutiveSearch.NPAndOrP.appendProvenanceMeasured
 #print axioms ConstitutiveSearch.NPAndOrP.prependProvenanceMeasured
