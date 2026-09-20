@@ -267,13 +267,9 @@ theorem extractClauseCandidateRun_length (clause : Clause) :
 
 theorem listLengthAppendConstructive {alpha : Type} :
     ∀ (left right : List alpha),
-      (left ++ right).length = left.length + right.length
-  | [], right => by
-      simp only [List.append, List.length_nil, Nat.zero_add]
-  | head :: tail, right => by
-      simp only [List.append, List.length_cons,
-        listLengthAppendConstructive tail right]
-      rw [Nat.add_assoc, Nat.add_comm 1 right.length, ← Nat.add_assoc]
+      (left ++ right).length = left.length + right.length := by
+  intro left right
+  exact List.length_append
 
 theorem extractCnfCandidateRun_length (formula : Cnf) :
     (extractCnfCandidateRun formula).candidates.length =
