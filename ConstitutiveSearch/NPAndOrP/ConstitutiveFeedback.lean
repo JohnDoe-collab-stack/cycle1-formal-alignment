@@ -556,6 +556,7 @@ theorem filterCandidatesByProvenance_matches_history
             rw [← compatible]
             exact provenanceAccepted
           rw [historyRejected]
+          simp only [if_neg (by decide : false ≠ true)]
           exact
             ⟨inductionHypothesis.1,
               congrArg (List.cons candidate) inductionHypothesis.2.1,
@@ -567,6 +568,7 @@ theorem filterCandidatesByProvenance_matches_history
             rw [← compatible]
             exact provenanceAccepted
           rw [historyAccepted]
+          simp only [if_pos rfl]
           exact
             ⟨congrArg (List.cons candidate) inductionHypothesis.1,
               inductionHypothesis.2.1,
