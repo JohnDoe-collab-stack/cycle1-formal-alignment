@@ -153,6 +153,34 @@ structure GeneratedDiscoveryBundle {depth : Nat} (generation : CanonicalStageGen
   recordedExact : recorded = stageRecordedDiscoveryRun (depth + 1)
   realizationWork : ComparisonWork
 
+/-- Realization and extraction only.  In particular this bundle performs no
+candidate exploration; the caller owns the unique exploration pass. -/
+structure GeneratedExtractionBundle {depth : Nat}
+    (generation : CanonicalStageGeneration depth) where
+  extraction : CandidateExtractionRun
+  extractionExact : extraction =
+    (stageRecordedDiscoveryRun (depth + 1)).extraction
+  realizationWork : ComparisonWork
+
+def measuredGeneratedExtraction {depth : Nat}
+    (generation : CanonicalStageGeneration depth) :
+    GeneratedExtractionBundle generation :=
+  let realized := constructMeasuredOperationalRoot (2 * positiveDepth generation.target)
+  let measured := runCandidateExtraction realized.value
+  let recorded := Eq.rec (motive := fun state _ => CandidateExtractionRun)
+    measured realized.valueExact
+  let indexed := Eq.rec (motive := fun target _ => CandidateExtractionRun)
+    recorded generation.targetExact
+  { extraction := indexed
+    extractionExact := by
+      cases generation with
+      | mk target targetExact generated =>
+        cases targetExact
+        dsimp only [indexed, recorded, measured]
+        cases realized with
+        | mk value same work => cases same; rfl
+    realizationWork := realized.work }
+
 /-- Build the operational formula from the produced state before discovery. -/
 def measuredGeneratedDiscovery {depth : Nat}
     (generation : CanonicalStageGeneration depth) :
@@ -173,6 +201,12 @@ def measuredGeneratedDiscovery {depth : Nat}
         cases realized with
         | mk value same work => cases same; rfl
     realizationWork := realized.work }
+
+theorem measuredGeneratedExtraction_realizationWork_eq
+    {depth : Nat} (generation : CanonicalStageGeneration depth) :
+    (measuredGeneratedExtraction generation).realizationWork =
+      (measuredGeneratedDiscovery generation).realizationWork := by
+  rfl
 
 def generatedRecordedDiscoveryRun {depth : Nat}
     (generation : CanonicalStageGeneration depth) :
@@ -218,6 +252,50 @@ theorem runCandidateExtraction_literalVisits_exact
     (runCandidateExtraction state).stats.literalVisits =
       Cnf.literalCount state.context.formula :=
   extractCnfCandidateRun_literalVisits_exact state.context.formula
+
+theorem extractClauseCandidateRun_length_exact (clause : Clause) :
+    (extractClauseCandidateRun clause).candidates.length =
+      (extractClauseCandidateRun clause).stats.candidatesEmitted := by
+  induction clause with
+  | nil => rfl
+  | cons literal rest inductionHypothesis =>
+      change (extractClauseCandidateRun rest).candidates.length + 1 =
+        (extractClauseCandidateRun rest).stats.candidatesEmitted + 1
+      rw [inductionHypothesis]
+
+theorem listLengthAppend {alpha : Type} : ∀ left right : List alpha,
+    (left ++ right).length = left.length + right.length
+  | [], right => (Nat.zero_add right.length).symm
+  | head :: tail, right => by
+      change (tail ++ right).length + 1 = (tail.length + 1) + right.length
+      rw [listLengthAppend tail right]
+      calc
+        (tail.length + right.length) + 1 =
+            tail.length + (right.length + 1) := Nat.add_assoc _ _ _
+        _ = tail.length + (1 + right.length) :=
+          congrArg (Nat.add tail.length) (Nat.add_comm right.length 1)
+        _ = (tail.length + 1) + right.length := (Nat.add_assoc _ _ _).symm
+
+theorem extractCnfCandidateRun_length_exact (formula : Cnf) :
+    (extractCnfCandidateRun formula).candidates.length =
+      (extractCnfCandidateRun formula).stats.candidatesEmitted := by
+  induction formula with
+  | nil => rfl
+  | cons clause rest inductionHypothesis =>
+      change
+        ((extractClauseCandidateRun clause).candidates ++
+          (extractCnfCandidateRun rest).candidates).length =
+        (extractClauseCandidateRun clause).stats.candidatesEmitted +
+          (extractCnfCandidateRun rest).stats.candidatesEmitted
+      rw [listLengthAppend, extractClauseCandidateRun_length_exact,
+        inductionHypothesis]
+
+theorem runCandidateExtraction_length_exact
+    {rootFormula : Cnf}
+    (state : GeneratedStructuralBranchContext rootFormula) :
+    (runCandidateExtraction state).candidates.length =
+      (runCandidateExtraction state).stats.candidatesEmitted :=
+  extractCnfCandidateRun_length_exact state.context.formula
 
 /-- Recorded exploration returns the same discovery as the reference recursion. -/
 theorem exploreRecordedCandidates_discovered

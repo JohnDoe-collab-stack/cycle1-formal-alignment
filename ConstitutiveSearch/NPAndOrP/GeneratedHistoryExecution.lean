@@ -71,9 +71,11 @@ def SequentialStageRun.withGeneration
     SequentialStageRun depth input :=
   { generation := generation
     discoveryRun := run.discoveryRun
-    discoveryRunExact := run.discoveryRunExact
+    extractionExact := run.extractionExact
     discovery := run.discovery
+    discoveryRunFound := run.discoveryRunFound
     discoveryExact := run.discoveryExact
+    discoveryWorkLeCanonical := run.discoveryWorkLeCanonical
     storedSchedule := run.storedSchedule
     storedScheduleExact := run.storedScheduleExact
     measuredValidation := run.measuredValidation
@@ -90,7 +92,9 @@ def SequentialStageRun.withGeneration
     application := run.application
     outputAccepted := run.outputAccepted
     next := run.next
-    nextAssignmentExact := run.nextAssignmentExact }
+    nextAssignmentExact := run.nextAssignmentExact
+    nextReaderExact := run.nextReaderExact
+    nextReaderWorkExact := run.nextReaderWorkExact }
 
 /--
 Reference equality for the direct builder, used only in proofs. The executable

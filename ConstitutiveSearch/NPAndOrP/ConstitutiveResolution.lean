@@ -66,10 +66,192 @@ def resolutionHistory (input : Nat) :
       input
       (initialSequentialAssignment input)
       (resolutionLength input) :=
-  executeSequentialHistory
-    input
+  (executeConstitutiveExecutionHistory
     (resolutionLength input)
-    (initialSequentialAssignment input)
+    (initialThreadedConstitutiveState input)
+    (initialThreadedConstitutiveState_fresh input)).toSequentialHistory
+
+theorem ConstitutiveExecutionHistory.toSequentialHistory_generatedHistory
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toSequentialHistory.generatedHistory = run.toGeneratedHistory := by
+  induction run with
+  | nil => rfl
+  | step head headRun tailRun inductionHypothesis =>
+      change CanonicalGeneratedHistory.step head.generation
+          tailRun.toSequentialHistory.generatedHistory = _
+      rw [inductionHypothesis]
+      rfl
+
+theorem decideSequentialTerminal_of_executedBits
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    (history : SequentialHistory depth assignment count)
+    (bitsExact : history.executedBits = List.replicate count true) :
+    (runTerminalReadout history.executedBits).decision =
+      alternatingExecutionDecision count := by
+  rw [runTerminalReadout_decision, bitsExact,
+    transportedBitParity_true_replicate]
+
+theorem ThreadedConstitutiveStageRun.reader_bound
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) (query : Var) :
+    (stage.next.reader query).work.total ≤
+      (assignment.reader query).work.total + (query + 2) := by
+  exact stage.reader_bound query
+
+theorem ConstitutiveExecutionHistory.reader_bound
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) (query : Var) :
+    (run.toSequentialHistory.final.reader query).work.total ≤
+      (assignment.reader query).work.total + count * (query + 2) := by
+  induction run with
+  | nil => rw [Nat.zero_mul, Nat.add_zero]; exact Nat.le_refl _
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
+      change (tailRun.toSequentialHistory.final.reader query).work.total ≤ _
+      calc
+        _ ≤ (head.next.reader query).work.total + count * (query + 2) :=
+          inductionHypothesis
+        _ ≤ ((assignment.reader query).work.total + (query + 2)) +
+              count * (query + 2) :=
+          Nat.add_le_add_right (headRun.reader_bound query) _
+        _ = _ := by rw [Nat.succ_mul, Nat.add_assoc, Nat.add_comm (query + 2)]
+
+theorem ConstitutiveExecutionHistory.variables_bounded
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    ∀ query, query ∈ run.toSequentialHistory.executedVariables →
+      query ≤ stageSelectedVar (depth + count) := by
+  induction run with
+  | nil => intro query member; cases member
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
+      intro query member
+      change query ∈ head.schedule.entry.var ::
+        tailRun.toSequentialHistory.executedVariables at member
+      cases member with
+      | head =>
+          rw [sequentialStage_selected_exact]
+          exact stageSelectedVar_mono
+            (Nat.add_le_add_left (Nat.succ_le_succ (Nat.zero_le count)) depth)
+      | tail _ prior =>
+          have bounded := inductionHypothesis query prior
+          have indices : depth + 1 + count = depth + (count + 1) := by
+            rw [Nat.add_assoc, Nat.add_comm 1 count]
+          rw [indices] at bounded
+          exact bounded
+
+theorem ConstitutiveExecutionHistory.variables_length
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toSequentialHistory.executedVariables.length = count := by
+  induction run with
+  | nil => rfl
+  | step head headRun tailRun inductionHypothesis =>
+      change tailRun.toSequentialHistory.executedVariables.length + 1 = _
+      rw [inductionHypothesis]
+
+theorem ConstitutiveExecutionHistory.realizationWork_bound
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toDiscoveryTraversal.realizationWork.total ≤
+      count * stageRealizationWork (depth + count) := by
+  induction run with
+  | nil => rw [Nat.zero_mul]; exact Nat.le_refl 0
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
+      change (headRun.discoveryRun.generated.realizationWork.add
+        tailRun.toDiscoveryTraversal.realizationWork).total ≤ _
+      rw [ComparisonWork.total_add]
+      have headExact : headRun.discoveryRun.generated.realizationWork.total =
+          stageRealizationWork (depth + 1) := by
+        rw [headRun.discoveryRun.generatedExact,
+          measuredGeneratedExtraction_realizationWork_eq,
+          generatedRealizationWork_exact]
+      rw [headExact]
+      have headBound := stageRealizationWork_mono
+        (Nat.add_le_add_left (Nat.succ_le_succ (Nat.zero_le count)) depth)
+      have tailBound := inductionHypothesis
+      have depthEq : depth + 1 + count = depth + (count + 1) := by
+        rw [Nat.add_assoc, Nat.add_comm 1 count]
+      rw [depthEq] at tailBound
+      rw [Nat.succ_mul]
+      exact Nat.le_trans (Nat.add_le_add headBound tailBound)
+        (Nat.le_of_eq (Nat.add_comm _ _))
+
+theorem ConstitutiveExecutionHistory.terminalQueries_bound
+    {depth count : Nat}
+    {state : ThreadedConstitutiveState depth (initialSequentialAssignment depth)}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    let history := run.toSequentialHistory
+    let largest := stageSelectedVar (depth + count)
+    (readAssignmentQueries history.final.reader history.executedVariables).work.total ≤
+      ((largest + 1 + count * (largest + 2)) + 1) * count + 1 := by
+  dsimp only
+  have perQuery : ∀ query, query ∈ run.toSequentialHistory.executedVariables →
+      (run.toSequentialHistory.final.reader query).work.total ≤
+        stageSelectedVar (depth + count) + 1 +
+          count * (stageSelectedVar (depth + count) + 2) := by
+    intro query member
+    have queryBound := run.variables_bounded query member
+    have reading := run.reader_bound query
+    exact Nat.le_trans reading (Nat.add_le_add
+      (Nat.le_trans (readAlternatingAssignment_bound query)
+        (Nat.add_le_add_right queryBound 1))
+      (Nat.mul_le_mul_left count (Nat.add_le_add_right queryBound 2)))
+  have bound := readAssignmentQueries_bound run.toSequentialHistory.final.reader
+    run.toSequentialHistory.executedVariables _ perQuery
+  rw [run.variables_length] at bound
+  exact bound
+
+theorem ConstitutiveExecutionHistory.terminalBit_bound
+    {depth count : Nat}
+    {state : ThreadedConstitutiveState depth (initialSequentialAssignment depth)}
+    (run : ConstitutiveExecutionHistory (count := count + 1) state) :
+    let history := run.toSequentialHistory
+    let largest := stageSelectedVar (depth + (count + 1))
+    (terminalFromSequentialHistory history).bitRead.work.total ≤
+      largest + 1 + (count + 1) * (largest + 2) := by
+  dsimp only
+  let history := run.toSequentialHistory
+  let terminal := terminalFromSequentialHistory history
+  change (history.final.reader terminal.observedVar).work.total ≤ _
+  rw [terminal.observedVarExact]
+  have indexExact : lastStageDepth depth count + 1 = depth + (count + 1) := by
+    unfold lastStageDepth
+    rw [advancedDepth_eq_add, Nat.add_assoc]
+  rw [indexExact]
+  exact Nat.le_trans (run.reader_bound _)
+    (Nat.add_le_add_right (readAlternatingAssignment_bound _) _)
+
+theorem ConstitutiveExecutionHistory.terminalReadWork_bound
+    {depth count : Nat}
+    {state : ThreadedConstitutiveState depth (initialSequentialAssignment depth)}
+    (run : ConstitutiveExecutionHistory (count := count + 1) state) :
+    let history := run.toSequentialHistory
+    let largest := stageSelectedVar (depth + (count + 1))
+    let readBound := largest + 1 + (count + 1) * (largest + 2)
+    (terminalFromSequentialHistory history).measuredReadWork ≤
+      (((count + 1) + 1) + ((readBound + 1) * (count + 1) + 1)) +
+        readBound + (count + 1) := by
+  dsimp only
+  let history := run.toSequentialHistory
+  let terminal := terminalFromSequentialHistory history
+  have folded : terminal.readoutRun.bitVisits = count + 1 := by
+    rw [terminal.readoutRunExact, terminal.observedBitsExact,
+      runTerminalReadout_visits, run.executedBits_length]
+  unfold SequentialTerminalArtifact.measuredReadWork
+  rw [folded]
+  apply Nat.add_le_add_right
+  apply Nat.add_le_add
+  · apply Nat.add_le_add
+    · exact Nat.le_of_eq (SequentialHistory.lastVariableRun_visits history)
+    · exact run.terminalQueries_bound
+  · exact run.terminalBit_bound
 
 /--
 Public result of the integrated concrete procedure.  Its only argument is the
@@ -79,9 +261,17 @@ terminal data, decision, and statistics are stored as produced descendants.
 structure ConstitutiveResolutionRun (input : Nat) where
   initialization : ConstitutiveInitializationRun input
   initializationExact : initialization = initializeConstitutiveHistory input
+  threadedInitialState :
+    ThreadedConstitutiveState input (initialSequentialAssignment input)
+  threadedInitialStateExact :
+    threadedInitialState = initialThreadedConstitutiveState input
+  constitutiveFeedbackHistory :
+    ConstitutiveExecutionHistory
+      (count := resolutionLength input) threadedInitialState
   production : ConstitutiveProductionRun input (resolutionLength input)
-  productionExact : production = produceMeasuredConstitutiveHistory input (resolutionLength input)
-    initialization.history.endpoint (congrArg RootedGeneratedHistory.endpoint initialization.historyExact)
+  productionExact : production =
+    constitutiveFeedbackHistory.toProductionRun
+      (by rw [threadedInitialStateExact]; rfl)
   generatedHistory :
     CanonicalGeneratedHistory input (resolutionLength input)
   generatedHistoryExact :
@@ -93,20 +283,15 @@ structure ConstitutiveResolutionRun (input : Nat) where
       (initialSequentialAssignment input)
       (resolutionLength input)
   historyExact : history = resolutionHistory input
-  historyConsumesGeneration :
-    executeGeneratedHistory
-        generatedHistory
-        (initialSequentialAssignment input) = history
+  historyConsumesGeneration : generatedHistory =
+    constitutiveFeedbackHistory.toGeneratedHistory
   discoveryTraversal :
     GeneratedHistoryTraversalResult
       input
       (initialSequentialAssignment input)
       (resolutionLength input)
   discoveryTraversalExact :
-    discoveryTraversal =
-      discoverGeneratedHistoryTransportPath
-        generatedHistory
-        (initialSequentialAssignment input)
+    discoveryTraversal = constitutiveFeedbackHistory.toDiscoveryTraversal
   discoveryTraversalExecutionExact :
     discoveryTraversal.execution? = some history
   discoveryTraversalRunsExact :
@@ -117,13 +302,6 @@ structure ConstitutiveResolutionRun (input : Nat) where
   acceptedHistory : AcceptedSequentialHistory history
   fullHistoryExecution : FullHistoryExecution history
   roleHistory : ConstitutiveRoleHistory history
-  threadedInitialState :
-    ThreadedConstitutiveState input (initialSequentialAssignment input)
-  threadedInitialStateExact :
-    threadedInitialState = initialThreadedConstitutiveState input
-  constitutiveFeedbackHistory :
-    ConstitutiveExecutionHistory
-      (count := resolutionLength input) threadedInitialState
   historyFromCausalExecution :
     history = constitutiveFeedbackHistory.toSequentialHistory
   feedbackRoleHistory :
@@ -165,62 +343,36 @@ def executeConstitutiveResolution
     (initialThreadedConstitutiveState_fresh input)
   let history := feedbackHistory.toSequentialHistory
   have historyCanonical : history = resolutionHistory input := by
-    exact feedbackHistory.toSequentialHistory_eq_reference rfl
+    rfl
   let initialization := initializeConstitutiveHistory input
-  let production := produceMeasuredConstitutiveHistory input (resolutionLength input)
-    initialization.history.endpoint (congrArg RootedGeneratedHistory.endpoint initialization.historyExact)
+  let production := feedbackHistory.toProductionRun rfl
   let generatedHistory := production.history
-  let traversal :=
-    discoverGeneratedHistoryTransportPath
-      generatedHistory
-      (initialSequentialAssignment input)
-  have traversed :=
-    discoverGeneratedHistoryTransportPath_exact
-      generatedHistory
-      (initialSequentialAssignment input)
-  have consumed :
-      executeGeneratedHistory
-          generatedHistory
-          (initialSequentialAssignment input) = history := by
-    have reference : generatedHistory =
-        produceCanonicalGeneratedHistory input (resolutionLength input) :=
-      resolutionGeneratedHistory_eq_reference input
-    rw [reference]
-    exact Eq.trans
-      (executeProducedHistory_exact
-        input
-        (resolutionLength input)
-        (initialSequentialAssignment input)) historyCanonical.symm
-  have traversalReturns : traversal.execution? = some history := by
-    exact Eq.trans traversed.1 (congrArg some consumed)
+  let traversal := feedbackHistory.toDiscoveryTraversal
+  have traversed := feedbackHistory.toDiscoveryTraversal_exact
   let terminal := terminalFromSequentialHistory history
   { history := history
     initialization := initialization
     initializationExact := rfl
-    production := production
-    productionExact := rfl
-    generatedHistory := generatedHistory
-    generatedHistoryExact := rfl
-    generatedHistoryFromProduction := rfl
-    historyExact := historyCanonical
-    historyConsumesGeneration := consumed
-    discoveryTraversal := traversal
-    discoveryTraversalExact := rfl
-    discoveryTraversalExecutionExact := traversalReturns
-    discoveryTraversalRunsExact := traversed.2.1
-    successfulDiscoveriesExact := traversed.2.2.1
-    discoveryFailureAbsent := traversed.2.2.2
-    acceptedHistory := by
-      rw [← consumed]
-      exact
-        executeGeneratedHistory_accepted
-          generatedHistory
-          (initialSequentialAssignment input)
-    fullHistoryExecution := executeFullHistory history
-    roleHistory := buildConstitutiveRoleHistory history
     threadedInitialState := threadedInitialState
     threadedInitialStateExact := rfl
     constitutiveFeedbackHistory := feedbackHistory
+    production := production
+    productionExact := rfl
+    generatedHistory := generatedHistory
+    generatedHistoryExact := Eq.trans production.historyExact
+      (resolutionGeneratedHistory_eq_reference input).symm
+    generatedHistoryFromProduction := rfl
+    historyExact := historyCanonical
+    historyConsumesGeneration := rfl
+    discoveryTraversal := traversal
+    discoveryTraversalExact := rfl
+    discoveryTraversalExecutionExact := traversed.1
+    discoveryTraversalRunsExact := traversed.2.1
+    successfulDiscoveriesExact := traversed.2.2.1
+    discoveryFailureAbsent := traversed.2.2.2
+    acceptedHistory := feedbackHistory.toAcceptedHistory
+    fullHistoryExecution := executeFullHistory history
+    roleHistory := buildConstitutiveRoleHistory history
     historyFromCausalExecution := rfl
     feedbackRoleHistory := buildThreadedConstitutiveRoleHistory feedbackHistory
     feedbackStats := feedbackHistory.feedbackStats
@@ -253,82 +405,52 @@ def executeConstitutiveResolution
 /-- The number of actual producer calls is the nonconstant requested length. -/
 theorem executeConstitutiveResolution_generatedSteps (input : Nat) :
     (executeConstitutiveResolution input).stats.generatedSteps = input + 1 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_generatedSteps
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.1
 
 /-- One discovered schedule atom is produced per generated stage. -/
 theorem executeConstitutiveResolution_scheduleAtoms (input : Nat) :
     (executeConstitutiveResolution input).stats.scheduleAtoms = input + 1 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_scheduleAtoms
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.1
 
 /-- Validation performs one primitive query per generated stage. -/
 theorem executeConstitutiveResolution_validationQueries (input : Nat) :
     (executeConstitutiveResolution input).stats.validationPrimitiveQueries =
       input + 1 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_validationQueries
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.1
 
 /-- Local execution performs one primitive query per generated stage. -/
 theorem executeConstitutiveResolution_executionQueries (input : Nat) :
     (executeConstitutiveResolution input).stats.executionPrimitiveQueries =
       input + 1 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_executionQueries
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.2.1
 
 /-- Every code returned by the local runs is actually applied once. -/
 theorem executeConstitutiveResolution_appliedAtoms (input : Nat) :
     (executeConstitutiveResolution input).stats.appliedCodeAtoms = input + 1 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_appliedAtoms
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.2.2.2
 
 /-- No global composition candidate is inspected anywhere in the history. -/
 theorem executeConstitutiveResolution_noGlobalComposition (input : Nat) :
     (executeConstitutiveResolution input).stats.compositionCandidates = 0 := by
-  rw [
-    (executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  exact
-    executedHistory_compositionCandidates
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
+  let run := executeConstitutiveResolution input
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact (run.constitutiveFeedbackHistory.coreStats_exact
+    (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.2.2.1
 
 /--
 All structural cardinalities are consequences of the objects already produced
@@ -368,12 +490,20 @@ theorem executeConstitutiveResolution_decision (input : Nat) :
     (executeConstitutiveResolution input).decision =
       alternatingExecutionDecision (input + 1) := by
   let run := executeConstitutiveResolution input
-  rw [run.decisionExact, run.terminalExact, run.historyExact]
-  exact
-    executedHistory_decision_exact
-      input
-      input
-      (initialSequentialAssignment input)
+  calc
+    run.decision = (runTerminalReadout run.history.executedBits).decision := by
+      rw [run.decisionExact, run.terminalExact]
+      unfold decideSequentialTerminal
+      rw [
+        (terminalFromSequentialHistory run.history).decisionBitExact,
+        (terminalFromSequentialHistory run.history).readoutRunExact,
+        (terminalFromSequentialHistory run.history).observedBitsExact]
+      rfl
+    _ = alternatingExecutionDecision (resolutionLength input) :=
+      decideSequentialTerminal_of_executedBits run.history (by
+        rw [run.historyFromCausalExecution]
+        exact run.constitutiveFeedbackHistory.executedBits_exact)
+    _ = alternatingExecutionDecision (input + 1) := rfl
 
 /-- The family contains a concrete YES instance. -/
 theorem executeConstitutiveResolution_zero_yes :
@@ -397,20 +527,6 @@ theorem resolution_generatedSteps_strict (input : Nat) :
   ]
   exact Nat.lt_succ_self (input + 1)
 
-/--
-Strict growth of the attempts accumulated by the complete integrated history.
--/
-theorem resolution_discoveryAttempts_strict (input : Nat) :
-    (executeConstitutiveResolution input).stats.discoveryAttempts <
-      (executeConstitutiveResolution (input + 1)).stats.discoveryAttempts := by
-  rw [(executeConstitutiveResolution input).statsExact,
-    (executeConstitutiveResolution input).historyExact,
-    (executeConstitutiveResolution (input + 1)).statsExact,
-    (executeConstitutiveResolution (input + 1)).historyExact]
-  unfold resolutionHistory
-  rw [executedHistory_attemptCount, executedHistory_attemptCount]
-  exact historyAttemptCount_integrated_strict input
-
 theorem natFunction_strict_of_successor (function : Nat → Nat)
     (successor : ∀ input, function input < function (input + 1))
     {first second : Nat} (before : first < second) : function first < function second := by
@@ -420,12 +536,6 @@ theorem natFunction_strict_of_successor (function : Nat → Nat)
     cases Nat.lt_or_eq_of_le (Nat.le_of_lt_succ before) with
     | inl earlier => exact Nat.lt_trans (ih earlier) (successor second)
     | inr same => cases same; exact successor first
-
-theorem resolution_discoveryAttempts_strict_between
-    {first second : Nat} (before : first < second) :
-    (executeConstitutiveResolution first).stats.discoveryAttempts <
-      (executeConstitutiveResolution second).stats.discoveryAttempts :=
-  natFunction_strict_of_successor _ resolution_discoveryAttempts_strict before
 
 def resolutionStageSurfacePolynomial : CostPolynomial :=
   CostPolynomial.mul
@@ -449,75 +559,6 @@ def resolutionSurfacePolynomial : CostPolynomial :=
         CostPolynomial.input
         (CostPolynomial.constant 1)))
     (CostPolynomial.constant 1)
-
-/-- The legacy structural profile is bounded by this cubic envelope. -/
-theorem executeConstitutiveResolution_surface_le (input : Nat) :
-    (executeConstitutiveResolution input).structuralProfileCost ≤
-      resolutionSurfacePolynomial.eval input := by
-  have historyBound :=
-    executedHistory_cost_le
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
-  have terminalReads :=
-    executedHistory_bits_length
-      input
-      (resolutionLength input)
-      (initialSequentialAssignment input)
-  rw [
-    (executeConstitutiveResolution input).structuralProfileCostExact,
-    (executeConstitutiveResolution input).historyExact
-  ]
-  change
-    (resolutionHistory input).totalStructuralProfileCost ≤
-      resolutionSurfacePolynomial.eval input
-  unfold resolutionHistory
-  unfold resolutionLength
-  unfold resolutionLength at historyBound
-  unfold resolutionLength at terminalReads
-  unfold SequentialHistory.totalStructuralProfileCost
-  rw [runTerminalReadout_visits]
-  unfold resolutionSurfacePolynomial
-  unfold resolutionStageSurfacePolynomial
-  change
-    (executeSequentialHistory
-          input
-          (input + 1)
-          (initialSequentialAssignment input)).structuralProfileCost +
-        (executeSequentialHistory
-          input
-          (input + 1)
-          (initialSequentialAssignment input)).executedBits.length + 1 ≤
-      ((input + 1) *
-          (CostPolynomial.substitute
-            sequentialStageSurfacePolynomial
-            (CostPolynomial.add
-              CostPolynomial.input
-              (CostPolynomial.add
-                CostPolynomial.input
-                (CostPolynomial.constant 1)))).eval input +
-        (input + 1)) + 1
-  rw [CostPolynomial.eval_substitute]
-  exact
-    Nat.add_le_add
-      (Nat.add_le_add
-        historyBound
-        (Nat.le_of_eq terminalReads))
-      (Nat.le_refl 1)
-
-/-- Polynomial bound on the legacy structural profile, not on complete runtime. -/
-theorem constitutiveResolutionSurface_inputPolynomial :
-    InputPolynomiallyBounded
-      (fun input => (encodeConstitutiveInput input).length)
-      (fun input => (executeConstitutiveResolution input).structuralProfileCost) := by
-  refine ⟨resolutionSurfacePolynomial, ?_⟩
-  intro input
-  change
-    (executeConstitutiveResolution input).structuralProfileCost ≤
-      resolutionSurfacePolynomial.eval
-        (encodeConstitutiveInput input).length
-  rw [encodeConstitutiveInput_length]
-  exact executeConstitutiveResolution_surface_le input
 
 /--
 Named causal obligations for one concrete stage.  This record makes the
@@ -577,8 +618,7 @@ witnesses already carried by the unique public run.
 structure Section6OperationalSuccessionEvidence {input : Nat}
     (run : ConstitutiveResolutionRun input) : Type 2 where
   sourceIsInitial :
-    executeGeneratedHistory run.generatedHistory
-        (initialSequentialAssignment input) = run.history
+    run.generatedHistory = run.constitutiveFeedbackHistory.toGeneratedHistory
   discoveryTraversalReturnsHistory :
     run.discoveryTraversal.execution? = some run.history
   successionIsTyped : FullHistoryExecution run.history
@@ -611,16 +651,16 @@ def section6OperationalSuccessionEvidence {input : Nat}
     executedAtomsAreGeneratedSteps := by
       calc
         run.stats.appliedCodeAtoms = input + 1 := by
-          rw [run.statsExact, run.historyExact]
-          exact executedHistory_appliedAtoms input (resolutionLength input)
-            (initialSequentialAssignment input)
+          rw [run.statsExact, run.historyFromCausalExecution]
+          exact (run.constitutiveFeedbackHistory.coreStats_exact
+            (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.2.2.2
         _ = run.generatedHistory.stepCount := by
           rw [run.generatedHistoryExact, resolutionGeneratedHistory_eq_reference]
           exact (producedHistory_stepCount input (resolutionLength input)).symm
     compositionCandidatesAreZero := by
-      rw [run.statsExact, run.historyExact]
-      exact executedHistory_compositionCandidates input (resolutionLength input)
-        (initialSequentialAssignment input)
+      rw [run.statsExact, run.historyFromCausalExecution]
+      exact (run.constitutiveFeedbackHistory.coreStats_exact
+        (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.2.2.2.2.1
     terminalContinuationIsOperationalFold :=
       Eq.trans run.terminal.assignmentExact
         (terminalAssignment_is_operational_fold run.history) }
@@ -695,9 +735,7 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
     run.stats.generationCertificates = input + 1
   generatedObjectHasExactLength : run.generatedHistory.stepCount = input + 1
   operationalHistoryConsumesGeneratedObject :
-    executeGeneratedHistory
-        run.generatedHistory
-        (initialSequentialAssignment input) = run.history
+    run.generatedHistory = run.constitutiveFeedbackHistory.toGeneratedHistory
   failureAwareTraversalConsumesDiscovery :
     run.discoveryTraversal.execution? = some run.history
   discoveryRunsExact : run.discoveryTraversal.discoveryRuns = input + 1
@@ -740,8 +778,6 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
     run.phaseAccounting.total = run.structuralProfileCost
   terminalReadoutInstrumented :
     run.terminal.readoutRun.bitVisits = run.terminal.observedBits.length
-  structuralProfileCostPolynomial :
-    run.structuralProfileCost ≤ resolutionSurfacePolynomial.eval input
   terminalProducedByHistory :
     run.terminal = terminalFromSequentialHistory run.history
   transportedBitsProducedByExecution :
@@ -807,28 +843,19 @@ def constitutiveAndOrResolutionEvidence
       executeConstitutiveResolution_generatedSteps input
     generationCallsExact :=
       by
-        rw [run.statsExact, run.historyExact]
-        exact
-          executedHistory_generateCalls
-            input
-            (resolutionLength input)
-            (initialSequentialAssignment input)
+        rw [run.statsExact, run.historyFromCausalExecution]
+        exact (run.constitutiveFeedbackHistory.coreStats_exact
+          (by rw [run.threadedInitialStateExact]; rfl)).1
     provenanceUnitsExact :=
       by
-        rw [run.statsExact, run.historyExact]
-        exact
-          executedHistory_provenanceUnits
-            input
-            (resolutionLength input)
-            (initialSequentialAssignment input)
+        rw [run.statsExact, run.historyFromCausalExecution]
+        exact (run.constitutiveFeedbackHistory.coreStats_exact
+          (by rw [run.threadedInitialStateExact]; rfl)).2.2.1
     generationCertificatesExact :=
       by
-        rw [run.statsExact, run.historyExact]
-        exact
-          executedHistory_generationCertificates
-            input
-            (resolutionLength input)
-            (initialSequentialAssignment input)
+        rw [run.statsExact, run.historyFromCausalExecution]
+        exact (run.constitutiveFeedbackHistory.coreStats_exact
+          (by rw [run.threadedInitialStateExact]; rfl)).2.2.2.1
     generatedObjectHasExactLength := by
       rw [run.generatedHistoryExact, resolutionGeneratedHistory_eq_reference]
       exact producedHistory_stepCount input (resolutionLength input)
@@ -861,12 +888,8 @@ def constitutiveAndOrResolutionEvidence
       executeConstitutiveResolution_appliedAtoms input
     relationQueriesAreAttempts :=
       by
-        rw [run.statsExact, run.historyExact]
-        exact
-          executedHistory_relationQueries
-            input
-            (resolutionLength input)
-            (initialSequentialAssignment input)
+        rw [run.statsExact, run.historyFromCausalExecution]
+        exact run.constitutiveFeedbackHistory.relationQueries_eq_attempts
     noGlobalComposition :=
       executeConstitutiveResolution_noGlobalComposition input
     structuralProfileCostProduced := run.structuralProfileCostExact
@@ -875,8 +898,6 @@ def constitutiveAndOrResolutionEvidence
     terminalReadoutInstrumented := by
       rw [run.terminal.readoutRunExact]
       exact runTerminalReadout_visits _
-    structuralProfileCostPolynomial :=
-      executeConstitutiveResolution_surface_le input
     terminalProducedByHistory := run.terminalExact
     transportedBitsProducedByExecution :=
       run.terminal.observedBitsExact
@@ -914,8 +935,9 @@ def constitutiveAndOrResolutionEvidence
 /-- Execution retains the precise generated steps supplied to its traversal. -/
 theorem ConstitutiveResolutionRun.generatorsExact {input : Nat} (run : ConstitutiveResolutionRun input) :
     run.history.generatedHistory = run.generatedHistory := by
-  rw [← run.historyConsumesGeneration]
-  exact executedGeneratedHistory_retains_generators _ _
+  rw [run.historyFromCausalExecution,
+    run.constitutiveFeedbackHistory.toSequentialHistory_generatedHistory,
+    ← run.historyConsumesGeneration]
 
 /-- The generic traversal returns the actual local discoveries of the public run.
 HEq accounts only for the proved equality of the two history indices. -/
@@ -969,8 +991,8 @@ def resolutionTerminalReadPolynomial : CostPolynomial :=
 theorem ConstitutiveResolutionRun.terminalReadWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.terminal.measuredReadWork ≤ resolutionTerminalReadPolynomial.eval input := by
-  rw [run.terminalExact, run.historyExact]
-  have bounded := concreteTerminalReadWork_bound input input
+  rw [run.terminalExact, run.historyFromCausalExecution]
+  have bounded := run.constitutiveFeedbackHistory.terminalReadWork_bound
   dsimp only at bounded
   have labelExact : stageSelectedVar (input + (input + 1)) =
       2 * ((input + (input + 1)) + 3) + 2 := by
@@ -989,7 +1011,7 @@ theorem ConstitutiveResolutionRun.realizationWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.measuredRealizationWork.total ≤ resolutionRealizationPolynomial.eval input := by
   rw [run.measuredRealizationWorkExact, run.discoveryTraversalExact]
-  exact generatedHistoryRealizationWork_bound run.generatedHistory _
+  exact run.constitutiveFeedbackHistory.realizationWork_bound
 
 /-- Count producer invocations once. Appended steps and provenance indicators
 describe their outputs; they are deliberately not added as duplicate calls. -/
@@ -999,9 +1021,18 @@ def ConstitutiveResolutionRun.productionCalls {input : Nat} (run : ConstitutiveR
 theorem ConstitutiveResolutionRun.productionCalls_exact {input : Nat}
     (run : ConstitutiveResolutionRun input) : run.productionCalls = input + (input + 1) := by
   unfold ConstitutiveResolutionRun.productionCalls
-  rw [run.productionExact]
-  rw [(produceMeasuredConstitutiveHistory_counts input (resolutionLength input) _ _).1]
-  rw [run.initializationExact, (initializeConstitutiveHistory_counts input).1]
+  have generationCanonical : run.threadedInitialState.generation =
+      generateCanonicalStage input := by
+    exact congrArg ThreadedConstitutiveState.generation run.threadedInitialStateExact
+  have productionExact : run.production.generateCalls = resolutionLength input := by
+    calc
+      run.production.generateCalls =
+          run.constitutiveFeedbackHistory.productionStats.generateCalls :=
+        congrArg ConstitutiveProductionRun.generateCalls run.productionExact
+      _ = resolutionLength input :=
+        (run.constitutiveFeedbackHistory.productionStats_exact generationCanonical).1
+  rw [run.initializationExact, (initializeConstitutiveHistory_counts input).1,
+    productionExact]
   rfl
 
 end NPAndOrP
@@ -1018,9 +1049,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveMeasuredSearch_inputPolynomial
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.generatorsExact
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.genericTraversalExact
-#print axioms ConstitutiveSearch.NPAndOrP.resolution_discoveryAttempts_strict_between
 #print axioms ConstitutiveSearch.NPAndOrP.resolutionGeneratedHistory_eq_reference
-#print axioms ConstitutiveSearch.NPAndOrP.resolution_discoveryAttempts_strict
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution
 #print axioms ConstitutiveSearch.NPAndOrP.encodeConstitutiveInput_length
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_decision_from_terminal
@@ -1030,8 +1059,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_noGlobalComposition
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_correspondences
 #print axioms ConstitutiveSearch.NPAndOrP.resolution_generatedSteps_strict
-#print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveResolution_surface_le
-#print axioms ConstitutiveSearch.NPAndOrP.constitutiveResolutionSurface_inputPolynomial
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveCausalStageEvidence
 #print axioms ConstitutiveSearch.NPAndOrP.section6OperationalSuccessionEvidence
 #print axioms ConstitutiveSearch.NPAndOrP.constitutiveAndOrResolutionEvidence

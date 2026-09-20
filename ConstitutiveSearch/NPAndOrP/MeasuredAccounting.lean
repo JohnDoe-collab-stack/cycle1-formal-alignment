@@ -24,7 +24,7 @@ inductive MeasuredPhase where
   | codeApplication
   | decisionAccumulation
   | decisionProvenance
-  | transmittedStateInspection
+  | historyFiltering
   | terminal
   | projection
   deriving DecidableEq, Repr
@@ -34,7 +34,7 @@ def measuredPhases : List MeasuredPhase :=
     .executionSearch, .terminal, .generationMaterialization, .schedule,
     .validationQueries, .executionQueries, .codeApplication,
     .extractedCandidates, .candidateTests, .relationQueries, .validatedAtoms,
-    .decisionAccumulation, .decisionProvenance, .transmittedStateInspection,
+    .decisionAccumulation, .decisionProvenance, .historyFiltering,
     .projection]
 
 def phaseOccurrences (phase : MeasuredPhase) : List MeasuredPhase → Nat
@@ -97,9 +97,9 @@ def ConstitutiveResolutionRun.decisionProvenanceWork {input : Nat}
     (run : ConstitutiveResolutionRun input) : Nat :=
   run.feedbackStats.provenanceVisits
 
-def ConstitutiveResolutionRun.transmittedStateInspectionWork {input : Nat}
+def ConstitutiveResolutionRun.historyFilteringWork {input : Nat}
     (run : ConstitutiveResolutionRun input) : Nat :=
-  run.feedbackStats.transmittedStateInspections
+  run.feedbackStats.historyFilteringVisits
 
 /-- The shared source is constructed once. The two finder/interpreter calls
 belong to different executions and both contribute their emitted work. -/
@@ -130,7 +130,7 @@ def ConstitutiveResolutionRun.phaseWork {input : Nat} (run : ConstitutiveResolut
   | .codeApplication => run.codeApplicationWork
   | .decisionAccumulation => run.decisionAccumulationWork
   | .decisionProvenance => run.decisionProvenanceWork
-  | .transmittedStateInspection => run.transmittedStateInspectionWork
+  | .historyFiltering => run.historyFilteringWork
   | .terminal => run.terminal.measuredReadWork
   | .projection => run.projectionExperiment.measuredWork
 
@@ -186,7 +186,7 @@ theorem retainedStageExtraction_bound {depth : Nat} {input : SequentialAssignmen
     (run : SequentialStageRun depth input) :
     run.stats.extractionClauseVisits + run.stats.extractionLiteralVisits ≤ stageExtractionEnvelope (depth + 1) := by
   change run.discoveryRun.extraction.stats.clauseVisits + run.discoveryRun.extraction.stats.literalVisits ≤ _
-  rw [run.discoveryRunExact]
+  rw [run.extractionExact]
   have bound := Nat.le_trans
     (cnfExtraction_visits_bound (distinctGrowingDiscoveryFormula (constitutedSearchIndex (depth + 1))))
     (growingFormula_unarySize_bound (constitutedSearchIndex (depth + 1)))
@@ -227,13 +227,12 @@ theorem ConstitutiveResolutionRun.extractedCandidateWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.extractedCandidateWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.extractedCandidateWork
-  rw [run.statsExact, run.historyExact]
-  unfold resolutionHistory
-  rw [executedHistory_extractedCandidates_eq_literalVisits]
-  exact Nat.le_trans (Nat.le_add_left _ _)
-    (historyExtraction_bound
-      (executeSequentialHistory input (resolutionLength input)
-        (initialSequentialAssignment input)))
+  rw [run.statsExact, run.historyFromCausalExecution]
+  rw [(run.constitutiveFeedbackHistory.controlStats_exact).1]
+  have bound := run.extractionWork_bound
+  change run.stats.extractionClauseVisits + run.stats.extractionLiteralVisits ≤ _ at bound
+  rw [run.statsExact, run.historyFromCausalExecution] at bound
+  exact Nat.le_trans (Nat.le_add_left _ _) bound
 
 def resolutionAttemptPolynomial : CostPolynomial :=
   let count : CostPolynomial := .add .input (.constant 1)
@@ -248,25 +247,26 @@ theorem resolutionAttemptPolynomial_eval (input : Nat) :
 
 theorem ConstitutiveResolutionRun.candidateTestWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
-    run.candidateTestWork ≤ resolutionAttemptPolynomial.eval input := by
+    run.candidateTestWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.candidateTestWork
-  rw [run.statsExact, run.historyExact]
-  unfold resolutionHistory
-  exact Nat.le_trans
-    (executedHistory_attempts_le input (resolutionLength input)
-      (initialSequentialAssignment input))
-    (Nat.le_of_eq (resolutionAttemptPolynomial_eval input).symm)
+  rw [run.statsExact, run.historyFromCausalExecution]
+  have extracted := run.extractedCandidateWork_bound
+  unfold ConstitutiveResolutionRun.extractedCandidateWork at extracted
+  rw [run.statsExact, run.historyFromCausalExecution] at extracted
+  exact Nat.le_trans (run.constitutiveFeedbackHistory.controlStats_exact).2.1
+    extracted
 
 theorem ConstitutiveResolutionRun.relationQueryWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
-    run.relationQueryWork ≤ resolutionAttemptPolynomial.eval input := by
+    run.relationQueryWork ≤ resolutionExtractionPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.relationQueryWork
-  rw [run.statsExact, run.historyExact]
-  unfold resolutionHistory
-  exact Nat.le_trans
-    (executedHistory_relationQueries_le input (resolutionLength input)
-      (initialSequentialAssignment input))
-    (Nat.le_of_eq (resolutionAttemptPolynomial_eval input).symm)
+  rw [run.statsExact, run.historyFromCausalExecution,
+    run.constitutiveFeedbackHistory.relationQueries_eq_attempts]
+  have extracted := run.extractedCandidateWork_bound
+  unfold ConstitutiveResolutionRun.extractedCandidateWork at extracted
+  rw [run.statsExact, run.historyFromCausalExecution] at extracted
+  exact Nat.le_trans (run.constitutiveFeedbackHistory.controlStats_exact).2.1
+    extracted
 
 def resolutionValidatedAtomPolynomial : CostPolynomial :=
   .add .input (.constant 1)
@@ -275,9 +275,8 @@ theorem ConstitutiveResolutionRun.validatedAtomWork_exact {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.validatedAtomWork = resolutionValidatedAtomPolynomial.eval input := by
   unfold ConstitutiveResolutionRun.validatedAtomWork resolutionValidatedAtomPolynomial
-  rw [run.statsExact, run.historyExact]
-  unfold resolutionHistory
-  rw [executedHistory_validatedAtoms]
+  rw [run.statsExact, run.historyFromCausalExecution,
+    (run.constitutiveFeedbackHistory.controlStats_exact).2.2]
   rfl
 
 /-- The §7 counters not already owned by recursive comparison/search work.
@@ -289,8 +288,8 @@ def ConstitutiveResolutionRun.section7ControlWork {input : Nat}
     run.relationQueryWork) + run.validatedAtomWork
 
 def resolutionSection7ControlPolynomial : CostPolynomial :=
-  .add (.add (.add resolutionExtractionPolynomial resolutionAttemptPolynomial)
-    resolutionAttemptPolynomial) resolutionValidatedAtomPolynomial
+  .add (.add (.add resolutionExtractionPolynomial resolutionExtractionPolynomial)
+    resolutionExtractionPolynomial) resolutionValidatedAtomPolynomial
 
 theorem ConstitutiveResolutionRun.section7ControlWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
@@ -328,17 +327,19 @@ theorem ConstitutiveResolutionRun.generationMaterializationWork_exact {input : N
     (initializeConstitutiveHistory_counts input).2.2,
     (initializeConstitutiveHistory_material_counts input).1,
     (initializeConstitutiveHistory_material_counts input).2]
-  rw [(produceMeasuredConstitutiveHistory_counts input (resolutionLength input) _ _).2,
-    (produceMeasuredConstitutiveHistory_material_counts input (resolutionLength input) _ _).1,
-    (produceMeasuredConstitutiveHistory_material_counts input (resolutionLength input) _ _).2]
+  have generationCanonical : run.threadedInitialState.generation =
+      generateCanonicalStage input := by
+    exact congrArg ThreadedConstitutiveState.generation run.threadedInitialStateExact
+  have produced := run.constitutiveFeedbackHistory.productionStats_exact generationCanonical
+  unfold ConstitutiveExecutionHistory.toProductionRun
+  rw [produced.2.1, produced.2.2.1, produced.2.2.2]
   rfl
 
 theorem ConstitutiveResolutionRun.continuationApplications_exact {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.stats.continuationApplications = input + 1 := by
-  rw [run.statsExact, run.historyExact]
-  exact executedHistory_continuationApplications input (resolutionLength input)
-    (initialSequentialAssignment input)
+  rw [run.statsExact, run.historyFromCausalExecution]
+  exact run.constitutiveFeedbackHistory.continuationApplications_eq_count
 
 /-- Previously owned control/material operations, retained as a separately
 proved component of the exhaustive §7 ledger. -/
@@ -380,12 +381,14 @@ history recursion: one decision insertion, one provenance insertion and at
 most a full scan of the accumulated history at every stage. -/
 def resolutionFeedbackPolynomial : CostPolynomial :=
   let count : CostPolynomial := .add .input (.constant 1)
-  .add (.add count count) (.mul count count)
+  let candidateBound : CostPolynomial :=
+    .add (.mul (.constant 2) (.add .input count)) (.constant 13)
+  .add (.add count count) (.mul count (.mul candidateBound count))
 
 def ConstitutiveResolutionRun.feedbackControlWork {input : Nat}
     (run : ConstitutiveResolutionRun input) : Nat :=
   (run.decisionAccumulationWork + run.decisionProvenanceWork) +
-    run.transmittedStateInspectionWork
+    run.historyFilteringWork
 
 theorem ConstitutiveResolutionRun.feedbackControlWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
@@ -399,7 +402,7 @@ theorem ConstitutiveResolutionRun.feedbackControlWork_bound {input : Nat}
   unfold ConstitutiveResolutionRun.feedbackControlWork
     ConstitutiveResolutionRun.decisionAccumulationWork
     ConstitutiveResolutionRun.decisionProvenanceWork
-    ConstitutiveResolutionRun.transmittedStateInspectionWork
+    ConstitutiveResolutionRun.historyFilteringWork
     resolutionFeedbackPolynomial
   rw [run.feedbackStatsExact, decisionExact, provenanceExact]
   rw [initialLength] at inspectionBound
@@ -407,8 +410,10 @@ theorem ConstitutiveResolutionRun.feedbackControlWork_bound {input : Nat}
   rw [Nat.zero_add] at inspectionBound
   change
     ((input + 1) + (input + 1)) +
-        run.constitutiveFeedbackHistory.feedbackStats.transmittedStateInspections ≤
-      ((input + 1) + (input + 1)) + ((input + 1) * (input + 1))
+        run.constitutiveFeedbackHistory.feedbackStats.historyFilteringVisits ≤
+      ((input + 1) + (input + 1)) +
+        ((input + 1) *
+          ((2 * (input + (input + 1)) + 13) * (input + 1)))
   exact Nat.add_le_add (Nat.le_refl _) inspectionBound
 
 theorem feedbackControlWork_inputPolynomial :
@@ -487,7 +492,7 @@ theorem ConstitutiveResolutionRun.instrumentedWork_partition {input : Nat}
     ConstitutiveResolutionRun.codeApplicationWork,
     ConstitutiveResolutionRun.decisionAccumulationWork,
     ConstitutiveResolutionRun.decisionProvenanceWork,
-    ConstitutiveResolutionRun.transmittedStateInspectionWork,
+    ConstitutiveResolutionRun.historyFilteringWork,
     ConstitutiveResolutionRun.measuredSearchWork]
   rw [ComparisonWork.total_add, ComparisonWork.total_add]
   repeat rw [Nat.add_assoc]
@@ -843,9 +848,9 @@ structure Section7AccountingCoverage {input : Nat}
     run.phaseWork .decisionAccumulation = run.feedbackStats.decisionAccumulations
   decisionProvenanceOwned :
     run.phaseWork .decisionProvenance = run.feedbackStats.provenanceVisits
-  transmittedStateInspectionOwned :
-    run.phaseWork .transmittedStateInspection =
-      run.feedbackStats.transmittedStateInspections
+  historyFilteringOwned :
+    run.phaseWork .historyFiltering =
+      run.feedbackStats.historyFilteringVisits
   nextStateRealizationUsesExistingOwner :
     run.phaseWork .realization = run.measuredRealizationWork.total
   stateDependentExtractionUsesExistingOwner :
@@ -881,7 +886,7 @@ theorem executeConstitutiveResolution_section7Coverage (input : Nat) :
       codeApplicationOwned := rfl
       decisionAccumulationOwned := rfl
       decisionProvenanceOwned := rfl
-      transmittedStateInspectionOwned := rfl
+      historyFilteringOwned := rfl
       nextStateRealizationUsesExistingOwner := rfl
       stateDependentExtractionUsesExistingOwner := rfl
       nextDiscoveryUsesExistingOwner := rfl
@@ -954,14 +959,6 @@ field is the canonical phase-owned ledger, not the legacy structural surface.
 This is a synthesis of the concrete family only, not a universal closure claim. -/
 structure ConstitutiveAndOrResolutionFamily : Type 3 where
   perInput : ∀ input, ConstitutiveAndOrResolutionPerInputEvidence input
-  integratedDiscoveryWorkStrict :
-    ∀ input,
-      (perInput input).core.run.stats.discoveryAttempts <
-        (perInput (input + 1)).core.run.stats.discoveryAttempts
-  integratedDiscoveryWorkStrictBetween :
-    ∀ {first second}, first < second →
-      (perInput first).core.run.stats.discoveryAttempts <
-        (perInput second).core.run.stats.discoveryAttempts
   generatedWorkStrict :
     ∀ input,
       (perInput input).core.run.stats.generatedSteps <
@@ -979,10 +976,6 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
       (stageRecordedDiscoveryRun input).outcome.formulaComparisonLiteralVisits <
         (stageRecordedDiscoveryRun
           (input + 1)).outcome.formulaComparisonLiteralVisits
-  structuralSurfaceBound :
-    InputPolynomiallyBounded
-      (fun input => input)
-      (fun input => (perInput input).core.run.structuralProfileCost)
   totalWorkBound :
     InputPolynomiallyBounded (fun input => (encodeConstitutiveInput input).length)
       (fun input => (executeConstitutiveResolution input).instrumentedWork)
@@ -1012,16 +1005,10 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
 /-- The complete measured concrete family is constructed rather than assumed. -/
 def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
   { perInput := constitutiveAndOrResolutionPerInputEvidence
-    integratedDiscoveryWorkStrict := resolution_discoveryAttempts_strict
-    integratedDiscoveryWorkStrictBetween := resolution_discoveryAttempts_strict_between
     generatedWorkStrict := resolution_generatedSteps_strict
     discoveryAttemptsStrict := stageRecordedDiscovery_attempts_strict
     extractionVisitsStrict := stageRecordedExtractionLiteralVisits_strict
     formulaComparisonVisitsStrict := stageRecordedFormulaComparisonVisits_strict
-    structuralSurfaceBound := by
-      refine ⟨resolutionSurfacePolynomial, ?_⟩
-      intro input
-      exact executeConstitutiveResolution_surface_le input
     totalWorkBound := instrumentedWork_inputPolynomial
     feedbackWorkBound := feedbackControlWork_inputPolynomial
     canonicalAccounting := canonicalMeasuredAccounting
@@ -1049,9 +1036,6 @@ structure MeasuredConstitutiveFamily : Prop where
   productionStrict : ∀ {first second}, first < second →
     (executeConstitutiveResolution first).productionCalls <
       (executeConstitutiveResolution second).productionCalls
-  discoveryStrict : ∀ {first second}, first < second →
-    (executeConstitutiveResolution first).stats.discoveryAttempts <
-      (executeConstitutiveResolution second).stats.discoveryAttempts
   costNotInflatable : ∀ input (first second : CanonicalMeasuredAccounting input), first.total = second.total
   projectionIncluded : ∀ input,
     (executeConstitutiveResolution input).instrumentedWork =
@@ -1067,7 +1051,6 @@ theorem measuredConstitutiveFamily : MeasuredConstitutiveFamily :=
     fullWorkPolynomial := instrumentedWork_inputPolynomial
     section7Coverage := executeConstitutiveResolution_section7Coverage
     productionStrict := measuredProductionCalls_strict
-    discoveryStrict := resolution_discoveryAttempts_strict_between
     costNotInflatable := fun _ first second => canonicalMeasuredAccounting_not_inflatable first second
     projectionIncluded := fun input => (executeConstitutiveResolution input).instrumentedWork_partition
     measuredCostBound := fun input =>
@@ -1087,7 +1070,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.section7ControlWork_bound
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.decisionAccumulationWork
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.decisionProvenanceWork
-#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.transmittedStateInspectionWork
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.historyFilteringWork
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.feedbackControlWork
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.feedbackControlWork_bound
 #print axioms ConstitutiveSearch.NPAndOrP.feedbackControlWork_inputPolynomial

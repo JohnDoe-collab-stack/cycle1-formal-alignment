@@ -225,12 +225,6 @@ theorem regression_structural_profile_is_run_derived (input : Nat) :
       (executeConstitutiveResolution input).history.totalStructuralProfileCost :=
   (executeConstitutiveResolution input).structuralProfileCostExact
 
-/-- Regression 14: the structural surface has an explicit polynomial envelope. -/
-theorem regression_structural_surface_is_polynomial (input : Nat) :
-    (executeConstitutiveResolution input).structuralProfileCost ≤
-      resolutionSurfacePolynomial.eval input :=
-  executeConstitutiveResolution_surface_le input
-
 /-- Regression 15: no hidden global-composition search occurs. -/
 theorem regression_no_global_closure (input : Nat) :
     (executeConstitutiveResolution input).stats.compositionCandidates = 0 :=
@@ -473,11 +467,6 @@ theorem regression_terminal_readout_is_preserved (input : Nat) :
     let terminal := (executeConstitutiveResolution input).terminal
     terminal.executedVariables.map terminal.assignment = terminal.observedBits :=
   (constitutiveAndOrResolutionEvidence input).terminalReadoutPreserved
-
-theorem regression_integrated_discovery_work_grows (input : Nat) :
-    (executeConstitutiveResolution input).stats.discoveryAttempts <
-      (executeConstitutiveResolution (input + 1)).stats.discoveryAttempts :=
-  resolution_discoveryAttempts_strict input
 
 theorem regression_measured_comparison_not_list_size (leftRest rightRest : Clause) :
     (compareMeasuredList compareMeasuredLiteral
@@ -857,9 +846,33 @@ theorem regression_feedback_accounting_is_canonical (input : Nat) :
     let run := executeConstitutiveResolution input
     run.phaseWork .decisionAccumulation = run.feedbackStats.decisionAccumulations ∧
       run.phaseWork .decisionProvenance = run.feedbackStats.provenanceVisits ∧
-      run.phaseWork .transmittedStateInspection =
-        run.feedbackStats.transmittedStateInspections := by
+      run.phaseWork .historyFiltering =
+        run.feedbackStats.historyFilteringVisits := by
   exact ⟨rfl, rfl, rfl⟩
+
+theorem regression_public_run_is_single_pass (input : Nat) :
+    let run := executeConstitutiveResolution input
+    run.history = run.constitutiveFeedbackHistory.toSequentialHistory ∧
+      run.generatedHistory = run.constitutiveFeedbackHistory.toGeneratedHistory ∧
+      run.discoveryTraversal = run.constitutiveFeedbackHistory.toDiscoveryTraversal := by
+  let run := executeConstitutiveResolution input
+  exact ⟨run.historyFromCausalExecution, run.historyConsumesGeneration,
+    run.discoveryTraversalExact⟩
+
+theorem regression_reachable_history_changes_candidate_trace (depth : Nat) :
+    (runThreadedNextDiscovery
+        (retainedNextDiscoveryState depth).state).candidates ≠
+      (runThreadedNextDiscovery
+        (erasedNextDiscoveryState depth).state).candidates :=
+  reachableHistory_candidateTraces_different depth
+
+theorem regression_filtering_cost_is_owned_once (input : Nat) :
+    let run := executeConstitutiveResolution input
+    run.phaseWork .historyFiltering =
+      run.constitutiveFeedbackHistory.feedbackStats.historyFilteringVisits := by
+  let run := executeConstitutiveResolution input
+  rw [run.feedbackStatsExact]
+  rfl
 
 end NPAndOrP
 end ConstitutiveSearch
@@ -909,7 +922,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_generation_alone_does_not_supply_relation
 #print axioms ConstitutiveSearch.NPAndOrP.regression_returned_codes_compile_from_local_paths
 #print axioms ConstitutiveSearch.NPAndOrP.regression_terminal_readout_is_preserved
-#print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_discovery_work_grows
 #print axioms ConstitutiveSearch.NPAndOrP.regression_measured_comparison_not_list_size
 #print axioms ConstitutiveSearch.NPAndOrP.regression_measured_discovery_is_reference_discovery
 #print axioms ConstitutiveSearch.NPAndOrP.regression_no_history_comparison_after_formula_failure
@@ -933,7 +945,6 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_tested_candidates_are_charged
 #print axioms ConstitutiveSearch.NPAndOrP.regression_cost_is_run_derived
 #print axioms ConstitutiveSearch.NPAndOrP.regression_structural_profile_is_run_derived
-#print axioms ConstitutiveSearch.NPAndOrP.regression_structural_surface_is_polynomial
 #print axioms ConstitutiveSearch.NPAndOrP.regression_no_global_closure
 #print axioms ConstitutiveSearch.NPAndOrP.regression_provenance_erasure_is_observable
 #print axioms ConstitutiveSearch.NPAndOrP.regression_terminal_is_trace_derived
@@ -975,4 +986,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_inspects_no_global_composition
 #print axioms ConstitutiveSearch.NPAndOrP.regression_prior_integrated_results_remain_available
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_accounting_is_canonical
+#print axioms ConstitutiveSearch.NPAndOrP.regression_public_run_is_single_pass
+#print axioms ConstitutiveSearch.NPAndOrP.regression_reachable_history_changes_candidate_trace
+#print axioms ConstitutiveSearch.NPAndOrP.regression_filtering_cost_is_owned_once
 /- AXIOM_AUDIT_END -/

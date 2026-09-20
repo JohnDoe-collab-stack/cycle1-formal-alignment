@@ -374,11 +374,11 @@ theorem retainedStageDiscovery_bound {depth : Nat} {input : SequentialAssignment
     (run : SequentialStageRun depth input) :
     (run.discoveryRun.outcome.comparisonWork.add run.discoveryRun.outcome.constructionWork).total ≤
       stageDiscoveryWorkEnvelope (depth + 1) := by
-  rw [run.discoveryRunExact]
   have bounded := stageDiscovery_measured_bound (depth + 1)
   dsimp only at bounded
   rw [constitutedSearchIndex_exact] at bounded
-  exact Nat.le_trans (Nat.le_add_left _ _) bounded
+  exact Nat.le_trans run.discoveryWorkLeCanonical
+    (Nat.le_trans (Nat.le_add_left _ _) bounded)
 
 /-- Sum the actual recorded discovery work over a causally threaded history.
 The bound applies to any inhabitant of this concrete stage API, not just a

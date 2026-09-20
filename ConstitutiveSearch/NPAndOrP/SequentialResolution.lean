@@ -480,13 +480,20 @@ structure SequentialStageRun
     (input : SequentialAssignment depth) where
   generation : CanonicalStageGeneration depth
   discoveryRun : RecordedStageDiscoveryRun (constructStage (depth + 1)).operationalRoot
-  discoveryRunExact : discoveryRun = stageRecordedDiscoveryRun (depth + 1)
+  extractionExact : discoveryRun.extraction =
+    (stageRecordedDiscoveryRun (depth + 1)).extraction
   discovery : EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot
+  discoveryRunFound : discoveryRun.outcome.discovered? = some discovery
   discoveryExact :
     (stageRecordedDiscoveryRun (depth + 1)).outcome.discovered? = some discovery
+  discoveryWorkLeCanonical :
+    (discoveryRun.outcome.comparisonWork.add
+      discoveryRun.outcome.constructionWork).total ≤
+    ((stageRecordedDiscoveryRun (depth + 1)).outcome.comparisonWork.add
+      (stageRecordedDiscoveryRun (depth + 1)).outcome.constructionWork).total
   storedSchedule : StoredLocalSchedule discovery
   storedScheduleExact : storedSchedule = discoveryRun.outcome.produceStoredSchedule discovery
-    (by rw [discoveryRunExact]; exact discoveryExact)
+    discoveryRunFound
   measuredValidation : MeasuredScheduleValidation storedSchedule
   measuredExecution : MeasuredScheduleExecution measuredValidation
   schedule : DiscoverySchedule discovery
@@ -505,6 +512,17 @@ structure SequentialStageRun
     GeneratedStructuralBranchAccept schedule.entry.target application.output
   next : SequentialAssignment (depth + 1)
   nextAssignmentExact : next.assignment = application.output.1
+  nextReaderExact : HEq next.reader
+    (readTransportedAssignment schedule.entry.var execution.code
+      sourceContinuation
+      (Eq.rec (motive := fun assignment _ => MeasuredAssignment assignment)
+        input.reader sourceAssignmentExact.symm))
+  nextReaderWorkExact : ∀ query,
+    (next.reader query).work =
+      (readTransportedAssignment schedule.entry.var execution.code
+        sourceContinuation
+        (Eq.rec (motive := fun assignment _ => MeasuredAssignment assignment)
+          input.reader sourceAssignmentExact.symm) query).work
 
 /-- The returned executable atom changes only the discovered current split. -/
 theorem sequentialStage_next_from_input
@@ -614,21 +632,24 @@ Build a stage from the witness returned by the recorded discovery run.  The
 equality argument is operational provenance: it prevents a caller from
 substituting another relation while retaining the same stage type.
 -/
-def executeSequentialStageFromRecorded
+def executeSequentialStageFromActiveRecorded
     (depth : Nat)
     (input : SequentialAssignment depth)
     (generation : CanonicalStageGeneration depth)
     (recorded : RecordedStageDiscoveryRun (constructStage (depth + 1)).operationalRoot)
-    (recordedExact : recorded = stageRecordedDiscoveryRun (depth + 1))
+    (extractionExact : recorded.extraction =
+      (stageRecordedDiscoveryRun (depth + 1)).extraction)
     (discovery :
       EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot)
     (found :
-      recorded.outcome.discovered? = some discovery) :
+      recorded.outcome.discovered? = some discovery)
+    (canonicalFound :
+      (stageRecordedDiscoveryRun (depth + 1)).outcome.discovered? = some discovery)
+    (workLeCanonical :
+      (recorded.outcome.comparisonWork.add recorded.outcome.constructionWork).total ≤
+      ((stageRecordedDiscoveryRun (depth + 1)).outcome.comparisonWork.add
+        (stageRecordedDiscoveryRun (depth + 1)).outcome.constructionWork).total) :
     SequentialStageRun depth input := by
-  have canonicalFound :
-      (stageRecordedDiscoveryRun (depth + 1)).outcome.discovered? = some discovery := by
-    rw [← recordedExact]
-    exact found
   have same : discovery = canonicalStageDiscovery (depth + 1) := by
     exact
       Option.some.inj
@@ -673,9 +694,11 @@ def executeSequentialStageFromRecorded
   exact
     { generation := generation
       discoveryRun := recorded
-      discoveryRunExact := recordedExact
+      extractionExact := extractionExact
       discovery := discovery
+      discoveryRunFound := found
       discoveryExact := canonicalFound
+      discoveryWorkLeCanonical := workLeCanonical
       storedSchedule := storedSchedule
       storedScheduleExact := rfl
       measuredValidation := measuredValidation
@@ -692,7 +715,24 @@ def executeSequentialStageFromRecorded
       application := application
       outputAccepted := application.preservesAccept sourceAccepted
       next := next
-      nextAssignmentExact := rfl }
+      nextAssignmentExact := rfl
+      nextReaderExact := HEq.rfl
+      nextReaderWorkExact := fun _ => rfl }
+
+/-- Canonical compatibility wrapper retained for reference callers. -/
+def executeSequentialStageFromRecorded
+    (depth : Nat)
+    (input : SequentialAssignment depth)
+    (generation : CanonicalStageGeneration depth)
+    (recorded : RecordedStageDiscoveryRun (constructStage (depth + 1)).operationalRoot)
+    (recordedExact : recorded = stageRecordedDiscoveryRun (depth + 1))
+    (discovery :
+      EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot)
+    (found : recorded.outcome.discovered? = some discovery) :
+    SequentialStageRun depth input :=
+  executeSequentialStageFromActiveRecorded depth input generation recorded
+    (by rw [recordedExact]) discovery found (by rw [← recordedExact]; exact found)
+    (by rw [recordedExact]; exact Nat.le_refl _)
 
 /-- Canonical specialization of the same measured, data-consuming builder. -/
 def executeSequentialStage (depth : Nat) (input : SequentialAssignment depth) :
@@ -750,6 +790,28 @@ theorem executeSequentialStage_output_selected
   have sourceAssignment : run.sourceContinuation.1 = input.assignment := by
     rfl
   rw [sourceAssignment]
+  rw [input.futureSelectedFalse _ (Nat.le_refl _)]
+  rfl
+
+/-- The selected output bit is a property of every positively built stage,
+not only of the canonical wrapper used by the reference execution. -/
+theorem SequentialStageRun.output_selected
+    {depth : Nat} {input : SequentialAssignment depth}
+    (run : SequentialStageRun depth input) :
+    run.application.output.1 run.schedule.entry.var = true := by
+  rw [run.application.assignment_from_returned_code,
+    executedDiscoverySchedule_code]
+  dsimp [
+    ConstitutedLocalWitness.code,
+    TransportClosure.ofGenerator,
+    TransportCode.ofGenerator,
+    TransportCode.eval,
+    generatedStructuralFlipAtAction,
+    GeneratedStructuralFlipAtRelation.toAcceptingTransport,
+    GeneratedStructuralFlipAtRelation.mapContinuation
+  ]
+  rw [Assignment.flipAt_selected, run.sourceAssignmentExact]
+  rw [sequentialStage_selected_exact run]
   rw [input.futureSelectedFalse _ (Nat.le_refl _)]
   rfl
 
@@ -949,8 +1011,10 @@ theorem executeSequentialStage_detailedDiscoveryStats
       stats.relationQueries = 2 * depth + 10 := by
   have detailed := stageRecordedDiscovery_detailedWork_exact (depth + 1)
   dsimp only [SequentialStageRun.stats] at detailed ⊢
-  rw [(executeSequentialStage depth input).discoveryRunExact]
   simpa [
+    executeSequentialStage,
+    executeSequentialStageFromRecorded,
+    executeSequentialStageFromActiveRecorded,
     constructStage,
     constitutedSearchIndex_linear,
     Nat.mul_add,
@@ -1009,6 +1073,38 @@ theorem executeSequentialStage_localStats
       executionStats.1,
       executionStats.2,
       evaluatedAtoms⟩
+
+/-- Local scheduling, validation, execution and application counters depend on
+the stored positive stage, not on how its candidate list was filtered. -/
+theorem SequentialStageRun.localStats
+    {depth : Nat} {input : SequentialAssignment depth}
+    (run : SequentialStageRun depth input) :
+    run.stats.scheduleAtoms = 1 ∧
+      run.stats.validationPrimitiveQueries = 1 ∧
+      run.stats.executionPrimitiveQueries = 1 ∧
+      run.stats.compositionCandidates = 0 ∧
+      run.stats.appliedCodeAtoms = 1 := by
+  have validationQueries := runDiscoveryScheduleValidation_queries run.schedule
+  have storedValidationQueries : run.validated.run.primitiveQueries = 1 := by
+    calc
+      run.validated.run.primitiveQueries =
+          (runDiscoveryScheduleValidation run.schedule).primitiveQueries :=
+        congrArg (fun validationRun => validationRun.primitiveQueries)
+          run.validated.runExact
+      _ = 1 := validationQueries
+  have executionStats :
+      run.execution.run.stats.primitiveQueries = 1 ∧
+        run.execution.run.stats.compositionCandidates = 0 := by
+    rw [run.execution.runExact]
+    exact run.schedule.entry.executionRun_stats
+  have codeSize : run.execution.code.size = 1 := by
+    rw [executedDiscoverySchedule_code run.execution]
+    exact ConstitutedLocalWitness.code_size run.schedule.entry
+  have evaluatedAtoms : run.application.evaluatedAtoms = 1 :=
+    Eq.trans run.application.evaluatedAtomsExact codeSize
+  exact
+    ⟨runDiscoveryScheduleProduction_atoms run.discovery,
+      storedValidationQueries, executionStats.1, executionStats.2, evaluatedAtoms⟩
 
 theorem executeSequentialStage_continuationApplications
     (depth : Nat) (input : SequentialAssignment depth) :

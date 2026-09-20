@@ -81,6 +81,31 @@ theorem executeSequentialStage_reader_bound (depth : Nat)
   rw [overhead] at bound
   exact bound
 
+theorem transportedMeasuredAssignment_work
+    {before after : Assignment} (same : before = after)
+    (reader : MeasuredAssignment before) (query : Var) :
+    ((Eq.rec (motive := fun assignment _ => MeasuredAssignment assignment)
+      reader same) query).work = (reader query).work := by
+  cases same
+  rfl
+
+theorem SequentialStageRun.reader_bound {depth : Nat}
+    {input : SequentialAssignment depth} (run : SequentialStageRun depth input)
+    (query : Var) :
+    (run.next.reader query).work.total ≤
+      (input.reader query).work.total + (query + 2) := by
+  rw [run.nextReaderWorkExact]
+  have bound := readTransportedAssignment_bound run.schedule.entry.var
+    run.execution.code run.sourceContinuation
+      (Eq.rec (motive := fun assignment _ => MeasuredAssignment assignment)
+        input.reader run.sourceAssignmentExact.symm) query
+  have overhead : transportedReadOverhead run.execution.code query = query + 2 := by
+    rw [executedDiscoverySchedule_code]
+    rfl
+  rw [overhead] at bound
+  rw [transportedMeasuredAssignment_work] at bound
+  exact bound
+
 theorem executeSequentialHistory_reader_bound (depth count : Nat)
     (input : SequentialAssignment depth) (query : Var) :
     ((executeSequentialHistory depth count input).final.reader query).work.total ≤
