@@ -548,7 +548,7 @@ theorem filterCandidatesByProvenance_matches_history
               (inspectCandidateHistory candidate decisions).compatible = false := by
             rw [← compatible]
             exact provenanceAccepted
-          rw [provenanceAccepted, historyRejected]
+          rw [historyRejected]
           dsimp only
           exact
             ⟨inductionHypothesis.1,
@@ -560,7 +560,7 @@ theorem filterCandidatesByProvenance_matches_history
               (inspectCandidateHistory candidate decisions).compatible = true := by
             rw [← compatible]
             exact provenanceAccepted
-          rw [provenanceAccepted, historyAccepted]
+          rw [historyAccepted]
           dsimp only
           exact
             ⟨congrArg (List.cons candidate) inductionHypothesis.1,
