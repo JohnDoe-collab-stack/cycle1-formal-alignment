@@ -34,6 +34,7 @@ universe uGenerator
 structure SearchableCodeValidationRun where
   success : Bool
   primitiveQueries : Nat
+  validatedAtoms : Nat
 
 namespace SearchableCodeValidationRun
 
@@ -46,7 +47,8 @@ def combine
         second.success
     primitiveQueries :=
       first.primitiveQueries +
-        second.primitiveQueries }
+        second.primitiveQueries
+    validatedAtoms := first.validatedAtoms + second.validatedAtoms }
 
 end SearchableCodeValidationRun
 
@@ -66,16 +68,19 @@ def validateSearchableCode
       SearchableCodeValidationRun
   | _, _, .identity _ =>
       { success := true
-        primitiveQueries := 0 }
+        primitiveQueries := 0
+        validatedAtoms := 0 }
   | source, target, .atom _ =>
       match
         primitive.find source target with
       | some _ =>
           { success := true
-            primitiveQueries := 1 }
+            primitiveQueries := 1
+            validatedAtoms := 1 }
       | none =>
           { success := false
-            primitiveQueries := 1 }
+            primitiveQueries := 1
+            validatedAtoms := 1 }
   | _, _, .compose first second =>
       SearchableCodeValidationRun.combine
         (validateSearchableCode
@@ -150,6 +155,26 @@ theorem validateSearchableCode_primitiveQueries
           congrArg
             (Nat.add first.size)
             secondHypothesis
+
+/-- The validation recursion emits one validated-atom unit per code atom. -/
+theorem validateSearchableCode_validatedAtoms
+    {State : Type}
+    {Generator : State → State → Type uGenerator}
+    (primitive : RelationSearch Generator)
+    {source target : State}
+    (code : TransportCode Generator source target) :
+    (validateSearchableCode primitive code).validatedAtoms = code.size := by
+  induction code with
+  | identity state => rfl
+  | @atom source target witness =>
+      cases found : primitive.find source target <;>
+        rw [validateSearchableCode, found] <;> rfl
+  | compose first second firstHypothesis secondHypothesis =>
+      change
+        (validateSearchableCode primitive first).validatedAtoms +
+            (validateSearchableCode primitive second).validatedAtoms =
+          first.size + second.size
+      rw [firstHypothesis, secondHypothesis]
 
 /-- Executable validation succeeds exactly for SearchableBy codes. -/
 theorem validateSearchableCode_success_iff
@@ -338,6 +363,7 @@ end ConstitutiveSearch
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.SearchableCodeValidationRun
 #print axioms ConstitutiveSearch.SearchableCodeValidationRun.combine
+#print axioms ConstitutiveSearch.validateSearchableCode_validatedAtoms
 #print axioms ConstitutiveSearch.validateSearchableCode
 #print axioms ConstitutiveSearch.validateSearchableCode_primitiveQueries
 #print axioms ConstitutiveSearch.validateSearchableCode_success_iff

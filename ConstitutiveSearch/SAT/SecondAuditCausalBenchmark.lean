@@ -57,6 +57,7 @@ end Cnf
 structure CandidateExtractionStats where
   clauseVisits : Nat
   literalVisits : Nat
+  candidatesEmitted : Nat
   deriving DecidableEq, Repr
 
 /-- Candidate list together with the work that produced it. -/
@@ -71,13 +72,15 @@ def extractClauseCandidateRun : Clause -> CandidateExtractionRun
       { candidates := []
         stats :=
           { clauseVisits := 0
-            literalVisits := 0 } }
+            literalVisits := 0
+            candidatesEmitted := 0 } }
   | literal :: rest =>
       let tail := extractClauseCandidateRun rest
       { candidates := literal.candidateVariable :: tail.candidates
         stats :=
           { clauseVisits := 0
-            literalVisits := tail.stats.literalVisits + 1 } }
+            literalVisits := tail.stats.literalVisits + 1
+            candidatesEmitted := tail.stats.candidatesEmitted + 1 } }
 
 /-- Traverse a CNF, charging every visited clause and literal. -/
 def extractCnfCandidateRun : Cnf -> CandidateExtractionRun
@@ -85,7 +88,8 @@ def extractCnfCandidateRun : Cnf -> CandidateExtractionRun
       { candidates := []
         stats :=
           { clauseVisits := 0
-            literalVisits := 0 } }
+            literalVisits := 0
+            candidatesEmitted := 0 } }
   | clause :: rest =>
       let head := extractClauseCandidateRun clause
       let tail := extractCnfCandidateRun rest
@@ -93,7 +97,9 @@ def extractCnfCandidateRun : Cnf -> CandidateExtractionRun
         stats :=
           { clauseVisits := tail.stats.clauseVisits + 1
             literalVisits :=
-              head.stats.literalVisits + tail.stats.literalVisits } }
+              head.stats.literalVisits + tail.stats.literalVisits
+            candidatesEmitted :=
+              head.stats.candidatesEmitted + tail.stats.candidatesEmitted } }
 
 /-- Instrumentation preserves the candidate order of the structural traversal. -/
 theorem extractClauseCandidateRun_candidates
@@ -128,12 +134,45 @@ theorem extractCnfCandidateRun_candidates
         inductionHypothesis
       ]
 
+theorem extractClauseCandidateRun_candidatesEmitted
+    (clause : Clause) :
+    (extractClauseCandidateRun clause).stats.candidatesEmitted =
+      (extractClauseCandidateRun clause).stats.literalVisits := by
+  induction clause with
+  | nil => rfl
+  | cons _ rest inductionHypothesis =>
+      change
+        (extractClauseCandidateRun rest).stats.candidatesEmitted + 1 =
+          (extractClauseCandidateRun rest).stats.literalVisits + 1
+      rw [inductionHypothesis]
+
+theorem extractCnfCandidateRun_candidatesEmitted
+    (formula : Cnf) :
+    (extractCnfCandidateRun formula).stats.candidatesEmitted =
+      (extractCnfCandidateRun formula).stats.literalVisits := by
+  induction formula with
+  | nil => rfl
+  | cons clause rest inductionHypothesis =>
+      change
+        (extractClauseCandidateRun clause).stats.candidatesEmitted +
+            (extractCnfCandidateRun rest).stats.candidatesEmitted =
+          (extractClauseCandidateRun clause).stats.literalVisits +
+            (extractCnfCandidateRun rest).stats.literalVisits
+      rw [extractClauseCandidateRun_candidatesEmitted, inductionHypothesis]
+
 /-- Candidate extraction reads and instruments the current generated state itself. -/
 def runCandidateExtraction
     {rootFormula : Cnf}
     (state : GeneratedStructuralBranchContext rootFormula) :
-    CandidateExtractionRun :=
+  CandidateExtractionRun :=
   extractCnfCandidateRun state.context.formula
+
+theorem runCandidateExtraction_candidatesEmitted
+    {rootFormula : Cnf}
+    (state : GeneratedStructuralBranchContext rootFormula) :
+    (runCandidateExtraction state).stats.candidatesEmitted =
+      (runCandidateExtraction state).stats.literalVisits :=
+  extractCnfCandidateRun_candidatesEmitted state.context.formula
 
 /-- Compatibility projection of the candidates produced by the extraction run. -/
 def extractStructuralCandidates
@@ -447,10 +486,12 @@ def runDiscoveryScheduleValidation
         schedule.entry.target with
   | some _ =>
       { success := true
-        primitiveQueries := 1 }
+        primitiveQueries := 1
+        validatedAtoms := 1 }
   | none =>
       { success := false
-        primitiveQueries := 1 }
+        primitiveQueries := 1
+        validatedAtoms := 1 }
 
 /-- Validation cost is read from the validator run and is exactly one query. -/
 theorem runDiscoveryScheduleValidation_queries
@@ -459,6 +500,15 @@ theorem runDiscoveryScheduleValidation_queries
     {discovery : EndogenousFlipDiscovery state}
     (schedule : DiscoverySchedule discovery) :
     (runDiscoveryScheduleValidation schedule).primitiveQueries = 1 := by
+  unfold runDiscoveryScheduleValidation
+  split <;> rfl
+
+theorem runDiscoveryScheduleValidation_validatedAtoms
+    {rootFormula : Cnf}
+    {state : GeneratedStructuralBranchContext rootFormula}
+    {discovery : EndogenousFlipDiscovery state}
+    (schedule : DiscoverySchedule discovery) :
+    (runDiscoveryScheduleValidation schedule).validatedAtoms = 1 := by
   unfold runDiscoveryScheduleValidation
   split <;> rfl
 
@@ -1512,6 +1562,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.extractCnfCandidateRun
 #print axioms ConstitutiveSearch.SAT.extractClauseCandidateRun_candidates
 #print axioms ConstitutiveSearch.SAT.extractCnfCandidateRun_candidates
+#print axioms ConstitutiveSearch.SAT.extractClauseCandidateRun_candidatesEmitted
+#print axioms ConstitutiveSearch.SAT.extractCnfCandidateRun_candidatesEmitted
+#print axioms ConstitutiveSearch.SAT.runCandidateExtraction_candidatesEmitted
 #print axioms ConstitutiveSearch.SAT.runCandidateExtraction
 #print axioms ConstitutiveSearch.SAT.extractStructuralCandidates
 #print axioms ConstitutiveSearch.SAT.tryEndogenousFlipCandidate
@@ -1523,6 +1576,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.SAT.runDiscoveryScheduleProduction
 #print axioms ConstitutiveSearch.SAT.runDiscoveryScheduleProduction_atoms
 #print axioms ConstitutiveSearch.SAT.runDiscoveryScheduleValidation_queries
+#print axioms ConstitutiveSearch.SAT.runDiscoveryScheduleValidation_validatedAtoms
 #print axioms ConstitutiveSearch.SAT.validateDiscoverySchedule
 #print axioms ConstitutiveSearch.SAT.executeValidatedDiscoverySchedule
 #print axioms ConstitutiveSearch.SAT.executeValidatedDiscoverySchedule_stats
