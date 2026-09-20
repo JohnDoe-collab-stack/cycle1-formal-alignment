@@ -745,6 +745,18 @@ theorem regression_stage_is_constructed_from_returned_discovery
       built.run.discoveryWorkLeCanonical :=
   built.run.stageFromDiscovery
 
+theorem regression_provenance_filter_matches_prior_history_filter
+    (decisions : List StructuralBranchDecision)
+    (candidates : List Var) :
+    let provenance := decisions.map (fun decision => decision.var)
+    let byProvenance := filterCandidatesByProvenance provenance candidates
+    let byHistory := filterCandidatesByHistory decisions candidates
+    byProvenance.retained = byHistory.retained ∧
+      byProvenance.rejected = byHistory.rejected ∧
+      byProvenance.trace = byHistory.trace ∧
+      byProvenance.visits = byHistory.visits :=
+  filterCandidatesByProvenance_matches_history decisions candidates
+
 theorem regression_feedback_next_contains_executed_output_and_and_history
     {depth : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
@@ -756,6 +768,31 @@ theorem regression_feedback_next_contains_executed_output_and_and_history
       run.nextRun.next.provenance =
         stageSelectedVar (depth + 1) :: state.provenance :=
   roleStage_output_constitutes_nextOperationalState run
+
+theorem regression_feedback_provenance_from_scheduled_operation
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    run.nextRun.next.provenance =
+      stage.schedule.entry.var :: state.provenance :=
+  run.nextRun.provenanceFromScheduledOperation
+
+theorem regression_next_discovery_consumes_produced_provenance
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+    nextDiscovery.candidates =
+        (filterCandidatesByProvenance
+          (stage.schedule.entry.var :: state.provenance)
+          nextDiscovery.generated.extraction.candidates).retained ∧
+      nextDiscovery.filtering.visits =
+        (filterCandidatesByProvenance
+          (stage.schedule.entry.var :: state.provenance)
+          nextDiscovery.generated.extraction.candidates).visits :=
+  run.nextDiscoveryConsumesProducedProvenance
 
 theorem regression_next_operational_state_consumes_generated_target
     {depth : Nat} {assignment : SequentialAssignment depth}
@@ -987,7 +1024,10 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_public_history_is_causal
 #print axioms ConstitutiveSearch.NPAndOrP.regression_causal_history_matches_reference_after_execution
 #print axioms ConstitutiveSearch.NPAndOrP.regression_stage_is_constructed_from_returned_discovery
+#print axioms ConstitutiveSearch.NPAndOrP.regression_provenance_filter_matches_prior_history_filter
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_next_contains_executed_output_and_and_history
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_provenance_from_scheduled_operation
+#print axioms ConstitutiveSearch.NPAndOrP.regression_next_discovery_consumes_produced_provenance
 #print axioms ConstitutiveSearch.NPAndOrP.regression_next_operational_state_consumes_generated_target
 #print axioms ConstitutiveSearch.NPAndOrP.regression_old_input_cannot_replace_feedback_output
 #print axioms ConstitutiveSearch.NPAndOrP.regression_other_and_history_changes_next_discovery
