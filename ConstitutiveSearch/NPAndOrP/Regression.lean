@@ -771,14 +771,14 @@ theorem regression_old_input_cannot_replace_feedback_output
 
 theorem regression_other_and_history_changes_next_discovery (depth : Nat) :
     nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠
-      nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) :=
+      nextDiscoveryOutcome (nextDiscoveryConstitution depth .blocked) :=
   nextDiscovery_outcome_different depth
 
 theorem regression_same_depth_projection_different_next_discovery (depth : Nat) :
     nextDiscoveryProjection (nextDiscoveryConstitution depth .retained) =
-        nextDiscoveryProjection (nextDiscoveryConstitution depth .predecided) ∧
+        nextDiscoveryProjection (nextDiscoveryConstitution depth .blocked) ∧
       nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠
-        nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) :=
+        nextDiscoveryOutcome (nextDiscoveryConstitution depth .blocked) :=
   ⟨nextDiscovery_projection_equal depth, nextDiscovery_outcome_different depth⟩
 
 theorem regression_next_discovery_not_depth_factor (depth : Nat) :
@@ -816,19 +816,29 @@ theorem regression_feedback_failure_produces_nothing (depth : Nat) :
 
 theorem regression_failed_discovery_constructs_no_stage (depth : Nat) :
     executeThreadedConstitutiveStage
-      (predecidedNextDiscoveryState depth).state = none :=
-  predecided_discovery_constructs_no_stage depth
+      (blockedNextDiscoveryState depth).state = none :=
+  blocked_discovery_constructs_no_stage depth
+
+theorem regression_blocked_state_is_constructed_from_child (depth : Nat) :
+    (blockedNextDiscoveryState depth).state.decisions =
+        (blockedNextDiscoveryChild depth).context.decisions ∧
+      (blockedNextDiscoveryState depth).state.provenance =
+        (blockedNextDiscoveryChild depth).context.decisions.map
+          (fun decision => decision.var) := by
+  exact
+    ⟨(blockedNextDiscoveryConstruction depth).decisionsFromChild,
+      (blockedNextDiscoveryConstruction depth).provenanceFromChild⟩
 
 theorem regression_separator_states_share_executed_origin (depth : Nat) :
-    (nextDiscoveryConstitution depth .retained).packed.assignment =
+      (nextDiscoveryConstitution depth .retained).packed.assignment =
         (nextDiscoveryCommonOrigin depth).stage.next ∧
-      (nextDiscoveryConstitution depth .predecided).packed.assignment =
+      (nextDiscoveryConstitution depth .blocked).packed.assignment =
         (nextDiscoveryCommonOrigin depth).stage.next :=
   nextDiscovery_states_share_executed_origin depth
 
 theorem regression_separator_states_are_complete_and_distinct (depth : Nat) :
     (nextDiscoveryConstitution depth .retained).packed.state.decisions ≠
-      (nextDiscoveryConstitution depth .predecided).packed.state.decisions :=
+      (nextDiscoveryConstitution depth .blocked).packed.state.decisions :=
   nextDiscovery_histories_distinct depth
 
 theorem regression_feedback_inspects_no_global_composition (input : Nat) :
@@ -959,6 +969,7 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_code_is_from_discovered_relation
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_failure_produces_nothing
 #print axioms ConstitutiveSearch.NPAndOrP.regression_failed_discovery_constructs_no_stage
+#print axioms ConstitutiveSearch.NPAndOrP.regression_blocked_state_is_constructed_from_child
 #print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_share_executed_origin
 #print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_are_complete_and_distinct
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_inspects_no_global_composition

@@ -857,8 +857,8 @@ appelle récursivement la queue sur l'état exact produit par la tête. Le run p
 `executeConstitutiveResolution` projette son `SequentialHistory` depuis cette
 récursion. L'égalité avec `executeSequentialHistory` est un théorème obtenu après
 l'exécution causale, jamais son entrée. Le séparateur emploie deux états complets
-issus du même stage exécuté ; l'un retient son histoire, l'autre ajoute
-positivement une détermination déjà satisfaite par la même affectation.
+issus du même stage exécuté ; l'un retient son histoire, l'autre extrait ses
+déterminations et sa provenance d'un véritable `child` du contexte cible.
 
 ### Paquet de synthèse attendu
 

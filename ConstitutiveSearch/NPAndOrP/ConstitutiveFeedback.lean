@@ -1,5 +1,6 @@
 import ConstitutiveSearch.NPAndOrP.ConstitutiveFullStep
 import ConstitutiveSearch.NPAndOrP.GeneratedHistoryExecution
+import ConstitutiveSearch.NPAndOrP.IntegratedProjection
 
 /-!
 # Constitutive feedback into the next discovery
@@ -332,9 +333,6 @@ structure NextOperationalStateRun {depth : Nat}
   decisionAccumulationWorkExact : decisionAccumulationWork = 1
   provenanceWork : Nat
   provenanceWorkExact : provenanceWork = provenanceRun.visits
-  stateInspectionWork : Nat
-  stateInspectionWorkExact :
-    stateInspectionWork = (runThreadedNextDiscovery next).inspection.visits
 
 def realizeNextOperationalState {depth : Nat}
     {assignment : SequentialAssignment depth}
@@ -373,9 +371,7 @@ def realizeNextOperationalState {depth : Nat}
       decisionAccumulationWork := 1
       decisionAccumulationWorkExact := rfl
       provenanceWork := provenanceRun.visits
-      provenanceWorkExact := rfl
-      stateInspectionWork := (runThreadedNextDiscovery next).inspection.visits
-      stateInspectionWorkExact := rfl }
+      provenanceWorkExact := rfl }
 
 /-- A successful discovery proves that the transmitted decisions avoid the
 selected variable.  This fact is obtained from the executed inspection, not
@@ -810,29 +806,10 @@ def nextDiscoveryCommonOrigin (depth : Nat) :
     exact canonicalStageDiscovery_found (depth + 1)
   exact buildThreadedConstitutiveStage state discoveryRun rfl discovery found
 
-/-- Extend a valid executed state with a determination already held by its
-assignment.  This producer is independent of the separator instance. -/
-def predecideNextVariable {depth : Nat}
-    {assignment : SequentialAssignment depth}
-    (state : ThreadedConstitutiveState depth assignment) :
-    ThreadedConstitutiveState depth assignment :=
-  { threadedAssignment := state.threadedAssignment
-    threadedAssignmentExact := state.threadedAssignmentExact
-    generation := state.generation
-    decisions :=
-      ⟨stageSelectedVar (depth + 1),
-        assignment.assignment (stageSelectedVar (depth + 1))⟩ :: state.decisions
-    provenance := stageSelectedVar (depth + 1) :: state.provenance
-    provenanceExact := by rw [state.provenanceExact]; rfl
-    decisionsHold := ⟨rfl, state.decisionsHold⟩ }
-
-theorem predecideNextVariable_decisions {depth : Nat}
-    {assignment : SequentialAssignment depth}
-    (state : ThreadedConstitutiveState depth assignment) :
-    (predecideNextVariable state).decisions =
-      ⟨stageSelectedVar (depth + 1),
-        assignment.assignment (stageSelectedVar (depth + 1))⟩ :: state.decisions :=
-  rfl
+/-- The blocking operation is a genuine generated child of the target produced
+by the common executed stage.  Offset `2` is exactly the next stage variable. -/
+def blockedNextDiscoveryChild (depth : Nat) :=
+  integratedMarkedTarget (nextDiscoveryCommonOrigin depth).stage 2 (by decide)
 
 /-- Existentially package the assignment index with a complete valid state. -/
 structure PackedThreadedConstitutiveState (depth : Nat) where
@@ -844,20 +821,78 @@ def retainedNextDiscoveryState (depth : Nat) :
   let origin := nextDiscoveryCommonOrigin depth
   ⟨origin.stage.next, origin.run.nextRun.next⟩
 
+theorem blockedNextDiscoveryChild_decisions (depth : Nat) :
+    (blockedNextDiscoveryChild depth).context.decisions =
+      ⟨stageSelectedVar ((depth + 1) + 1), false⟩ ::
+        (retainedNextDiscoveryState depth).state.decisions := by
+  unfold blockedNextDiscoveryChild integratedMarkedTarget
+    retainedNextDiscoveryState
+  dsimp only
+  change
+    ⟨(nextDiscoveryCommonOrigin depth).stage.storedSchedule.entry.var + 2, false⟩ ::
+        (nextDiscoveryCommonOrigin depth).stage.storedSchedule.entry.target.context.decisions =
+      ⟨stageSelectedVar (depth + 1 + 1), false⟩ ::
+        (nextDiscoveryCommonOrigin depth).run.nextRun.next.decisions
+  rw [(retained_decisions_exact (nextDiscoveryCommonOrigin depth).stage).2]
+  rw [(nextDiscoveryCommonOrigin depth).run.nextRun.decisionsFromExecution]
+  rw [retained_var_exact, stageSelectedVar_succ]
+  rw [stageSelectedVar_succ (depth + 1)]
+  rfl
+
 theorem retainedNextDiscoveryState_fresh (depth : Nat) :
     ThreadedStateFreshForNext (retainedNextDiscoveryState depth).state :=
   (nextDiscoveryCommonOrigin depth).run.nextRun.fresh
     (initialThreadedConstitutiveState_fresh depth)
 
-def predecidedNextDiscoveryState (depth : Nat) :
+/-- A complete state whose decisions and provenance are extracted from the
+genuine child generated from the common executed target. -/
+structure BlockedNextDiscoveryConstruction (depth : Nat) where
+  state : ThreadedConstitutiveState (depth + 1)
+    (retainedNextDiscoveryState depth).assignment
+  decisionsFromChild :
+    state.decisions = (blockedNextDiscoveryChild depth).context.decisions
+  provenanceFromChild :
+    state.provenance =
+      (blockedNextDiscoveryChild depth).context.decisions.map
+        (fun decision => decision.var)
+
+set_option maxHeartbeats 1000000 in
+def blockedNextDiscoveryConstruction (depth : Nat) :
+    BlockedNextDiscoveryConstruction depth := by
+  have childHold :
+      StructuralDecisionsHold
+        (retainedNextDiscoveryState depth).assignment.assignment
+        (blockedNextDiscoveryChild depth).context.decisions := by
+    rw [blockedNextDiscoveryChild_decisions]
+    exact
+      ⟨(retainedNextDiscoveryState depth).assignment.futureSelectedFalse _
+          (Nat.le_refl _),
+        (retainedNextDiscoveryState depth).state.decisionsHold⟩
+  exact
+    { state :=
+        { threadedAssignment :=
+            (retainedNextDiscoveryState depth).state.threadedAssignment
+          threadedAssignmentExact :=
+            (retainedNextDiscoveryState depth).state.threadedAssignmentExact
+          generation := (retainedNextDiscoveryState depth).state.generation
+          decisions := (blockedNextDiscoveryChild depth).context.decisions
+          provenance :=
+            (blockedNextDiscoveryChild depth).context.decisions.map
+              (fun decision => decision.var)
+          provenanceExact := rfl
+          decisionsHold := childHold }
+      decisionsFromChild := rfl
+      provenanceFromChild := rfl }
+
+def blockedNextDiscoveryState (depth : Nat) :
     PackedThreadedConstitutiveState (depth + 1) :=
   let retained := retainedNextDiscoveryState depth
-  ⟨retained.assignment, predecideNextVariable retained.state⟩
+  ⟨retained.assignment, (blockedNextDiscoveryConstruction depth).state⟩
 
 /-- Two reachable organizations produced from one executed origin. -/
 inductive NextDiscoveryOrganization where
   | retained
-  | predecided
+  | blocked
   deriving DecidableEq
 
 structure NextDiscoveryConstitution (depth : Nat) where
@@ -865,13 +900,13 @@ structure NextDiscoveryConstitution (depth : Nat) where
   packed : PackedThreadedConstitutiveState (depth + 1)
   stateExact : packed = match organization with
     | .retained => retainedNextDiscoveryState depth
-    | .predecided => predecidedNextDiscoveryState depth
+    | .blocked => blockedNextDiscoveryState depth
 
 def nextDiscoveryConstitution (depth : Nat)
     (organization : NextDiscoveryOrganization) : NextDiscoveryConstitution depth :=
   match organization with
   | .retained => ⟨.retained, retainedNextDiscoveryState depth, rfl⟩
-  | .predecided => ⟨.predecided, predecidedNextDiscoveryState depth, rfl⟩
+  | .blocked => ⟨.blocked, blockedNextDiscoveryState depth, rfl⟩
 
 def nextDiscoveryProjection {depth : Nat} (_ : NextDiscoveryConstitution depth) : Nat × Cnf :=
   (depth + 1, (constructStage ((depth + 1) + 1)).operationalRoot.context.formula)
@@ -884,15 +919,16 @@ theorem nextDiscovery_retained_found (depth : Nat) :
   exact runThreadedNextDiscovery_found (retainedNextDiscoveryState depth).state
     (retainedNextDiscoveryState_fresh depth)
 
-theorem nextDiscovery_predecided_none (depth : Nat) :
-    nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) = none := by
+theorem nextDiscovery_blocked_none (depth : Nat) :
+    nextDiscoveryOutcome (nextDiscoveryConstitution depth .blocked) = none := by
   have unavailable :
       (inspectTransmittedDecisions (stageSelectedVar ((depth + 1) + 1))
-        (predecidedNextDiscoveryState depth).state.decisions).available = false := by
+        (blockedNextDiscoveryState depth).state.decisions).available = false := by
     change
       (inspectTransmittedDecisions (stageSelectedVar ((depth + 1) + 1))
-        (predecideNextVariable (retainedNextDiscoveryState depth).state).decisions).available = false
-    rw [predecideNextVariable_decisions]
+        (blockedNextDiscoveryConstruction depth).state.decisions).available = false
+    rw [(blockedNextDiscoveryConstruction depth).decisionsFromChild]
+    rw [blockedNextDiscoveryChild_decisions]
     exact inspectTransmittedDecisions_head_selected _ _ _
   unfold nextDiscoveryOutcome nextDiscoveryConstitution runThreadedNextDiscovery
     runFeedbackDiscoveryFromData
@@ -900,13 +936,13 @@ theorem nextDiscovery_predecided_none (depth : Nat) :
   rw [unavailable]
   rfl
 
-theorem predecided_discovery_constructs_no_stage (depth : Nat) :
+theorem blocked_discovery_constructs_no_stage (depth : Nat) :
     executeThreadedConstitutiveStage
-      (predecidedNextDiscoveryState depth).state = none := by
+      (blockedNextDiscoveryState depth).state = none := by
   have failed :
       (runThreadedNextDiscovery
-        (predecidedNextDiscoveryState depth).state).outcome.discovered? = none :=
-    nextDiscovery_predecided_none depth
+        (blockedNextDiscoveryState depth).state).outcome.discovered? = none :=
+    nextDiscovery_blocked_none depth
   unfold executeThreadedConstitutiveStage
   dsimp only
   split
@@ -916,42 +952,56 @@ theorem predecided_discovery_constructs_no_stage (depth : Nat) :
     cases impossible
 
 theorem nextDiscovery_states_share_executed_origin (depth : Nat) :
-    (nextDiscoveryConstitution depth .retained).packed.assignment =
+      (nextDiscoveryConstitution depth .retained).packed.assignment =
         (nextDiscoveryCommonOrigin depth).stage.next ∧
-      (nextDiscoveryConstitution depth .predecided).packed.assignment =
+      (nextDiscoveryConstitution depth .blocked).packed.assignment =
         (nextDiscoveryCommonOrigin depth).stage.next := by
   exact ⟨rfl, rfl⟩
 
+theorem retainedNextDiscovery_history_length (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.state.decisions.length = 1 :=
+  rfl
+
+theorem blockedNextDiscovery_history_length (depth : Nat) :
+    (nextDiscoveryConstitution depth .blocked).packed.state.decisions.length = 2 := by
+  change (blockedNextDiscoveryConstruction depth).state.decisions.length = 2
+  rw [(blockedNextDiscoveryConstruction depth).decisionsFromChild]
+  rw [blockedNextDiscoveryChild_decisions]
+  rfl
+
 theorem nextDiscovery_history_lengths_distinct (depth : Nat) :
     (nextDiscoveryConstitution depth .retained).packed.state.decisions.length ≠
-      (nextDiscoveryConstitution depth .predecided).packed.state.decisions.length := by
+      (nextDiscoveryConstitution depth .blocked).packed.state.decisions.length := by
   intro lengthsEqual
-  have zeroEqOne : 0 = 1 := Nat.succ.inj lengthsEqual
+  have oneEqTwo : 1 = 2 :=
+    Eq.trans (retainedNextDiscovery_history_length depth).symm
+      (Eq.trans lengthsEqual (blockedNextDiscovery_history_length depth))
+  have zeroEqOne : 0 = 1 := Nat.succ.inj oneEqTwo
   exact Nat.noConfusion zeroEqOne
 
 theorem nextDiscovery_histories_distinct (depth : Nat) :
     (nextDiscoveryConstitution depth .retained).packed.state.decisions ≠
-      (nextDiscoveryConstitution depth .predecided).packed.state.decisions := by
+      (nextDiscoveryConstitution depth .blocked).packed.state.decisions := by
   intro decisionsEqual
   exact nextDiscovery_history_lengths_distinct depth
     (congrArg List.length decisionsEqual)
 
 theorem nextDiscovery_constitutions_distinct (depth : Nat) :
     nextDiscoveryConstitution depth .retained ≠
-      nextDiscoveryConstitution depth .predecided := by
+      nextDiscoveryConstitution depth .blocked := by
   intro impossible
   have organizationsEqual := congrArg NextDiscoveryConstitution.organization impossible
   cases organizationsEqual
 
 theorem nextDiscovery_projection_equal (depth : Nat) :
     nextDiscoveryProjection (nextDiscoveryConstitution depth .retained) =
-      nextDiscoveryProjection (nextDiscoveryConstitution depth .predecided) :=
+      nextDiscoveryProjection (nextDiscoveryConstitution depth .blocked) :=
   rfl
 
 theorem nextDiscovery_outcome_different (depth : Nat) :
     nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠
-      nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) := by
-  rw [nextDiscovery_predecided_none]
+      nextDiscoveryOutcome (nextDiscoveryConstitution depth .blocked) := by
+  rw [nextDiscovery_blocked_none]
   exact nextDiscovery_retained_found depth
 
 theorem nextDiscovery_not_factors (depth : Nat) :
@@ -959,7 +1009,7 @@ theorem nextDiscovery_not_factors (depth : Nat) :
         (nextDiscoveryOutcome (depth := depth)) := by
   apply value_not_factors_of_same_projection _ _
     (nextDiscoveryConstitution depth .retained)
-    (nextDiscoveryConstitution depth .predecided)
+    (nextDiscoveryConstitution depth .blocked)
   · exact nextDiscovery_projection_equal depth
   · exact nextDiscovery_outcome_different depth
 
@@ -971,14 +1021,14 @@ structure FeedbackFailureArtifacts where
   deriving DecidableEq, Repr
 
 def feedbackFailureArtifacts (depth : Nat) : FeedbackFailureArtifacts :=
-  match nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) with
+  match nextDiscoveryOutcome (nextDiscoveryConstitution depth .blocked) with
   | none => ⟨0, false, false⟩
   | some _ => ⟨1, true, true⟩
 
 theorem feedbackFailureArtifacts_exact (depth : Nat) :
     feedbackFailureArtifacts depth = ⟨0, false, false⟩ := by
   unfold feedbackFailureArtifacts
-  rw [nextDiscovery_predecided_none]
+  rw [nextDiscovery_blocked_none]
 
 end ConstitutiveSearch.NPAndOrP
 
@@ -1015,14 +1065,17 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.roleStage_output_constitutes_nextOperationalState
 #print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveRoleHistory
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscoveryCommonOrigin
-#print axioms ConstitutiveSearch.NPAndOrP.predecideNextVariable
+#print axioms ConstitutiveSearch.NPAndOrP.blockedNextDiscoveryChild
 #print axioms ConstitutiveSearch.NPAndOrP.retainedNextDiscoveryState
-#print axioms ConstitutiveSearch.NPAndOrP.predecidedNextDiscoveryState
+#print axioms ConstitutiveSearch.NPAndOrP.blockedNextDiscoveryChild_decisions
+#print axioms ConstitutiveSearch.NPAndOrP.blockedNextDiscoveryConstruction
+#print axioms ConstitutiveSearch.NPAndOrP.blockedNextDiscoveryState
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_retained_found
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscoveryConstitution
-#print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_predecided_none
-#print axioms ConstitutiveSearch.NPAndOrP.predecided_discovery_constructs_no_stage
+#print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_blocked_none
+#print axioms ConstitutiveSearch.NPAndOrP.blocked_discovery_constructs_no_stage
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_states_share_executed_origin
+#print axioms ConstitutiveSearch.NPAndOrP.blockedNextDiscovery_history_length
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_history_lengths_distinct
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_histories_distinct
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_outcome_different
