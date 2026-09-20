@@ -1209,16 +1209,14 @@ theorem ConstitutiveExecutionHistory.coreStats_exact
         localExact.2.2.2.1, localExact.2.2.2.2]
       exact ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
 
-theorem ConstitutiveExecutionHistory.controlStats_exact
+theorem ConstitutiveExecutionHistory.extractedCandidates_eq_extractionLiteralVisits
     {depth count : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
     (run : ConstitutiveExecutionHistory (count := count) state) :
-    let stats := run.toSequentialHistory.stats
-    stats.extractedCandidates = stats.extractionLiteralVisits ∧
-      stats.discoveryAttempts ≤ stats.extractedCandidates ∧
-      stats.validatedAtoms = count := by
+    run.toSequentialHistory.stats.extractedCandidates =
+      run.toSequentialHistory.stats.extractionLiteralVisits := by
   induction run with
-  | nil => exact ⟨rfl, Nat.le_refl 0, rfl⟩
+  | nil => rfl
   | @step depth count assignment state head headRun tailRun inductionHypothesis =>
       have headExtraction :
           head.stats.extractedCandidates = head.stats.extractionLiteralVisits := by
@@ -1226,6 +1224,19 @@ theorem ConstitutiveExecutionHistory.controlStats_exact
           head.discoveryRun.extraction.stats.literalVisits
         rw [head.extractionExact]
         exact runCandidateExtraction_emitted_eq_literalVisits _
+      dsimp only [ConstitutiveExecutionHistory.toSequentialHistory,
+        SequentialHistory.stats, SequentialHistoryStats.addStage]
+      rw [inductionHypothesis, headExtraction]
+
+theorem ConstitutiveExecutionHistory.discoveryAttempts_le_extractedCandidates
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toSequentialHistory.stats.discoveryAttempts ≤
+      run.toSequentialHistory.stats.extractedCandidates := by
+  induction run with
+  | nil => exact Nat.le_refl 0
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
       have activeOutcome :
           head.discoveryRun.outcome = headRun.discoveryRun.outcome := by
         calc
@@ -1251,36 +1262,74 @@ theorem ConstitutiveExecutionHistory.controlStats_exact
             congrArg (fun stage => stage.discoveryRun.extraction)
               headRun.stageFromDiscovery
           _ = headRun.discoveryRun.generated.extraction := rfl
+      have attempted := exploreRecordedCandidates_attempts_le_length
+        (constructStage (depth + 1)).operationalRoot
+        headRun.discoveryRun.candidates
+      have retained := filterCandidatesByHistory_retained_length_le
+        state.decisions headRun.discoveryRun.generated.extraction.candidates
+      have emitted :
+          headRun.discoveryRun.generated.extraction.candidates.length =
+            headRun.discoveryRun.generated.extraction.stats.candidatesEmitted := by
+        rw [headRun.discoveryRun.generated.extractionExact]
+        exact runCandidateExtraction_length _
       have headAttempts :
           head.stats.discoveryAttempts ≤ head.stats.extractedCandidates := by
         change head.discoveryRun.outcome.attempts ≤
           head.discoveryRun.extraction.stats.candidatesEmitted
-        rw [activeOutcome, activeExtraction]
-        have attempted := exploreRecordedCandidates_attempts_le_length
-          (constructStage (depth + 1)).operationalRoot
-          headRun.discoveryRun.candidates
-        rw [← headRun.discoveryRun.outcomeExact] at attempted
-        have retained := filterCandidatesByHistory_retained_length_le
-          state.decisions headRun.discoveryRun.generated.extraction.candidates
-        rw [← headRun.discoveryRun.filteringExact,
-          ← headRun.discoveryRun.candidatesExact] at retained
-        have emitted :
-            headRun.discoveryRun.generated.extraction.candidates.length =
-              headRun.discoveryRun.generated.extraction.stats.candidatesEmitted := by
-          rw [headRun.discoveryRun.generated.extractionExact]
-          exact runCandidateExtraction_length _
-        exact Nat.le_trans attempted (Nat.le_trans retained (Nat.le_of_eq emitted))
+        calc
+          head.discoveryRun.outcome.attempts =
+              headRun.discoveryRun.outcome.attempts :=
+            congrArg (fun outcome => outcome.attempts) activeOutcome
+          _ = (exploreRecordedCandidates
+                (constructStage (depth + 1)).operationalRoot
+                headRun.discoveryRun.candidates).attempts :=
+            congrArg (fun outcome => outcome.attempts)
+              headRun.discoveryRun.outcomeExact
+          _ ≤ headRun.discoveryRun.candidates.length := attempted
+          _ = headRun.discoveryRun.filtering.retained.length :=
+            congrArg List.length headRun.discoveryRun.candidatesExact
+          _ = (filterCandidatesByHistory state.decisions
+                headRun.discoveryRun.generated.extraction.candidates).retained.length :=
+            congrArg
+              (fun filtered => filtered.retained.length)
+              headRun.discoveryRun.filteringExact
+          _ ≤ headRun.discoveryRun.generated.extraction.candidates.length := retained
+          _ = headRun.discoveryRun.generated.extraction.stats.candidatesEmitted := emitted
+          _ = head.discoveryRun.extraction.stats.candidatesEmitted :=
+            congrArg
+              (fun extraction => extraction.stats.candidatesEmitted)
+              activeExtraction.symm
+      dsimp only [ConstitutiveExecutionHistory.toSequentialHistory,
+        SequentialHistory.stats, SequentialHistoryStats.addStage]
+      exact Nat.add_le_add inductionHypothesis headAttempts
+
+theorem ConstitutiveExecutionHistory.validatedAtoms_eq_count
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    run.toSequentialHistory.stats.validatedAtoms = count := by
+  induction run with
+  | nil => rfl
+  | step head headRun tailRun inductionHypothesis =>
       have headValidated : head.stats.validatedAtoms = 1 := by
         change head.validated.run.validatedAtoms = 1
         rw [head.validated.runExact]
         exact runDiscoveryScheduleValidation_validatedAtoms _
       dsimp only [ConstitutiveExecutionHistory.toSequentialHistory,
         SequentialHistory.stats, SequentialHistoryStats.addStage]
-      constructor
-      · rw [inductionHypothesis.1, headExtraction]
-      · constructor
-        · exact Nat.add_le_add inductionHypothesis.2.1 headAttempts
-        · rw [inductionHypothesis.2.2, headValidated]
+      rw [inductionHypothesis, headValidated]
+
+theorem ConstitutiveExecutionHistory.controlStats_exact
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state) :
+    let stats := run.toSequentialHistory.stats
+    stats.extractedCandidates = stats.extractionLiteralVisits ∧
+      stats.discoveryAttempts ≤ stats.extractedCandidates ∧
+      stats.validatedAtoms = count :=
+  ⟨run.extractedCandidates_eq_extractionLiteralVisits,
+    run.discoveryAttempts_le_extractedCandidates,
+    run.validatedAtoms_eq_count⟩
 
 theorem ConstitutiveExecutionHistory.continuationApplications_eq_count
     {depth count : Nat} {assignment : SequentialAssignment depth}
@@ -2093,6 +2142,9 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.testedCandidates_eq_attempts
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.extractedCandidates_eq_extractionLiteralVisits
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.discoveryAttempts_le_extractedCandidates
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.validatedAtoms_eq_count
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.controlStats_exact
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.executedBits_length
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.decisionAccumulations_eq_count
