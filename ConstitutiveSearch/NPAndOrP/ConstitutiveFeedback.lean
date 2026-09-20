@@ -1714,13 +1714,7 @@ theorem priorSelected_extracted_next (depth : Nat) :
   rw [stageExtractedCandidates_exact]
   apply member_append_left_constructive
   apply distinctDecoyVariables_mem_of_lt
-  have advance := stageSelectedVar_succ (depth + 1)
-  unfold stageSelectedVar growingDiscoverySplitVar at advance
-  have sameSearch :
-      (constructStage ((depth + 1) + 1)).searchIndex =
-        (constructStage (depth + 1)).searchIndex + 2 :=
-    Nat.add_right_cancel advance
-  rw [sameSearch]
+  rw [generateCanonicalStage_searchIndex_advances (depth + 1)]
   unfold stageSelectedVar growingDiscoverySplitVar
   exact Nat.lt_succ_self _
 
