@@ -715,6 +715,102 @@ def regression_every_stage_carries_four_roles (input : Nat) :
     ConstitutiveRoleHistory (executeConstitutiveResolution input).history :=
   (executeConstitutiveResolution input).roleHistory
 
+/-! Counterprobes for the strong constitutive feedback of §8. -/
+
+theorem regression_feedback_next_contains_executed_output_and_and_history
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    run.nextRun.next.threadedAssignment.assignment = stage.application.output.1 ∧
+      run.nextRun.next.decisions =
+        ⟨stageSelectedVar (depth + 1), true⟩ :: state.decisions ∧
+      run.nextRun.next.provenance =
+        stageSelectedVar (depth + 1) :: state.provenance :=
+  roleStage_output_constitutes_nextOperationalState run
+
+theorem regression_next_operational_state_consumes_generated_target
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    run.nextRun.next.generation =
+        generateCanonicalStageFromSource state.generation.target state.generation.targetExact ∧
+      run.nextRun.next.threadedAssignment.assignment = stage.next.assignment :=
+  ⟨run.nextRun.generationFromProducedTarget, run.nextRun.assignmentFromExecution⟩
+
+theorem regression_old_input_cannot_replace_feedback_output
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) :
+    stage.next.assignment stage.schedule.entry.var ≠
+      assignment.assignment stage.schedule.entry.var :=
+  regression_input_cannot_replace_applied_output stage
+
+theorem regression_other_and_history_changes_next_discovery (depth : Nat) :
+    nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠
+      nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) :=
+  nextDiscovery_outcome_different depth
+
+theorem regression_same_depth_projection_different_next_discovery (depth : Nat) :
+    nextDiscoveryProjection (nextDiscoveryConstitution depth .retained) =
+        nextDiscoveryProjection (nextDiscoveryConstitution depth .predecided) ∧
+      nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠
+        nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) :=
+  ⟨nextDiscovery_projection_equal depth, nextDiscovery_outcome_different depth⟩
+
+theorem regression_next_discovery_not_depth_factor (depth : Nat) :
+    ¬ ValueFactorsThrough (nextDiscoveryProjection (depth := depth))
+        (nextDiscoveryOutcome (depth := depth)) :=
+  nextDiscovery_not_factors depth
+
+theorem regression_feedback_relation_is_from_transmitted_run
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    run.discoveryRun.outcome.discovered? = some stage.discovery :=
+  run.relationFromTransmittedState
+
+theorem regression_feedback_code_is_from_discovered_relation
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    stage.execution.code = stage.schedule.entry.code ∧
+      stage.application.output =
+        (stage.execution.code.eval
+          (generatedStructuralFlipAtAction
+            (distinctGrowingDiscoveryFormula (constructStage (depth + 1)).searchIndex)
+            stage.schedule.entry.var)).map stage.sourceContinuation :=
+  ⟨run.returnedCodeFromThatRelation, run.executedOutputFromThatCode⟩
+
+theorem regression_feedback_failure_produces_nothing (depth : Nat) :
+    (feedbackFailureArtifacts depth).codeAtoms = 0 ∧
+      (feedbackFailureArtifacts depth).nextProduced = false ∧
+      (feedbackFailureArtifacts depth).terminalProduced = false := by
+  rw [feedbackFailureArtifacts_exact]
+  exact ⟨rfl, rfl, rfl⟩
+
+theorem regression_feedback_inspects_no_global_composition (input : Nat) :
+    (executeConstitutiveResolution input).stats.compositionCandidates = 0 :=
+  executeConstitutiveResolution_noGlobalComposition input
+
+theorem regression_prior_integrated_results_remain_available (input : Nat) :
+    Section31PrimitiveRaccord (executeConstitutiveResolution input).history.firstStage ∧
+      Nonempty (Section6OperationalSuccessionEvidence (executeConstitutiveResolution input)) ∧
+      Nonempty (ConstitutiveAndOrResolutionPerInputEvidence input) :=
+  ⟨regression_integrated_projection_refines_section31 input,
+    ⟨regression_section6_operational_succession input⟩,
+    ⟨constitutiveAndOrResolutionPerInputEvidence input⟩⟩
+
+theorem regression_feedback_accounting_is_canonical (input : Nat) :
+    let run := executeConstitutiveResolution input
+    run.phaseWork .decisionAccumulation = run.feedbackStats.decisionAccumulations ∧
+      run.phaseWork .decisionProvenance = run.feedbackStats.provenanceVisits ∧
+      run.phaseWork .transmittedStateInspection =
+        run.feedbackStats.transmittedStateInspections := by
+  exact ⟨rfl, rfl, rfl⟩
+
 end NPAndOrP
 end ConstitutiveSearch
 
@@ -810,4 +906,16 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_failure_aware_traversal_is_exact
 #print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_realization_is_natural
 #print axioms ConstitutiveSearch.NPAndOrP.regression_all_structural_correspondences
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_next_contains_executed_output_and_and_history
+#print axioms ConstitutiveSearch.NPAndOrP.regression_next_operational_state_consumes_generated_target
+#print axioms ConstitutiveSearch.NPAndOrP.regression_old_input_cannot_replace_feedback_output
+#print axioms ConstitutiveSearch.NPAndOrP.regression_other_and_history_changes_next_discovery
+#print axioms ConstitutiveSearch.NPAndOrP.regression_same_depth_projection_different_next_discovery
+#print axioms ConstitutiveSearch.NPAndOrP.regression_next_discovery_not_depth_factor
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_relation_is_from_transmitted_run
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_code_is_from_discovered_relation
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_failure_produces_nothing
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_inspects_no_global_composition
+#print axioms ConstitutiveSearch.NPAndOrP.regression_prior_integrated_results_remain_available
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_accounting_is_canonical
 /- AXIOM_AUDIT_END -/

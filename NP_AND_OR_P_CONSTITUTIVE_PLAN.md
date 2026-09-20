@@ -819,6 +819,37 @@ exécuté.
 
 Rassembler les résultats sans déclarer prématurément une clôture globale.
 
+### 8.0 Rétroaction constitutive entre exécution et discovery suivante
+
+La succession des affectations et la rétroaction constitutive sont deux
+obligations différentes :
+
+```text
+sortie opérationnelle(k) = entrée opérationnelle(k + 1)
+```
+
+ne suffit pas à établir :
+
+```text
+les déterminations produites et transportées à l'étape k
+participent aux données calculatoires depuis lesquelles sont construits
+l'état opérationnel, les candidats et la discovery de l'étape k + 1.
+```
+
+La phase est fermée seulement si une récursion exécutée construit un état
+transmis contenant l'affectation retournée, son lecteur instrumenté, les
+décisions AND dans leur ordre, leur provenance et la constitution générale
+produite. L'extraction, l'inspection des candidats et la discovery suivante
+doivent consommer cet état. Une égalité ajoutée après coup, un champ mémorisé
+mais jamais inspecté, ou un nouvel appel indépendant à
+`stageRecordedDiscoveryRun depth` ne satisfont pas cette obligation.
+
+Condition de sortie : deux états de même profondeur et de même projection,
+mais portant des histoires de déterminations différentes positivement
+construites, peuvent produire des outcomes de discovery suivante différents
+avec le même moteur ; et l'histoire active est indexée par l'état constitué
+complet retourné par l'étape précédente.
+
 ### Paquet de synthèse attendu
 
 Le résultat final devra contenir au minimum :

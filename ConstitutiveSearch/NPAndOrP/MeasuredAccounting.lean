@@ -22,6 +22,9 @@ inductive MeasuredPhase where
   | executionSearch
   | executionQueries
   | codeApplication
+  | decisionAccumulation
+  | decisionProvenance
+  | transmittedStateInspection
   | terminal
   | projection
   deriving DecidableEq, Repr
@@ -31,6 +34,7 @@ def measuredPhases : List MeasuredPhase :=
     .executionSearch, .terminal, .generationMaterialization, .schedule,
     .validationQueries, .executionQueries, .codeApplication,
     .extractedCandidates, .candidateTests, .relationQueries, .validatedAtoms,
+    .decisionAccumulation, .decisionProvenance, .transmittedStateInspection,
     .projection]
 
 def phaseOccurrences (phase : MeasuredPhase) : List MeasuredPhase → Nat
@@ -82,6 +86,21 @@ def ConstitutiveResolutionRun.codeApplicationWork {input : Nat}
     (run : ConstitutiveResolutionRun input) : Nat :=
   run.stats.appliedCodeAtoms + run.stats.continuationApplications
 
+/-- New feedback operations have their own producers.  Realization,
+state-dependent extraction and next discovery remain charged by their existing
+phases, so the transmitted-state ledger introduces no duplicate charge. -/
+def ConstitutiveResolutionRun.decisionAccumulationWork {input : Nat}
+    (run : ConstitutiveResolutionRun input) : Nat :=
+  run.feedbackStats.decisionAccumulations
+
+def ConstitutiveResolutionRun.decisionProvenanceWork {input : Nat}
+    (run : ConstitutiveResolutionRun input) : Nat :=
+  run.feedbackStats.provenanceVisits
+
+def ConstitutiveResolutionRun.transmittedStateInspectionWork {input : Nat}
+    (run : ConstitutiveResolutionRun input) : Nat :=
+  run.feedbackStats.transmittedStateInspections
+
 /-- The shared source is constructed once. The two finder/interpreter calls
 belong to different executions and both contribute their emitted work. -/
 def IntegratedProjectionExperiment.measuredWork {depth : Nat} {input : SequentialAssignment depth}
@@ -109,6 +128,9 @@ def ConstitutiveResolutionRun.phaseWork {input : Nat} (run : ConstitutiveResolut
   | .executionSearch => run.measuredExecutionWork.total
   | .executionQueries => run.executionQueryWork
   | .codeApplication => run.codeApplicationWork
+  | .decisionAccumulation => run.decisionAccumulationWork
+  | .decisionProvenance => run.decisionProvenanceWork
+  | .transmittedStateInspection => run.transmittedStateInspectionWork
   | .terminal => run.terminal.measuredReadWork
   | .projection => run.projectionExperiment.measuredWork
 
@@ -353,20 +375,68 @@ theorem ConstitutiveResolutionRun.previouslyOwnedWork_exact {input : Nat}
     (executeConstitutiveResolution input).continuationApplications_exact]
   rfl
 
+/-- Polynomial envelope for the feedback counters emitted by the dependent
+history recursion: one decision insertion, one provenance insertion and at
+most a full scan of the accumulated history at every stage. -/
+def resolutionFeedbackPolynomial : CostPolynomial :=
+  let count : CostPolynomial := .add .input (.constant 1)
+  .add (.add count count) (.mul count count)
+
+def ConstitutiveResolutionRun.feedbackControlWork {input : Nat}
+    (run : ConstitutiveResolutionRun input) : Nat :=
+  (run.decisionAccumulationWork + run.decisionProvenanceWork) +
+    run.transmittedStateInspectionWork
+
+theorem ConstitutiveResolutionRun.feedbackControlWork_bound {input : Nat}
+    (run : ConstitutiveResolutionRun input) :
+    run.feedbackControlWork ≤ resolutionFeedbackPolynomial.eval input := by
+  have decisionExact := run.constitutiveFeedbackHistory.decisionAccumulations_eq_count
+  have provenanceExact := run.constitutiveFeedbackHistory.provenanceVisits_eq_count
+  have inspectionBound := run.constitutiveFeedbackHistory.inspections_bound
+  have initialLength : run.threadedInitialState.decisions.length = 0 := by
+    rw [run.threadedInitialStateExact]
+    rfl
+  unfold ConstitutiveResolutionRun.feedbackControlWork
+    ConstitutiveResolutionRun.decisionAccumulationWork
+    ConstitutiveResolutionRun.decisionProvenanceWork
+    ConstitutiveResolutionRun.transmittedStateInspectionWork
+    resolutionFeedbackPolynomial
+  rw [run.feedbackStatsExact, decisionExact, provenanceExact]
+  rw [initialLength] at inspectionBound
+  unfold resolutionLength at inspectionBound ⊢
+  rw [Nat.zero_add] at inspectionBound
+  change
+    ((input + 1) + (input + 1)) +
+        run.constitutiveFeedbackHistory.feedbackStats.transmittedStateInspections ≤
+      ((input + 1) + (input + 1)) + ((input + 1) * (input + 1))
+  exact Nat.add_le_add (Nat.le_refl _) inspectionBound
+
+theorem feedbackControlWork_inputPolynomial :
+    InputPolynomiallyBounded (fun input => (encodeConstitutiveInput input).length)
+      (fun input => (executeConstitutiveResolution input).feedbackControlWork) := by
+  refine ⟨resolutionFeedbackPolynomial, ?_⟩
+  intro input
+  dsimp only
+  rw [encodeConstitutiveInput_length]
+  exact (executeConstitutiveResolution input).feedbackControlWork_bound
+
 /-- All control/material operations not contained in the comparison-work core.
 Every summand is projected from an executable producer or stage run. -/
 def ConstitutiveResolutionRun.additionalOwnedWork {input : Nat}
     (run : ConstitutiveResolutionRun input) : Nat :=
-  run.previouslyOwnedWork + run.section7ControlWork
+  (run.previouslyOwnedWork + run.section7ControlWork) + run.feedbackControlWork
 
 def resolutionAdditionalOwnedPolynomial : CostPolynomial :=
-  .add resolutionPreviouslyOwnedPolynomial resolutionSection7ControlPolynomial
+  .add (.add resolutionPreviouslyOwnedPolynomial resolutionSection7ControlPolynomial)
+    resolutionFeedbackPolynomial
 
 theorem ConstitutiveResolutionRun.additionalOwnedWork_bound {input : Nat}
     (run : ConstitutiveResolutionRun input) :
     run.additionalOwnedWork ≤ resolutionAdditionalOwnedPolynomial.eval input := by
-  exact Nat.add_le_add (Nat.le_of_eq run.previouslyOwnedWork_exact)
-    run.section7ControlWork_bound
+  exact Nat.add_le_add
+    (Nat.add_le_add (Nat.le_of_eq run.previouslyOwnedWork_exact)
+      run.section7ControlWork_bound)
+    run.feedbackControlWork_bound
 
 /-- Canonical main-pipeline total of the published instrumented operations.
 Unlike the former core-only counter, this
@@ -403,6 +473,7 @@ theorem ConstitutiveResolutionRun.instrumentedWork_partition {input : Nat}
     ConstitutiveResolutionRun.phaseWork, ConstitutiveResolutionRun.mainInstrumentedWork,
     ConstitutiveResolutionRun.baseInstrumentedWork,
     ConstitutiveResolutionRun.additionalOwnedWork,
+    ConstitutiveResolutionRun.feedbackControlWork,
     ConstitutiveResolutionRun.previouslyOwnedWork,
     ConstitutiveResolutionRun.section7ControlWork,
     ConstitutiveResolutionRun.generationMaterializationWork,
@@ -414,6 +485,9 @@ theorem ConstitutiveResolutionRun.instrumentedWork_partition {input : Nat}
     ConstitutiveResolutionRun.validationQueryWork,
     ConstitutiveResolutionRun.executionQueryWork,
     ConstitutiveResolutionRun.codeApplicationWork,
+    ConstitutiveResolutionRun.decisionAccumulationWork,
+    ConstitutiveResolutionRun.decisionProvenanceWork,
+    ConstitutiveResolutionRun.transmittedStateInspectionWork,
     ConstitutiveResolutionRun.measuredSearchWork]
   rw [ComparisonWork.total_add, ComparisonWork.total_add]
   repeat rw [Nat.add_assoc]
@@ -765,6 +839,21 @@ structure Section7AccountingCoverage {input : Nat}
   codeApplicationOwned :
     run.phaseWork .codeApplication =
       run.stats.appliedCodeAtoms + run.stats.continuationApplications
+  decisionAccumulationOwned :
+    run.phaseWork .decisionAccumulation = run.feedbackStats.decisionAccumulations
+  decisionProvenanceOwned :
+    run.phaseWork .decisionProvenance = run.feedbackStats.provenanceVisits
+  transmittedStateInspectionOwned :
+    run.phaseWork .transmittedStateInspection =
+      run.feedbackStats.transmittedStateInspections
+  nextStateRealizationUsesExistingOwner :
+    run.phaseWork .realization = run.measuredRealizationWork.total
+  stateDependentExtractionUsesExistingOwner :
+    run.phaseWork .extraction =
+      run.stats.extractionClauseVisits + run.stats.extractionLiteralVisits
+  nextDiscoveryUsesExistingOwner :
+    run.phaseWork .discovery =
+      (run.measuredComparisonWork.add run.measuredConstructionWork).total
   terminalOwned : run.phaseWork .terminal = run.terminal.measuredReadWork
   projectionOwned :
     run.phaseWork .projection = run.projectionExperiment.measuredWork
@@ -790,6 +879,12 @@ theorem executeConstitutiveResolution_section7Coverage (input : Nat) :
       executionSearchOwned := rfl
       executionQueriesOwned := rfl
       codeApplicationOwned := rfl
+      decisionAccumulationOwned := rfl
+      decisionProvenanceOwned := rfl
+      transmittedStateInspectionOwned := rfl
+      nextStateRealizationUsesExistingOwner := rfl
+      stateDependentExtractionUsesExistingOwner := rfl
+      nextDiscoveryUsesExistingOwner := rfl
       terminalOwned := rfl
       projectionOwned := rfl
       canonicalTotalExact := rfl }
@@ -818,6 +913,13 @@ structure ConstitutiveAndOrResolutionPerInputEvidence (input : Nat) : Type 3 whe
       core.run.mainInstrumentedWork + core.run.projectionExperiment.measuredWork
   totalWorkBound :
     core.run.instrumentedWork ≤ resolutionInstrumentedPolynomial.eval input
+  feedbackAccountingExact :
+    core.run.feedbackStats = core.run.constitutiveFeedbackHistory.feedbackStats
+  feedbackWorkBound :
+    core.run.feedbackControlWork ≤ resolutionFeedbackPolynomial.eval input
+  nextDiscoveryDependsOnConstitution :
+    ¬ ValueFactorsThrough (nextDiscoveryProjection (depth := input))
+        (nextDiscoveryOutcome (depth := input))
 
 /-- The exact final evidence is constructed independently for every input. -/
 def constitutiveAndOrResolutionPerInputEvidence (input : Nat) :
@@ -832,7 +934,10 @@ def constitutiveAndOrResolutionPerInputEvidence (input : Nat) :
       section7Coverage := ?_
       phaseOwnershipUnique := measuredPhase_occurs_once
       accountingPartition := ?_
-      totalWorkBound := ?_ }
+      totalWorkBound := ?_
+      feedbackAccountingExact := core.run.feedbackStatsExact
+      feedbackWorkBound := ?_
+      nextDiscoveryDependsOnConstitution := nextDiscovery_not_factors input }
   · rw [core.runExact, accounting.phaseWorkExact]
   · rw [core.runExact]
     exact accounting.total_is_canonical
@@ -842,6 +947,7 @@ def constitutiveAndOrResolutionPerInputEvidence (input : Nat) :
     exact (executeConstitutiveResolution input).instrumentedWork_partition
   · rw [core.runExact]
     exact (executeConstitutiveResolution input).instrumentedWork_polynomial_bound
+  · exact core.run.feedbackControlWork_bound
 
 /-- Final integrated family for the construction currently proved. Its work
 field is the canonical phase-owned ledger, not the legacy structural surface.
@@ -880,6 +986,9 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
   totalWorkBound :
     InputPolynomiallyBounded (fun input => (encodeConstitutiveInput input).length)
       (fun input => (executeConstitutiveResolution input).instrumentedWork)
+  feedbackWorkBound :
+    InputPolynomiallyBounded (fun input => (encodeConstitutiveInput input).length)
+      (fun input => (executeConstitutiveResolution input).feedbackControlWork)
   canonicalAccounting : ∀ input, CanonicalMeasuredAccounting input
   section7Coverage :
     ∀ input, Section7AccountingCoverage (executeConstitutiveResolution input)
@@ -895,6 +1004,10 @@ structure ConstitutiveAndOrResolutionFamily : Type 3 where
           (fun organization =>
             (integratedOrganizationObservation
               (perInput input).core.run.history.firstStage organization).terminalBit)
+  nextDiscoveryCannotRecoverConstitution :
+    ∀ input,
+      ¬ ValueFactorsThrough (nextDiscoveryProjection (depth := input))
+          (nextDiscoveryOutcome (depth := input))
 
 /-- The complete measured concrete family is constructed rather than assumed. -/
 def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
@@ -910,6 +1023,7 @@ def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
       intro input
       exact executeConstitutiveResolution_surface_le input
     totalWorkBound := instrumentedWork_inputPolynomial
+    feedbackWorkBound := feedbackControlWork_inputPolynomial
     canonicalAccounting := canonicalMeasuredAccounting
     section7Coverage := executeConstitutiveResolution_section7Coverage
     phaseOwnershipUnique := measuredPhase_occurs_once
@@ -917,7 +1031,8 @@ def constitutiveAndOrResolutionFamily : ConstitutiveAndOrResolutionFamily :=
       (executeConstitutiveResolution input).instrumentedWork_partition
     projectionCannotRecoverConstitution :=
       fun input => integrated_projection_not_factors
-        (constitutiveAndOrResolutionPerInputEvidence input).core.run.history.firstStage }
+        (constitutiveAndOrResolutionPerInputEvidence input).core.run.history.firstStage
+    nextDiscoveryCannotRecoverConstitution := nextDiscovery_not_factors }
 
 /-- Family-level synthesis of the implemented, measured constitutive procedure.
 The full-work field includes the separately owned projection experiment. -/
@@ -970,6 +1085,12 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.relationQueryWork_bound
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.validatedAtomWork_exact
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.section7ControlWork_bound
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.decisionAccumulationWork
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.decisionProvenanceWork
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.transmittedStateInspectionWork
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.feedbackControlWork
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.feedbackControlWork_bound
+#print axioms ConstitutiveSearch.NPAndOrP.feedbackControlWork_inputPolynomial
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.additionalOwnedWork
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.previouslyOwnedWork_exact
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveResolutionRun.additionalOwnedWork_bound

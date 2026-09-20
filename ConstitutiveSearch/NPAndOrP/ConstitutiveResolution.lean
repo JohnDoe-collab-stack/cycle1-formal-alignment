@@ -6,6 +6,7 @@ import ConstitutiveSearch.NPAndOrP.MeasuredGeneration
 import ConstitutiveSearch.NPAndOrP.MeasuredAssignmentBounds
 import ConstitutiveSearch.NPAndOrP.ConstitutiveFullStep
 import ConstitutiveSearch.NPAndOrP.ConstitutiveRoleCycle
+import ConstitutiveSearch.NPAndOrP.ConstitutiveFeedback
 
 /-!
 # Integrated concrete `NP AND/OR P` resolution run
@@ -116,6 +117,16 @@ structure ConstitutiveResolutionRun (input : Nat) where
   acceptedHistory : AcceptedSequentialHistory history
   fullHistoryExecution : FullHistoryExecution history
   roleHistory : ConstitutiveRoleHistory history
+  threadedInitialState :
+    ThreadedConstitutiveState input (initialSequentialAssignment input)
+  threadedInitialStateExact :
+    threadedInitialState = initialThreadedConstitutiveState input
+  constitutiveFeedbackHistory :
+    ConstitutiveExecutionHistory threadedInitialState history
+  feedbackRoleHistory :
+    ThreadedConstitutiveRoleHistory constitutiveFeedbackHistory
+  feedbackStats : ConstitutiveFeedbackStats
+  feedbackStatsExact : feedbackStats = constitutiveFeedbackHistory.feedbackStats
   genericRefinement : GenericRefinedHistory history
   terminal : SequentialTerminalArtifact history
   terminalExact : terminal = terminalFromSequentialHistory history
@@ -180,6 +191,9 @@ def executeConstitutiveResolution
         input
         (resolutionLength input)
         (initialSequentialAssignment input))
+  let threadedInitialState := initialThreadedConstitutiveState input
+  let feedbackHistory : ConstitutiveExecutionHistory threadedInitialState history :=
+    threadConstitutiveExecutionHistory history threadedInitialState
   { history := history
     initialization := initialization
     initializationExact := rfl
@@ -204,6 +218,12 @@ def executeConstitutiveResolution
           (initialSequentialAssignment input)
     fullHistoryExecution := executeFullHistory history
     roleHistory := buildConstitutiveRoleHistory history
+    threadedInitialState := threadedInitialState
+    threadedInitialStateExact := rfl
+    constitutiveFeedbackHistory := feedbackHistory
+    feedbackRoleHistory := buildThreadedConstitutiveRoleHistory feedbackHistory
+    feedbackStats := feedbackHistory.feedbackStats
+    feedbackStatsExact := rfl
     terminal := terminal
     genericRefinement := executedHistory_genericRefinement history
     terminalExact := rfl
@@ -684,6 +704,17 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
     run.discoveryTraversal.successfulDiscoveries = input + 1
   noDiscoveryFailure : run.discoveryTraversal.failureDepth? = none
   section6Succession : Section6OperationalSuccessionEvidence run
+  constitutiveFeedbackIsThreaded :
+    ConstitutiveExecutionHistory run.threadedInitialState run.history
+  feedbackRolesFollowThreadedHistory :
+    ThreadedConstitutiveRoleHistory run.constitutiveFeedbackHistory
+  feedbackAccountingIsProduced :
+    run.feedbackStats = run.constitutiveFeedbackHistory.feedbackStats
+  nextDiscoveryDependsOnConstitution :
+    ¬ ValueFactorsThrough (nextDiscoveryProjection (depth := input))
+        (nextDiscoveryOutcome (depth := input))
+  feedbackFailureProducesNothing :
+    feedbackFailureArtifacts input = ⟨0, false, false⟩
   acceptedExecutionHistory : AcceptedSequentialHistory run.history
   compiledPathIsReturnedCode :
     run.history.localPath.map LocalPrimitiveAtom.compile = run.history.returnedCodes
@@ -804,6 +835,11 @@ def constitutiveAndOrResolutionEvidence
     successfulDiscoveriesExact := run.successfulDiscoveriesExact
     noDiscoveryFailure := run.discoveryFailureAbsent
     section6Succession := section6OperationalSuccessionEvidence run
+    constitutiveFeedbackIsThreaded := run.constitutiveFeedbackHistory
+    feedbackRolesFollowThreadedHistory := run.feedbackRoleHistory
+    feedbackAccountingIsProduced := run.feedbackStatsExact
+    nextDiscoveryDependsOnConstitution := nextDiscovery_not_factors input
+    feedbackFailureProducesNothing := feedbackFailureArtifacts_exact input
     acceptedExecutionHistory := run.acceptedHistory
     compiledPathIsReturnedCode := localPath_compiles_to_returnedCodes run.history
     producedPathLength := localPath_length run.history

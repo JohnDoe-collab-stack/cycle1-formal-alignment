@@ -20,7 +20,10 @@ entrée
   → validation du schedule
   → recherche locale du code
   → application du code effectivement retourné
-  → affectation de sortie utilisée comme entrée suivante
+  → affectation de sortie et décision AND ajoutées à l'état transmis
+  → provenance ordonnée et lecteur instrumenté conservés
+  → réalisation de l'état opérationnel suivant depuis la cible produite
+  → inspection de cet état avant extraction et discovery suivantes
   → bits lus sur les sorties transportées réellement produites
   → terminal construit depuis la trace et ces lectures
   → décision lisant uniquement le terminal
@@ -91,6 +94,14 @@ ni réponse attendue.
   `OperationalProjection.lean` conserve le séparateur antérieur de référence.
 - `SequentialResolution.lean` valide, exécute le code retourné et transmet son
   affectation de sortie à l'étape suivante.
+- `ConstitutiveFeedback.lean` enrichit cette transmission en un
+  `ThreadedConstitutiveState` calculable : affectation et lecteur réellement
+  retournés, génération reçue, décisions AND ordonnées, provenance et invariants.
+  `realizeNextOperationalState` construit la constitution opérationnelle suivante
+  depuis la cible produite et la continuation exécutée ; la queue de
+  `ConstitutiveExecutionHistory` est indexée par cet état complet. Le même moteur
+  de prochaine discovery donne des résultats différents après effacement de
+  l'histoire, d'où `nextDiscovery_not_factors`.
 - `SequentialHistory.lean` itère cette dépendance typée, construit le terminal
   et dérive les statistiques de la trace. La variable observée est extraite
   du dernier schedule conservé, avec son propre compteur de parcours.
@@ -137,6 +148,10 @@ mesure du temps machine de Lean ni de l'arithmétique primitive des labels.
 `applyMeasuredTransportCode` émet pendant sa récursion le nombre d'atomes
 évalués et d'applications aux continuations ; ces valeurs, et non `code.size`
 ou une constante ajoutée après coup, alimentent les statistiques publiées.
+L'accumulation des décisions, la provenance ordonnée et l'inspection de l'état
+transmis sont émises par la récursion de feedback et possèdent trois phases
+supplémentaires. La réalisation, l'extraction dépendante et la discovery suivante
+restent chargées une seule fois par leurs phases historiques.
 
 La borne de surface est formulée relativement à l'encodage unaire exécutable de l'entrée,
 dont la longueur est prouvée exacte.

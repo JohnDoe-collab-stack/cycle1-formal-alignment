@@ -167,6 +167,7 @@ roots = [
   "ConstitutiveSearch.NPAndOrP.GenericConstitutiveTraversal",
   "ConstitutiveSearch.NPAndOrP.GenericConcreteRefinement",
   "ConstitutiveSearch.NPAndOrP.ExecutedLocalSchedule",
+  "ConstitutiveSearch.NPAndOrP.ConstitutiveFeedback",
   "ConstitutiveSearch.NPAndOrP.ConstitutiveResolution",
   "ConstitutiveSearch.NPAndOrP.Regression",
   "StrongPerimetralTurning",
