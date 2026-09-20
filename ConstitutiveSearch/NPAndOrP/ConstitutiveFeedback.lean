@@ -366,6 +366,212 @@ theorem filterCandidatesByHistory_visits_le
             (inspectCandidateHistory_visits_le candidate decisions)
             (filterCandidatesByHistory_visits_le decisions rest))
 
+/-- Executable freshness check against the material variable provenance. -/
+def provenanceAvoidCheck (candidate : Var) : List Var → Bool
+  | [] => true
+  | prior :: rest =>
+      if prior = candidate then false
+      else provenanceAvoidCheck candidate rest
+
+/-- One executable comparison of a candidate with the material provenance
+index transmitted by the preceding stages. -/
+structure CandidateProvenanceCompatibilityRun
+    (candidate : Var) (provenance : List Var) where
+  compatible : Bool
+  visits : Nat
+
+def inspectCandidateProvenance (candidate : Var) :
+    (provenance : List Var) →
+      CandidateProvenanceCompatibilityRun candidate provenance
+  | [] => ⟨true, 0⟩
+  | prior :: rest =>
+      if prior = candidate then ⟨false, 1⟩
+      else
+        let tail := inspectCandidateProvenance candidate rest
+        ⟨tail.compatible, tail.visits + 1⟩
+
+theorem inspectCandidateProvenance_compatible
+    (candidate : Var) (provenance : List Var) :
+    (inspectCandidateProvenance candidate provenance).compatible =
+      provenanceAvoidCheck candidate provenance := by
+  induction provenance with
+  | nil => rfl
+  | cons prior rest inductionHypothesis =>
+      rw [inspectCandidateProvenance, provenanceAvoidCheck]
+      split
+      · rfl
+      · exact inductionHypothesis
+
+/-- The material provenance is exactly the variable projection of the richer
+AND decision history, so both executable freshness predicates agree. -/
+theorem provenanceAvoidCheck_decisions
+    (candidate : Var) :
+    ∀ decisions : List StructuralBranchDecision,
+      provenanceAvoidCheck candidate
+          (decisions.map (fun decision => decision.var)) =
+        structuralDecisionsAvoidCheck candidate decisions
+  | [] => rfl
+  | decision :: rest => by
+      by_cases same : decision.var = candidate
+      · rw [List.map, provenanceAvoidCheck, structuralDecisionsAvoidCheck,
+          if_pos same, if_pos same]
+      · rw [List.map, provenanceAvoidCheck, structuralDecisionsAvoidCheck,
+          if_neg same, if_neg same]
+        exact provenanceAvoidCheck_decisions candidate rest
+
+theorem inspectCandidateProvenance_map_compatible
+    (candidate : Var) (decisions : List StructuralBranchDecision) :
+    (inspectCandidateProvenance candidate
+        (decisions.map (fun decision => decision.var))).compatible =
+      (inspectCandidateHistory candidate decisions).compatible := by
+  rw [inspectCandidateProvenance_compatible,
+    provenanceAvoidCheck_decisions, inspectCandidateHistory_compatible]
+
+theorem inspectCandidateProvenance_map_visits
+    (candidate : Var) :
+    ∀ decisions : List StructuralBranchDecision,
+      (inspectCandidateProvenance candidate
+          (decisions.map (fun decision => decision.var))).visits =
+        (inspectCandidateHistory candidate decisions).visits
+  | [] => rfl
+  | decision :: rest => by
+      by_cases same : decision.var = candidate
+      · rw [List.map, inspectCandidateProvenance, inspectCandidateHistory,
+          if_pos same, if_pos same]
+      · rw [List.map, inspectCandidateProvenance, inspectCandidateHistory,
+          if_neg same, if_neg same]
+        exact congrArg (fun visits => visits + 1)
+          (inspectCandidateProvenance_map_visits candidate rest)
+
+/-- Stable candidate filtering driven directly by the material provenance
+resource.  Its trace and visit count are emitted by the same recursion. -/
+structure CandidateProvenanceFilterRun
+    (provenance : List Var) (candidates : List Var) where
+  retained : List Var
+  rejected : List Var
+  trace : List (Var × Bool)
+  visits : Nat
+
+def filterCandidatesByProvenance (provenance : List Var) :
+    (candidates : List Var) →
+      CandidateProvenanceFilterRun provenance candidates
+  | [] => ⟨[], [], [], 0⟩
+  | candidate :: rest =>
+      let checked := inspectCandidateProvenance candidate provenance
+      let tail := filterCandidatesByProvenance provenance rest
+      if checked.compatible then
+        ⟨candidate :: tail.retained, tail.rejected,
+          (candidate, true) :: tail.trace, checked.visits + tail.visits⟩
+      else
+        ⟨tail.retained, candidate :: tail.rejected,
+          (candidate, false) :: tail.trace, checked.visits + tail.visits⟩
+
+theorem filterCandidatesByProvenance_retained
+    (provenance : List Var) (candidates : List Var) :
+    (filterCandidatesByProvenance provenance candidates).retained =
+      candidates.filter (fun candidate =>
+        provenanceAvoidCheck candidate provenance) := by
+  induction candidates with
+  | nil => rfl
+  | cons candidate rest inductionHypothesis =>
+      rw [filterCandidatesByProvenance]
+      cases checked :
+          (inspectCandidateProvenance candidate provenance).compatible with
+      | false =>
+          have predicateFalse :
+              provenanceAvoidCheck candidate provenance = false := by
+            rw [← inspectCandidateProvenance_compatible]
+            exact checked
+          rw [List.filter, predicateFalse]
+          exact inductionHypothesis
+      | true =>
+          have predicateTrue :
+              provenanceAvoidCheck candidate provenance = true := by
+            rw [← inspectCandidateProvenance_compatible]
+            exact checked
+          rw [List.filter, predicateTrue]
+          exact congrArg (List.cons candidate) inductionHypothesis
+
+theorem inspectCandidateProvenance_visits_le (candidate : Var) :
+    ∀ provenance : List Var,
+      (inspectCandidateProvenance candidate provenance).visits ≤
+        provenance.length
+  | [] => Nat.le_refl 0
+  | prior :: rest => by
+      rw [inspectCandidateProvenance]
+      split
+      · exact Nat.succ_le_succ (Nat.zero_le _)
+      · dsimp only
+        exact Nat.succ_le_succ
+          (inspectCandidateProvenance_visits_le candidate rest)
+
+theorem filterCandidatesByProvenance_visits_le
+    (provenance : List Var) :
+    ∀ candidates : List Var,
+      (filterCandidatesByProvenance provenance candidates).visits ≤
+        candidates.length * provenance.length
+  | [] => Nat.zero_le _
+  | candidate :: rest => by
+      rw [filterCandidatesByProvenance]
+      split <;>
+        simpa [Nat.succ_mul, Nat.add_comm] using
+          (Nat.add_le_add
+            (inspectCandidateProvenance_visits_le candidate provenance)
+            (filterCandidatesByProvenance_visits_le provenance rest))
+
+/-- Replacing the richer history scan by its material variable provenance
+changes neither admissibility nor trace nor exact executed filtering work. -/
+theorem filterCandidatesByProvenance_matches_history
+    (decisions : List StructuralBranchDecision)
+    (candidates : List Var) :
+    let provenance := decisions.map (fun decision => decision.var)
+    let byProvenance := filterCandidatesByProvenance provenance candidates
+    let byHistory := filterCandidatesByHistory decisions candidates
+    byProvenance.retained = byHistory.retained ∧
+      byProvenance.rejected = byHistory.rejected ∧
+      byProvenance.trace = byHistory.trace ∧
+      byProvenance.visits = byHistory.visits := by
+  induction candidates with
+  | nil => exact ⟨rfl, rfl, rfl, rfl⟩
+  | cons candidate rest inductionHypothesis =>
+      have compatible :=
+        inspectCandidateProvenance_map_compatible candidate decisions
+      have visits :=
+        inspectCandidateProvenance_map_visits candidate decisions
+      rw [filterCandidatesByProvenance, filterCandidatesByHistory]
+      cases provenanceAccepted :
+          (inspectCandidateProvenance candidate
+            (decisions.map (fun decision => decision.var))).compatible with
+      | false =>
+          have historyRejected :
+              (inspectCandidateHistory candidate decisions).compatible = false := by
+            rw [← compatible]
+            exact provenanceAccepted
+          rw [provenanceAccepted, historyRejected]
+          dsimp only
+          exact
+            ⟨inductionHypothesis.1,
+              congrArg (List.cons candidate) inductionHypothesis.2.1,
+              congrArg (List.cons (candidate, false)) inductionHypothesis.2.2.1,
+              by rw [visits, inductionHypothesis.2.2.2]⟩
+      | true =>
+          have historyAccepted :
+              (inspectCandidateHistory candidate decisions).compatible = true := by
+            rw [← compatible]
+            exact provenanceAccepted
+          rw [provenanceAccepted, historyAccepted]
+          dsimp only
+          exact
+            ⟨congrArg (List.cons candidate) inductionHypothesis.1,
+              inductionHypothesis.2.1,
+              congrArg (List.cons (candidate, true)) inductionHypothesis.2.2.1,
+              by rw [visits, inductionHypothesis.2.2.2]⟩
+
+theorem provenanceAvoidCheck_head_selected
+    (selected : Var) (rest : List Var) :
+    provenanceAvoidCheck selected (selected :: rest) = false := by
+  rw [provenanceAvoidCheck, if_pos rfl]
+
 theorem structuralDecisionsAvoidCheck_false_witness
     (candidate : Var) : ∀ decisions : List StructuralBranchDecision,
       structuralDecisionsAvoidCheck candidate decisions = false →
@@ -594,15 +800,16 @@ theorem stageExtracted_classification (depth : Nat) (candidate : Var)
 
 /-- Single executable engine used both by the active threaded state and by
 the same-projection separator.  It realizes and extracts once, filters each
-candidate against history, then performs the unique exploration pass. -/
+candidate against the material provenance transmitted by prior stages, then
+performs the unique exploration pass. -/
 structure FeedbackDiscoveryFromDataRun (depth : Nat)
     (generation : CanonicalStageGeneration depth)
-    (decisions : List StructuralBranchDecision) where
+    (provenance : List Var) where
   generated : GeneratedExtractionBundle generation
   generatedExact : generated = measuredGeneratedExtraction generation
-  filtering : CandidateHistoryFilterRun decisions generated.extraction.candidates
+  filtering : CandidateProvenanceFilterRun provenance generated.extraction.candidates
   filteringExact : filtering =
-    filterCandidatesByHistory decisions generated.extraction.candidates
+    filterCandidatesByProvenance provenance generated.extraction.candidates
   candidates : List Var
   candidatesExact : candidates = filtering.retained
   outcome : RecordedDiscoveryOutcome (constructStage (depth + 1)).operationalRoot
@@ -611,10 +818,11 @@ structure FeedbackDiscoveryFromDataRun (depth : Nat)
 
 def runFeedbackDiscoveryFromData (depth : Nat)
     (generation : CanonicalStageGeneration depth)
-    (decisions : List StructuralBranchDecision) :
-    FeedbackDiscoveryFromDataRun depth generation decisions :=
+    (provenance : List Var) :
+    FeedbackDiscoveryFromDataRun depth generation provenance :=
   let generated := measuredGeneratedExtraction generation
-  let filtering := filterCandidatesByHistory decisions generated.extraction.candidates
+  let filtering :=
+    filterCandidatesByProvenance provenance generated.extraction.candidates
   let candidates := filtering.retained
   { generated := generated
     generatedExact := rfl
@@ -625,17 +833,19 @@ def runFeedbackDiscoveryFromData (depth : Nat)
     outcome := exploreRecordedCandidates (constructStage (depth + 1)).operationalRoot candidates
     outcomeExact := rfl }
 
-/-- Discovery executed from a generated target after inspecting the complete
-transmitted AND history.  If the next split is already determined, no local
-candidate is admitted and the ordinary optional failure branch is taken. -/
+/-- Discovery executed from a generated target after consuming the material
+provenance index transmitted by prior stages.  The richer AND decisions remain
+in the state for value-sensitive semantics; candidate availability consumes
+only the variable provenance it actually needs. -/
 structure ThreadedNextDiscoveryRun (depth : Nat)
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment) where
   generated : GeneratedExtractionBundle state.generation
   generatedExact : generated = measuredGeneratedExtraction state.generation
-  filtering : CandidateHistoryFilterRun state.decisions generated.extraction.candidates
+  filtering :
+    CandidateProvenanceFilterRun state.provenance generated.extraction.candidates
   filteringExact : filtering =
-    filterCandidatesByHistory state.decisions generated.extraction.candidates
+    filterCandidatesByProvenance state.provenance generated.extraction.candidates
   candidates : List Var
   candidatesExact : candidates = filtering.retained
   outcome : RecordedDiscoveryOutcome (constructStage (depth + 1)).operationalRoot
@@ -646,7 +856,7 @@ def runThreadedNextDiscovery {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment) :
     ThreadedNextDiscoveryRun depth state :=
-  let core := runFeedbackDiscoveryFromData depth state.generation state.decisions
+  let core := runFeedbackDiscoveryFromData depth state.generation state.provenance
   { generated := core.generated
     generatedExact := core.generatedExact
     filtering := core.filtering
@@ -670,12 +880,18 @@ theorem threadedRemovedCandidatesFail {depth : Nat}
     (fresh : ThreadedStateFreshForNext state) :
     ∀ candidate,
       candidate ∈ (stageRecordedDiscoveryRun (depth + 1)).extraction.candidates →
-      structuralDecisionsAvoidCheck candidate state.decisions = false →
+      provenanceAvoidCheck candidate state.provenance = false →
       (tryMeasuredCandidate
         (constructStage (depth + 1)).operationalRoot candidate).produced? = none := by
   intro candidate member rejected
+  have rejectedDecisions :
+      structuralDecisionsAvoidCheck candidate state.decisions = false := by
+    rw [← provenanceAvoidCheck_decisions candidate state.decisions]
+    rw [← state.provenanceExact]
+    exact rejected
   rcases structuralDecisionsAvoidCheck_false_witness
-    candidate state.decisions rejected with ⟨decision, decisionMember, same⟩
+    candidate state.decisions rejectedDecisions with
+      ⟨decision, decisionMember, same⟩
   have below : candidate < stageSelectedVar (depth + 1) := by
     cases same
     exact fresh decision decisionMember
@@ -701,11 +917,23 @@ theorem runThreadedNextDiscovery_discovered_exact {depth : Nat}
   let candidates :=
     (stageRecordedDiscoveryRun (depth + 1)).extraction.candidates
   have removedFail := threadedRemovedCandidatesFail state fresh
+  have removedFailDecisions :
+      ∀ candidate, candidate ∈ candidates →
+        structuralDecisionsAvoidCheck candidate state.decisions = false →
+        (tryMeasuredCandidate
+          (constructStage (depth + 1)).operationalRoot candidate).produced? = none := by
+    intro candidate member rejected
+    apply removedFail candidate member
+    rw [state.provenanceExact, provenanceAvoidCheck_decisions]
+    exact rejected
   have preserved := exploreRecordedCandidates_filter_failed
-    (constructStage (depth + 1)).operationalRoot state.decisions candidates removedFail
+    (constructStage (depth + 1)).operationalRoot state.decisions candidates
+      removedFailDecisions
   unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
   dsimp only
-  rw [filterCandidatesByHistory_retained]
+  rw [filterCandidatesByProvenance_retained]
+  rw [state.provenanceExact]
+  simp only [provenanceAvoidCheck_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
   exact preserved
 
@@ -720,11 +948,23 @@ theorem runThreadedNextDiscovery_work_le_canonical {depth : Nat}
   let candidates :=
     (stageRecordedDiscoveryRun (depth + 1)).extraction.candidates
   have removedFail := threadedRemovedCandidatesFail state fresh
+  have removedFailDecisions :
+      ∀ candidate, candidate ∈ candidates →
+        structuralDecisionsAvoidCheck candidate state.decisions = false →
+        (tryMeasuredCandidate
+          (constructStage (depth + 1)).operationalRoot candidate).produced? = none := by
+    intro candidate member rejected
+    apply removedFail candidate member
+    rw [state.provenanceExact, provenanceAvoidCheck_decisions]
+    exact rejected
   have bounded := exploreRecordedCandidates_filter_total_le
-    (constructStage (depth + 1)).operationalRoot state.decisions candidates removedFail
+    (constructStage (depth + 1)).operationalRoot state.decisions candidates
+      removedFailDecisions
   unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
   dsimp only
-  rw [filterCandidatesByHistory_retained]
+  rw [filterCandidatesByProvenance_retained]
+  rw [state.provenanceExact]
+  simp only [provenanceAvoidCheck_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
   exact bounded
 
@@ -823,7 +1063,7 @@ structure NextOperationalStateRun {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment)
     (stage : SequentialStageRun depth assignment) where
-  provenanceRun : ProvenancePrependRun state.provenance (stageSelectedVar (depth + 1))
+  provenanceRun : ProvenancePrependRun state.provenance stage.schedule.entry.var
   next : ThreadedConstitutiveState (depth + 1) stage.next
   assignmentFromExecution : next.threadedAssignment.assignment = stage.next.assignment
   generationFromProducedTarget :
@@ -834,6 +1074,8 @@ structure NextOperationalStateRun {depth : Nat}
   decisionsFromExecution :
     next.decisions =
       ⟨stageSelectedVar (depth + 1), true⟩ :: state.decisions
+  provenanceFromScheduledOperation :
+    next.provenance = stage.schedule.entry.var :: state.provenance
   provenanceFromExecution :
     next.provenance = stageSelectedVar (depth + 1) :: state.provenance
   decisionAccumulationWork : Nat
@@ -848,8 +1090,8 @@ def realizeNextOperationalState {depth : Nat}
     (avoid : StructuralDecisionsAvoid
       (stageSelectedVar (depth + 1)) state.decisions) :
     NextOperationalStateRun state stage := by
-  let selected := stageSelectedVar (depth + 1)
-  let provenanceRun := prependProvenanceMeasured selected state.provenance
+  let provenanceRun :=
+    prependProvenanceMeasured stage.schedule.entry.var state.provenance
   let nextGeneration :=
     generateCanonicalStageFromSource state.generation.target state.generation.targetExact
   let executedDecision := executedAndDecision stage
@@ -869,7 +1111,8 @@ def realizeNextOperationalState {depth : Nat}
       provenance := provenanceRun.output
       provenanceExact := by
         rw [provenanceRun.outputExact, state.provenanceExact]
-        rfl
+        unfold executedDecision executedAndDecision
+        rw [List.map, sequentialStage_selected_exact]
       decisionsHold := ⟨executedDecisionHolds, oldHold⟩ }
   exact
     { provenanceRun := provenanceRun
@@ -882,7 +1125,14 @@ def realizeNextOperationalState {depth : Nat}
           ⟨stageSelectedVar (depth + 1), true⟩ :: state.decisions
         exact congrArg (fun decision => decision :: state.decisions)
           (executedAndDecision_eq_selected_true stage)
-      provenanceFromExecution := provenanceRun.outputExact
+      provenanceFromScheduledOperation := provenanceRun.outputExact
+      provenanceFromExecution := by
+        calc
+          next.provenance =
+              stage.schedule.entry.var :: state.provenance :=
+            provenanceRun.outputExact
+          _ = stageSelectedVar (depth + 1) :: state.provenance := by
+            rw [sequentialStage_selected_exact]
       decisionAccumulationWork := 1
       decisionAccumulationWorkExact := rfl
       provenanceWork := provenanceRun.visits
@@ -931,6 +1181,31 @@ structure ThreadedConstitutiveStageRun {depth : Nat}
           (distinctGrowingDiscoveryFormula (constructStage (depth + 1)).searchIndex)
           stage.schedule.entry.var)).map stage.sourceContinuation
   nextRun : NextOperationalStateRun state stage
+
+/-- The provenance produced by one executed stage is consumed directly by
+the next discovery's candidate filter.  The same material list determines both
+the retained candidate domain and the charged filtering visits. -/
+theorem ThreadedConstitutiveStageRun.nextDiscoveryConsumesProducedProvenance
+    {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+    nextDiscovery.candidates =
+        (filterCandidatesByProvenance
+          (stage.schedule.entry.var :: state.provenance)
+          nextDiscovery.generated.extraction.candidates).retained ∧
+      nextDiscovery.filtering.visits =
+        (filterCandidatesByProvenance
+          (stage.schedule.entry.var :: state.provenance)
+          nextDiscovery.generated.extraction.candidates).visits := by
+  let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+  constructor
+  · rw [nextDiscovery.candidatesExact, nextDiscovery.filteringExact,
+      run.nextRun.provenanceFromScheduledOperation]
+  · rw [nextDiscovery.filteringExact,
+      run.nextRun.provenanceFromScheduledOperation]
 
 structure ConstructedThreadedStageRun {depth : Nat}
     {assignment : SequentialAssignment depth}
@@ -1491,8 +1766,8 @@ theorem ConstitutiveExecutionHistory.inspections_bound
           (Eq.refl (state.decisions.length + 1))
       have filteringBound : headRun.discoveryRun.filtering.visits ≤
           (2 * depth + 13) * state.decisions.length := by
-        have generic := filterCandidatesByHistory_visits_le
-          state.decisions headRun.discoveryRun.generated.extraction.candidates
+        have generic := filterCandidatesByProvenance_visits_le
+          state.provenance headRun.discoveryRun.generated.extraction.candidates
         have candidateLength :
             headRun.discoveryRun.generated.extraction.candidates.length =
               2 * depth + 13 := by
@@ -1505,19 +1780,12 @@ theorem ConstitutiveExecutionHistory.inspections_bound
             (stageRecordedDiscoveryRun (depth + 1)).extraction.stats.candidatesEmitted =
               2 * depth + 13
           exact executeSequentialStage_extractedCandidates depth assignment
-        have visitsExact := congrArg CandidateHistoryFilterRun.visits
-          headRun.discoveryRun.filteringExact
-        exact Eq.mp
-          (congrArg (fun visits => visits ≤ (2 * depth + 13) * state.decisions.length)
-            visitsExact.symm)
-          (Eq.mp
-            (congrArg
-              (fun length =>
-                (filterCandidatesByHistory state.decisions
-                  headRun.discoveryRun.generated.extraction.candidates).visits ≤
-                    length * state.decisions.length)
-              candidateLength)
-            generic)
+        have provenanceLength :
+            state.provenance.length = state.decisions.length := by
+          rw [state.provenanceExact, List.length_map]
+        rw [headRun.discoveryRun.filteringExact]
+        rw [candidateLength, provenanceLength] at generic
+        exact generic
       dsimp only [ConstitutiveExecutionHistory.feedbackStats,
         ConstitutiveFeedbackStats.addStage]
       have sameEnvelope :
@@ -1768,6 +2036,15 @@ theorem filterCandidatesByHistory_empty (candidates : List Var) :
       change candidate :: (filterCandidatesByHistory [] rest).retained = _
       rw [inductionHypothesis]
 
+theorem filterCandidatesByProvenance_empty (candidates : List Var) :
+    (filterCandidatesByProvenance [] candidates).retained = candidates := by
+  induction candidates with
+  | nil => rfl
+  | cons candidate rest inductionHypothesis =>
+      rw [filterCandidatesByProvenance]
+      change candidate :: (filterCandidatesByProvenance [] rest).retained = _
+      rw [inductionHypothesis]
+
 theorem erasedHistory_retains_priorSelected (depth : Nat) :
     stageSelectedVar (depth + 1) ∈
       (runThreadedNextDiscovery
@@ -1775,8 +2052,8 @@ theorem erasedHistory_retains_priorSelected (depth : Nat) :
   let run := runThreadedNextDiscovery (erasedNextDiscoveryState depth).state
   rw [run.candidatesExact, run.filteringExact]
   change stageSelectedVar (depth + 1) ∈
-    (filterCandidatesByHistory [] run.generated.extraction.candidates).retained
-  rw [filterCandidatesByHistory_empty, run.generated.extractionExact]
+    (filterCandidatesByProvenance [] run.generated.extraction.candidates).retained
+  rw [filterCandidatesByProvenance_empty, run.generated.extractionExact]
   exact priorSelected_extracted_next depth
 
 theorem retainedHistory_rejects_priorSelected (depth : Nat) :
@@ -1788,20 +2065,20 @@ theorem retainedHistory_rejects_priorSelected (depth : Nat) :
   let run := runThreadedNextDiscovery state
   have filtered : stageSelectedVar (depth + 1) ∈
       run.generated.extraction.candidates.filter (fun candidate =>
-        structuralDecisionsAvoidCheck candidate state.decisions) := by
-    rw [← filterCandidatesByHistory_retained,
+        provenanceAvoidCheck candidate state.provenance) := by
+    rw [← filterCandidatesByProvenance_retained,
       ← run.filteringExact, ← run.candidatesExact]
     exact retained
   have accepted := memberOfFilter_predicate
-    (fun candidate => structuralDecisionsAvoidCheck candidate state.decisions)
+    (fun candidate => provenanceAvoidCheck candidate state.provenance)
     (stageSelectedVar (depth + 1)) _ filtered
-  have rejected : structuralDecisionsAvoidCheck (stageSelectedVar (depth + 1))
-      state.decisions = false := by
-    change structuralDecisionsAvoidCheck (stageSelectedVar (depth + 1))
-      (nextDiscoveryCommonOrigin depth).run.nextRun.next.decisions = false
-    rw [(nextDiscoveryCommonOrigin depth).run.nextRun.decisionsFromExecution]
-    exact inspectTransmittedDecisions_head_selected
-      (stageSelectedVar (depth + 1)) true []
+  have rejected : provenanceAvoidCheck (stageSelectedVar (depth + 1))
+      state.provenance = false := by
+    change provenanceAvoidCheck (stageSelectedVar (depth + 1))
+      (nextDiscoveryCommonOrigin depth).run.nextRun.next.provenance = false
+    rw [(nextDiscoveryCommonOrigin depth).run.nextRun.provenanceFromExecution]
+    exact provenanceAvoidCheck_head_selected
+      (stageSelectedVar (depth + 1)) []
   rw [rejected] at accepted
   cases accepted
 
@@ -1954,16 +2231,21 @@ theorem nextDiscovery_blocked_none (depth : Nat) :
     intro candidate tested
     have filtered : candidate ∈
         (run.generated.extraction.candidates.filter (fun candidate =>
-          structuralDecisionsAvoidCheck candidate state.decisions)) := by
-      rw [← filterCandidatesByHistory_retained]
+          provenanceAvoidCheck candidate state.provenance)) := by
+      rw [← filterCandidatesByProvenance_retained]
       rw [← run.filteringExact, ← run.candidatesExact]
       exact tested
     have extracted := memberOfFilter_original
-      (fun candidate => structuralDecisionsAvoidCheck candidate state.decisions)
+      (fun candidate => provenanceAvoidCheck candidate state.provenance)
       candidate _ filtered
-    have compatible := memberOfFilter_predicate
-      (fun candidate => structuralDecisionsAvoidCheck candidate state.decisions)
+    have compatibleProvenance := memberOfFilter_predicate
+      (fun candidate => provenanceAvoidCheck candidate state.provenance)
       candidate _ filtered
+    have compatible :
+        structuralDecisionsAvoidCheck candidate state.decisions = true := by
+      rw [← provenanceAvoidCheck_decisions candidate state.decisions]
+      rw [← state.provenanceExact]
+      exact compatibleProvenance
     have canonicalMember : candidate ∈
         (stageRecordedDiscoveryRun ((depth + 1) + 1)).extraction.candidates := by
       rw [← run.generated.extractionExact]
@@ -2107,6 +2389,11 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.runFeedbackDiscoveryFromData
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory
+#print axioms ConstitutiveSearch.NPAndOrP.provenanceAvoidCheck
+#print axioms ConstitutiveSearch.NPAndOrP.inspectCandidateProvenance
+#print axioms ConstitutiveSearch.NPAndOrP.provenanceAvoidCheck_decisions
+#print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance
+#print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByProvenance_matches_history
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery_discovered_exact
 #print axioms ConstitutiveSearch.NPAndOrP.appendProvenanceMeasured
 #print axioms ConstitutiveSearch.NPAndOrP.prependProvenanceMeasured
@@ -2118,6 +2405,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.fresh
 #print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.generationCanonical
 #print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveStage
+#print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveStageRun.nextDiscoveryConsumesProducedProvenance
 #print axioms ConstitutiveSearch.NPAndOrP.executeThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
