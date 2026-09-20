@@ -267,9 +267,12 @@ theorem extractClauseCandidateRun_length (clause : Clause) :
 
 theorem listLengthAppendConstructive {alpha : Type} :
     ∀ (left right : List alpha),
-      (left ++ right).length = left.length + right.length := by
-  intro left right
-  exact List.length_append
+      (left ++ right).length = left.length + right.length
+  | [], _ => rfl
+  | _ :: tail, right => by
+      change Nat.succ (tail ++ right).length =
+        Nat.succ tail.length + right.length
+      rw [listLengthAppendConstructive tail right, Nat.succ_add]
 
 theorem extractCnfCandidateRun_length (formula : Cnf) :
     (extractCnfCandidateRun formula).candidates.length =
@@ -2060,6 +2063,12 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.executeThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
+#print axioms ConstitutiveSearch.NPAndOrP.listLengthAppendConstructive
+#print axioms ConstitutiveSearch.NPAndOrP.extractCnfCandidateRun_length
+#print axioms ConstitutiveSearch.NPAndOrP.runCandidateExtraction_length
+#print axioms ConstitutiveSearch.NPAndOrP.priorSelected_extracted_next
+#print axioms ConstitutiveSearch.NPAndOrP.erasedHistory_retains_priorSelected
+#print axioms ConstitutiveSearch.NPAndOrP.reachableHistory_candidateTraces_different
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.testedCandidates_eq_attempts
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.controlStats_exact
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.executedBits_length
