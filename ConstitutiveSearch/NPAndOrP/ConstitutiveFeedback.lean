@@ -1,4 +1,5 @@
 import ConstitutiveSearch.NPAndOrP.ConstitutiveFullStep
+import ConstitutiveSearch.NPAndOrP.GeneratedHistoryExecution
 
 /-!
 # Constitutive feedback into the next discovery
@@ -26,6 +27,14 @@ def inspectTransmittedDecisions (selected : Var) :
   | decisions =>
       ⟨structuralDecisionsAvoidCheck selected decisions, decisions.length⟩
 
+theorem inspectTransmittedDecisions_head_selected
+    (selected : Var) (value : Bool) (rest : List StructuralBranchDecision) :
+    (inspectTransmittedDecisions selected
+      (⟨selected, value⟩ :: rest)).available = false := by
+  dsimp only [inspectTransmittedDecisions]
+  rw [structuralDecisionsAvoidCheck]
+  rw [if_pos rfl]
+
 theorem structuralDecisionsAvoidCheck_true_of_avoid
     (selected : Var) (decisions : List StructuralBranchDecision)
     (avoid : StructuralDecisionsAvoid selected decisions) :
@@ -36,6 +45,32 @@ theorem structuralDecisionsAvoidCheck_true_of_avoid
       rw [structuralDecisionsAvoidCheck]
       rw [if_neg avoid.1]
       exact inductionHypothesis avoid.2
+
+theorem structuralDecisionsAvoid_of_check_true
+    (selected : Var) (decisions : List StructuralBranchDecision)
+    (checked : structuralDecisionsAvoidCheck selected decisions = true) :
+    StructuralDecisionsAvoid selected decisions := by
+  induction decisions with
+  | nil => exact True.intro
+  | cons decision rest inductionHypothesis =>
+      rw [structuralDecisionsAvoidCheck] at checked
+      split at checked
+      · contradiction
+      · constructor
+        · assumption
+        · exact inductionHypothesis checked
+
+theorem structuralDecisionsAvoid_member_ne
+    (selected : Var) (decisions : List StructuralBranchDecision)
+    (avoid : StructuralDecisionsAvoid selected decisions)
+    (decision : StructuralBranchDecision)
+    (member : decision ∈ decisions) : decision.var ≠ selected := by
+  induction decisions with
+  | nil => cases member
+  | cons head tail inductionHypothesis =>
+      cases member with
+      | head => exact avoid.1
+      | tail _ prior => exact inductionHypothesis avoid.2 prior
 
 theorem inspectTransmittedDecisions_available_of_all_lt
     (selected : Var) (decisions : List StructuralBranchDecision)
@@ -69,9 +104,15 @@ structure ThreadedConstitutiveState (depth : Nat)
   provenance : List Var
   provenanceExact : provenance = decisions.map (fun decision => decision.var)
   decisionsHold : StructuralDecisionsHold assignment.assignment decisions
-  decisionsBeforeNext :
-    ∀ decision, decision ∈ decisions →
-      decision.var < stageSelectedVar (depth + 1)
+
+/-- Freshness is a success invariant of the canonical family, not part of the
+general validity of a transmitted state.  Separating it permits valid states
+whose history has already determined the next variable. -/
+def ThreadedStateFreshForNext {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment) : Prop :=
+  ∀ decision, decision ∈ state.decisions →
+    decision.var < stageSelectedVar (depth + 1)
 
 def initialThreadedConstitutiveState (depth : Nat) :
     ThreadedConstitutiveState depth (initialSequentialAssignment depth) :=
@@ -81,8 +122,12 @@ def initialThreadedConstitutiveState (depth : Nat) :
     decisions := []
     provenance := []
     provenanceExact := rfl
-    decisionsHold := True.intro
-    decisionsBeforeNext := by intro _ impossible; cases impossible }
+    decisionsHold := True.intro }
+
+theorem initialThreadedConstitutiveState_fresh (depth : Nat) :
+    ThreadedStateFreshForNext (initialThreadedConstitutiveState depth) := by
+  intro _ impossible
+  cases impossible
 
 theorem structuralDecisionsAvoid_of_all_lt
     (selected : Var) (decisions : List StructuralBranchDecision)
@@ -99,9 +144,10 @@ theorem structuralDecisionsAvoid_of_all_lt
 
 theorem ThreadedConstitutiveState.decisionsAvoidNext
     {depth : Nat} {assignment : SequentialAssignment depth}
-    (state : ThreadedConstitutiveState depth assignment) :
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
     StructuralDecisionsAvoid (stageSelectedVar (depth + 1)) state.decisions := by
-  exact structuralDecisionsAvoid_of_all_lt _ _ state.decisionsBeforeNext
+  exact structuralDecisionsAvoid_of_all_lt _ _ fresh
 
 /-- Single executable engine used both by the active threaded state and by
 the same-projection separator. -/
@@ -179,12 +225,13 @@ def ThreadedNextDiscoveryRun.asRecorded {depth : Nat}
 
 theorem runThreadedNextDiscovery_exact {depth : Nat}
     {assignment : SequentialAssignment depth}
-    (state : ThreadedConstitutiveState depth assignment) :
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
     (runThreadedNextDiscovery state).asRecorded =
       stageRecordedDiscoveryRun (depth + 1) := by
   have available := inspectTransmittedDecisions_available_of_all_lt
     (stageSelectedVar (depth + 1)) state.decisions
-    state.decisionsBeforeNext
+    fresh
   unfold ThreadedNextDiscoveryRun.asRecorded runThreadedNextDiscovery
     runFeedbackDiscoveryFromData
   dsimp only
@@ -194,9 +241,10 @@ theorem runThreadedNextDiscovery_exact {depth : Nat}
 
 theorem runThreadedNextDiscovery_found {depth : Nat}
     {assignment : SequentialAssignment depth}
-    (state : ThreadedConstitutiveState depth assignment) :
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
     (runThreadedNextDiscovery state).outcome.discovered? ≠ none := by
-  have exactRun := runThreadedNextDiscovery_exact state
+  have exactRun := runThreadedNextDiscovery_exact state fresh
   change (runThreadedNextDiscovery state).asRecorded.outcome.discovered? ≠ none
   rw [exactRun]
   exact stageRecordedDiscovery_ne_none (depth + 1)
@@ -249,13 +297,15 @@ theorem structuralDecisionsHold_transport
 theorem stageNext_preserves_threadedDecisions {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment)
-    (stage : SequentialStageRun depth assignment) :
+    (stage : SequentialStageRun depth assignment)
+    (avoid : StructuralDecisionsAvoid
+      (stageSelectedVar (depth + 1)) state.decisions) :
     StructuralDecisionsHold stage.next.assignment state.decisions := by
   apply structuralDecisionsHold_transport
     assignment.assignment stage.next.assignment state.decisions state.decisionsHold
   intro decision member
   have different : decision.var ≠ stageSelectedVar (depth + 1) :=
-    Nat.ne_of_lt (state.decisionsBeforeNext decision member)
+    structuralDecisionsAvoid_member_ne _ _ avoid decision member
   rw [sequentialStage_next_from_input, Assignment.flipAt_other]
   rw [sequentialStage_selected_exact]
   exact different
@@ -289,7 +339,9 @@ structure NextOperationalStateRun {depth : Nat}
 def realizeNextOperationalState {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment)
-    (stage : SequentialStageRun depth assignment) :
+    (stage : SequentialStageRun depth assignment)
+    (avoid : StructuralDecisionsAvoid
+      (stageSelectedVar (depth + 1)) state.decisions) :
     NextOperationalStateRun state stage := by
   let selected := stageSelectedVar (depth + 1)
   let provenanceRun := prependProvenanceMeasured selected state.provenance
@@ -300,17 +352,7 @@ def realizeNextOperationalState {depth : Nat}
       Assignment.flipAt_selected, assignment.futureSelectedFalse _ (Nat.le_refl _)]
     rfl
   have oldHold : StructuralDecisionsHold stage.next.assignment state.decisions :=
-    stageNext_preserves_threadedDecisions state stage
-  have oldBeforeNext :
-      ∀ decision, decision ∈ state.decisions →
-        decision.var < stageSelectedVar ((depth + 1) + 1) := by
-    intro decision member
-    exact Nat.lt_trans (state.decisionsBeforeNext decision member)
-      (by rw [stageSelectedVar_succ]; exact Nat.lt_add_of_pos_right (by decide))
-  have selectedBeforeNext :
-      selected < stageSelectedVar ((depth + 1) + 1) := by
-    rw [stageSelectedVar_succ]
-    exact Nat.lt_add_of_pos_right (by decide)
+    stageNext_preserves_threadedDecisions state stage avoid
   let next : ThreadedConstitutiveState (depth + 1) stage.next :=
     { threadedAssignment := stage.next
       threadedAssignmentExact := rfl
@@ -320,12 +362,7 @@ def realizeNextOperationalState {depth : Nat}
       provenanceExact := by
         rw [provenanceRun.outputExact, state.provenanceExact]
         rfl
-      decisionsHold := ⟨selectedTrue, oldHold⟩
-      decisionsBeforeNext := by
-        intro decision member
-        cases member with
-        | head => exact selectedBeforeNext
-        | tail _ prior => exact oldBeforeNext decision prior }
+      decisionsHold := ⟨selectedTrue, oldHold⟩ }
   exact
     { provenanceRun := provenanceRun
       next := next
@@ -340,14 +377,76 @@ def realizeNextOperationalState {depth : Nat}
       stateInspectionWork := (runThreadedNextDiscovery next).inspection.visits
       stateInspectionWorkExact := rfl }
 
-/-- One existing P stage refined by the state that actually feeds its
-discovery and by the fully realized state returned to the following stage. -/
+/-- A successful discovery proves that the transmitted decisions avoid the
+selected variable.  This fact is obtained from the executed inspection, not
+from a freshness assumption supplied to the stage builder. -/
+theorem ThreadedNextDiscoveryRun.decisionsAvoid_of_found {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ThreadedNextDiscoveryRun depth state)
+    (discovery : EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot)
+    (found : run.outcome.discovered? = some discovery) :
+    StructuralDecisionsAvoid (stageSelectedVar (depth + 1)) state.decisions := by
+  have available : run.inspection.available = true := by
+    cases availableExact : run.inspection.available with
+    | false =>
+        have candidatesEmpty : run.candidates = [] := by
+          rw [run.candidatesExact]
+          rw [run.inspectionExact] at availableExact ⊢
+          rw [if_neg]
+          intro impossible
+          exact Bool.noConfusion (Eq.trans availableExact.symm impossible)
+        have outcomeEmpty : run.outcome.discovered? = none := by
+          rw [run.outcomeExact, candidatesEmpty]
+          rfl
+        rw [outcomeEmpty] at found
+        contradiction
+    | true => rfl
+  apply structuralDecisionsAvoid_of_check_true
+  change
+    (inspectTransmittedDecisions
+      (stageSelectedVar (depth + 1)) state.decisions).available = true
+  rw [← run.inspectionExact]
+  exact available
+
+theorem ThreadedNextDiscoveryRun.recordedExact_of_found {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ThreadedNextDiscoveryRun depth state)
+    (discovery : EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot)
+    (found : run.outcome.discovered? = some discovery) :
+    run.asRecorded = stageRecordedDiscoveryRun (depth + 1) := by
+  have avoid := run.decisionsAvoid_of_found discovery found
+  have available := structuralDecisionsAvoidCheck_true_of_avoid
+    (stageSelectedVar (depth + 1)) state.decisions avoid
+  have availableInspection :
+      (inspectTransmittedDecisions
+        (stageSelectedVar (depth + 1)) state.decisions).available = true := by
+    exact available
+  unfold ThreadedNextDiscoveryRun.asRecorded
+  have candidatesExact := run.candidatesExact
+  rw [run.inspectionExact] at candidatesExact
+  rw [if_pos availableInspection] at candidatesExact
+  rw [run.outcomeExact, candidatesExact, run.generatedExact,
+    (measuredGeneratedDiscovery state.generation).recordedExact]
+  rfl
+
+/-- One stage built only after the discovery stored here has returned `some`.
+The builder receives no preconstructed `SequentialStageRun`. -/
 structure ThreadedConstitutiveStageRun {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment)
     (stage : SequentialStageRun depth assignment) where
   discoveryRun : ThreadedNextDiscoveryRun depth state
   discoveryRunExact : discoveryRun = runThreadedNextDiscovery state
+  discovery : EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot
+  discoveryFound : discoveryRun.outcome.discovered? = some discovery
+  recordedDiscoveryFound : discoveryRun.asRecorded.outcome.discovered? = some discovery
+  stageFromDiscovery :
+    stage = executeSequentialStageFromRecorded depth assignment state.generation
+      discoveryRun.asRecorded
+      (discoveryRun.recordedExact_of_found discovery discoveryFound)
+      discovery recordedDiscoveryFound
   relationFromTransmittedState :
     discoveryRun.outcome.discovered? = some stage.discovery
   returnedCodeFromThatRelation : stage.execution.code = stage.schedule.entry.code
@@ -359,62 +458,139 @@ structure ThreadedConstitutiveStageRun {depth : Nat}
           stage.schedule.entry.var)).map stage.sourceContinuation
   nextRun : NextOperationalStateRun state stage
 
-def executeThreadedConstitutiveStage {depth : Nat}
+structure ConstructedThreadedStageRun {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment) where
+  stage : SequentialStageRun depth assignment
+  run : ThreadedConstitutiveStageRun state stage
+
+def buildThreadedConstitutiveStage {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment)
-    (stage : SequentialStageRun depth assignment) :
-    ThreadedConstitutiveStageRun state stage := by
-  let discoveryRun := runThreadedNextDiscovery state
-  have found : discoveryRun.outcome.discovered? = some stage.discovery := by
-    have exactRun := runThreadedNextDiscovery_exact state
-    change discoveryRun.asRecorded.outcome.discovered? = some stage.discovery
-    rw [exactRun]
-    exact stage.discoveryExact
+    (discoveryRun : ThreadedNextDiscoveryRun depth state)
+    (discoveryRunExact : discoveryRun = runThreadedNextDiscovery state)
+    (discovery : EndogenousFlipDiscovery (constructStage (depth + 1)).operationalRoot)
+    (found : discoveryRun.outcome.discovered? = some discovery) :
+    ConstructedThreadedStageRun state := by
+  have recordedFound :
+      discoveryRun.asRecorded.outcome.discovered? = some discovery := found
+  let stage := executeSequentialStageFromRecorded depth assignment state.generation
+    discoveryRun.asRecorded
+    (discoveryRun.recordedExact_of_found discovery found) discovery recordedFound
+  let avoid := discoveryRun.decisionsAvoid_of_found discovery found
   exact
-    { discoveryRun := discoveryRun
-      discoveryRunExact := rfl
-      relationFromTransmittedState := found
-      returnedCodeFromThatRelation := executedDiscoverySchedule_code stage.execution
-      executedOutputFromThatCode := stage.application.outputExact
-      nextRun := realizeNextOperationalState state stage }
+    { stage := stage
+      run :=
+        { discoveryRun := discoveryRun
+          discoveryRunExact := discoveryRunExact
+          discovery := discovery
+          discoveryFound := found
+          recordedDiscoveryFound := recordedFound
+          stageFromDiscovery := rfl
+          relationFromTransmittedState := by
+            change discoveryRun.asRecorded.outcome.discovered? = some stage.discovery
+            rw [discoveryRun.recordedExact_of_found discovery found]
+            exact stage.discoveryExact
+          returnedCodeFromThatRelation := executedDiscoverySchedule_code stage.execution
+          executedOutputFromThatCode := stage.application.outputExact
+          nextRun := realizeNextOperationalState state stage avoid } }
 
-/-- The active tail is indexed by the complete state returned by the head. -/
+/-- Failure-aware active stage builder.  The `none` branch constructs no
+stage, code, or next state. -/
+def executeThreadedConstitutiveStage {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment) :
+    Option (ConstructedThreadedStageRun state) := by
+  let discoveryRun := runThreadedNextDiscovery state
+  exact match found : discoveryRun.outcome.discovered? with
+  | none => none
+  | some discovery =>
+      some (buildThreadedConstitutiveStage state discoveryRun rfl discovery found)
+
+theorem NextOperationalStateRun.fresh {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : NextOperationalStateRun state stage)
+    (fresh : ThreadedStateFreshForNext state) :
+    ThreadedStateFreshForNext run.next := by
+  intro decision member
+  rw [run.decisionsFromExecution] at member
+  cases member with
+  | head =>
+      rw [stageSelectedVar_succ]
+      exact Nat.lt_add_of_pos_right (by decide)
+  | tail _ prior =>
+      exact Nat.lt_trans (fresh decision prior)
+        (by rw [stageSelectedVar_succ]; exact Nat.lt_add_of_pos_right (by decide))
+
+theorem NextOperationalStateRun.generationCanonical {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : NextOperationalStateRun state stage) :
+    run.next.generation = generateCanonicalStage (depth + 1) := by
+  rw [run.generationFromProducedTarget]
+  exact generateCanonicalStageFromSource_exact _ _
+
+/-- The active history is produced directly from the current state.  Its tail
+is indexed by exactly the state produced by its head. -/
 inductive ConstitutiveExecutionHistory :
     {depth count : Nat} → {assignment : SequentialAssignment depth} →
-      (state : ThreadedConstitutiveState depth assignment) →
-      SequentialHistory depth assignment count → Type 2 where
+      (state : ThreadedConstitutiveState depth assignment) → Type 2 where
   | nil {depth : Nat} {assignment : SequentialAssignment depth}
       (state : ThreadedConstitutiveState depth assignment) :
-      ConstitutiveExecutionHistory state (.nil depth assignment)
+      ConstitutiveExecutionHistory (count := 0) state
   | step {depth count : Nat} {assignment : SequentialAssignment depth}
       {state : ThreadedConstitutiveState depth assignment}
       (head : SequentialStageRun depth assignment)
-      (tail : SequentialHistory (depth + 1) head.next count)
       (headRun : ThreadedConstitutiveStageRun state head)
-      (tailRun : ConstitutiveExecutionHistory headRun.nextRun.next tail) :
-      ConstitutiveExecutionHistory state (.step head tail)
+      (tailRun : ConstitutiveExecutionHistory (count := count) headRun.nextRun.next) :
+      ConstitutiveExecutionHistory (count := count + 1) state
 
-/-- Consume an already produced sequential history.  This is the unique
-feedback traversal: it does not reconstruct a second success history from the
-external input. -/
-def threadConstitutiveExecutionHistory :
+def ConstitutiveExecutionHistory.toSequentialHistory :
     {depth count : Nat} → {assignment : SequentialAssignment depth} →
-      (history : SequentialHistory depth assignment count) →
-      (state : ThreadedConstitutiveState depth assignment) →
-      ConstitutiveExecutionHistory state history
-  | _, _, _, .nil _ _, state => .nil state
-  | _, _, _, .step head tail, state =>
-      let headRun := executeThreadedConstitutiveStage state head
-      .step head tail headRun
-        (threadConstitutiveExecutionHistory tail headRun.nextRun.next)
+      {state : ThreadedConstitutiveState depth assignment} →
+      ConstitutiveExecutionHistory (count := count) state →
+      SequentialHistory depth assignment count
+  | _, _, _, _, .nil _ => .nil _ _
+  | _, _, _, _, .step head headRun tailRun =>
+      .step head tailRun.toSequentialHistory
 
 def executeConstitutiveExecutionHistory
-    (depth count : Nat) (assignment : SequentialAssignment depth)
-    (state : ThreadedConstitutiveState depth assignment) :
-    ConstitutiveExecutionHistory state
-      (executeSequentialHistory depth count assignment) :=
-  threadConstitutiveExecutionHistory
-    (executeSequentialHistory depth count assignment) state
+    (count : Nat) : {depth : Nat} → {assignment : SequentialAssignment depth} →
+      (state : ThreadedConstitutiveState depth assignment) →
+      ThreadedStateFreshForNext state →
+      ConstitutiveExecutionHistory (count := count) state
+  | _, _, state, fresh => match count with
+    | 0 => .nil state
+    | count + 1 =>
+        let discoveryRun := runThreadedNextDiscovery state
+        match found : discoveryRun.outcome.discovered? with
+        | none => False.elim ((runThreadedNextDiscovery_found state fresh) found)
+        | some discovery =>
+            let built := buildThreadedConstitutiveStage state discoveryRun rfl discovery found
+            .step built.stage built.run
+              (executeConstitutiveExecutionHistory count built.run.nextRun.next
+                (built.run.nextRun.fresh fresh))
+
+theorem ConstitutiveExecutionHistory.toSequentialHistory_eq_reference
+    {depth count : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (run : ConstitutiveExecutionHistory (count := count) state)
+    (generationCanonical : state.generation = generateCanonicalStage depth) :
+    run.toSequentialHistory = executeSequentialHistory depth count assignment := by
+  induction run with
+  | nil => rfl
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
+      have headExact : head = executeSequentialStage depth assignment := by
+        rw [headRun.stageFromDiscovery]
+        rw [executeRecorded_eq_reference]
+        rw [generationCanonical]
+        rfl
+      have tailExact := inductionHypothesis headRun.nextRun.generationCanonical
+      cases headExact
+      exact congrArg (SequentialHistory.step (executeSequentialStage depth assignment)) tailExact
 
 /-- Accounting emitted by the feedback recursion itself.  Extraction and
 next-discovery work remain owned by the existing extraction/discovery phases;
@@ -440,21 +616,19 @@ def ConstitutiveFeedbackStats.addStage (stats : ConstitutiveFeedbackStats)
 def ConstitutiveExecutionHistory.feedbackStats :
     {depth count : Nat} → {assignment : SequentialAssignment depth} →
       {state : ThreadedConstitutiveState depth assignment} →
-      {history : SequentialHistory depth assignment count} →
-      ConstitutiveExecutionHistory state history → ConstitutiveFeedbackStats
-  | _, _, _, _, _, .nil _ => .zero
-  | _, _, _, _, _, .step _ _ headRun tailRun =>
+      ConstitutiveExecutionHistory (count := count) state → ConstitutiveFeedbackStats
+  | _, _, _, _, .nil _ => .zero
+  | _, _, _, _, .step _ headRun tailRun =>
       tailRun.feedbackStats.addStage headRun
 
 theorem ConstitutiveExecutionHistory.decisionAccumulations_eq_count
     {depth count : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
-    {history : SequentialHistory depth assignment count}
-    (run : ConstitutiveExecutionHistory state history) :
+    (run : ConstitutiveExecutionHistory (count := count) state) :
     run.feedbackStats.decisionAccumulations = count := by
   induction run with
   | nil => rfl
-  | step head tail headRun tailRun inductionHypothesis =>
+  | step head headRun tailRun inductionHypothesis =>
       dsimp only [ConstitutiveExecutionHistory.feedbackStats,
         ConstitutiveFeedbackStats.addStage]
       rw [inductionHypothesis, headRun.nextRun.decisionAccumulationWorkExact]
@@ -462,12 +636,11 @@ theorem ConstitutiveExecutionHistory.decisionAccumulations_eq_count
 theorem ConstitutiveExecutionHistory.provenanceVisits_eq_count
     {depth count : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
-    {history : SequentialHistory depth assignment count}
-    (run : ConstitutiveExecutionHistory state history) :
+    (run : ConstitutiveExecutionHistory (count := count) state) :
     run.feedbackStats.provenanceVisits = count := by
   induction run with
   | nil => rfl
-  | step head tail headRun tailRun inductionHypothesis =>
+  | step head headRun tailRun inductionHypothesis =>
       dsimp only [ConstitutiveExecutionHistory.feedbackStats,
         ConstitutiveFeedbackStats.addStage]
       rw [inductionHypothesis, headRun.nextRun.provenanceWorkExact,
@@ -476,13 +649,12 @@ theorem ConstitutiveExecutionHistory.provenanceVisits_eq_count
 theorem ConstitutiveExecutionHistory.inspections_bound
     {depth count : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
-    {history : SequentialHistory depth assignment count}
-    (run : ConstitutiveExecutionHistory state history) :
+    (run : ConstitutiveExecutionHistory (count := count) state) :
     run.feedbackStats.transmittedStateInspections ≤
       count * (state.decisions.length + count) := by
   induction run with
   | nil => exact Nat.zero_le _
-  | @step depth count assignment state head tail headRun tailRun inductionHypothesis =>
+  | @step depth count assignment state head headRun tailRun inductionHypothesis =>
       have nextLength : headRun.nextRun.next.decisions.length = state.decisions.length + 1 :=
         Eq.trans
           (congrArg List.length headRun.nextRun.decisionsFromExecution)
@@ -513,25 +685,28 @@ theorem ConstitutiveExecutionHistory.inspections_bound
               (Nat.succ_mul count (state.decisions.length + (count + 1))).symm
 
 theorem executedFeedbackHistory_decisionAccumulations
-    (depth count : Nat) (assignment : SequentialAssignment depth)
-    (state : ThreadedConstitutiveState depth assignment) :
-    (executeConstitutiveExecutionHistory depth count assignment state).feedbackStats.decisionAccumulations =
+    (count : Nat) {depth : Nat} {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
+    (executeConstitutiveExecutionHistory count state fresh).feedbackStats.decisionAccumulations =
       count := by
-  exact (executeConstitutiveExecutionHistory depth count assignment state).decisionAccumulations_eq_count
+  exact (executeConstitutiveExecutionHistory count state fresh).decisionAccumulations_eq_count
 
 theorem executedFeedbackHistory_provenanceVisits
-    (depth count : Nat) (assignment : SequentialAssignment depth)
-    (state : ThreadedConstitutiveState depth assignment) :
-    (executeConstitutiveExecutionHistory depth count assignment state).feedbackStats.provenanceVisits =
+    (count : Nat) {depth : Nat} {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
+    (executeConstitutiveExecutionHistory count state fresh).feedbackStats.provenanceVisits =
       count := by
-  exact (executeConstitutiveExecutionHistory depth count assignment state).provenanceVisits_eq_count
+  exact (executeConstitutiveExecutionHistory count state fresh).provenanceVisits_eq_count
 
 theorem executedFeedbackHistory_inspections_bound
-    (depth count : Nat) (assignment : SequentialAssignment depth)
-    (state : ThreadedConstitutiveState depth assignment) :
-    (executeConstitutiveExecutionHistory depth count assignment state).feedbackStats.transmittedStateInspections ≤
+    (count : Nat) {depth : Nat} {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment)
+    (fresh : ThreadedStateFreshForNext state) :
+    (executeConstitutiveExecutionHistory count state fresh).feedbackStats.transmittedStateInspections ≤
       count * (state.decisions.length + count) := by
-  exact (executeConstitutiveExecutionHistory depth count assignment state).inspections_bound
+  exact (executeConstitutiveExecutionHistory count state fresh).inspections_bound
 
 /-- Four-role reading of one feedback stage. -/
 structure ThreadedConstitutiveRoleStage {depth : Nat}
@@ -596,87 +771,177 @@ feedback history; no independent role history can be injected. -/
 inductive ThreadedConstitutiveRoleHistory :
     {depth count : Nat} → {assignment : SequentialAssignment depth} →
       {state : ThreadedConstitutiveState depth assignment} →
-      {history : SequentialHistory depth assignment count} →
-      (run : ConstitutiveExecutionHistory state history) → Type 2 where
+      (run : ConstitutiveExecutionHistory (count := count) state) → Type 2 where
   | nil {depth : Nat} {assignment : SequentialAssignment depth}
       {state : ThreadedConstitutiveState depth assignment} :
       ThreadedConstitutiveRoleHistory (ConstitutiveExecutionHistory.nil state)
   | step {depth count : Nat} {assignment : SequentialAssignment depth}
       {state : ThreadedConstitutiveState depth assignment}
       {head : SequentialStageRun depth assignment}
-      {tail : SequentialHistory (depth + 1) head.next count}
       {headRun : ThreadedConstitutiveStageRun state head}
-      {tailRun : ConstitutiveExecutionHistory headRun.nextRun.next tail}
+      {tailRun : ConstitutiveExecutionHistory (count := count) headRun.nextRun.next}
       (headRole : ThreadedConstitutiveRoleStage headRun)
       (tailRoles : ThreadedConstitutiveRoleHistory tailRun) :
       ThreadedConstitutiveRoleHistory
-        (ConstitutiveExecutionHistory.step head tail headRun tailRun)
+        (ConstitutiveExecutionHistory.step head headRun tailRun)
 
 def buildThreadedConstitutiveRoleHistory :
     {depth count : Nat} → {assignment : SequentialAssignment depth} →
       {state : ThreadedConstitutiveState depth assignment} →
-      {history : SequentialHistory depth assignment count} →
-      (run : ConstitutiveExecutionHistory state history) →
+      (run : ConstitutiveExecutionHistory (count := count) state) →
       ThreadedConstitutiveRoleHistory run
-  | _, _, _, _, _, .nil _ => .nil
-  | _, _, _, _, _, .step _ _ headRun tailRun =>
+  | _, _, _, _, .nil _ => .nil
+  | _, _, _, _, .step _ headRun tailRun =>
       .step (threadedConstitutiveRoleStage headRun)
         (buildThreadedConstitutiveRoleHistory tailRun)
 
-/-- Two same-depth constitutions used by the decisive next-discovery probe. -/
+/-- The common executed origin used by both sides of the separator.  Its stage
+is built from the returned discovery by the same active builder as the public
+recursion. -/
+def nextDiscoveryCommonOrigin (depth : Nat) :
+    ConstructedThreadedStageRun (initialThreadedConstitutiveState depth) := by
+  let state := initialThreadedConstitutiveState depth
+  let discoveryRun := runThreadedNextDiscovery state
+  let discovery := canonicalStageDiscovery (depth + 1)
+  have found : discoveryRun.outcome.discovered? = some discovery := by
+    change discoveryRun.asRecorded.outcome.discovered? = some discovery
+    rw [runThreadedNextDiscovery_exact state
+      (initialThreadedConstitutiveState_fresh depth)]
+    exact canonicalStageDiscovery_found (depth + 1)
+  exact buildThreadedConstitutiveStage state discoveryRun rfl discovery found
+
+/-- Extend a valid executed state with a determination already held by its
+assignment.  This producer is independent of the separator instance. -/
+def predecideNextVariable {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment) :
+    ThreadedConstitutiveState depth assignment :=
+  { threadedAssignment := state.threadedAssignment
+    threadedAssignmentExact := state.threadedAssignmentExact
+    generation := state.generation
+    decisions :=
+      ⟨stageSelectedVar (depth + 1),
+        assignment.assignment (stageSelectedVar (depth + 1))⟩ :: state.decisions
+    provenance := stageSelectedVar (depth + 1) :: state.provenance
+    provenanceExact := by rw [state.provenanceExact]; rfl
+    decisionsHold := ⟨rfl, state.decisionsHold⟩ }
+
+theorem predecideNextVariable_decisions {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (state : ThreadedConstitutiveState depth assignment) :
+    (predecideNextVariable state).decisions =
+      ⟨stageSelectedVar (depth + 1),
+        assignment.assignment (stageSelectedVar (depth + 1))⟩ :: state.decisions :=
+  rfl
+
+/-- Existentially package the assignment index with a complete valid state. -/
+structure PackedThreadedConstitutiveState (depth : Nat) where
+  assignment : SequentialAssignment depth
+  state : ThreadedConstitutiveState depth assignment
+
+def retainedNextDiscoveryState (depth : Nat) :
+    PackedThreadedConstitutiveState (depth + 1) :=
+  let origin := nextDiscoveryCommonOrigin depth
+  ⟨origin.stage.next, origin.run.nextRun.next⟩
+
+theorem retainedNextDiscoveryState_fresh (depth : Nat) :
+    ThreadedStateFreshForNext (retainedNextDiscoveryState depth).state :=
+  (nextDiscoveryCommonOrigin depth).run.nextRun.fresh
+    (initialThreadedConstitutiveState_fresh depth)
+
+def predecidedNextDiscoveryState (depth : Nat) :
+    PackedThreadedConstitutiveState (depth + 1) :=
+  let retained := retainedNextDiscoveryState depth
+  ⟨retained.assignment, predecideNextVariable retained.state⟩
+
+/-- Two reachable organizations produced from one executed origin. -/
 inductive NextDiscoveryOrganization where
   | retained
   | predecided
   deriving DecidableEq
 
-def nextDiscoveryDecisions (depth : Nat) : NextDiscoveryOrganization →
-    List StructuralBranchDecision
-  | .retained => []
-  | .predecided => [⟨stageSelectedVar (depth + 1), false⟩]
-
 structure NextDiscoveryConstitution (depth : Nat) where
-  generation : CanonicalStageGeneration depth
-  decisions : List StructuralBranchDecision
+  organization : NextDiscoveryOrganization
+  packed : PackedThreadedConstitutiveState (depth + 1)
+  stateExact : packed = match organization with
+    | .retained => retainedNextDiscoveryState depth
+    | .predecided => predecidedNextDiscoveryState depth
 
 def nextDiscoveryConstitution (depth : Nat)
     (organization : NextDiscoveryOrganization) : NextDiscoveryConstitution depth :=
-  ⟨generateCanonicalStage depth, nextDiscoveryDecisions depth organization⟩
+  match organization with
+  | .retained => ⟨.retained, retainedNextDiscoveryState depth, rfl⟩
+  | .predecided => ⟨.predecided, predecidedNextDiscoveryState depth, rfl⟩
 
 def nextDiscoveryProjection {depth : Nat} (_ : NextDiscoveryConstitution depth) : Nat × Cnf :=
-  (depth, (constructStage (depth + 1)).operationalRoot.context.formula)
+  (depth + 1, (constructStage ((depth + 1) + 1)).operationalRoot.context.formula)
 
 def nextDiscoveryOutcome {depth : Nat} (state : NextDiscoveryConstitution depth) :=
-  (runFeedbackDiscoveryFromData depth state.generation state.decisions).outcome.discovered?
+  (runThreadedNextDiscovery state.packed.state).outcome.discovered?
 
 theorem nextDiscovery_retained_found (depth : Nat) :
     nextDiscoveryOutcome (nextDiscoveryConstitution depth .retained) ≠ none := by
-  change
-    (exploreRecordedCandidates (constructStage (depth + 1)).operationalRoot
-      (measuredGeneratedDiscovery (generateCanonicalStage depth)).recorded.extraction.candidates).discovered? ≠ none
-  rw [(measuredGeneratedDiscovery (generateCanonicalStage depth)).recordedExact]
-  exact stageRecordedDiscovery_ne_none (depth + 1)
+  exact runThreadedNextDiscovery_found (retainedNextDiscoveryState depth).state
+    (retainedNextDiscoveryState_fresh depth)
 
 theorem nextDiscovery_predecided_none (depth : Nat) :
     nextDiscoveryOutcome (nextDiscoveryConstitution depth .predecided) = none := by
   have unavailable :
-      (inspectTransmittedDecisions (stageSelectedVar (depth + 1))
-        [⟨stageSelectedVar (depth + 1), false⟩]).available = false := by
-    unfold inspectTransmittedDecisions structuralDecisionsAvoidCheck
-    change (if stageSelectedVar (depth + 1) = stageSelectedVar (depth + 1)
-      then false else true) = false
-    rw [if_pos rfl]
-  unfold nextDiscoveryOutcome nextDiscoveryConstitution runFeedbackDiscoveryFromData
-    nextDiscoveryDecisions
+      (inspectTransmittedDecisions (stageSelectedVar ((depth + 1) + 1))
+        (predecidedNextDiscoveryState depth).state.decisions).available = false := by
+    change
+      (inspectTransmittedDecisions (stageSelectedVar ((depth + 1) + 1))
+        (predecideNextVariable (retainedNextDiscoveryState depth).state).decisions).available = false
+    rw [predecideNextVariable_decisions]
+    exact inspectTransmittedDecisions_head_selected _ _ _
+  unfold nextDiscoveryOutcome nextDiscoveryConstitution runThreadedNextDiscovery
+    runFeedbackDiscoveryFromData
   dsimp only
   rw [unavailable]
   rfl
+
+theorem predecided_discovery_constructs_no_stage (depth : Nat) :
+    executeThreadedConstitutiveStage
+      (predecidedNextDiscoveryState depth).state = none := by
+  have failed :
+      (runThreadedNextDiscovery
+        (predecidedNextDiscoveryState depth).state).outcome.discovered? = none :=
+    nextDiscovery_predecided_none depth
+  unfold executeThreadedConstitutiveStage
+  dsimp only
+  split
+  · rfl
+  · rename_i discovery found
+    have impossible : some discovery = none := Eq.trans found.symm failed
+    cases impossible
+
+theorem nextDiscovery_states_share_executed_origin (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.assignment =
+        (nextDiscoveryCommonOrigin depth).stage.next ∧
+      (nextDiscoveryConstitution depth .predecided).packed.assignment =
+        (nextDiscoveryCommonOrigin depth).stage.next := by
+  exact ⟨rfl, rfl⟩
+
+theorem nextDiscovery_history_lengths_distinct (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.state.decisions.length ≠
+      (nextDiscoveryConstitution depth .predecided).packed.state.decisions.length := by
+  intro lengthsEqual
+  have zeroEqOne : 0 = 1 := Nat.succ.inj lengthsEqual
+  exact Nat.noConfusion zeroEqOne
+
+theorem nextDiscovery_histories_distinct (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.state.decisions ≠
+      (nextDiscoveryConstitution depth .predecided).packed.state.decisions := by
+  intro decisionsEqual
+  exact nextDiscovery_history_lengths_distinct depth
+    (congrArg List.length decisionsEqual)
 
 theorem nextDiscovery_constitutions_distinct (depth : Nat) :
     nextDiscoveryConstitution depth .retained ≠
       nextDiscoveryConstitution depth .predecided := by
   intro impossible
-  have decisionsEqual := congrArg NextDiscoveryConstitution.decisions impossible
-  cases decisionsEqual
+  have organizationsEqual := congrArg NextDiscoveryConstitution.organization impossible
+  cases organizationsEqual
 
 theorem nextDiscovery_projection_equal (depth : Nat) :
     nextDiscoveryProjection (nextDiscoveryConstitution depth .retained) =
@@ -719,10 +984,12 @@ end ConstitutiveSearch.NPAndOrP
 
 /- AXIOM_AUDIT_BEGIN -/
 #print axioms ConstitutiveSearch.NPAndOrP.inspectTransmittedDecisions
+#print axioms ConstitutiveSearch.NPAndOrP.inspectTransmittedDecisions_head_selected
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsAvoidCheck_true_of_avoid
 #print axioms ConstitutiveSearch.NPAndOrP.inspectTransmittedDecisions_available_of_all_lt
 #print axioms ConstitutiveSearch.NPAndOrP.inspectTransmittedDecisions_visits_of_all_ne
 #print axioms ConstitutiveSearch.NPAndOrP.initialThreadedConstitutiveState
+#print axioms ConstitutiveSearch.NPAndOrP.initialThreadedConstitutiveState_fresh
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsAvoid_of_all_lt
 #print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveState.decisionsAvoidNext
 #print axioms ConstitutiveSearch.NPAndOrP.runFeedbackDiscoveryFromData
@@ -733,9 +1000,13 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsHold_transport
 #print axioms ConstitutiveSearch.NPAndOrP.stageNext_preserves_threadedDecisions
 #print axioms ConstitutiveSearch.NPAndOrP.realizeNextOperationalState
+#print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.fresh
+#print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.generationCanonical
+#print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
-#print axioms ConstitutiveSearch.NPAndOrP.threadConstitutiveExecutionHistory
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
+#print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory_eq_reference
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.decisionAccumulations_eq_count
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.provenanceVisits_eq_count
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.inspections_bound
@@ -743,9 +1014,17 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.executedFeedbackHistory_inspections_bound
 #print axioms ConstitutiveSearch.NPAndOrP.roleStage_output_constitutes_nextOperationalState
 #print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveRoleHistory
+#print axioms ConstitutiveSearch.NPAndOrP.nextDiscoveryCommonOrigin
+#print axioms ConstitutiveSearch.NPAndOrP.predecideNextVariable
+#print axioms ConstitutiveSearch.NPAndOrP.retainedNextDiscoveryState
+#print axioms ConstitutiveSearch.NPAndOrP.predecidedNextDiscoveryState
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_retained_found
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscoveryConstitution
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_predecided_none
+#print axioms ConstitutiveSearch.NPAndOrP.predecided_discovery_constructs_no_stage
+#print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_states_share_executed_origin
+#print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_history_lengths_distinct
+#print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_histories_distinct
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_outcome_different
 #print axioms ConstitutiveSearch.NPAndOrP.nextDiscovery_not_factors
 #print axioms ConstitutiveSearch.NPAndOrP.feedbackFailureArtifacts_exact

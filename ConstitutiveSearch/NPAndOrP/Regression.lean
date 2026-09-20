@@ -717,6 +717,29 @@ def regression_every_stage_carries_four_roles (input : Nat) :
 
 /-! Counterprobes for the strong constitutive feedback of §8. -/
 
+theorem regression_public_history_is_causal (input : Nat) :
+    (executeConstitutiveResolution input).history =
+      (executeConstitutiveResolution input).constitutiveFeedbackHistory.toSequentialHistory :=
+  (executeConstitutiveResolution input).historyFromCausalExecution
+
+theorem regression_causal_history_matches_reference_after_execution (input : Nat) :
+    (executeConstitutiveResolution input).constitutiveFeedbackHistory.toSequentialHistory =
+      executeSequentialHistory input (resolutionLength input)
+        (initialSequentialAssignment input) := by
+  rw [← (executeConstitutiveResolution input).historyFromCausalExecution]
+  exact (executeConstitutiveResolution input).historyExact
+
+theorem regression_stage_is_constructed_from_returned_discovery
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    (built : ConstructedThreadedStageRun state) :
+    built.stage = executeSequentialStageFromRecorded depth assignment state.generation
+      built.run.discoveryRun.asRecorded
+      (built.run.discoveryRun.recordedExact_of_found
+        built.run.discovery built.run.discoveryFound)
+      built.run.discovery built.run.recordedDiscoveryFound :=
+  built.run.stageFromDiscovery
+
 theorem regression_feedback_next_contains_executed_output_and_and_history
     {depth : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
@@ -790,6 +813,23 @@ theorem regression_feedback_failure_produces_nothing (depth : Nat) :
       (feedbackFailureArtifacts depth).terminalProduced = false := by
   rw [feedbackFailureArtifacts_exact]
   exact ⟨rfl, rfl, rfl⟩
+
+theorem regression_failed_discovery_constructs_no_stage (depth : Nat) :
+    executeThreadedConstitutiveStage
+      (predecidedNextDiscoveryState depth).state = none :=
+  predecided_discovery_constructs_no_stage depth
+
+theorem regression_separator_states_share_executed_origin (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.assignment =
+        (nextDiscoveryCommonOrigin depth).stage.next ∧
+      (nextDiscoveryConstitution depth .predecided).packed.assignment =
+        (nextDiscoveryCommonOrigin depth).stage.next :=
+  nextDiscovery_states_share_executed_origin depth
+
+theorem regression_separator_states_are_complete_and_distinct (depth : Nat) :
+    (nextDiscoveryConstitution depth .retained).packed.state.decisions ≠
+      (nextDiscoveryConstitution depth .predecided).packed.state.decisions :=
+  nextDiscovery_histories_distinct depth
 
 theorem regression_feedback_inspects_no_global_composition (input : Nat) :
     (executeConstitutiveResolution input).stats.compositionCandidates = 0 :=
@@ -906,6 +946,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_failure_aware_traversal_is_exact
 #print axioms ConstitutiveSearch.NPAndOrP.regression_integrated_realization_is_natural
 #print axioms ConstitutiveSearch.NPAndOrP.regression_all_structural_correspondences
+#print axioms ConstitutiveSearch.NPAndOrP.regression_public_history_is_causal
+#print axioms ConstitutiveSearch.NPAndOrP.regression_causal_history_matches_reference_after_execution
+#print axioms ConstitutiveSearch.NPAndOrP.regression_stage_is_constructed_from_returned_discovery
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_next_contains_executed_output_and_and_history
 #print axioms ConstitutiveSearch.NPAndOrP.regression_next_operational_state_consumes_generated_target
 #print axioms ConstitutiveSearch.NPAndOrP.regression_old_input_cannot_replace_feedback_output
@@ -915,6 +958,9 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_relation_is_from_transmitted_run
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_code_is_from_discovered_relation
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_failure_produces_nothing
+#print axioms ConstitutiveSearch.NPAndOrP.regression_failed_discovery_constructs_no_stage
+#print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_share_executed_origin
+#print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_are_complete_and_distinct
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_inspects_no_global_composition
 #print axioms ConstitutiveSearch.NPAndOrP.regression_prior_integrated_results_remain_available
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_accounting_is_canonical

@@ -850,6 +850,16 @@ construites, peuvent produire des outcomes de discovery suivante différents
 avec le même moteur ; et l'histoire active est indexée par l'état constitué
 complet retourné par l'étape précédente.
 
+Réalisation active : `executeConstitutiveExecutionHistory` part directement du
+`ThreadedConstitutiveState`, exécute `runThreadedNextDiscovery`, ne construit le
+stage par `executeSequentialStageFromRecorded` qu'après un résultat `some`, puis
+appelle récursivement la queue sur l'état exact produit par la tête. Le run public
+`executeConstitutiveResolution` projette son `SequentialHistory` depuis cette
+récursion. L'égalité avec `executeSequentialHistory` est un théorème obtenu après
+l'exécution causale, jamais son entrée. Le séparateur emploie deux états complets
+issus du même stage exécuté ; l'un retient son histoire, l'autre ajoute
+positivement une détermination déjà satisfaite par la même affectation.
+
 ### Paquet de synthèse attendu
 
 Le résultat final devra contenir au minimum :

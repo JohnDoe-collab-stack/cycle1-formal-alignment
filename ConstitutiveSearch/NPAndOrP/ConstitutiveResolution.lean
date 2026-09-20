@@ -122,7 +122,10 @@ structure ConstitutiveResolutionRun (input : Nat) where
   threadedInitialStateExact :
     threadedInitialState = initialThreadedConstitutiveState input
   constitutiveFeedbackHistory :
-    ConstitutiveExecutionHistory threadedInitialState history
+    ConstitutiveExecutionHistory
+      (count := resolutionLength input) threadedInitialState
+  historyFromCausalExecution :
+    history = constitutiveFeedbackHistory.toSequentialHistory
   feedbackRoleHistory :
     ThreadedConstitutiveRoleHistory constitutiveFeedbackHistory
   feedbackStats : ConstitutiveFeedbackStats
@@ -156,6 +159,13 @@ structure ConstitutiveResolutionRun (input : Nat) where
 /-- Execute the whole concrete procedure from the input alone. -/
 def executeConstitutiveResolution
     (input : Nat) : ConstitutiveResolutionRun input :=
+  let threadedInitialState := initialThreadedConstitutiveState input
+  let feedbackHistory := executeConstitutiveExecutionHistory
+    (resolutionLength input) threadedInitialState
+    (initialThreadedConstitutiveState_fresh input)
+  let history := feedbackHistory.toSequentialHistory
+  have historyCanonical : history = resolutionHistory input := by
+    exact feedbackHistory.toSequentialHistory_eq_reference rfl
   let initialization := initializeConstitutiveHistory input
   let production := produceMeasuredConstitutiveHistory input (resolutionLength input)
     initialization.history.endpoint (congrArg RootedGeneratedHistory.endpoint initialization.historyExact)
@@ -168,32 +178,22 @@ def executeConstitutiveResolution
     discoverGeneratedHistoryTransportPath_exact
       generatedHistory
       (initialSequentialAssignment input)
-  have traversalSuccess : traversal.execution? ≠ none := by
-    rw [traversed.1]
-    intro impossible
-    cases impossible
-  let history := traversal.successfulHistory traversalSuccess
-  have traversalReturns : traversal.execution? = some history :=
-    traversal.successfulHistory_exact traversalSuccess
-  let terminal := terminalFromSequentialHistory history
   have consumed :
       executeGeneratedHistory
           generatedHistory
           (initialSequentialAssignment input) = history := by
-    exact Option.some.inj (Eq.trans traversed.1.symm traversalReturns)
-  have historyCanonical : history = resolutionHistory input := by
     have reference : generatedHistory =
         produceCanonicalGeneratedHistory input (resolutionLength input) :=
       resolutionGeneratedHistory_eq_reference input
-    rw [reference] at consumed
-    exact Eq.trans consumed.symm
+    rw [reference]
+    exact Eq.trans
       (executeProducedHistory_exact
         input
         (resolutionLength input)
-        (initialSequentialAssignment input))
-  let threadedInitialState := initialThreadedConstitutiveState input
-  let feedbackHistory : ConstitutiveExecutionHistory threadedInitialState history :=
-    threadConstitutiveExecutionHistory history threadedInitialState
+        (initialSequentialAssignment input)) historyCanonical.symm
+  have traversalReturns : traversal.execution? = some history := by
+    exact Eq.trans traversed.1 (congrArg some consumed)
+  let terminal := terminalFromSequentialHistory history
   { history := history
     initialization := initialization
     initializationExact := rfl
@@ -221,6 +221,7 @@ def executeConstitutiveResolution
     threadedInitialState := threadedInitialState
     threadedInitialStateExact := rfl
     constitutiveFeedbackHistory := feedbackHistory
+    historyFromCausalExecution := rfl
     feedbackRoleHistory := buildThreadedConstitutiveRoleHistory feedbackHistory
     feedbackStats := feedbackHistory.feedbackStats
     feedbackStatsExact := rfl
@@ -705,7 +706,10 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
   noDiscoveryFailure : run.discoveryTraversal.failureDepth? = none
   section6Succession : Section6OperationalSuccessionEvidence run
   constitutiveFeedbackIsThreaded :
-    ConstitutiveExecutionHistory run.threadedInitialState run.history
+    ConstitutiveExecutionHistory
+      (count := resolutionLength input) run.threadedInitialState
+  publicHistoryComesFromCausalExecution :
+    run.history = run.constitutiveFeedbackHistory.toSequentialHistory
   feedbackRolesFollowThreadedHistory :
     ThreadedConstitutiveRoleHistory run.constitutiveFeedbackHistory
   feedbackAccountingIsProduced :
@@ -776,7 +780,8 @@ structure ConstitutiveAndOrResolutionEvidence (input : Nat) : Type 3 where
   projectionRunsIntegrated :
     run.projectionExperiment = runIntegratedProjectionExperiment run.history.firstStage
 
-/-- Closed construction of the exact evidence package for every input. -/
+/- Closed construction of the exact evidence package for every input. -/
+set_option maxHeartbeats 1000000 in
 def constitutiveAndOrResolutionEvidence
     (input : Nat) : ConstitutiveAndOrResolutionEvidence input :=
   let run := executeConstitutiveResolution input
@@ -836,6 +841,7 @@ def constitutiveAndOrResolutionEvidence
     noDiscoveryFailure := run.discoveryFailureAbsent
     section6Succession := section6OperationalSuccessionEvidence run
     constitutiveFeedbackIsThreaded := run.constitutiveFeedbackHistory
+    publicHistoryComesFromCausalExecution := run.historyFromCausalExecution
     feedbackRolesFollowThreadedHistory := run.feedbackRoleHistory
     feedbackAccountingIsProduced := run.feedbackStatsExact
     nextDiscoveryDependsOnConstitution := nextDiscovery_not_factors input

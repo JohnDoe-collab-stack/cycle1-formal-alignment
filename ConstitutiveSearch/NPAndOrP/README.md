@@ -97,11 +97,14 @@ ni réponse attendue.
 - `ConstitutiveFeedback.lean` enrichit cette transmission en un
   `ThreadedConstitutiveState` calculable : affectation et lecteur réellement
   retournés, génération reçue, décisions AND ordonnées, provenance et invariants.
-  `realizeNextOperationalState` construit la constitution opérationnelle suivante
-  depuis la cible produite et la continuation exécutée ; la queue de
-  `ConstitutiveExecutionHistory` est indexée par cet état complet. Le même moteur
-  de prochaine discovery donne des résultats différents après effacement de
-  l'histoire, d'où `nextDiscovery_not_factors`.
+  `executeConstitutiveExecutionHistory` exécute la discovery depuis cet état,
+  construit ensuite le stage depuis la relation retournée et appelle la queue sur
+  l'état exact produit par la tête. La branche d'échec ne construit aucun stage.
+  Le run public projette son histoire depuis cette récursion ; l'égalité avec
+  l'ancien exécuteur séquentiel est prouvée après coup. Le séparateur emploie deux
+  états complets issus du même stage exécuté et de la même affectation, mais avec
+  des histoires constituées différentes ; le même moteur de prochaine discovery
+  donne alors des résultats différents, d'où `nextDiscovery_not_factors`.
 - `SequentialHistory.lean` itère cette dépendance typée, construit le terminal
   et dérive les statistiques de la trace. La variable observée est extraite
   du dernier schedule conservé, avec son propre compteur de parcours.
