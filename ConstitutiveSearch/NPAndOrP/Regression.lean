@@ -266,10 +266,8 @@ theorem regression_decision_reads_executed_bits (input : Nat) :
       (constitutiveAndOrResolutionEvidence input).decisionReadsTransportedBits
 
 theorem regression_generated_history_is_consumed (input : Nat) :
-    executeGeneratedHistory
-        (executeConstitutiveResolution input).generatedHistory
-        (initialSequentialAssignment input) =
-      (executeConstitutiveResolution input).history :=
+    (executeConstitutiveResolution input).generatedHistory =
+      (executeConstitutiveResolution input).constitutiveFeedbackHistory.toGeneratedHistory :=
   (executeConstitutiveResolution input).historyConsumesGeneration
 
 theorem regression_encoded_input_size (input : Nat) :
@@ -617,9 +615,9 @@ theorem regression_observed_variable_traversal_charged (input : Nat) :
 
 theorem regression_production_consumes_initialized_endpoint (input : Nat) :
     let run := executeConstitutiveResolution input
-    run.production = produceMeasuredConstitutiveHistory input (resolutionLength input)
-      run.initialization.history.endpoint
-      (congrArg StrongPerimetralTurning.RootedGeneratedHistory.endpoint run.initialization.historyExact) :=
+    run.production =
+      run.constitutiveFeedbackHistory.toProductionRun
+        (by rw [run.threadedInitialStateExact]; rfl) :=
   (executeConstitutiveResolution input).productionExact
 
 theorem regression_generated_history_from_counted_producer (input : Nat) :
@@ -632,14 +630,32 @@ theorem regression_initialization_calls_charged (input : Nat) :
   (initializeConstitutiveHistory_counts input).1
 
 theorem regression_production_calls_charged (input : Nat) :
-    (executeConstitutiveResolution input).production.generateCalls = resolutionLength input :=
-  (produceMeasuredConstitutiveHistory_counts input (resolutionLength input) _ _).1
+    (executeConstitutiveResolution input).production.generateCalls = resolutionLength input := by
+  let run := executeConstitutiveResolution input
+  have generationCanonical :
+      run.threadedInitialState.generation = generateCanonicalStage input :=
+    congrArg ThreadedConstitutiveState.generation run.threadedInitialStateExact
+  have stats := run.constitutiveFeedbackHistory.productionStats_exact generationCanonical
+  exact Eq.trans
+    (congrArg ConstitutiveProductionRun.generateCalls run.productionExact)
+    stats.1
 
 theorem regression_production_material_emitted (input : Nat) :
     (executeConstitutiveResolution input).production.provenanceUnits = resolutionLength input ∧
       (executeConstitutiveResolution input).production.certificatesProduced =
-        resolutionLength input :=
-  produceMeasuredConstitutiveHistory_material_counts input (resolutionLength input) _ _
+        resolutionLength input := by
+  let run := executeConstitutiveResolution input
+  have generationCanonical :
+      run.threadedInitialState.generation = generateCanonicalStage input :=
+    congrArg ThreadedConstitutiveState.generation run.threadedInitialStateExact
+  have stats := run.constitutiveFeedbackHistory.productionStats_exact generationCanonical
+  exact
+    ⟨Eq.trans
+        (congrArg ConstitutiveProductionRun.provenanceUnits run.productionExact)
+        stats.2.2.1,
+      Eq.trans
+        (congrArg ConstitutiveProductionRun.certificatesProduced run.productionExact)
+        stats.2.2.2⟩
 
 theorem regression_stage_generation_stats_from_producer {depth : Nat}
     {input : SequentialAssignment depth} (run : SequentialStageRun depth input) :
@@ -713,20 +729,20 @@ theorem regression_public_history_is_causal (input : Nat) :
 
 theorem regression_causal_history_matches_reference_after_execution (input : Nat) :
     (executeConstitutiveResolution input).constitutiveFeedbackHistory.toSequentialHistory =
-      executeSequentialHistory input (resolutionLength input)
-        (initialSequentialAssignment input) := by
-  rw [← (executeConstitutiveResolution input).historyFromCausalExecution]
-  exact (executeConstitutiveResolution input).historyExact
+      resolutionHistory input :=
+  Eq.trans
+    (executeConstitutiveResolution input).historyFromCausalExecution.symm
+    (executeConstitutiveResolution input).historyExact
 
 theorem regression_stage_is_constructed_from_returned_discovery
     {depth : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
     (built : ConstructedThreadedStageRun state) :
-    built.stage = executeSequentialStageFromRecorded depth assignment state.generation
+    built.stage = executeSequentialStageFromActiveRecorded depth assignment state.generation
       built.run.discoveryRun.asRecorded
-      (built.run.discoveryRun.recordedExact_of_found
-        built.run.discovery built.run.discoveryFound)
-      built.run.discovery built.run.recordedDiscoveryFound :=
+      built.run.discoveryRun.extractionExact
+      built.run.discovery built.run.recordedDiscoveryFound built.run.discoveryExact
+      built.run.discoveryWorkLeCanonical :=
   built.run.stageFromDiscovery
 
 theorem regression_feedback_next_contains_executed_output_and_and_history
@@ -804,15 +820,15 @@ theorem regression_feedback_failure_produces_nothing (depth : Nat) :
   exact ⟨rfl, rfl, rfl⟩
 
 theorem regression_failed_discovery_constructs_no_stage (depth : Nat) :
-    executeThreadedConstitutiveStage
-      (blockedNextDiscoveryState depth).state = none :=
+    (runThreadedNextDiscovery
+      (blockedNextDiscoveryState depth).state).outcome.discovered? = none :=
   blocked_discovery_constructs_no_stage depth
 
 theorem regression_blocked_state_is_constructed_from_child (depth : Nat) :
     (blockedNextDiscoveryState depth).state.decisions =
-        (blockedNextDiscoveryChild depth).context.decisions ∧
+        (blockedNextDiscoveryCarrier depth).context.decisions ∧
       (blockedNextDiscoveryState depth).state.provenance =
-        (blockedNextDiscoveryChild depth).context.decisions.map
+        (blockedNextDiscoveryCarrier depth).context.decisions.map
           (fun decision => decision.var) := by
   exact
     ⟨(blockedNextDiscoveryConstruction depth).decisionsFromChild,
@@ -871,8 +887,9 @@ theorem regression_filtering_cost_is_owned_once (input : Nat) :
     run.phaseWork .historyFiltering =
       run.constitutiveFeedbackHistory.feedbackStats.historyFilteringVisits := by
   let run := executeConstitutiveResolution input
-  rw [run.feedbackStatsExact]
-  rfl
+  change run.feedbackStats.historyFilteringVisits =
+    run.constitutiveFeedbackHistory.feedbackStats.historyFilteringVisits
+  exact congrArg (fun stats => stats.historyFilteringVisits) run.feedbackStatsExact
 
 end NPAndOrP
 end ConstitutiveSearch
