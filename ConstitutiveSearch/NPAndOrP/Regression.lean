@@ -839,7 +839,13 @@ theorem regression_failed_discovery_constructs_no_stage (depth : Nat) :
   constructor
   · exact failed
   · intro fresh
-    simp [executeThreadedConstitutiveStage, failed]
+    unfold executeThreadedConstitutiveStage
+    dsimp only
+    split
+    · rfl
+    · rename_i discovery found
+      rw [failed] at found
+      cases found
 
 theorem regression_blocked_discovery_has_no_success_witness (depth : Nat) :
     ¬ ∃ discovery,
