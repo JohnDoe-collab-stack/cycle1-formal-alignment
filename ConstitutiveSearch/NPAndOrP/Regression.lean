@@ -266,9 +266,17 @@ theorem regression_decision_reads_executed_bits (input : Nat) :
       (constitutiveAndOrResolutionEvidence input).decisionReadsTransportedBits
 
 theorem regression_generated_history_is_consumed (input : Nat) :
-    (executeConstitutiveResolution input).generatedHistory =
-      (executeConstitutiveResolution input).constitutiveFeedbackHistory.toGeneratedHistory :=
-  (executeConstitutiveResolution input).historyConsumesGeneration
+    (executeConstitutiveResolution input).history.generatedHistory =
+      (executeConstitutiveResolution input).generatedHistory := by
+  let run := executeConstitutiveResolution input
+  calc
+    run.history.generatedHistory =
+        run.constitutiveFeedbackHistory.toSequentialHistory.generatedHistory :=
+      congrArg (fun history => history.generatedHistory) run.historyFromCausalExecution
+    _ = run.constitutiveFeedbackHistory.toGeneratedHistory :=
+      run.constitutiveFeedbackHistory.toSequentialHistory_generatedHistory
+    _ = run.generatedHistory :=
+      run.historyConsumesGeneration.symm
 
 theorem regression_encoded_input_size (input : Nat) :
     (encodeConstitutiveInput input).length = input :=
@@ -728,11 +736,13 @@ theorem regression_public_history_is_causal (input : Nat) :
   (executeConstitutiveResolution input).historyFromCausalExecution
 
 theorem regression_causal_history_matches_reference_after_execution (input : Nat) :
-    (executeConstitutiveResolution input).constitutiveFeedbackHistory.toSequentialHistory =
-      resolutionHistory input :=
-  Eq.trans
-    (executeConstitutiveResolution input).historyFromCausalExecution.symm
-    (executeConstitutiveResolution input).historyExact
+    (executeConstitutiveResolution input).constitutiveFeedbackHistory.toSequentialHistory.executedBits =
+      (executeSequentialHistory input (resolutionLength input)
+        (initialSequentialAssignment input)).executedBits := by
+  exact Eq.trans
+    (executeConstitutiveResolution input).constitutiveFeedbackHistory.executedBits_exact
+    (executedHistory_bits_exact input (resolutionLength input)
+      (initialSequentialAssignment input)).symm
 
 theorem regression_stage_is_constructed_from_returned_discovery
     {depth : Nat} {assignment : SequentialAssignment depth}
@@ -821,8 +831,30 @@ theorem regression_feedback_failure_produces_nothing (depth : Nat) :
 
 theorem regression_failed_discovery_constructs_no_stage (depth : Nat) :
     (runThreadedNextDiscovery
-      (blockedNextDiscoveryState depth).state).outcome.discovered? = none :=
-  blocked_discovery_constructs_no_stage depth
+        (blockedNextDiscoveryState depth).state).outcome.discovered? = none ∧
+      (∀ fresh : ThreadedStateFreshForNext (blockedNextDiscoveryState depth).state,
+        executeThreadedConstitutiveStage
+          (blockedNextDiscoveryState depth).state fresh = none) := by
+  have failed := blocked_discovery_constructs_no_stage depth
+  constructor
+  · exact failed
+  · intro fresh
+    simp [executeThreadedConstitutiveStage, failed]
+
+theorem regression_blocked_discovery_has_no_success_witness (depth : Nat) :
+    ¬ ∃ discovery,
+      (runThreadedNextDiscovery
+        (blockedNextDiscoveryState depth).state).outcome.discovered? = some discovery := by
+  intro witness
+  rcases witness with ⟨discovery, found⟩
+  rw [blocked_discovery_constructs_no_stage depth] at found
+  cases found
+
+theorem regression_blocked_carrier_is_genuine_child (depth : Nat) :
+    (blockedNextDiscoveryCarrier depth).context.decisions =
+      ⟨stageAnchorVar ((depth + 1) + 1), true⟩ ::
+        (blockedNextDiscoveryChild depth).context.decisions := by
+  rw [blockedNextDiscoveryCarrier_decisions, blockedNextDiscoveryChild_decisions]
 
 theorem regression_blocked_state_is_constructed_from_child (depth : Nat) :
     (blockedNextDiscoveryState depth).state.decisions =
@@ -997,6 +1029,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_code_is_from_discovered_relation
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_failure_produces_nothing
 #print axioms ConstitutiveSearch.NPAndOrP.regression_failed_discovery_constructs_no_stage
+#print axioms ConstitutiveSearch.NPAndOrP.regression_blocked_discovery_has_no_success_witness
+#print axioms ConstitutiveSearch.NPAndOrP.regression_blocked_carrier_is_genuine_child
 #print axioms ConstitutiveSearch.NPAndOrP.regression_blocked_state_is_constructed_from_child
 #print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_share_executed_origin
 #print axioms ConstitutiveSearch.NPAndOrP.regression_separator_states_are_complete_and_distinct
