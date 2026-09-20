@@ -27,19 +27,26 @@ if [[ "$failures" -ne 0 ]]; then
   exit 1
 fi
 
+main_output="$(mktemp)"
 audit_output="$(mktemp)"
-trap 'rm -f "$audit_output"' EXIT
+trap 'rm -f "$main_output" "$audit_output"' EXIT
 
 set +e
+lake build 2>&1 | tee "$main_output"
+main_status="${PIPESTATUS[0]}"
 lake build AuditRegression 2>&1 | tee "$audit_output"
-build_status="${PIPESTATUS[0]}"
+audit_status="${PIPESTATUS[0]}"
 set -e
 
-if [[ "$build_status" -ne 0 ]]; then
-  exit "$build_status"
+if [[ "$main_status" -ne 0 ]]; then
+  exit "$main_status"
 fi
 
-if grep -Eq 'depends on axioms:|sorryAx' "$audit_output"; then
+if [[ "$audit_status" -ne 0 ]]; then
+  exit "$audit_status"
+fi
+
+if grep -Eq 'depends on axioms:|sorryAx' "$main_output" "$audit_output"; then
   printf 'Axiom dependency detected in audited declarations.\n' >&2
   exit 1
 fi
