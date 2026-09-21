@@ -794,6 +794,28 @@ theorem regression_next_discovery_consumes_produced_provenance
           nextDiscovery.generated.extraction.candidates).visits :=
   run.nextDiscoveryConsumesProducedProvenance
 
+theorem regression_feedback_search_seed_from_produced_state
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    run.nextRun.next.searchSeed = executedProducedSearchSeed stage :=
+  run.nextRun.searchSeedFromProducedState
+
+theorem regression_next_discovery_consumes_retained_search_seed
+    {depth : Nat} {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+    run.nextRun.next.searchSeed = executedProducedSearchSeed stage ∧
+      nextDiscovery.generated =
+        measuredGeneratedExtractionFromSeed
+          run.nextRun.next.generation
+          run.nextRun.next.searchSeed
+          run.nextRun.next.searchSeedExact :=
+  run.nextDiscoveryConsumesRetainedSearchSeed
+
 theorem regression_next_operational_state_consumes_generated_target
     {depth : Nat} {assignment : SequentialAssignment depth}
     {state : ThreadedConstitutiveState depth assignment}
@@ -1028,6 +1050,8 @@ end ConstitutiveSearch
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_next_contains_executed_output_and_and_history
 #print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_provenance_from_scheduled_operation
 #print axioms ConstitutiveSearch.NPAndOrP.regression_next_discovery_consumes_produced_provenance
+#print axioms ConstitutiveSearch.NPAndOrP.regression_feedback_search_seed_from_produced_state
+#print axioms ConstitutiveSearch.NPAndOrP.regression_next_discovery_consumes_retained_search_seed
 #print axioms ConstitutiveSearch.NPAndOrP.regression_next_operational_state_consumes_generated_target
 #print axioms ConstitutiveSearch.NPAndOrP.regression_old_input_cannot_replace_feedback_output
 #print axioms ConstitutiveSearch.NPAndOrP.regression_other_and_history_changes_next_discovery

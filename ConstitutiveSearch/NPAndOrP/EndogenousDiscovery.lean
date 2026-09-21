@@ -153,33 +153,80 @@ structure GeneratedDiscoveryBundle {depth : Nat} (generation : CanonicalStageGen
   recordedExact : recorded = stageRecordedDiscoveryRun (depth + 1)
   realizationWork : ComparisonWork
 
-/-- Realization and extraction only.  In particular this bundle performs no
-candidate exploration; the caller owns the unique exploration pass. -/
+/-- Search seed read from the target actually produced by constitutive generation. -/
+def generatedSearchSeed {depth : Nat}
+    (generation : CanonicalStageGeneration depth) : Nat :=
+  2 * positiveDepth generation.target
+
+theorem generatedSearchSeed_exact {depth : Nat}
+    (generation : CanonicalStageGeneration depth) :
+    generatedSearchSeed generation =
+      (constructStage (depth + 1)).searchIndex := by
+  unfold generatedSearchSeed
+  rw [generation.targetExact]
+  rfl
+
+/-- Realization and extraction only.  The operational root is retained as data
+so the same root produced from the causal search seed is used by extraction and
+the later exploration pass. -/
 structure GeneratedExtractionBundle {depth : Nat}
     (generation : CanonicalStageGeneration depth) where
+  operationalRoot :
+    GeneratedStructuralBranchContext
+      (distinctGrowingDiscoveryFormula (constructStage (depth + 1)).searchIndex)
+  operationalRootExact :
+    operationalRoot = (constructStage (depth + 1)).operationalRoot
   extraction : CandidateExtractionRun
   extractionExact : extraction =
     (stageRecordedDiscoveryRun (depth + 1)).extraction
   realizationWork : ComparisonWork
 
+/-- Build the next operational root from an explicitly supplied causal seed,
+then transport only its index to the canonical type.  The root itself is not
+reconstructed after the transport. -/
+def measuredGeneratedExtractionFromSeed {depth : Nat}
+    (generation : CanonicalStageGeneration depth)
+    (searchSeed : Nat)
+    (searchSeedExact : searchSeed = generatedSearchSeed generation) :
+    GeneratedExtractionBundle generation :=
+  let realized := constructMeasuredOperationalRoot searchSeed
+  let seedExact :
+      searchSeed = (constructStage (depth + 1)).searchIndex :=
+    Eq.trans searchSeedExact (generatedSearchSeed_exact generation)
+  let indexed := Eq.rec
+    (motive := fun index _ =>
+      GeneratedStructuralBranchContext (distinctGrowingDiscoveryFormula index))
+    realized.value
+    seedExact
+  have rootExact :
+      indexed = (constructStage (depth + 1)).operationalRoot := by
+    cases seedExact
+    dsimp only [indexed]
+    exact Eq.trans realized.valueExact
+      (constructStage (depth + 1)).operationalRootExact.symm
+  let extraction := runCandidateExtraction indexed
+  { operationalRoot := indexed
+    operationalRootExact := rootExact
+    extraction := extraction
+    extractionExact := by
+      rw [rootExact]
+      rfl
+    realizationWork := realized.work }
+
 def measuredGeneratedExtraction {depth : Nat}
     (generation : CanonicalStageGeneration depth) :
     GeneratedExtractionBundle generation :=
-  let realized := constructMeasuredOperationalRoot (2 * positiveDepth generation.target)
-  let measured := runCandidateExtraction realized.value
-  let recorded := Eq.rec (motive := fun state _ => CandidateExtractionRun)
-    measured realized.valueExact
-  let indexed := Eq.rec (motive := fun target _ => CandidateExtractionRun)
-    recorded generation.targetExact
-  { extraction := indexed
-    extractionExact := by
-      cases generation with
-      | mk target targetExact generated =>
-        cases targetExact
-        dsimp only [indexed, recorded, measured]
-        cases realized with
-        | mk value same work => cases same; rfl
-    realizationWork := realized.work }
+  measuredGeneratedExtractionFromSeed generation
+    (generatedSearchSeed generation) rfl
+
+theorem measuredGeneratedExtractionFromSeed_eq {depth : Nat}
+    (generation : CanonicalStageGeneration depth)
+    (searchSeed : Nat)
+    (searchSeedExact : searchSeed = generatedSearchSeed generation) :
+    measuredGeneratedExtractionFromSeed generation searchSeed searchSeedExact =
+      measuredGeneratedExtraction generation := by
+  cases searchSeedExact
+  rfl
 
 /-- Build the operational formula from the produced state before discovery. -/
 def measuredGeneratedDiscovery {depth : Nat}
@@ -750,6 +797,10 @@ end NPAndOrP
 end ConstitutiveSearch
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.NPAndOrP.generatedSearchSeed
+#print axioms ConstitutiveSearch.NPAndOrP.generatedSearchSeed_exact
+#print axioms ConstitutiveSearch.NPAndOrP.measuredGeneratedExtractionFromSeed
+#print axioms ConstitutiveSearch.NPAndOrP.measuredGeneratedExtractionFromSeed_eq
 #print axioms ConstitutiveSearch.NPAndOrP.measuredGeneratedDiscovery
 #print axioms ConstitutiveSearch.NPAndOrP.runRecordedDiscovery
 #print axioms ConstitutiveSearch.NPAndOrP.generatedRecordedDiscoveryRun

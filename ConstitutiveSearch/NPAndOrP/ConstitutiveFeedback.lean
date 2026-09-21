@@ -102,6 +102,8 @@ structure ThreadedConstitutiveState (depth : Nat)
   threadedAssignment : SequentialAssignment depth
   threadedAssignmentExact : threadedAssignment = assignment
   generation : CanonicalStageGeneration depth
+  searchSeed : Nat
+  searchSeedExact : searchSeed = generatedSearchSeed generation
   decisions : List StructuralBranchDecision
   provenance : List Var
   provenanceExact : provenance = decisions.map (fun decision => decision.var)
@@ -121,6 +123,8 @@ def initialThreadedConstitutiveState (depth : Nat) :
   { threadedAssignment := initialSequentialAssignment depth
     threadedAssignmentExact := rfl
     generation := generateCanonicalStage depth
+    searchSeed := generatedSearchSeed (generateCanonicalStage depth)
+    searchSeedExact := rfl
     decisions := []
     provenance := []
     provenanceExact := rfl
@@ -852,20 +856,32 @@ structure FeedbackDiscoveryFromDataRun (depth : Nat)
 
 def runFeedbackDiscoveryFromData (depth : Nat)
     (generation : CanonicalStageGeneration depth)
-    (provenance : List Var) :
+    (provenance : List Var)
+    (searchSeed : Nat)
+    (searchSeedExact : searchSeed = generatedSearchSeed generation) :
     FeedbackDiscoveryFromDataRun depth generation provenance :=
-  let generated := measuredGeneratedExtraction generation
+  let generated :=
+    measuredGeneratedExtractionFromSeed generation searchSeed searchSeedExact
   let filtering :=
     filterCandidatesByProvenance provenance generated.extraction.candidates
   let candidates := filtering.retained
+  let producedOutcome :=
+    exploreRecordedCandidates generated.operationalRoot candidates
+  let outcome := Eq.rec
+    (motive := fun state _ => RecordedDiscoveryOutcome state)
+    producedOutcome
+    generated.operationalRootExact
   { generated := generated
-    generatedExact := rfl
+    generatedExact :=
+      measuredGeneratedExtractionFromSeed_eq generation searchSeed searchSeedExact
     filtering := filtering
     filteringExact := rfl
     candidates := candidates
     candidatesExact := rfl
-    outcome := exploreRecordedCandidates (constructStage (depth + 1)).operationalRoot candidates
-    outcomeExact := rfl }
+    outcome := outcome
+    outcomeExact := by
+      cases generated.operationalRootExact
+      rfl }
 
 /-- Discovery executed from a generated target after consuming the material
 provenance index transmitted by prior stages.  The richer AND decisions remain
@@ -875,6 +891,10 @@ structure ThreadedNextDiscoveryRun (depth : Nat)
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment) where
   generated : GeneratedExtractionBundle state.generation
+  generatedFromSearchSeed :
+    generated =
+      measuredGeneratedExtractionFromSeed
+        state.generation state.searchSeed state.searchSeedExact
   generatedExact : generated = measuredGeneratedExtraction state.generation
   filtering :
     CandidateProvenanceFilterRun state.provenance generated.extraction.candidates
@@ -890,8 +910,13 @@ def runThreadedNextDiscovery {depth : Nat}
     {assignment : SequentialAssignment depth}
     (state : ThreadedConstitutiveState depth assignment) :
     ThreadedNextDiscoveryRun depth state :=
-  let core := runFeedbackDiscoveryFromData depth state.generation state.provenance
+  let core :=
+    runFeedbackDiscoveryFromData depth state.generation state.provenance
+      state.searchSeed state.searchSeedExact
   { generated := core.generated
+    generatedFromSearchSeed := by
+      unfold core runFeedbackDiscoveryFromData
+      rfl
     generatedExact := core.generatedExact
     filtering := core.filtering
     filteringExact := core.filteringExact
@@ -963,8 +988,11 @@ theorem runThreadedNextDiscovery_discovered_exact {depth : Nat}
   have preserved := exploreRecordedCandidates_filter_failed
     (constructStage (depth + 1)).operationalRoot state.decisions candidates
       removedFailDecisions
-  unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
-  dsimp only
+  let run := runThreadedNextDiscovery state
+  change run.outcome.discovered? =
+    (stageRecordedDiscoveryRun (depth + 1)).outcome.discovered?
+  rw [run.outcomeExact]
+  rw [run.candidatesExact, run.filteringExact, run.generatedExact]
   rw [state.provenanceExact]
   rw [filterCandidatesByProvenance_retained_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
@@ -993,8 +1021,13 @@ theorem runThreadedNextDiscovery_work_le_canonical {depth : Nat}
   have bounded := exploreRecordedCandidates_filter_total_le
     (constructStage (depth + 1)).operationalRoot state.decisions candidates
       removedFailDecisions
-  unfold runThreadedNextDiscovery runFeedbackDiscoveryFromData
-  dsimp only
+  let run := runThreadedNextDiscovery state
+  change
+    (run.outcome.comparisonWork.add run.outcome.constructionWork).total ≤
+      ((stageRecordedDiscoveryRun (depth + 1)).outcome.comparisonWork.add
+        (stageRecordedDiscoveryRun (depth + 1)).outcome.constructionWork).total
+  rw [run.outcomeExact]
+  rw [run.candidatesExact, run.filteringExact, run.generatedExact]
   rw [state.provenanceExact]
   rw [filterCandidatesByProvenance_retained_decisions]
   rw [(measuredGeneratedExtraction state.generation).extractionExact]
@@ -1069,6 +1102,41 @@ theorem stageNext_preserves_threadedDecisions {depth : Nat}
   rw [sequentialStage_selected_exact]
   exact different
 
+/-- The useful variable of one stage is exactly the search index that will
+parameterize the following stage. -/
+theorem stageSelectedVar_eq_nextSearchIndex (depth : Nat) :
+    stageSelectedVar depth = (constructStage (depth + 1)).searchIndex := by
+  unfold stageSelectedVar growingDiscoverySplitVar
+  rw [generateCanonicalStage_searchIndex_advances]
+
+/-- Read the newest decision variable from the state actually produced by the
+executed P transport.  The empty case is unreachable for a valid execution and
+is discharged extensionally by the exactness theorem below. -/
+def executedProducedSearchSeed {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) : Var :=
+  match stage.execution.producedState.context.decisions with
+  | [] => 0
+  | decision :: _ => decision.var
+
+theorem executedProducedSearchSeed_eq_scheduleEntry {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) :
+    executedProducedSearchSeed stage = stage.schedule.entry.var := by
+  unfold executedProducedSearchSeed
+  rw [stage.execution.producedStateExact]
+  rw [stage.scheduleExact]
+  rfl
+
+theorem executedProducedSearchSeed_eq_nextSearchIndex {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    (stage : SequentialStageRun depth assignment) :
+    executedProducedSearchSeed stage =
+      (constructStage ((depth + 1) + 1)).searchIndex := by
+  rw [executedProducedSearchSeed_eq_scheduleEntry,
+    sequentialStage_selected_exact]
+  exact stageSelectedVar_eq_nextSearchIndex (depth + 1)
+
 /-- The AND determination is formed from the bit returned by the executed
 transport.  Its canonical `true` value is a theorem about that execution,
 not the datum used to construct the determination. -/
@@ -1098,6 +1166,8 @@ structure NextOperationalStateRun {depth : Nat}
   provenanceRun : ProvenancePrependRun state.provenance stage.schedule.entry.var
   next : ThreadedConstitutiveState (depth + 1) stage.next
   assignmentFromExecution : next.threadedAssignment.assignment = stage.next.assignment
+  searchSeedFromProducedState :
+    next.searchSeed = executedProducedSearchSeed stage
   generationFromProducedTarget :
     next.generation =
       generateCanonicalStageFromSource state.generation.target state.generation.targetExact
@@ -1139,6 +1209,14 @@ def realizeNextOperationalState {depth : Nat}
     { threadedAssignment := stage.next
       threadedAssignmentExact := rfl
       generation := nextGeneration
+      searchSeed := executedProducedSearchSeed stage
+      searchSeedExact := by
+        calc
+          executedProducedSearchSeed stage =
+              (constructStage ((depth + 1) + 1)).searchIndex :=
+            executedProducedSearchSeed_eq_nextSearchIndex stage
+          _ = generatedSearchSeed nextGeneration :=
+            (generatedSearchSeed_exact nextGeneration).symm
       decisions := executedDecision :: state.decisions
       provenance := provenanceRun.output
       provenanceExact := by
@@ -1150,6 +1228,7 @@ def realizeNextOperationalState {depth : Nat}
     { provenanceRun := provenanceRun
       next := next
       assignmentFromExecution := rfl
+      searchSeedFromProducedState := rfl
       generationFromProducedTarget := rfl
       decisionsFromExecutedOutput := rfl
       decisionsFromExecution := by
@@ -1238,6 +1317,26 @@ theorem ThreadedConstitutiveStageRun.nextDiscoveryConsumesProducedProvenance
       run.nextRun.provenanceFromScheduledOperation]
   · rw [nextDiscovery.filteringExact,
       run.nextRun.provenanceFromScheduledOperation]
+
+/-- The search root consumed by the next discovery is built from the seed
+read from the state actually produced by the preceding P execution. -/
+theorem ThreadedConstitutiveStageRun.nextDiscoveryConsumesRetainedSearchSeed
+    {depth : Nat}
+    {assignment : SequentialAssignment depth}
+    {state : ThreadedConstitutiveState depth assignment}
+    {stage : SequentialStageRun depth assignment}
+    (run : ThreadedConstitutiveStageRun state stage) :
+    let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+    run.nextRun.next.searchSeed = executedProducedSearchSeed stage ∧
+      nextDiscovery.generated =
+        measuredGeneratedExtractionFromSeed
+          run.nextRun.next.generation
+          run.nextRun.next.searchSeed
+          run.nextRun.next.searchSeedExact := by
+  let nextDiscovery := runThreadedNextDiscovery run.nextRun.next
+  exact
+    ⟨run.nextRun.searchSeedFromProducedState,
+      nextDiscovery.generatedFromSearchSeed⟩
 
 structure ConstructedThreadedStageRun {depth : Nat}
     {assignment : SequentialAssignment depth}
@@ -2050,6 +2149,8 @@ def erasedNextDiscoveryState (depth : Nat) :
     { threadedAssignment := retained.state.threadedAssignment
       threadedAssignmentExact := retained.state.threadedAssignmentExact
       generation := retained.state.generation
+      searchSeed := retained.state.searchSeed
+      searchSeedExact := retained.state.searchSeedExact
       decisions := []
       provenance := []
       provenanceExact := rfl
@@ -2234,6 +2335,8 @@ def blockedNextDiscoveryConstruction (depth : Nat) :
           threadedAssignmentExact :=
             (retainedNextDiscoveryState depth).state.threadedAssignmentExact
           generation := (retainedNextDiscoveryState depth).state.generation
+          searchSeed := (retainedNextDiscoveryState depth).state.searchSeed
+          searchSeedExact := (retainedNextDiscoveryState depth).state.searchSeedExact
           decisions := (blockedNextDiscoveryCarrier depth).context.decisions
           provenance :=
             (blockedNextDiscoveryCarrier depth).context.decisions.map
@@ -2444,6 +2547,10 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsAvoid_of_all_lt
 #print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveState.decisionsAvoidNext
 #print axioms ConstitutiveSearch.NPAndOrP.runFeedbackDiscoveryFromData
+#print axioms ConstitutiveSearch.NPAndOrP.stageSelectedVar_eq_nextSearchIndex
+#print axioms ConstitutiveSearch.NPAndOrP.executedProducedSearchSeed
+#print axioms ConstitutiveSearch.NPAndOrP.executedProducedSearchSeed_eq_scheduleEntry
+#print axioms ConstitutiveSearch.NPAndOrP.executedProducedSearchSeed_eq_nextSearchIndex
 #print axioms ConstitutiveSearch.NPAndOrP.runThreadedNextDiscovery
 #print axioms ConstitutiveSearch.NPAndOrP.filterCandidatesByHistory
 #print axioms ConstitutiveSearch.NPAndOrP.provenanceAvoidCheck
@@ -2466,6 +2573,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.NextOperationalStateRun.generationCanonical
 #print axioms ConstitutiveSearch.NPAndOrP.buildThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveStageRun.nextDiscoveryConsumesProducedProvenance
+#print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveStageRun.nextDiscoveryConsumesRetainedSearchSeed
 #print axioms ConstitutiveSearch.NPAndOrP.executeThreadedConstitutiveStage
 #print axioms ConstitutiveSearch.NPAndOrP.executeConstitutiveExecutionHistory
 #print axioms ConstitutiveSearch.NPAndOrP.ConstitutiveExecutionHistory.toSequentialHistory
