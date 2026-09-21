@@ -854,6 +854,18 @@ structure FeedbackDiscoveryFromDataRun (depth : Nat)
   outcomeExact : outcome = exploreRecordedCandidates
     (constructStage (depth + 1)).operationalRoot candidates
 
+theorem exploreRecordedCandidates_transport_exact
+    {rootFormula : Cnf}
+    {source target : GeneratedStructuralBranchContext rootFormula}
+    (same : source = target)
+    (candidates : List Var) :
+    Eq.rec (motive := fun state _ => RecordedDiscoveryOutcome state)
+        (exploreRecordedCandidates source candidates)
+        same =
+      exploreRecordedCandidates target candidates := by
+  cases same
+  rfl
+
 def runFeedbackDiscoveryFromData (depth : Nat)
     (generation : CanonicalStageGeneration depth)
     (provenance : List Var)
@@ -879,9 +891,9 @@ def runFeedbackDiscoveryFromData (depth : Nat)
     candidates := candidates
     candidatesExact := rfl
     outcome := outcome
-    outcomeExact := by
-      cases generated.operationalRootExact
-      rfl }
+    outcomeExact :=
+      exploreRecordedCandidates_transport_exact
+        generated.operationalRootExact candidates }
 
 /-- Discovery executed from a generated target after consuming the material
 provenance index transmitted by prior stages.  The richer AND decisions remain
@@ -2546,6 +2558,7 @@ end ConstitutiveSearch.NPAndOrP
 #print axioms ConstitutiveSearch.NPAndOrP.initialThreadedConstitutiveState_fresh
 #print axioms ConstitutiveSearch.NPAndOrP.structuralDecisionsAvoid_of_all_lt
 #print axioms ConstitutiveSearch.NPAndOrP.ThreadedConstitutiveState.decisionsAvoidNext
+#print axioms ConstitutiveSearch.NPAndOrP.exploreRecordedCandidates_transport_exact
 #print axioms ConstitutiveSearch.NPAndOrP.runFeedbackDiscoveryFromData
 #print axioms ConstitutiveSearch.NPAndOrP.stageSelectedVar_eq_nextSearchIndex
 #print axioms ConstitutiveSearch.NPAndOrP.executedProducedSearchSeed
