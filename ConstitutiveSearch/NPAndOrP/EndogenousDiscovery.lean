@@ -209,6 +209,7 @@ def measuredGeneratedExtractionFromSeed {depth : Nat}
     operationalRootExact := rootExact
     extraction := extraction
     extractionExact := by
+      dsimp only [extraction]
       rw [rootExact]
       rfl
     realizationWork := realized.work }
