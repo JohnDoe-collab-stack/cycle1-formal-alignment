@@ -1,0 +1,38 @@
+name: Historical lower-bound verification
+
+on:
+  push:
+    branches: ['research/historical-lower-bound-audit']
+  pull_request:
+    paths:
+      - 'ConstitutiveSearch/HistoricalErasure/LowerBound/**'
+      - 'scripts/verify-historical-lower-bound.sh'
+      - 'LOWER_BOUND_MANIFEST.sha256'
+      - '.github/workflows/historical-lower-bound.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Install repository-pinned toolchain
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
+        with:
+          build: 'false'
+      - name: Compile, audit, and run all lower-bound checks
+        shell: bash
+        run: |
+          log="$RUNNER_TEMP/lower-bound-full.log"
+          status=0
+          bash scripts/verify-historical-lower-bound.sh >"$log" 2>&1 || status=$?
+          printf 'Verification exit status: %s\n' "$status"
+          tail -n 130 "$log"
+          exit "$status"
