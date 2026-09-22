@@ -132,8 +132,8 @@ theorem accepts {guard : Bool} {input : Cell} (stage : Stage guard input)
   rw [stage.producedExact]
   exact applyCell_sound guard _ stage.certificate.property input accepted
 
-/-- Source-level ledger: discovery rows, validation rows, two children,
-    one application and one output-determination read. -/
+/-- Declared source-level ledger: discovery rows, validation rows, and four
+    fixed per-stage bookkeeping/application units. Not a machine-time model. -/
 def work {guard : Bool} {input : Cell} (stage : Stage guard input) : Nat :=
   stage.discovery.rowVisits + stage.validation.visits + 4
 
@@ -215,7 +215,10 @@ theorem history_is_output {guard : Bool} {cells : List Cell} (run : Execution gu
     run.history = decisionValues run.output := by
   induction run with
   | nil => rfl
-  | step stage tail ih => exact congrArg Nat.succ ih
+  | @step guard input rest stage tail ih =>
+    change stage.determination :: tail.history =
+      stage.determination :: decisionValues tail.output
+    exact congrArg (List.cons stage.determination) ih
 
 theorem program_length {guard : Bool} {cells : List Cell} (run : Execution guard cells) :
     run.program.length = cells.length := by
