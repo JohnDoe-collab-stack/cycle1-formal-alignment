@@ -215,7 +215,7 @@ theorem history_is_output {guard : Bool} {cells : List Cell} (run : Execution gu
     run.history = decisionValues run.output := by
   induction run with
   | nil => rfl
-  | step stage tail ih => exact congrArg (List.cons stage.determination) ih
+  | step stage tail ih => exact congrArg Nat.succ ih
 
 theorem program_length {guard : Bool} {cells : List Cell} (run : Execution guard cells) :
     run.program.length = cells.length := by
@@ -279,10 +279,11 @@ def normalizingTransport (n : Nat) (G : List Bool → Prop) (history : List Bool
     AcceptingContinuationTransport (chainSystem n G) history (retainedHistory n) where
   map := fun c =>
     let run := execute c.val
-    ⟨run.output, run.output_length.trans c.property.1,
-      ⟨[], by
-        rw [run.output_decisions, c.property.1]
-        exact (List.append_nil (retainedHistory n)).symm⟩⟩
+    have decisions : decisionValues run.output = retainedHistory n :=
+      run.output_decisions.trans
+        (congrArg (fun k => List.replicate k true) c.property.1)
+    ⟨run.output, ⟨run.output_length.trans c.property.1,
+      ⟨[], decisions.trans (List.append_nil (retainedHistory n)).symm⟩⟩⟩
   preservesAccept := by
     intro c accepted
     exact (execute c.val).preserves_acceptance G accepted
@@ -329,8 +330,10 @@ theorem branchWitness_correct (bits cores : List Bool) (same : bits.length = cor
     | cons z zs =>
       have tail := ih zs (Nat.succ.inj same)
       refine ⟨congrArg Nat.succ tail.1, ?_, ?_, ?_⟩
-      · exact congrArg (List.cons d) tail.2.1
-      · exact congrArg (List.cons z) tail.2.2.1
+      · change d :: decisionValues (branchWitness ds zs) = d :: ds
+        exact congrArg (List.cons d) tail.2.1
+      · change z :: coreValues (branchWitness ds zs) = z :: zs
+        exact congrArg (List.cons z) tail.2.2.1
       · change CellOK true (witnessCell d z) ∧
           ChainOK (witnessCell d z).outgoing (branchWitness ds zs)
         rw [witnessCell_outgoing]
