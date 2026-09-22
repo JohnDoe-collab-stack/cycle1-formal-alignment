@@ -128,7 +128,7 @@ theorem resetTable_apply (c : LocalContinuation) : resetTable.apply c = reset c 
 def localAcceptB (state : LocalState) (c : LocalContinuation) : Bool :=
   (!state.decision || (c.payload == c.core)) &&
   (!state.decision || state.guard) &&
-  (!c.nextDecision || state.decision || !(c.payload == c.core))
+  (!c.nextDecision || state.decision || !(c.payload == core))
 
 /-- Exactly the eight structural inputs; rejected inputs are not removed. -/
 def localRows : List LocalContinuation :=
@@ -143,7 +143,7 @@ structure RowCheck where
   deriving DecidableEq, Repr
 
 /-- The visit count forces traversal of the full supplied row list. -/
-def checkRows (guard : Bool) (t : PayloadTable) : List LocalContinuation → RowCheck
+@[noinline] def checkRows (guard : Bool) (t : PayloadTable) : List LocalContinuation → RowCheck
   | [] => ⟨true, 0⟩
   | c :: rest =>
       let tail := checkRows guard t rest
@@ -151,7 +151,7 @@ def checkRows (guard : Bool) (t : PayloadTable) : List LocalContinuation → Row
         localAcceptB (target guard) (t.apply c)
       ⟨thisRow && tail.valid, tail.visits + 1⟩
 
-def checkTable (guard : Bool) (t : PayloadTable) : RowCheck :=
+@[noinline] def checkTable (guard : Bool) (t : PayloadTable) : RowCheck :=
   checkRows guard t localRows
 
 theorem checkRows_visits (g : Bool) (t : PayloadTable) (rows : List LocalContinuation) :
@@ -213,7 +213,7 @@ structure Discovery (guard : Bool) where
   attempts : Nat
   rowVisits : Nat
 
-def searchTables (guard : Bool) : List PayloadTable → Discovery guard
+@[noinline] def searchTables (guard : Bool) : List PayloadTable → Discovery guard
   | [] => ⟨none, 0, 0⟩
   | t :: rest =>
       let checked := checkTable guard t
@@ -223,7 +223,7 @@ def searchTables (guard : Bool) : List PayloadTable → Discovery guard
         let tail := searchTables guard rest
         ⟨tail.result, tail.attempts + 1, tail.rowVisits + checked.visits⟩
 
-def discover (guard : Bool) : Discovery guard := searchTables guard payloadTables
+@[noinline] def discover (guard : Bool) : Discovery guard := searchTables guard payloadTables
 
 set_option maxRecDepth 4096 in
 theorem discover_true_found : (discover true).result ≠ none := by decide
