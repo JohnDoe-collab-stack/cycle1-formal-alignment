@@ -110,10 +110,9 @@ theorem branches_length (n : Nat) : (branches n).length = 2 ^ n := by
       (branches (n + 1)).length =
           ((branches n).map (List.cons false)).length +
           ((branches n).map (List.cons true)).length := length_append_exact _ _
-      _ = (branches n).length + (branches n).length :=
-        congrArg₂ Nat.add (length_map_exact (List.cons false) (branches n))
-          (length_map_exact (List.cons true) (branches n))
-      _ = 2 ^ n + 2 ^ n := congrArg₂ Nat.add ih ih
+      _ = (branches n).length + (branches n).length := by
+        rw [length_map_exact, length_map_exact]
+      _ = 2 ^ n + 2 ^ n := congrArg (fun x : Nat => x + x) ih
       _ = 2 ^ n * 2 := (Nat.mul_two _).symm
       _ = 2 ^ (n + 1) := (Nat.pow_succ 2 n).symm
 
@@ -331,6 +330,14 @@ end ConstitutiveSearch.HistoricalErasure
 #print axioms ConstitutiveSearch.HistoricalErasure.reference_viable_iff_retained
 #print axioms ConstitutiveSearch.HistoricalErasure.all_reference_branches_viable
 #print axioms ConstitutiveSearch.HistoricalErasure.executed_width_cost
+#print axioms ConstitutiveSearch.HistoricalErasure.square_successor
+#print axioms ConstitutiveSearch.HistoricalErasure.square_le_pow_offset
+#print axioms Nat.le_trans
+#print axioms Nat.add_le_add_left
+#print axioms Nat.mul_le_mul_right
+#print axioms Nat.mul_le_mul_left
+#print axioms Nat.sub_add_cancel
+#print axioms Nat.le_sub_of_add_le
 #print axioms ConstitutiveSearch.HistoricalErasure.square_le_pow
 #print axioms ConstitutiveSearch.HistoricalErasure.exponential_dominates_ledger
 #print axioms ConstitutiveSearch.HistoricalErasure.amplification_unbounded
