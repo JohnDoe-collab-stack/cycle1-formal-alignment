@@ -38,6 +38,12 @@ def decisionValues (cells : List Cell) : List Bool := cells.map Cell.decision
 def Accepted (G : List Bool → Prop) (guard : Bool) (cells : List Cell) : Prop :=
   G (coreValues cells) ∧ ChainOK guard cells
 
+/-- Structural append identity, with no extensionality principle. -/
+theorem append_nil_exact {α : Type} (xs : List α) : xs ++ [] = xs := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => exact congrArg (List.cons x) ih
+
 /-- A true incoming guard weakens the first guard constraint, not the core. -/
 theorem chainOK_guard_true (guard : Bool) (cells : List Cell)
     (accepted : ChainOK guard cells) : ChainOK true cells := by
@@ -233,7 +239,7 @@ theorem work_exact {guard : Bool} {cells : List Cell} (run : Execution guard cel
   | @step guard input rest stage tail ih =>
     change stage.work + tail.work = 60 * (rest.length + 1)
     rw [stage.work_exact, ih, Nat.mul_add, Nat.mul_one]
-    omega
+    exact Nat.add_comm _ _
 
 theorem attempts_exact {guard : Bool} {cells : List Cell} (run : Execution guard cells) :
     run.attempts = 6 * cells.length := by
@@ -242,7 +248,7 @@ theorem attempts_exact {guard : Bool} {cells : List Cell} (run : Execution guard
   | @step guard input rest stage tail ih =>
     change stage.discovery.attempts + tail.attempts = 6 * (rest.length + 1)
     rw [stage.attempts_exact, ih, Nat.mul_add, Nat.mul_one]
-    omega
+    exact Nat.add_comm _ _
 
 theorem preserves_chain {guard : Bool} {cells : List Cell} (run : Execution guard cells) :
     ChainOK guard cells → ChainOK guard run.output := by
@@ -286,7 +292,7 @@ def normalizingTransport (n : Nat) (G : List Bool → Prop) (history : List Bool
       run.output_decisions.trans
         (congrArg (fun k => List.replicate k true) c.property.1)
     ⟨run.output, ⟨run.output_length.trans c.property.1,
-      ⟨[], decisions.trans (List.append_nil (retainedHistory n)).symm⟩⟩⟩
+      ⟨[], decisions.trans (append_nil_exact (retainedHistory n)).symm⟩⟩⟩
   preservesAccept := by
     intro c accepted
     exact (execute c.val).preserves_acceptance G accepted
@@ -307,10 +313,12 @@ def witnessCell (decision core : Bool) : Cell :=
   ⟨decision, if decision then core else !core, core⟩
 
 theorem witnessCell_valid (decision core : Bool) : CellOK true (witnessCell decision core) := by
-  cases decision <;> cases core <;> decide
+  cases decision with
+  | false => exact fun impossible => Bool.noConfusion impossible
+  | true => exact fun _ => ⟨rfl, rfl⟩
 
 theorem witnessCell_outgoing (decision core : Bool) : (witnessCell decision core).outgoing = true := by
-  cases decision <;> cases core <;> decide
+  cases decision <;> cases core <;> rfl
 
 def branchWitness : List Bool → List Bool → List Cell
   | [], _ => []
@@ -348,7 +356,7 @@ theorem every_branch_viable (n : Nat) (G : List Bool → Prop)
     (chainSystem n G).Viable bits := by
   have correct := branchWitness_correct bits cores (bitsLength.trans coresLength.symm)
   refine ⟨⟨branchWitness bits cores, correct.1.trans bitsLength,
-    ⟨[], correct.2.1.trans (List.append_nil bits).symm⟩⟩, ?_⟩
+    ⟨[], correct.2.1.trans (append_nil_exact bits).symm⟩⟩, ?_⟩
   change G (coreValues (branchWitness bits cores)) ∧ ChainOK true (branchWitness bits cores)
   rw [correct.2.2.1]
   exact ⟨coreAccepted, correct.2.2.2⟩
@@ -356,10 +364,13 @@ theorem every_branch_viable (n : Nat) (G : List Bool → Prop)
 end ConstitutiveSearch.HistoricalErasure
 
 /- AXIOM_AUDIT_BEGIN -/
+#print axioms ConstitutiveSearch.HistoricalErasure.append_nil_exact
 #print axioms ConstitutiveSearch.HistoricalErasure.ChainOK
 #print axioms ConstitutiveSearch.HistoricalErasure.applyCell_sound
 #print axioms ConstitutiveSearch.HistoricalErasure.buildStage
 #print axioms ConstitutiveSearch.HistoricalErasure.Stage.nextGuard_true
+#print axioms ConstitutiveSearch.HistoricalErasure.Stage.work_exact
+#print axioms ConstitutiveSearch.HistoricalErasure.Stage.attempts_exact
 #print axioms ConstitutiveSearch.HistoricalErasure.executeFrom
 #print axioms ConstitutiveSearch.HistoricalErasure.Execution.output_length
 #print axioms ConstitutiveSearch.HistoricalErasure.Execution.output_cores
@@ -370,6 +381,7 @@ end ConstitutiveSearch.HistoricalErasure
 #print axioms ConstitutiveSearch.HistoricalErasure.Execution.preserves_acceptance
 #print axioms ConstitutiveSearch.HistoricalErasure.normalizingTransport
 #print axioms ConstitutiveSearch.HistoricalErasure.root_viable_iff_retained
+#print axioms ConstitutiveSearch.HistoricalErasure.witnessCell_valid
 #print axioms ConstitutiveSearch.HistoricalErasure.branchWitness_correct
 #print axioms ConstitutiveSearch.HistoricalErasure.every_branch_viable
 /- AXIOM_AUDIT_END -/
