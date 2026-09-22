@@ -165,24 +165,6 @@ theorem checkTable_visits (g : Bool) (t : PayloadTable) :
 
 set_option maxRecDepth 4096 in
 set_option maxHeartbeats 2000000 in
-theorem truthTableSound : ∀ (g a b c d p z s : Bool),
-    (checkTable g ⟨a, b, c, d⟩).valid = true →
-    localAccept (source g) ⟨p, z, s⟩ →
-    localAccept (target g) ((PayloadTable.mk a b c d).apply ⟨p, z, s⟩) := by
-  unfold localAccept
-  decide
-
-theorem checkTable_sound (g : Bool) (t : PayloadTable)
-    (valid : (checkTable g t).valid = true) (continuation : LocalContinuation) :
-    localAccept (source g) continuation →
-      localAccept (target g) (t.apply continuation) := by
-  cases t with
-  | mk a b c d =>
-    cases continuation with
-    | mk p z s => exact truthTableSound g a b c d p z s valid
-
-set_option maxRecDepth 4096 in
-set_option maxHeartbeats 2000000 in
 theorem truthTableUnique : ∀ (g a b c d : Bool),
     (checkTable g ⟨a, b, c, d⟩).valid = true →
     g = true ∧ (PayloadTable.mk a b c d) = resetTable := by
@@ -192,6 +174,24 @@ theorem checkTable_unique (g : Bool) (t : PayloadTable)
     (valid : (checkTable g t).valid = true) : g = true ∧ t = resetTable := by
   cases t with
   | mk a b c d => exact truthTableUnique g a b c d valid
+
+theorem truthTableSound : ∀ (g a b c d p z s : Bool),
+    (checkTable g ⟨a, b, c, d⟩).valid = true →
+    localAccept (source g) ⟨p, z, s⟩ →
+    localAccept (target g) ((PayloadTable.mk a b c d).apply ⟨p, z, s⟩) := by
+  intro g a b c d p z s valid _accepted
+  have exactTable := truthTableUnique g a b c d valid
+  rw [exactTable.2, resetTable_apply]
+  exact ⟨(fun _ => rfl), (fun _ => exactTable.1), (fun _ => Or.inl rfl)⟩
+
+theorem checkTable_sound (g : Bool) (t : PayloadTable)
+    (valid : (checkTable g t).valid = true) (continuation : LocalContinuation) :
+    localAccept (source g) continuation →
+      localAccept (target g) (t.apply continuation) := by
+  cases t with
+  | mk a b c d =>
+    cases continuation with
+    | mk p z s => exact truthTableSound g a b c d p z s valid
 
 abbrev Certificate (guard : Bool) := {t : PayloadTable // (checkTable guard t).valid = true}
 
