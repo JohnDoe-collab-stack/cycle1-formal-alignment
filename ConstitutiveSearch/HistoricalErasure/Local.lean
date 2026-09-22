@@ -169,6 +169,7 @@ theorem truthTableSound : ∀ (g a b c d p z s : Bool),
     (checkTable g ⟨a, b, c, d⟩).valid = true →
     localAccept (source g) ⟨p, z, s⟩ →
     localAccept (target g) ((PayloadTable.mk a b c d).apply ⟨p, z, s⟩) := by
+  unfold localAccept
   decide
 
 theorem checkTable_sound (g : Bool) (t : PayloadTable)
@@ -206,7 +207,9 @@ def payloadTables : List PayloadTable :=
 
 theorem payloadTables_complete (t : PayloadTable) : t ∈ payloadTables := by
   cases t with
-  | mk a b c d => cases a <;> cases b <;> cases c <;> cases d <;> decide
+  | mk a b c d =>
+    cases a <;> cases b <;> cases c <;> cases d <;>
+      repeat first | exact List.Mem.head _ | apply List.Mem.tail
 
 structure Discovery (guard : Bool) where
   result : Option (Certificate guard)
@@ -246,7 +249,7 @@ theorem discoveredCertificate_from_run (g : Bool) (enabled : g = true) :
   split
   · rename_i found
     exact False.elim (by cases enabled; exact discover_true_found found)
-  · rfl
+  · assumption
 
 theorem discoveredCertificate_table (g : Bool) (enabled : g = true) :
     (discoveredCertificate g enabled).val = resetTable :=
@@ -259,6 +262,8 @@ end ConstitutiveSearch.HistoricalErasure
 #print axioms ConstitutiveSearch.HistoricalErasure.acceptedCollision
 #print axioms ConstitutiveSearch.HistoricalErasure.resetNoLeftInverse
 #print axioms ConstitutiveSearch.HistoricalErasure.blockedTransportImpossible
+#print axioms ConstitutiveSearch.HistoricalErasure.truthTableSound
+#print axioms ConstitutiveSearch.HistoricalErasure.truthTableUnique
 #print axioms ConstitutiveSearch.HistoricalErasure.checkTable_sound
 #print axioms ConstitutiveSearch.HistoricalErasure.checkTable_unique
 #print axioms ConstitutiveSearch.HistoricalErasure.Certificate.transport
