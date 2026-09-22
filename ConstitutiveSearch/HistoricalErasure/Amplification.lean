@@ -38,10 +38,14 @@ theorem branches_nodup (n : Nat) : (branches n).Nodup := by
       ((branches n).map (List.cons false) ++ (branches n).map (List.cons true))
     apply List.pairwise_append.mpr
     refine ⟨?_, ?_, ?_⟩
-    · exact List.Pairwise.map (List.cons false)
-        (fun _ _ different same => different (List.cons.inj same).2) ih
-    · exact List.Pairwise.map (List.cons true)
-        (fun _ _ different same => different (List.cons.inj same).2) ih
+    · exact List.Pairwise.map (R := fun a b : List Bool => a ≠ b)
+        (List.cons false)
+        (fun (a b : List Bool) (different : a ≠ b) (same : false :: a = false :: b) =>
+          different (List.cons.inj same).2) ih
+    · exact List.Pairwise.map (R := fun a b : List Bool => a ≠ b)
+        (List.cons true)
+        (fun (a b : List Bool) (different : a ≠ b) (same : true :: a = true :: b) =>
+          different (List.cons.inj same).2) ih
     · intro a ha b hb same
       rcases List.mem_map.mp ha with ⟨xs, _, hx⟩
       rcases List.mem_map.mp hb with ⟨ys, _, hy⟩
@@ -98,15 +102,22 @@ theorem executed_width_cost (cells : List Cell) :
   ⟨branches_length _, rfl, (execute cells).work_exact,
     (execute cells).attempts_exact, (execute cells).program_length⟩
 
+private theorem square_successor (m : Nat) :
+    (m + 1) * (m + 1) = m * m + m + m + 1 := by
+  calc
+    (m + 1) * (m + 1) = m * (m + 1) + 1 * (m + 1) :=
+      Nat.add_mul m 1 (m + 1)
+    _ = (m * m + m * 1) + (m + 1) := by rw [Nat.mul_add, Nat.one_mul]
+    _ = m * m + m + m + 1 := by rw [Nat.mul_one]; omega
+
 private theorem square_le_pow_offset (k : Nat) : (k + 4) * (k + 4) ≤ 2 ^ (k + 4) := by
   induction k with
   | zero => decide
   | succ k ih =>
     have three : 3 * (k + 4) ≤ (k + 4) * (k + 4) :=
       Nat.mul_le_mul_right (k + 4) (by omega : 3 ≤ k + 4)
+    have expanded := square_successor (k + 4)
     have nextSquare : (k + 5) * (k + 5) ≤ 2 * ((k + 4) * (k + 4)) := by
-      rw [show k + 5 = (k + 4) + 1 by omega]
-      simp only [Nat.add_mul, Nat.mul_add, Nat.one_mul, Nat.mul_one]
       omega
     calc
       (k + 1 + 4) * (k + 1 + 4) ≤ 2 * ((k + 4) * (k + 4)) := nextSquare
