@@ -172,11 +172,12 @@ theorem truthTableSound : ∀ (g a b c d p z s : Bool),
   decide
 
 theorem checkTable_sound (g : Bool) (t : PayloadTable)
-    (valid : (checkTable g t).valid = true) (c : LocalContinuation) :
-    localAccept (source g) c → localAccept (target g) (t.apply c) := by
+    (valid : (checkTable g t).valid = true) (continuation : LocalContinuation) :
+    localAccept (source g) continuation →
+      localAccept (target g) (t.apply continuation) := by
   cases t with
   | mk a b c d =>
-    cases c with
+    cases continuation with
     | mk p z s => exact truthTableSound g a b c d p z s valid
 
 set_option maxRecDepth 4096 in
