@@ -9,6 +9,7 @@ The general claims are theorems in Amplification, not inferred from these runs.
 
 The discovery and execution routines carry their compiler noinline attributes
 in their defining modules. No imported declaration is modified here.
+A single run produces a small observation record before IO rendering.
 -/
 
 namespace ConstitutiveSearch.HistoricalErasure.Regression
@@ -19,12 +20,12 @@ def Alternates : List Bool → Prop
   | [_] => True
   | a :: b :: rest => a ≠ b ∧ Alternates (b :: rest)
 
-def alternatingCore : Nat → Bool → List Bool
+@[noinline] def alternatingCore : Nat → Bool → List Bool
   | 0, _ => []
   | n + 1, bit => bit :: alternatingCore n (!bit)
 
 /-- All decisions start false; each outgoing source guard is nonetheless true. -/
-def sample (n : Nat) : List Cell :=
+@[noinline] def sample (n : Nat) : List Cell :=
   branchWitness (List.replicate n false) (alternatingCore n false)
 
 theorem discovery_has_real_failures : (discover true).attempts = 6 :=
@@ -62,22 +63,44 @@ theorem collision_inputs_accepted_and_distinct :
   · exact ⟨True.intro, ⟨(fun h => Bool.noConfusion h), True.intro⟩⟩
   · decide
 
-/-- Check only observations of the actual run, not a reference replay. -/
-def checkRun (n : Nat) : Bool :=
-  let input := sample n
-  let run := execute input
-  (input.length == n) && (run.output.length == n) &&
-    (coreValues run.output == coreValues input) &&
-    (decisionValues run.output == List.replicate n true) &&
-    (run.history == decisionValues run.output) &&
-    (run.program.length == n) && (run.attempts == 6 * n) && (run.work == 60 * n)
+structure RunObservation where
+  inputLength : Nat
+  outputLength : Nat
+  corePreserved : Bool
+  decisionsRetained : Bool
+  historyIsOutput : Bool
+  codeTables : Nat
+  attempts : Nat
+  rowEventLedger : Nat
+  deriving Repr
 
-def printRun (n : Nat) : IO Unit := do
+/-- Observe exactly one executed run; the exponential reference is not built. -/
+@[noinline] def observeRun (n : Nat) : RunObservation :=
   let input := sample n
   let run := execute input
-  unless checkRun n do
+  let output := run.output
+  let decisions := decisionValues output
+  { inputLength := input.length
+    outputLength := output.length
+    corePreserved := coreValues output == coreValues input
+    decisionsRetained := decisions == List.replicate n true
+    historyIsOutput := run.history == decisions
+    codeTables := run.program.length
+    attempts := run.attempts
+    rowEventLedger := run.work }
+
+@[noinline] def validObservation (n : Nat) (o : RunObservation) : Bool :=
+  (o.inputLength == n) && (o.outputLength == n) &&
+    o.corePreserved && o.decisionsRetained && o.historyIsOutput &&
+    (o.codeTables == n) && (o.attempts == 6 * n) && (o.rowEventLedger == 60 * n)
+
+@[noinline] def checkRun (n : Nat) : Bool := validObservation n (observeRun n)
+
+@[noinline] def printRun (n : Nat) : IO Unit := do
+  let observed := observeRun n
+  unless validObservation n observed do
     throw (IO.userError s!"historical erasure regression failed at depth {n}")
-  IO.println s!"depth={n}; referenceWidth={2 ^ n}; retainedWidth=1; attempts={run.attempts}; rowEventLedger={run.work}; codeTables={run.program.length}"
+  IO.println s!"depth={n}; referenceWidth={2 ^ n}; retainedWidth=1; attempts={observed.attempts}; rowEventLedger={observed.rowEventLedger}; codeTables={observed.codeTables}"
 
 def runChecks : IO Unit := do
   unless (discover false).result.isNone do
