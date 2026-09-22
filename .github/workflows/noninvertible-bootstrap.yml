@@ -21,17 +21,44 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/constitutive-bootstrap
+          mkdir -p /tmp/constitutive-bootstrap /tmp/constitutive-chunks
           lean --version | tee /tmp/constitutive-bootstrap/lean-version.txt
           git rev-parse HEAD | tee /tmp/constitutive-bootstrap/commit.txt
           prefix="$(lean --print-prefix)"
           tar --zstd -cf /tmp/constitutive-bootstrap/toolchain.tar.zst -C "$prefix" .
           tar --zstd --exclude=.git -cf /tmp/constitutive-bootstrap/workspace.tar.zst .
-          sha256sum /tmp/constitutive-bootstrap/*.tar.zst > /tmp/constitutive-bootstrap/SHA256SUMS
-      - name: Export reproducible compilation environment
-        uses: actions/upload-artifact@v4
+          (cd /tmp/constitutive-bootstrap && sha256sum *.tar.zst > SHA256SUMS)
+          tar -cf /tmp/constitutive-bootstrap.tar -C /tmp/constitutive-bootstrap .
+          split -b 200M -d -a 2 /tmp/constitutive-bootstrap.tar /tmp/constitutive-chunks/part
+          ls -lh /tmp/constitutive-chunks/
+      - uses: actions/upload-artifact@v4
         with:
-          name: constitutive-lean-bootstrap
-          path: /tmp/constitutive-bootstrap/
+          name: constitutive-bootstrap-00
+          path: /tmp/constitutive-chunks/part00
           retention-days: 2
           compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: constitutive-bootstrap-01
+          path: /tmp/constitutive-chunks/part01
+          retention-days: 2
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: constitutive-bootstrap-02
+          path: /tmp/constitutive-chunks/part02
+          retention-days: 2
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: constitutive-bootstrap-03
+          path: /tmp/constitutive-chunks/part03
+          retention-days: 2
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: constitutive-bootstrap-04
+          path: /tmp/constitutive-chunks/part04
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: ignore
