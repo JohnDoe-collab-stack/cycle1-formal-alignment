@@ -128,7 +128,7 @@ theorem resetTable_apply (c : LocalContinuation) : resetTable.apply c = reset c 
 def localAcceptB (state : LocalState) (c : LocalContinuation) : Bool :=
   (!state.decision || (c.payload == c.core)) &&
   (!state.decision || state.guard) &&
-  (!c.nextDecision || state.decision || !(c.payload == core))
+  (!c.nextDecision || state.decision || !(c.payload == c.core))
 
 /-- Exactly the eight structural inputs; rejected inputs are not removed. -/
 def localRows : List LocalContinuation :=
