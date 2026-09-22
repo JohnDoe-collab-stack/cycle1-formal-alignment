@@ -8,10 +8,21 @@ frontier is enumerated only at depth four in these tests, never at depth 64.
 The general claims are theorems in Amplification, not inferred from these runs.
 -/
 
--- The finite truth-table search can exceed the compiler's default inlining
--- budget when a closed Boolean guard is propagated. This changes compilation
--- only; it introduces no proof axiom and does not bypass the kernel.
-set_option compiler.maxRecInlineIfReduce 128
+-- Keep the already compiled discovery and execution routines as calls instead
+-- of expanding their recursion into each regression. These compiler attributes
+-- do not change definitions, proofs, or the kernel reduction rules.
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.discover
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.searchTables
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.checkRows
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.checkTable
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.buildStage
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.executeFrom
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.execute
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.Execution.output
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.Execution.history
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.Execution.program
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.Execution.work
+attribute [noinline] ConstitutiveSearch.HistoricalErasure.Execution.attempts
 
 namespace ConstitutiveSearch.HistoricalErasure.Regression
 
