@@ -1,0 +1,37 @@
+name: Prepare constitutive amplification toolchain
+
+on:
+  push:
+    branches: [research/noninvertible-constitutive-amplification]
+    paths: [.github/workflows/noninvertible-bootstrap.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out audited baseline
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build pinned Lean baseline
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
+      - name: Package public compiler and checked source workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/constitutive-bootstrap
+          lean --version | tee /tmp/constitutive-bootstrap/lean-version.txt
+          git rev-parse HEAD | tee /tmp/constitutive-bootstrap/commit.txt
+          prefix="$(lean --print-prefix)"
+          tar --zstd -cf /tmp/constitutive-bootstrap/toolchain.tar.zst -C "$prefix" .
+          tar --zstd --exclude=.git -cf /tmp/constitutive-bootstrap/workspace.tar.zst .
+          sha256sum /tmp/constitutive-bootstrap/*.tar.zst > /tmp/constitutive-bootstrap/SHA256SUMS
+      - name: Export reproducible compilation environment
+        uses: actions/upload-artifact@v4
+        with:
+          name: constitutive-lean-bootstrap
+          path: /tmp/constitutive-bootstrap/
+          retention-days: 2
+          compression-level: 0
