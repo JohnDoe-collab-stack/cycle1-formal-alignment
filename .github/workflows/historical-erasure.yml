@@ -22,8 +22,21 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-      - name: Build original project with pinned toolchain
+      - name: Install pinned toolchain (full build runs in verification script)
         uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
+        with:
+          build: 'false'
       - name: Compile every extension module, execute regressions, verify constructive audits
         shell: bash
-        run: bash scripts/verify-historical-erasure.sh
+        run: |
+          log="$RUNNER_TEMP/historical-erasure-full.log"
+          status=0
+          bash scripts/verify-historical-erasure.sh >"$log" 2>&1 || status=$?
+          printf 'Verification exit status: %s\n' "$status"
+          if [ "$status" -ne 0 ]; then
+            tail -n 180 "$log"
+          else
+            grep -E '^(Commit:|Lean \(version|HISTORICAL_ERASURE_)' "$log" || true
+            tail -n 30 "$log"
+          fi
+          exit "$status"
