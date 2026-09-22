@@ -1,0 +1,38 @@
+name: Historical erasure verification
+
+on:
+  push:
+    branches: ['research/noninvertible-historical-amplification']
+  pull_request:
+    paths: ['ConstitutiveSearch/HistoricalErasure/**', '.github/workflows/historical-erasure.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build original project with pinned toolchain
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
+      - name: Compile extension and inspect all emitted axiom audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean/ConstitutiveSearch/HistoricalErasure
+          for module in Local Chain Amplification Regression; do
+            source="ConstitutiveSearch/HistoricalErasure/$module.lean"
+            if [ -f "$source" ]; then
+              lake env lean -o ".lake/build/lib/lean/ConstitutiveSearch/HistoricalErasure/$module.olean" -c "/tmp/HistoricalErasure_$module.c" "$source" 2>&1 | tee "/tmp/HistoricalErasure_$module.log"
+              if grep -E 'depends on axioms:|sorryAx|error:' "/tmp/HistoricalErasure_$module.log"; then exit 1; fi
+              grep -q 'does not depend on any axioms' "/tmp/HistoricalErasure_$module.log"
+            fi
+          done
+      - name: Repository constructive audit
+        run: bash scripts/verify-axiom-audits.sh
+      - name: Verify original scientific manifest
+        run: bash scripts/verify-manifest.sh
