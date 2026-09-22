@@ -128,8 +128,8 @@ theorem exponential_dominates_ledger (K n : Nat) (large : 60 * K + 5 ≤ n) :
   have lower : (60 * K + 1) * n ≤ n * n :=
     Nat.mul_le_mul_right n (by omega : 60 * K + 1 ≤ n)
   rw [Nat.add_mul, Nat.one_mul] at lower
-  have rearrange : (60 * K) * n = K * (60 * n) := by
-    rw [Nat.mul_assoc, Nat.mul_comm 60 K, Nat.mul_assoc]
+  have rearrange : (60 * K) * n = K * (60 * n) :=
+    (congrArg (fun t => t * n) (Nat.mul_comm 60 K)).trans (Nat.mul_assoc K 60 n)
   rw [rearrange] at lower
   omega
 
