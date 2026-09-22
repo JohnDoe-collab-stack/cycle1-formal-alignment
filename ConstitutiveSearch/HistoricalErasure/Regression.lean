@@ -8,6 +8,11 @@ frontier is enumerated only at depth four in these tests, never at depth 64.
 The general claims are theorems in Amplification, not inferred from these runs.
 -/
 
+-- The finite truth-table search can exceed the compiler's default inlining
+-- budget when a closed Boolean guard is propagated. This changes compilation
+-- only; it introduces no proof axiom and does not bypass the kernel.
+set_option compiler.maxRecInlineIfReduce 128
+
 namespace ConstitutiveSearch.HistoricalErasure.Regression
 
 /-- A coupled core: neighboring core coordinates must differ. -/
@@ -37,7 +42,9 @@ theorem reference_four_distinct :
     (branches 4).length = 16 ∧ (branches 4).Nodup :=
   ⟨branches_length 4, branches_nodup 4⟩
 
-theorem coupled_core_accepted : Alternates [false, true, false, true] := by decide
+theorem coupled_core_accepted : Alternates [false, true, false, true] := by
+  change (false ≠ true) ∧ (true ≠ false) ∧ (false ≠ true) ∧ True
+  decide
 
 theorem every_four_bit_branch_viable :
     ∀ history, history ∈ branches 4 → (chainSystem 4 Alternates).Viable history :=
@@ -51,9 +58,13 @@ theorem actual_execution_collision :
 theorem collision_inputs_accepted_and_distinct :
     Accepted (fun _ => True) true [Cell.mk false false false] ∧
     Accepted (fun _ => True) true [Cell.mk false true false] ∧
-    [Cell.mk false false false] ≠ [Cell.mk false true false] := by decide
+    [Cell.mk false false false] ≠ [Cell.mk false true false] := by
+  refine ⟨?_, ?_, ?_⟩
+  · exact ⟨True.intro, ⟨(fun h => Bool.noConfusion h), True.intro⟩⟩
+  · exact ⟨True.intro, ⟨(fun h => Bool.noConfusion h), True.intro⟩⟩
+  · decide
 
-/-- Check only observations of the one actual run, not a reference replay. -/
+/-- Check only observations of the actual run, not a reference replay. -/
 def checkRun (n : Nat) : Bool :=
   let input := sample n
   let run := execute input
