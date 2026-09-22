@@ -32,5 +32,15 @@ grep -q '^HISTORICAL_ERASURE_REGRESSIONS_PASSED$' "$log_dir/execution.log"
 
 bash scripts/verify-axiom-audits.sh 2>&1 | tee "$log_dir/constructive-audit.log"
 bash scripts/verify-manifest.sh 2>&1 | tee "$log_dir/manifest.log"
-git diff --check
+
+# Check every committed change against the audited base. The original manifest
+# is verified above; its pre-existing checkout line endings are not new code.
+base_commit=528ba7a8c95cb7626655597cab511c221e23364a
+git cat-file -e "$base_commit^{commit}"
+git diff --check "$base_commit" HEAD
+# Also reject whitespace errors introduced in the extension working tree.
+git diff --check -- \
+  ConstitutiveSearch/HistoricalErasure \
+  scripts/verify-historical-erasure.sh \
+  .github/workflows/historical-erasure.yml
 printf 'HISTORICAL_ERASURE_VERIFIED commit=%s\n' "$(git rev-parse HEAD)"
