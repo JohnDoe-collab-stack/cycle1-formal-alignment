@@ -92,7 +92,7 @@ structure Stage (guard : Bool) (input : Cell) where
   produced : Cell
   producedExact : produced = applyCell certificate.val input
 
-def buildStage (guard : Bool) (enabled : guard = true) (input : Cell) : Stage guard input :=
+@[noinline] def buildStage (guard : Bool) (enabled : guard = true) (input : Cell) : Stage guard input :=
   let searched := discover guard
   match found : searched.result with
   | none => False.elim (by cases enabled; exact discover_true_found found)
@@ -159,33 +159,33 @@ inductive Execution : Bool → List Cell → Type where
       (tail : Execution stage.nextGuard rest) : Execution guard (input :: rest)
 
 /-- One authoritative recursion. No accepted continuation is required. -/
-def executeFrom : (cells : List Cell) → (guard : Bool) → guard = true → Execution guard cells
+@[noinline] def executeFrom : (cells : List Cell) → (guard : Bool) → guard = true → Execution guard cells
   | [], guard, _ => .nil guard
   | input :: rest, guard, enabled =>
       let stage := buildStage guard enabled input
       .step stage (executeFrom rest stage.nextGuard stage.nextGuard_true)
 
-def execute (cells : List Cell) : Execution true cells := executeFrom cells true rfl
+@[noinline] def execute (cells : List Cell) : Execution true cells := executeFrom cells true rfl
 
 namespace Execution
 
-def output : {guard : Bool} → {cells : List Cell} → Execution guard cells → List Cell
+@[noinline] def output : {guard : Bool} → {cells : List Cell} → Execution guard cells → List Cell
   | _, _, .nil _ => []
   | _, _, .step stage tail => stage.produced :: tail.output
 
-def history : {guard : Bool} → {cells : List Cell} → Execution guard cells → List Bool
+@[noinline] def history : {guard : Bool} → {cells : List Cell} → Execution guard cells → List Bool
   | _, _, .nil _ => []
   | _, _, .step stage tail => stage.determination :: tail.history
 
-def program : {guard : Bool} → {cells : List Cell} → Execution guard cells → List PayloadTable
+@[noinline] def program : {guard : Bool} → {cells : List Cell} → Execution guard cells → List PayloadTable
   | _, _, .nil _ => []
   | _, _, .step stage tail => stage.certificate.val :: tail.program
 
-def work : {guard : Bool} → {cells : List Cell} → Execution guard cells → Nat
+@[noinline] def work : {guard : Bool} → {cells : List Cell} → Execution guard cells → Nat
   | _, _, .nil _ => 0
   | _, _, .step stage tail => stage.work + tail.work
 
-def attempts : {guard : Bool} → {cells : List Cell} → Execution guard cells → Nat
+@[noinline] def attempts : {guard : Bool} → {cells : List Cell} → Execution guard cells → Nat
   | _, _, .nil _ => 0
   | _, _, .step stage tail => stage.discovery.attempts + tail.attempts
 
