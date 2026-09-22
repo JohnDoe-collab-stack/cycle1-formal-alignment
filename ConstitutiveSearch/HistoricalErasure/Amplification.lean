@@ -22,55 +22,161 @@ def branches : Nat → List (List Bool)
   | 0 => [[]]
   | n + 1 => (branches n).map (List.cons false) ++ (branches n).map (List.cons true)
 
+private theorem length_append_exact {α : Type} (xs ys : List α) :
+    (xs ++ ys).length = xs.length + ys.length := by
+  induction xs with
+  | nil => exact (Nat.zero_add _).symm
+  | cons x xs ih =>
+    exact (congrArg Nat.succ ih).trans (Nat.succ_add _ _).symm
+
+private theorem length_map_exact {α β : Type} (f : α → β) (xs : List α) :
+    (xs.map f).length = xs.length := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => exact congrArg Nat.succ ih
+
+private theorem mem_append_left_exact {α : Type} {x : α} {xs ys : List α}
+    (member : x ∈ xs) : x ∈ xs ++ ys := by
+  induction member with
+  | head => exact List.Mem.head _
+  | tail a _ ih => exact List.Mem.tail a ih
+
+private theorem mem_append_right_exact {α : Type} {x : α} (xs : List α) {ys : List α}
+    (member : x ∈ ys) : x ∈ xs ++ ys := by
+  induction xs with
+  | nil => exact member
+  | cons a xs ih => exact List.Mem.tail a ih
+
+private theorem mem_append_cases_exact {α : Type} {x : α} {xs ys : List α}
+    (member : x ∈ xs ++ ys) : x ∈ xs ∨ x ∈ ys := by
+  induction xs with
+  | nil => exact Or.inr member
+  | cons a xs ih =>
+    cases member with
+    | head => exact Or.inl (List.Mem.head _)
+    | tail _ rest =>
+      cases ih rest with
+      | inl left => exact Or.inl (List.Mem.tail a left)
+      | inr right => exact Or.inr right
+
+private theorem map_member_exact {α β : Type} (f : α → β) {x : α} {xs : List α}
+    (member : x ∈ xs) : f x ∈ xs.map f := by
+  induction member with
+  | head => exact List.Mem.head _
+  | tail a _ ih => exact List.Mem.tail (f a) ih
+
+private theorem map_member_cases_exact {α β : Type} (f : α → β) {y : β} {xs : List α}
+    (member : y ∈ xs.map f) : ∃ x, x ∈ xs ∧ f x = y := by
+  induction xs with
+  | nil => cases member
+  | cons a xs ih =>
+    cases member with
+    | head => exact ⟨a, List.Mem.head _, rfl⟩
+    | tail _ rest =>
+      rcases ih rest with ⟨x, hx, equal⟩
+      exact ⟨x, List.Mem.tail a hx, equal⟩
+
+private theorem map_nodup_exact {α β : Type} (f : α → β)
+    (injective : Function.Injective f) {xs : List α} (distinct : xs.Nodup) :
+    (xs.map f).Nodup := by
+  induction distinct with
+  | nil => exact List.Pairwise.nil
+  | @cons a xs apart _ ih =>
+    refine List.Pairwise.cons ?_ ih
+    intro b member same
+    rcases map_member_cases_exact f member with ⟨x, hx, equal⟩
+    exact apart x hx (injective (same.trans equal.symm))
+
+private theorem pairwise_append_exact {α : Type} {R : α → α → Prop} {xs ys : List α}
+    (left : List.Pairwise R xs) (right : List.Pairwise R ys) :
+    (∀ a, a ∈ xs → ∀ b, b ∈ ys → R a b) → List.Pairwise R (xs ++ ys) := by
+  induction left with
+  | nil => exact fun _ => right
+  | @cons a xs apart _ ih =>
+    intro cross
+    refine List.Pairwise.cons ?_ (ih ?_)
+    · intro b member
+      cases mem_append_cases_exact member with
+      | inl leftMember => exact apart b leftMember
+      | inr rightMember => exact cross a (List.Mem.head _) b rightMember
+    · intro b hb c hc
+      exact cross b (List.Mem.tail a hb) c hc
+
 theorem branches_length (n : Nat) : (branches n).length = 2 ^ n := by
   induction n with
   | zero => rfl
   | succ n ih =>
-    simp only [branches, List.length_append, List.length_map, ih, Nat.pow_succ]
-    omega
+    calc
+      (branches (n + 1)).length =
+          ((branches n).map (List.cons false)).length +
+          ((branches n).map (List.cons true)).length := length_append_exact _ _
+      _ = (branches n).length + (branches n).length :=
+        congrArg₂ Nat.add (length_map_exact (List.cons false) (branches n))
+          (length_map_exact (List.cons true) (branches n))
+      _ = 2 ^ n + 2 ^ n := congrArg₂ Nat.add ih ih
+      _ = 2 ^ n * 2 := (Nat.mul_two _).symm
+      _ = 2 ^ (n + 1) := (Nat.pow_succ 2 n).symm
 
 /-- Distinct histories remain distinct; there is no quotient of branch states. -/
 theorem branches_nodup (n : Nat) : (branches n).Nodup := by
   induction n with
-  | zero => decide
+  | zero => exact List.Pairwise.cons (fun _ impossible => by cases impossible) List.Pairwise.nil
   | succ n ih =>
-    change List.Pairwise (fun a b : List Bool => a ≠ b)
-      ((branches n).map (List.cons false) ++ (branches n).map (List.cons true))
-    apply List.pairwise_append.mpr
-    refine ⟨?_, ?_, ?_⟩
-    · exact List.Pairwise.map (R := fun a b : List Bool => a ≠ b)
-        (List.cons false)
-        (fun (a b : List Bool) (different : a ≠ b) (same : false :: a = false :: b) =>
-          different (List.cons.inj same).2) ih
-    · exact List.Pairwise.map (R := fun a b : List Bool => a ≠ b)
-        (List.cons true)
-        (fun (a b : List Bool) (different : a ≠ b) (same : true :: a = true :: b) =>
-          different (List.cons.inj same).2) ih
+    refine pairwise_append_exact
+      (map_nodup_exact (List.cons false) ?_ ih)
+      (map_nodup_exact (List.cons true) ?_ ih) ?_
+    · intro a b same
+      exact (List.cons.inj same).2
+    · intro a b same
+      exact (List.cons.inj same).2
     · intro a ha b hb same
-      rcases List.mem_map.mp ha with ⟨xs, _, hx⟩
-      rcases List.mem_map.mp hb with ⟨ys, _, hy⟩
+      rcases map_member_cases_exact (List.cons false) ha with ⟨xs, _, hx⟩
+      rcases map_member_cases_exact (List.cons true) hb with ⟨ys, _, hy⟩
       have impossible : false = true :=
         (List.cons.inj (hx.trans (same.trans hy.symm))).1
       cases impossible
 
 /-- Exact characterization of the reference enumeration. -/
 theorem mem_branches (bits : List Bool) : ∀ n, bits ∈ branches n ↔ bits.length = n := by
-  induction bits with
-  | nil =>
-    intro n
-    cases n with
-    | zero => simp [branches]
-    | succ n => simp [branches]
-  | cons bit rest ih =>
-    intro n
-    cases n with
-    | zero => simp [branches]
-    | succ n =>
-      cases bit <;> simp [branches, ih]
+  intro n
+  induction n generalizing bits with
+  | zero =>
+    constructor
+    · intro member
+      cases member with
+      | head => rfl
+      | tail _ impossible => cases impossible
+    · intro lengthZero
+      cases bits with
+      | nil => exact List.Mem.head _
+      | cons b rest => exact False.elim (Nat.noConfusion lengthZero)
+  | succ n ih =>
+    constructor
+    · intro member
+      cases mem_append_cases_exact member with
+      | inl left =>
+        rcases map_member_cases_exact (List.cons false) left with ⟨xs, hx, equal⟩
+        exact (congrArg List.length equal).symm.trans (congrArg Nat.succ ((ih xs).mp hx))
+      | inr right =>
+        rcases map_member_cases_exact (List.cons true) right with ⟨xs, hx, equal⟩
+        exact (congrArg List.length equal).symm.trans (congrArg Nat.succ ((ih xs).mp hx))
+    · intro lengthExact
+      cases bits with
+      | nil => exact False.elim (Nat.noConfusion lengthExact)
+      | cons b rest =>
+        have tail : rest ∈ branches n := (ih rest).mpr (Nat.succ.inj lengthExact)
+        cases b with
+        | false => exact mem_append_left_exact (map_member_exact (List.cons false) tail)
+        | true => exact mem_append_right_exact _ (map_member_exact (List.cons true) tail)
 
 theorem retained_mem_branches (n : Nat) : retainedHistory n ∈ branches n := by
   apply (mem_branches (retainedHistory n) n).mpr
-  exact List.length_replicate n true
+  change (List.replicate n true).length = n
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    rw [List.replicate_succ]
+    exact congrArg Nat.succ ih
 
 /-- Viability of the fully expanded reference, without building it at runtime. -/
 def ReferenceViable (n : Nat) (G : List Bool → Prop) : Prop :=
@@ -102,32 +208,57 @@ theorem executed_width_cost (cells : List Cell) :
   ⟨branches_length _, rfl, (execute cells).work_exact,
     (execute cells).attempts_exact, (execute cells).program_length⟩
 
+private theorem le_add_right_exact (a b : Nat) : a ≤ a + b := by
+  induction b with
+  | zero => exact Nat.le_refl a
+  | succ b ih => exact Nat.le.step ih
+
 private theorem square_successor (m : Nat) :
     (m + 1) * (m + 1) = m * m + m + m + 1 := by
   calc
     (m + 1) * (m + 1) = m * (m + 1) + 1 * (m + 1) :=
       Nat.add_mul m 1 (m + 1)
     _ = (m * m + m * 1) + (m + 1) := by rw [Nat.mul_add, Nat.one_mul]
-    _ = m * m + m + m + 1 := by rw [Nat.mul_one]; omega
+    _ = m * m + m + m + 1 := by
+      rw [Nat.mul_one]
+      exact (Nat.add_assoc _ _ _).symm
 
 private theorem square_le_pow_offset (k : Nat) : (k + 4) * (k + 4) ≤ 2 ^ (k + 4) := by
   induction k with
   | zero => decide
   | succ k ih =>
-    have three : 3 * (k + 4) ≤ (k + 4) * (k + 4) :=
-      Nat.mul_le_mul_right (k + 4) (by omega : 3 ≤ k + 4)
-    have expanded := square_successor (k + 4)
-    have nextSquare : (k + 5) * (k + 5) ≤ 2 * ((k + 4) * (k + 4)) := by
-      omega
+    let m := k + 4
+    have four : 4 ≤ m := by
+      change 4 ≤ k + 4
+      rw [Nat.add_comm]
+      exact le_add_right_exact 4 k
+    have one : 1 ≤ m := Nat.le_trans (by decide : 1 ≤ 4) four
+    have three : 3 ≤ m := Nat.le_trans (by decide : 3 ≤ 4) four
+    have tailBound : m + m + 1 ≤ m * m := by
+      calc
+        m + m + 1 ≤ m + m + m := Nat.add_le_add_left one (m + m)
+        _ = 3 * m := by
+          change m + m + m = (1 + 1 + 1) * m
+          rw [Nat.add_mul, Nat.add_mul, Nat.one_mul]
+        _ ≤ m * m := Nat.mul_le_mul_right m three
+    have nextSquare : (m + 1) * (m + 1) ≤ 2 * (m * m) := by
+      calc
+        (m + 1) * (m + 1) = m * m + (m + m + 1) := by
+          rw [square_successor, Nat.add_assoc (m * m) m m,
+            Nat.add_assoc (m * m) (m + m) 1]
+        _ ≤ m * m + m * m := Nat.add_le_add_left tailBound (m * m)
+        _ = 2 * (m * m) := (Nat.two_mul _).symm
+    have index : k + 1 + 4 = m + 1 :=
+      ((Nat.add_assoc k 1 4).trans
+        (congrArg (Nat.add k) (Nat.add_comm 1 4))).trans (Nat.add_assoc k 4 1).symm
+    rw [index]
     calc
-      (k + 1 + 4) * (k + 1 + 4) ≤ 2 * ((k + 4) * (k + 4)) := nextSquare
-      _ ≤ 2 * (2 ^ (k + 4)) := Nat.mul_le_mul_left 2 ih
-      _ = 2 ^ (k + 1 + 4) := by
-        rw [show k + 1 + 4 = (k + 4) + 1 by omega, Nat.pow_succ]
-        exact Nat.mul_comm _ _
+      (m + 1) * (m + 1) ≤ 2 * (m * m) := nextSquare
+      _ ≤ 2 * (2 ^ m) := Nat.mul_le_mul_left 2 ih
+      _ = 2 ^ (m + 1) := (Nat.mul_comm 2 (2 ^ m)).trans (Nat.pow_succ 2 m).symm
 
 theorem square_le_pow (n : Nat) (large : 4 ≤ n) : n * n ≤ 2 ^ n := by
-  have exactIndex : n - 4 + 4 = n := by omega
+  have exactIndex : n - 4 + 4 = n := Nat.sub_add_cancel large
   have result := square_le_pow_offset (n - 4)
   rw [exactIndex] at result
   exact result
@@ -135,14 +266,22 @@ theorem square_le_pow (n : Nat) (large : 4 ≤ n) : n * n ≤ 2 ^ n := by
 /-- An explicit eventual separation, not merely a sequence of experiments. -/
 theorem exponential_dominates_ledger (K n : Nat) (large : 60 * K + 5 ≤ n) :
     K * (60 * n) < 2 ^ n - 1 := by
-  have square := square_le_pow n (by omega)
-  have lower : (60 * K + 1) * n ≤ n * n :=
-    Nat.mul_le_mul_right n (by omega : 60 * K + 1 ≤ n)
+  have five : 5 ≤ 60 * K + 5 := by
+    rw [Nat.add_comm]
+    exact le_add_right_exact 5 (60 * K)
+  have fiveN : 5 ≤ n := Nat.le_trans five large
+  have square := square_le_pow n (Nat.le_trans (by decide : 4 ≤ 5) fiveN)
+  have coefficient : 60 * K + 1 ≤ n :=
+    Nat.le_trans (Nat.add_le_add_left (by decide : 1 ≤ 5) (60 * K)) large
+  have lower : (60 * K + 1) * n ≤ n * n := Nat.mul_le_mul_right n coefficient
   rw [Nat.add_mul, Nat.one_mul] at lower
   have rearrange : (60 * K) * n = K * (60 * n) :=
     (congrArg (fun t => t * n) (Nat.mul_comm 60 K)).trans (Nat.mul_assoc K 60 n)
   rw [rearrange] at lower
-  omega
+  have two : 2 ≤ n := Nat.le_trans (by decide : 2 ≤ 5) fiveN
+  have gap : K * (60 * n) + 2 ≤ 2 ^ n :=
+    Nat.le_trans (Nat.add_le_add_left two _) (Nat.le_trans lower square)
+  exact Nat.le_sub_of_add_le gap
 
 /-- Avoided reference width eventually exceeds every multiple of actual ledger. -/
 theorem amplification_unbounded :
