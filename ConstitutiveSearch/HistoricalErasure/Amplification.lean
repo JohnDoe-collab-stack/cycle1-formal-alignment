@@ -22,6 +22,12 @@ def branches : Nat → List (List Bool)
   | 0 => [[]]
   | n + 1 => (branches n).map (List.cons false) ++ (branches n).map (List.cons true)
 
+private theorem congrArgPair {α β γ : Type} (f : α → β → γ)
+    {a a' : α} {b b' : β} (ha : a = a') (hb : b = b') : f a b = f a' b' := by
+  cases ha
+  cases hb
+  rfl
+
 private theorem length_append_exact {α : Type} (xs ys : List α) :
     (xs ++ ys).length = xs.length + ys.length := by
   induction xs with
@@ -212,11 +218,24 @@ private theorem le_add_right_exact (a b : Nat) : a ≤ a + b := by
   | zero => exact Nat.le_refl a
   | succ b ih => exact Nat.le.step ih
 
+private theorem add_mul_exact (a b c : Nat) : (a + b) * c = a * c + b * c := by
+  calc
+    (a + b) * c = c * (a + b) := Nat.mul_comm _ _
+    _ = c * a + c * b := Nat.mul_add _ _ _
+    _ = a * c + b * c := congrArgPair Nat.add (Nat.mul_comm _ _) (Nat.mul_comm _ _)
+
+private theorem mul_assoc_exact (a b c : Nat) : (a * b) * c = a * (b * c) := by
+  induction c with
+  | zero => rfl
+  | succ c ih =>
+    change (a * b) * c + a * b = a * (b * c + b)
+    rw [ih, Nat.mul_add]
+
 private theorem square_successor (m : Nat) :
     (m + 1) * (m + 1) = m * m + m + m + 1 := by
   calc
     (m + 1) * (m + 1) = m * (m + 1) + 1 * (m + 1) :=
-      Nat.add_mul m 1 (m + 1)
+      add_mul_exact m 1 (m + 1)
     _ = (m * m + m * 1) + (m + 1) := by rw [Nat.mul_add, Nat.one_mul]
     _ = m * m + m + m + 1 := by
       rw [Nat.mul_one]
@@ -238,7 +257,7 @@ private theorem square_le_pow_offset (k : Nat) : (k + 4) * (k + 4) ≤ 2 ^ (k + 
         m + m + 1 ≤ m + m + m := Nat.add_le_add_left one (m + m)
         _ = 3 * m := by
           change m + m + m = (1 + 1 + 1) * m
-          rw [Nat.add_mul, Nat.add_mul, Nat.one_mul]
+          rw [add_mul_exact, add_mul_exact, Nat.one_mul]
         _ ≤ m * m := Nat.mul_le_mul_right m three
     have nextSquare : (m + 1) * (m + 1) ≤ 2 * (m * m) := by
       calc
@@ -256,11 +275,23 @@ private theorem square_le_pow_offset (k : Nat) : (k + 4) * (k + 4) ≤ 2 ^ (k + 
       _ ≤ 2 * (2 ^ m) := Nat.mul_le_mul_left 2 ih
       _ = 2 ^ (m + 1) := (Nat.mul_comm 2 (2 ^ m)).trans (Nat.pow_succ 2 m).symm
 
+private theorem offset_of_le {a b : Nat} (h : a ≤ b) : ∃ k, b = k + a := by
+  induction h with
+  | refl => exact ⟨0, (Nat.zero_add a).symm⟩
+  | @step b h ih =>
+    rcases ih with ⟨k, hk⟩
+    exact ⟨k + 1, (congrArg Nat.succ hk).trans (Nat.succ_add k a).symm⟩
+
 theorem square_le_pow (n : Nat) (large : 4 ≤ n) : n * n ≤ 2 ^ n := by
-  have exactIndex : n - 4 + 4 = n := Nat.sub_add_cancel large
-  have result := square_le_pow_offset (n - 4)
-  rw [exactIndex] at result
-  exact result
+  rcases offset_of_le large with ⟨k, hk⟩
+  rw [hk]
+  exact square_le_pow_offset k
+
+private theorem lt_sub_one_of_add_two_le {a b : Nat} (h : a + 2 ≤ b) :
+    a < b - 1 := by
+  cases b with
+  | zero => exact False.elim (Nat.not_succ_le_zero (a + 1) h)
+  | succ b => exact Nat.le_of_succ_le_succ h
 
 /-- An explicit eventual separation, not merely a sequence of experiments. -/
 theorem exponential_dominates_ledger (K n : Nat) (large : 60 * K + 5 ≤ n) :
@@ -273,14 +304,14 @@ theorem exponential_dominates_ledger (K n : Nat) (large : 60 * K + 5 ≤ n) :
   have coefficient : 60 * K + 1 ≤ n :=
     Nat.le_trans (Nat.add_le_add_left (by decide : 1 ≤ 5) (60 * K)) large
   have lower : (60 * K + 1) * n ≤ n * n := Nat.mul_le_mul_right n coefficient
-  rw [Nat.add_mul, Nat.one_mul] at lower
+  rw [add_mul_exact, Nat.one_mul] at lower
   have rearrange : (60 * K) * n = K * (60 * n) :=
-    (congrArg (fun t => t * n) (Nat.mul_comm 60 K)).trans (Nat.mul_assoc K 60 n)
+    (congrArg (fun t => t * n) (Nat.mul_comm 60 K)).trans (mul_assoc_exact K 60 n)
   rw [rearrange] at lower
   have two : 2 ≤ n := Nat.le_trans (by decide : 2 ≤ 5) fiveN
   have gap : K * (60 * n) + 2 ≤ 2 ^ n :=
     Nat.le_trans (Nat.add_le_add_left two _) (Nat.le_trans lower square)
-  exact Nat.le_sub_of_add_le gap
+  exact lt_sub_one_of_add_two_le gap
 
 /-- Avoided reference width eventually exceeds every multiple of actual ledger. -/
 theorem amplification_unbounded :
@@ -330,14 +361,13 @@ end ConstitutiveSearch.HistoricalErasure
 #print axioms ConstitutiveSearch.HistoricalErasure.reference_viable_iff_retained
 #print axioms ConstitutiveSearch.HistoricalErasure.all_reference_branches_viable
 #print axioms ConstitutiveSearch.HistoricalErasure.executed_width_cost
+#print axioms ConstitutiveSearch.HistoricalErasure.congrArgPair
+#print axioms ConstitutiveSearch.HistoricalErasure.add_mul_exact
+#print axioms ConstitutiveSearch.HistoricalErasure.mul_assoc_exact
 #print axioms ConstitutiveSearch.HistoricalErasure.square_successor
 #print axioms ConstitutiveSearch.HistoricalErasure.square_le_pow_offset
-#print axioms Nat.le_trans
-#print axioms Nat.add_le_add_left
-#print axioms Nat.mul_le_mul_right
-#print axioms Nat.mul_le_mul_left
-#print axioms Nat.sub_add_cancel
-#print axioms Nat.le_sub_of_add_le
+#print axioms ConstitutiveSearch.HistoricalErasure.offset_of_le
+#print axioms ConstitutiveSearch.HistoricalErasure.lt_sub_one_of_add_two_le
 #print axioms ConstitutiveSearch.HistoricalErasure.square_le_pow
 #print axioms ConstitutiveSearch.HistoricalErasure.exponential_dominates_ledger
 #print axioms ConstitutiveSearch.HistoricalErasure.amplification_unbounded
