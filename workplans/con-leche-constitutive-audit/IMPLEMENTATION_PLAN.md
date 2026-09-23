@@ -1940,10 +1940,525 @@ SHA-256
 `4B01403900AF5A9FA8CAE39DDDADA08428EF9D12EE89CD3806E0B4FA07ED356E` ;
 ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
 
-La prochaine expérience générique doit d'abord tester `hAok` sur les valeurs
-composées réellement acceptées, puis chercher si la validité de l'ancienne
-feuille, suffisante pour `hAvalid` sur les constantes, peut être reconstruite
-depuis une relation locale plus faible que `acval_validV` global.
+Le premier test composé de `hAok` est positif dans
+`ScratchReduceOpaqueBetaWellDenoted.lean`. La lecture exacte à profondeur
+zéro de la valeur β est reconstruite depuis n'importe quelle ancienne
+`TerminalSlice` sur le préfixe accepté. Les deux lambdas annotées sont
+`WellDenotedV`; pour leur application, un seul cadre partagé est construit :
+la tête appartient au `piR` du type fonctionnel, et l'argument appartient au
+*même* domaine. `AnnotValid` est également reconstruit structurellement :
+le seul `Pi` du terme a un niveau de codomaine positif.
+`reachableBetaAcceptedFirstRows` raccorde les deux lignes au même
+`checkDeclsPure` et au vrai `DeclRun` opaque, pour tout ancien
+`WalkWitness`. `reachableBetaAcceptedProducerRows` ajoute, pour les mêmes
+`ψ` et `ρ`, l'appartenance de la valeur au type déclaré effectivement lu et
+la bonne dénotation de ce type. `betaCertificateApplicationWellDenoted`
+ferme aussi le grade de l'application au certificat sous le `Sat` du contexte
+élément réel ; il utilise la membership du même représentant de `Nat` issue
+de la slice ancienne. Seul le passage `isDefEqCore →` égalité sémantique reste
+à traiter pour cette occurrence, bien que son certificat local ait déjà été
+reconstruit séparément. Aucun `InferClaim`, `EnvModelM` ou fait sémantique ajouté au
+carrier n'est consommé. C'est la fermeture de ces quatre lignes sur
+**cette occurrence β**,
+pas une preuve uniforme pour toutes les valeurs composées ; ι et les autres
+formes restent à tester avant d'annoncer le statut générique. Le scratch
+externe compile sous Lean `v4.33.0` contre le commit épinglé, SHA-256
+`F0EFD03C89DAAF640DCC03C51FC249DD0EFF9A0DBAD1E73C107A51F598FD0BEC` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+
+Le test ι composé est également positif, mais par une construction
+**indépendante de la preuve β** dans
+`ScratchReduceOpaqueIotaWellDenoted.lean`. Pour la source annotée exacte
+`PUnit.rec` appliquée à son motif, son minorant et `PUnit.unit`, la preuve
+construit successivement trois cadres `piR` compatibles avec ces trois
+arguments. Le motif appartient à `punitMotiveSpace`, le minorant à sa fibre
+au point `pt`, et `pt` à `unitSet`. Cela donne `WellDenotedV` du terme
+composé sans `InferClaim` ; sa validité d'annotation est structurelle. La loi
+`punitRecV_app` ramène sa valeur sémantique au minorant et donne son
+appartenance au type fonctionnel déclaré, lu sur le même `ψ`. Le `Sat` réel
+du contexte élément suffit enfin à la bonne dénotation de l'application au
+certificat. `reachableIotaAcceptedProducerRows` regroupe les quatre lignes
+pré-certificat et ce grade avec le vrai `DeclRun` et le préfixe
+`checkDeclsPure` accepté, pour **tout** ancien `WalkWitness` de cet état.
+Le fichier externe compile sous Lean `v4.33.0` contre le commit épinglé,
+SHA-256
+`09591731CEFBFE22130C0E668E0E0F0F6E40574F39563BAB972E786162E82CBE` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+Ces deux occurrences composées positives ne prouvent ni un théorème uniforme
+pour tout `ReducePinRun`, ni que δ est l'unique famille susceptible de
+porter un résidu de validité.
+
+Le premier producteur affaibli de la ligne δ `hAvalid` est testé dans
+`ScratchReduceOpaqueDeltaBitAgree.lean`, sans créer de `B1`.
+`deltaBodyReadAtZero` lit le corps de l'alias stocké depuis la seule base
+faible. La relation existante `AnnotTerm.BitAgree` entre l'ancienne feuille
+et cette lecture suffit alors à transporter `AnnotValid` au terme nouveau
+effectivement lu. Le producteur riche `AcvalDefnInst` fournit cette relation
+sur l'alias atteint, mais le témoin `B0W` du séparateur δ la réfute. Une paire
+explicite de lambdas aux grades positifs `1` et `2` montre que `BitAgree`
+n'impose pas l'égalité syntaxique des lectures. Cette stricte distinction est
+établie **au niveau de la relation sur les lectures**, pas encore dans la
+sous-classe des réalisations productibles du fold. `BitAgree` est donc une
+interface productrice suffisante et non reconstructible depuis ce témoin
+faible, mais ni sa nécessité minimale, ni sa persistance, ni sa stabilité sur
+toutes les déclarations ne sont établies. Le scratch externe compile sous
+Lean `v4.33.0` contre le commit épinglé, SHA-256
+`C9490E5C6A874CF1EBB8334A2B9D75C9463294C4FE3AEB9C56A7BB42F7ED3B1C` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+Le weakening possède aussi un **séparateur inverse sur le même préfixe
+syntaxiquement atteint** : `reachableValidWithoutBitAgree` conserve
+`checkDeclsPure` accepté et le vrai `DeclRun`, mais attribue `Nat.succ` à
+l'alias dans un autre `B0W`. Sa valeur est `AnnotValid` pour toutes les
+valuations, tandis que `BitAgree` avec la lecture du corps lambda est
+impossible par forme de constructeur. Donc `hAvalid` seul ne force pas
+`BitAgree` sur cet état atteint. La réalisation faible choisie n'est pas
+celle du fold riche. Le test conjoint plus fort suit ci-dessous.
+
+Le test conjoint demandé est maintenant compilé dans
+`ScratchReduceOpaqueDeltaNonBitAgree.lean`. Une autre `TerminalSlice` du
+**même préfixe syntaxiquement atteint** lit l'alias comme un β-redex annoté
+qui dénote l'identité stockée. Pour ce témoin faible, le même préfixe est
+accepté et le même vrai `DeclRun` opaque δ existe ; la valeur nouvelle est
+`WellDenoted`, `AnnotValid`, membre du type déclaré exactement lu, et
+l'application au certificat est `WellDenotedV` sous le `Sat` réel.
+`ReduceCertificateSemanticTransport` est également démontré sur la lecture
+de cet alias, mais `BitAgree` avec le corps stocké est impossible par forme
+de constructeur (`app` contre `lam`). Le séparateur ne se borne donc plus
+au converse depuis `hAvalid` seul : même la conjonction des lignes positives
+et du transport de certificat ne force pas `BitAgree` dans la classe des
+réalisations `B0W` sur cette occurrence acceptée. Plus fortement,
+`betaAliasDeltaSuccessorSlice` construit la slice terminale suivante avec
+égalité des lectures de l'ancien alias, et
+`reachableWeakDeltaSuccessorWithoutBitAgree` y ajoute la composante eta pour
+obtenir un véritable `WalkWitness` successeur du même `DeclRun`. Cette
+préservation est **relative à cette occurrence et à ce témoin**, non une loi
+universelle `Stable B0W` ; `betaAliasNotDefnInst` prouve même que cette
+réalisation ne satisfait pas le producteur riche `AcvalDefnInst`. Cela ne
+réfute pas la suffisance productrice de `BitAgree` pour `hAvalid`.
+Le fichier externe compile
+sous Lean `v4.33.0` contre le commit épinglé, SHA-256
+`CD969EF86AC418FE06362641CB6CF1EEB2C6FC3CEADCAB9E7139A39CDD78BC6B` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+
+Un séparateur **inverse** a été construit indépendamment dans
+`ScratchReduceOpaqueDeltaGradeIndependence.lean`. L'alias d'une
+`TerminalSlice` du même environnement atteint reçoit une application dont
+la tête est une lambda constante renvoyant l'identité stockée ; son argument
+est `eqE badBit badBit`. Cet argument appartient sémantiquement à `U₀`, mais
+`badBit` porte un grade `Pi 0 0` invalide. La valeur entière est donc
+`WellDenoted`, appartient au type `Nat → Nat` et a exactement
+l'interprétation de la lambda identité, tandis que `AnnotValid` est faux.
+Le théorème `reachableCertificateWithoutValueAnnotValid` raccorde ce témoin
+au même préfixe accepté et au vrai `DeclRun` δ, prouve le transport du
+certificat reduce depuis la slice ainsi construite et réfute la validité
+d'annotation de la valeur nouvelle. En regard du témoin `Nat.succ`
+(`AnnotValid` vrai, transport faux), cela sépare **dans les deux sens** les
+capacités de validité d'annotation et de transport sémantique du certificat,
+relativement aux réalisations faibles `B0W` sur une syntaxe atteinte.
+`gradeAliasNotDefnInst` démontre explicitement que ce second témoin n'est
+pas non plus productible par le producteur riche `AcvalDefnInst`. Ce ne sont
+donc pas des séparateurs dans la sous-classe des réalisations productibles
+par le fold riche ; aucune persistance n'en découle à elle
+seule. Le scratch externe compile sous Lean `v4.33.0` contre le commit
+épinglé, SHA-256
+`74145567431C78B7A9DE0FCF1E451415861B078B562983DF05F53163FA7393E4` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+
+Le premier retour au **producteur reduce générique** est positif pour la
+ligne du type déclaré de `reduceNat`. Dans `ScratchReduceNatTypeRows.lean`,
+`natStored_of_reducePinRun` extrait du vrai certificat opérationnel
+`ReducePinRun` la présence exacte de la base `Nat` épinglée. Pour **tout**
+ancien environnement satisfaisant cette prémisse et toute `TerminalSlice`
+sur lui, `reduceNatTypeRead` identifie la lecture du type épinglé
+`reduceNatCvA.type` à `Nat → Nat`, et `reduceNatPinTypeRow` prouve
+`WellDenotedV` de cette lecture pour tous `ψ, ρ`. La ligne `hTaOk` ne
+requiert donc aucun enrichissement historique pour `reduceNat`, même hors
+des trois exemples concrets. Ce théorème ne couvre pas `reduceBool` : son
+élément `Bool` n'est pas simplement le pin structurel de `Nat`, et sa
+validité d'annotation reste à tester depuis la base faible. Le scratch
+externe compile sous Lean `v4.33.0` contre le commit épinglé, SHA-256
+`B463B06BCD4A6EFCEE7862380F4AC96DFA7E48579C9379177348C6206BEA6821` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+
+Le test `reduceBool` a maintenant une **factorisation exacte** dans
+`ScratchReduceBoolTypeRows.lean`. Le vrai `ReducePinRun` fournit un `Bool`
+stocké avec `levelParams = []`; `reduceBoolTypeRead` identifie la lecture du
+type déclaré à `Π Bool Bool`, avec la **même feuille Bool** dans le domaine
+et le codomaine. Le théorème
+`reduceBoolPinTypeRow_iff_oldBoolValid` établit, pour toute
+`TerminalSlice` faible et toutes les valuations, l'équivalence entre la
+ligne `hTaOk` (`WellDenotedV` du type déclaré) et `AnnotValid` de l'ancienne
+feuille Bool. La moitié `WellDenoted` est déjà reconstruite depuis `base2` ;
+le résidu exact de cette ligne est donc la validité d'annotation, pas une
+théorie générale des types ou de l'inférence. Le scratch
+externe compile sous Lean `v4.33.0` contre le commit épinglé, SHA-256
+`74D2AE25D3410006877BF055806E7F6A4ADF4BFCA7B63DFF06AAE9384F32AF32` ;
+ses audits ne signalent que les trois axiomes hérités, sans `sorryAx`.
+
+Un séparateur **constructif et opérationnellement raccordé** est désormais
+compilé dans `ScratchReduceBoolValidSeparator.lean` (SHA-256
+`5997871A0C3DF3706B4C70E84F05EA8FDFA35EDACAF7275729DCBD5B0167D285`).
+L'ancien environnement contient un `Bool` stocké à la forme exigée par le
+pin ; `boolBadSliceWitnessExists` lui donne une vraie `TerminalSlice` dont
+la feuille `Bool` est bien dénotée et appartient à son type stocké, mais
+viole `AnnotValid`. `boolWeakEtaClosed` complète le témoin `B0W`.
+`boolReduceRun`, `boolOpaqueRun`, `boolDeclRun` et `boolOpaqueAccepted`
+établissent séparément le certificat reduce, la transition de déclaration
+et l'acceptation par le checker de l'opaque `reduceBool` depuis **cet**
+environnement. `boolAcceptedTypeRowSeparator` réfute alors la reconstruction
+universelle de `hTaOk` depuis `B0W +` cette transition acceptée, par
+l'équivalence exacte précédente. Le weakening du **consommateur effectif**
+évite toutefois de compter cette ligne comme une seconde mémoire : sur
+la valeur épinglée exacte, `reduceBoolPinnedValueRead` et
+`reduceBoolValueGrade_iff_oldBoolValid` montrent que `hAvalid` de l'identité
+est lui aussi équivalent à cette même validité de l'ancienne feuille.
+`reduceBoolTypeRow_of_valueGrade` reconstruit donc `hTaOk` depuis `hAvalid`
+sur cette occurrence, tandis que `boolAcceptedValueGradeSeparator` réfute
+constructivement **la ligne `hAvalid` elle-même** sur la même déclaration
+acceptée. Le résidu local est une seule détermination partagée entre deux
+lignes, non deux champs historiques indépendants. Cette équivalence n'est
+pas démontrée pour toute valeur arbitraire définitionnellement égale au pin.
+`piOneApplicationWellDenotedV` ferme en outre le sous-but de grade de
+l'application du certificat sous la forme épinglée `Π` de niveau `1`, sans
+consommer `hTaOk` : sa condition de niveau `0` est impossible. Cela affaiblit
+ce sous-but exact, **pas** le théorème générique `reduceOps_install`, qui
+autorise un metadata de binder plus général.
+Tous les audits de ce scratch ne signalent que les trois axiomes hérités de
+ConLeche, sans `sorryAx`.
+
+La portée reste délibérément bornée : aucune preuve ne montre que
+`boolWeakEnv` est produit par `checkDeclsPure` depuis `Env.empty`, ni que sa
+réalisation faible provient du fold riche. Le résultat force une capacité
+supplémentaire pour la **reconstruction locale universelle** de la ligne
+`reduceBool`, pas encore sa persistance dans un `B1` historique ; le
+séparateur ne réfute pas à lui seul la stabilité faible de `B0W`. L'essai
+diagnostique d'installation d'un bloc singleton `Bool` n'a pas fourni un
+préfixe accepté ; cette observation n'est pas employée comme théorème de
+non-atteignabilité de `Bool` en général.
+
+Le filtre d'atteignabilité a maintenant été confronté au **prélude réel**.
+`ScratchPreludeReachability.lean` (SHA-256
+`4089AA6675FB814BD62AE53A198E537705E8F00C685EFD6525CAB04DAED802C9`)
+importe le texte embarqué de ConLeche et exécute ses propres routines de
+parsing et de vérification. Ses `#guard` compilés constatent huit records,
+un préfixe de sept records accepté avec 23 constantes, le prélude entier
+accepté avec 27 constantes — dont le bloc `Bool` complet en tête de
+l'environnement final —, puis `reduceBool` accepté comme 28e constante.
+Le même diagnostic vérifie que `Bool.false` a exactement le type stocké
+`Bool` et que ce dernier n'a aucun paramètre de niveau. **Ces gardes sont
+des tests exécutés, pas des théorèmes noyau** sur le parsing du fichier
+embarqué ; un essai de `by decide` sur leur résultat ne réduit pas dans le
+noyau et n'est donc pas retenu comme preuve.
+
+Un raccord propositionnel compilé figure dans
+`ScratchCheckedBoolProjection.lean` (SHA-256
+`2B2BAD34A3D849CACA2E51F6A2A37E9B3D457149A75CE09E2B6275DBD958CA70`).
+`storedBoolInhabitantExcludesBadBody` montre qu'une `TerminalSlice` dont
+l'environnement stocke un habitant de type `Bool` **ne peut pas** utiliser
+pour `Bool` la feuille `badValidBody` du séparateur singleton : cette
+feuille se lit comme `empty`, alors que `mem_type` du constructeur
+imposerait une appartenance à `empty`. C'est une exclusion du **témoin
+précis**, pas de toute feuille Bool invalide. `checkedHasProjectedValidBool`
+et `checkedSourceSuppliesPinnedBoolRows` montrent séparément que le témoin
+projeté du modèle réellement fourni par `FullyChecked` possède la validité
+Bool et, sous le même `ReducePinRun`, fournit les lignes épinglées
+`hAvalid` et `hTaOk`. `projectedBoolCannotReadBadBody` interdit l'accord
+de ce témoin produit avec la mauvaise feuille du séparateur. Ces énoncés
+sont conditionnels à `FullyChecked`/au run ou à la présence d'un habitant
+stocké ; ils ne transforment pas à eux seuls les `#guard` du prélude en
+preuve noyau d'une instance particulière. Les audits n'indiquent que les
+trois axiomes hérités de ConLeche, sans `sorryAx`.
+`nonemptyInvalidBoolCandidate` vérifie que l'obstruction de l'habitant
+stocké n'est pas une preuve déguisée d'`AnnotValid` : `badBit` est bien
+dénoté et invalide, mais sa lecture admet un témoin `pt`. Cela ne construit
+encore ni les lignes des deux constructeurs dans le vrai environnement,
+ni la ligne du recursor, ni une `TerminalSlice` globale.
+
+Cette question a maintenant une réponse positive **uniforme**, plus forte
+qu'une réparation ad hoc des constructeurs Bool. Les scratches externes
+`ScratchSemanticSpoil.lean`, `ScratchSpoilReads.lean` et
+`ScratchCheckedSpoiledBool.lean` construisent une transformation d'une
+feuille annotée quelconque `e` en une application à argument mort dont
+l'interprétation vaut toujours celle de `e`, qui reste `WellDenoted` si
+`e` l'était, mais dont `AnnotValid` est impossible. En l'appliquant
+uniquement à la feuille `Bool` d'un `EnvModel`, la construction préserve
+`EnvModel` puis **toute** `TerminalSlice` : chaque type stocké se lit encore
+et chaque appartenance `mem_type` reste vraie, y compris pour les
+constructeurs et le recursor du prélude complet. Le lemme
+`denoteMeta_spoilBool_rel` couvre toutes les formes d'expression de
+`denoteMeta` : à tout `ψ` et toute profondeur, les deux lectures échouent
+ensemble ou réussissent avec des interprétations égales sous tout `ρ`.
+Ce n'est donc pas une simple égalité sur quelques constantes testées.
+
+`checkedHasRichOk` extrait du vrai `installRun_model` les deux composantes
+`EnvModelM` et `EtaFamiliesClosed` pour tout `FullyChecked .verified`.
+Sur **ce même environnement issu du fold**, `checkedHasSpoiledWalk`
+construit un `WalkWitness` faible alternatif avec feuille `Bool` invalide ;
+`checkedHasSemanticallyEqualInvalidSlice` met côte à côte la projection
+riche et la slice faible, égales sur toutes les interprétations des
+constantes et sur les lectures sémantiques de toute expression, mais
+opposées sur `AnnotValid` de `Bool`. Sous **le même** `ReducePinRun`
+épinglé, `checkedPinDistinguishesHistoricalWitness` produit un bon témoin
+issu du fold et un mauvais témoin faible avec les mêmes interprétations,
+qui satisfont respectivement et réfutent `hAvalid` de la valeur ;
+`checkedPinHasSpoiledWitness` réfute aussi `hTaOk` pour ce dernier.
+Le caractère non vide de cette situation sur le prélude embarqué et son
+`reduceBool` reste attesté par les `#guard` exécutables ci-dessus, **pas**
+encore par un théorème noyau instanciant `FullyChecked` sur ces huit records.
+Le résultat conditionnel, lui, est un théorème noyau pour tout
+`FullyChecked` et tout pin run correspondants. Il distingue donc
+rigoureusement « environnement historiquement atteint » et « témoin
+faible historiquement produit » : la première propriété tient, la seconde
+est fausse pour la slice camouflée. Il ne démontre ni l'échec de stabilité
+faible de `B0W`, ni qu'une capacité syntaxique doit persister sous cette
+forme, ni une réduction uniforme de l'hypothèse d'univers.
+
+Les trois fichiers externes compilent sous Lean `v4.33.0` contre le commit
+épinglé. SHA-256 respectifs :
+`020F3A3B5BEFDF911C650B48C4E5B5D8442F7E6EEC5EDC6AE502E0A3B8D41007`,
+`693D237099080D85A36CF07CDFA21D1B15D22602D90F02938570B5192C00D6A7`,
+`1CF60B8780D5207DB61EA1AFD6C8E6635E5852B215521C6D6E5A305A61A12BEB`.
+Leurs audits ne signalent que les trois axiomes hérités de ConLeche,
+sans `sorryAx`. Aucun `B1` n'est ainsi justifié : le prochain test doit
+chercher quelle donnée constitutive du producteur réel, plus faible que
+`acval_validV` global si possible, exclut exactement cette substitution
+annotation-invalide tout en fermant la ligne `hAvalid` consommée.
+
+Ce dernier test devait cependant être précédé d'une vérification plus
+fondamentale : **`hAvalid` est-il seulement nécessaire à la conservation
+terminale spécialisée ?** `ScratchReduceBoolTerminalRows.lean` répond
+**non sur l'occurrence épinglée testée**. Le théorème
+`reduceBoolTerminalRows` construit directement `valueWellDenoted` et
+`valueInDeclaredType` depuis une `TerminalSlice` quelconque et le vrai
+`ReducePinRun`, sans `AnnotValid` ni `hTaOk`. Il garde la même feuille
+`Bool` dans le domaine et le codomaine du `piR`, puis utilise son
+`WellDenoted` et son invariance sous `ρ` déjà présents dans `base2`.
+`boolWeakEnvTerminalSuccessor` applique les lignes au vrai
+`DeclOpaqueRun` du séparateur, et `boolWeakEnvWalkSuccessor` ajoute le
+transport eta par le vrai `DeclRun`. Le séparateur conjoint
+`boolWeakGradeFailsButTerminalWalkContinues` exhibe alors **un même vieux
+témoin** pour lequel `hAvalid` du certificat riche est faux mais un
+`WalkWitness` terminal successeur existe sur la déclaration acceptée.
+Cela réfute la conclusion hâtive « grade non reconstructible, donc grade
+à persister dans l'invariant no-False ». Le grade peut être nécessaire à
+`reduceOps_install` sans être nécessaire à cette extension de
+`TerminalSlice`. `pinnedBoolOpaqueTerminalSuccessor` étend la preuve à
+tout `DeclOpaqueRun` épinglé dont les deux sorties d'annotation sont
+exactement les termes pinned ; ces deux égalités restent des hypothèses
+explicites et ne sont pas attribuées automatiquement à tout run.
+`checkedSourceSpoiledWalkContinues` applique ce raccord à tout
+`FullyChecked` source et au même `DeclOpaqueRun` : un témoin faible
+annotation-invalide existe et possède malgré cela un successeur
+`WalkWitness` terminal. Un `#guard` supplémentaire sur le prélude
+embarqué confirme par exécution, au fuel `50`, les deux égalités
+d'annotation sur son environnement accepté ; il ne remplace pas leur
+preuve noyau pour ce prélude particulier. Le scratch compile sous Lean
+`v4.33.0`, SHA-256
+`5B2AFAFD14F6F182CB3413DA573BF6A97A1757110EC2748C56FD678FC9B978A0`,
+avec seulement les trois axiomes hérités, sans `sorryAx`.
+
+Les deux hypothèses de sortie annotée viennent ensuite d'être
+**reconstruites** à partir du producteur opérationnel, plutôt que
+simplement supposées. `ScratchBoolAnnotationGeneral.lean` extrait du
+`ReducePinRun` la déclaration `Bool` réellement stockée, ses paramètres
+vides, son type `Sort 1` et le fait qu'elle n'est pas une table de
+projection. À fuel `50`, `boolTypeAnnotation50` et
+`boolValueAnnotation50` suivent la branche réelle de `annotateCore`,
+y compris `typeSortPW` et `proofPW`, jusqu'aux deux résultats pinned.
+`annotateCore_mono` étend ces sorties à tout fuel `F ≥ 50` ; puis
+`checkedSourceSpoiledWalkContinues_ge50` ne requiert plus que
+`FullyChecked`, le vrai `DeclOpaqueRun` et cette borne de fuel. Il
+construit un vieux témoin faible invalide mais un successeur terminal
+sur ce **même** run. Plus fort, les quatre monotonicités opérationnelles
+de `ConstantValRun`, `ValueFrontRun`, `ReducePinRun` et `DeclOpaqueRun`
+sont prouvées séparément ; `checkedSourceSpoiledWalkContinues_anyFuel`
+relève donc **tout** vrai run à `max 50 F` et supprime la borne de fuel
+de l'énoncé final. La constante 50 n'est qu'une borne suffisante dans
+la preuve interne, non une borne minimale revendiquée. Le théorème
+reste conditionnel à `FullyChecked` et au vrai run correspondant ; les
+`#guard` du parsing embarqué n'ont toujours pas été transformés en
+preuve noyau d'une instance particulière. Le résultat de branche est
+encore plus général : `pinnedBoolOpaqueTerminalSuccessor_anyFuel` et
+`pinnedBoolOpaqueWalkSuccessor_anyFuel` construisent un successeur
+terminal pour **toute** ancienne `TerminalSlice` ou `WalkWitness` faible
+et **tout** `DeclOpaqueRun` vérifié de la valeur pinned `reduceBool`, à
+fuel quelconque, sans `FullyChecked` ni `EnvModelM`. Il s'agit d'une
+stabilité faible effective pour **cette famille d'occurrences**, et non
+d'une stabilité historique du témoin ni d'une clôture de toutes les
+branches `DeclRun`. Le scratch compile contre ConLeche épinglé, SHA-256
+`AD3EFAA90F989B99A24EDB18358394F2125F454F3C050BB559CEFB961C809351`,
+sans `sorryAx`, avec les trois axiomes hérités.
+
+Le test symétrique sur **`reduceNat`** est maintenant fermé indépendamment.
+`ScratchReduceNatTerminalRows.lean` prouve la lecture de la valeur identité,
+les deux lignes exactes de `CheckedValueLocalRows`, puis les sorties annotées
+à fuel `50` depuis le `Nat` stocké imposé par `ReducePinRun`. La monotonie
+du checker relève tout `DeclOpaqueRun` accepté à `max 50 F` :
+`pinnedNatOpaqueTerminalSuccessor_anyFuel` et
+`pinnedNatOpaqueWalkSuccessor_anyFuel` construisent un successeur terminal
+pour tout ancien témoin faible et tout run opaque vérifié de la valeur
+épinglée, sans borne de fuel dans l'énoncé. SHA-256
+`033FDC8F19689C52DF8E7FBA07E103E75E53C60EE4EE3C4B4FC890DC516845A6`.
+
+`ScratchReducePinnedTerminalBranch.lean` assemble exactement les deux noms
+de `reduceOpNames`. Pour `c ∈ reduceOpNames`, la déclaration opaque brute
+`reduceOpRaw c` portant `reduceDeclPin c` conserve la slice terminale et
+l'existence d'un `WalkWitness` au travers du vrai `DeclOpaqueRun`, à fuel
+arbitraire. Cela ne traite ni toute déclaration opaque, ni une valeur
+arbitraire, ni la compatibilité historique du successeur. SHA-256
+`B3736E5E47451D85C15AF3DB890543FACDD9117B60C0C2E7B04A85E28CD0C6B0`.
+
+Le consommateur axiomatique suivant est raccordé au **vrai**
+`DeclAxiomRun` dans `ScratchOfReduceActualRun.lean`. Pour `ofReduceNat` ou
+`ofReduceBool`, les trois autres voies du run sont exclues par leurs gardes.
+`ofReduceActualRunWalkSuccessor` construit un successeur faible si l'ancien
+témoin fournit `StoredEqValueAtUniverseOne` et l'identité sémantique de
+l'opération stockée. Ces deux prémisses restent **explicites** : elles ne
+découlent pas de `B0W` ni de la seule acceptation du run. Le transport de ces
+capacités le long du fold reste à fermer. SHA-256
+`84EA190A4CE25894851E5B3F7A85AEB9990C381B780E4F594B4D0218ED0DC13D`.
+Les trois nouveaux scratches compilent sous Lean `v4.33.0` ; leurs audits
+ne donnent que les trois axiomes hérités de ConLeche, sans `sorryAx`.
+
+La production de la capacité `Eq.{1}` est maintenant raccordée au **vrai
+bloc entier** `DeclBasisRun eqK` dans `ScratchEqBasisRunPrefix.lean`.
+`TerminalSlice.consEq`, `TerminalSlice.consEqRefl` et
+`TerminalSlice.consEqRec` construisent successivement les trois feuilles
+canoniques depuis les seules données terminales précédentes et les fraîcheurs
+du `BasisInstallRun` effectif. À chaque passage, la loi
+`StoredEqValueAtUniverseOne` est produite puis transportée sur **la même**
+réalisation choisie ; les lectures exactes de `Eq` et `Eq.refl` sont gardées
+sur le préfixe uniquement parce que la construction de `Eq.rec` les consomme.
+Le théorème `eqBasisRunTerminalSuccessorWithEqLaw` fournit ainsi
+`Nonempty { next : TerminalSlice V .verified env₂ //
+StoredEqValueAtUniverseOne next }` à la sortie du vrai bloc, sans copier
+`EnvModelM` ni transporter la loi de recursor du modèle riche. Cela ne prouve
+pas encore la conservation de cette capacité dans **toutes** les transitions
+qui suivront. `eqBasisRunWalkSuccessorWithEqLaw` ajoute le transport eta par
+le vrai `DeclRun` et garde la loi sur **le même témoin** successeur, dans
+`Nonempty { next : WalkWitness ... // StoredEqValueAtUniverseOne next.slice }`.
+SHA-256
+`CFF4E5D9DB1876CB040C6721C7D172D76A5F9EE7ECE78C0D31E11E157F6976C9`.
+
+Le test non vacuitaire suivant a également compilé dans ce même scratch :
+`eqBasisRunTerminalSuccessorWithEqLawAndIdentityMap` conserve les lignes
+`StoredReduceIdentity` **déjà** établies à travers les trois `cons` réels
+du bloc `Eq`. Le transport se fait via la fraîcheur effective, l'équation
+`acvalWith` de chaque successeur canonique et le fait que `Eq`, `Eq.refl`,
+`Eq.rec` ne sont pas des noms d'opérations reduce. Il n'utilise pas une
+nouvelle réalisation arbitraire ni `EnvModelM`. Ce bloc produit la loi
+`Eq.{1}` ; il **ne produit pas** les identités reduce qu'il transporte.
+
+Le premier transport après ce bloc est désormais fermé sans substituer un
+nouveau modèle arbitraire. `ScratchOpaqueEqLawTransport.lean` reprend le
+successeur canonique de `TerminalSlice.preserveOpaqueLocal` et expose, dans
+un `Nonempty` propositionnel renforcé, que sa feuille `Eq` coïncide avec
+celle de l'ancien témoin dès que la déclaration opaque fraîche ne s'appelle
+pas `Eq`. Le théorème ne demande que `OpaqueLocalSupport`, soit les lignes
+terminales déjà isolées ; il ne postule aucune nouvelle loi sémantique.
+`ScratchPinnedReduceEqLaw.lean` instancie ce transport sur les deux **vrais**
+runs opaques pinned `reduceNat` et `reduceBool`, avec l'annotation reconstruite
+et le fuel arbitraire. `pinnedReduceWalkPreservesEqLaw` produit un même
+successeur faible portant encore `StoredEqValueAtUniverseOne`, eta comprise.
+La capacité `Eq.{1}` est ainsi **produite au bloc `eqK` puis transportée
+historiquement à travers ces deux transitions réelles**. Elle n'est pas
+encore prouvée stable sur toutes les autres familles de `DeclRun`.
+SHA-256 :
+`826A51DA8DCAC6BC5F5F7C4286C07517B605E1AECAE35BDEAE6F8F633D37BCFF`
+et
+`4EC584D5E3B75F08DBC870208F83BB29A6D888F6202C2A37D009CD2F3F2528F3`.
+Les deux scratches compilent sous Lean `v4.33.0`, sans `sorryAx` ; leurs
+audits affichent seulement les trois axiomes hérités de ConLeche.
+
+La seconde capacité consommée par `ofReduce*` est maintenant fermée sur
+la même paire de transitions. `ScratchPinnedIdentityLocal.lean` prouve
+directement que les valeurs pinned Nat et Bool agissent comme l'identité sur
+leur type d'éléments, depuis la lecture du `ReducePinRun` et l'appartenance de
+l'argument. Son lemme `StoredReduceIdentity.cons_reduce_of_localIdentity`
+montre que cette seule loi locale, sans certificat sémantique global, étend
+les identités déjà stockées par le `cons` canonique.
+`ScratchPinnedIdentitySuccessor.lean` raccorde le résultat au vrai
+`DeclOpaqueRun` : **le même** successeur de `TerminalSlice`, puis de
+`WalkWitness`, possède simultanément `StoredEqValueAtUniverseOne` et
+`StoredReduceIdentity`. L'assignation exacte `acvalWith` est portée par le
+certificat, ce qui interdit de changer silencieusement de réalisation entre
+ces deux preuves. Enfin, `ScratchOfReduceFromStoredIdentity.lean` extrait
+du vrai `DeclAxiomRun` le guard `ofReduce*`, en déduit l'identité locale depuis
+`StoredReduceIdentity`, puis ferme le chemin de **deux transitions réelles**
+`pinned reduce → ofReduce*` à partir d'un vieux témoin muni des deux
+capacités. Il n'y a ni prémisse `EnvModelM`, ni `DefEqClaim`, ni nouveau
+carrier `B1` dans cette composition. La production et la conservation de ces
+capacités sur **toutes** les déclarations précédentes et suivantes restent
+des obligations distinctes.
+SHA-256 respectifs :
+`9E66BBB7C4D80B6622948E76E504403CCB7B346EDA368B04581DF6ACB366B06B`,
+`42428CDDC81F3C82EB5D83DD81C0C85D919EA277548DD776B809252BC981E5A6`,
+`8C828E4D5302D86FDE4620F26EFFE73F3102512B234DE12BE7C9A95251510225`.
+Compilation Lean `v4.33.0` ; audits sans `sorryAx`, seulement les trois
+axiomes hérités de ConLeche.
+
+`ScratchEqBasisEmptyReduce.lean` raccorde maintenant **trois vraies
+transitions** sous une condition de préfixe explicite : aucun nom
+`reduceNat`/`reduceBool` n'est stocké avant le bloc `Eq`. Le vrai
+`DeclBasisRun eqK` conserve cette absence ; `StoredReduceIdentity` est alors
+vraie par vacuité sur **le même** successeur qui porte la loi `Eq.{1}`.
+Le vrai `DeclOpaqueRun` pinned installe ensuite la loi d'identité locale et
+transporte les deux capacités sur un successeur commun ; le vrai
+`DeclAxiomRun ofReduce*` les consomme. Le théorème
+`eqBasisThenPinnedThenOfReduceWalkSuccessor` compile avec ces runs et sans
+`EnvModelM` ni `DefEqClaim` comme prémisses. Il ne prétend **ni** que la
+condition d'absence découle de `B0W`, **ni** que ces transitions sont
+consécutives dans tout `FullyChecked`, **ni** que les éventuelles déclarations
+intercalées conservent déjà les deux capacités. La vacuité initiale n'est
+pas une loi sémantique d'une opération installée.
+
+Le résultat plus fort du **même** fichier ne demande plus cette absence :
+`eqBasisRunWalkSuccessorWithEqLawAndIdentity` transporte une identité reduce
+ancienne par le vrai `DeclBasisRun eqK`, et
+`eqBasisThenPinnedThenOfReduceWalkSuccessorOfIdentity` compose ensuite les
+trois transitions réelles. Le seul prémisse historique supplémentaire avant
+`Eq` est `StoredReduceIdentity old.slice.base2`. Ce n'est ni une preuve que
+`B0W` le reconstruit, ni une fermeture du fold complet. L'ancienne version
+fondée sur l'absence reste un corollaire utile pour les préfixes où les
+opérations ne sont pas encore installées. SHA-256 du fichier **actuel** :
+`3A7D7F54DD6C2E3FA8FA163B11A5298464DFF82429E2258A1D2C2C245CFD54BB`.
+Ses six audits n'affichent aucun `sorryAx` ; ils ne rapportent que les trois
+axiomes hérités de ConLeche.
+
+Contrôle de reproductibilité : le `.olean` importé de
+`ScratchOfReduceClosure` s'est avéré plus ancien que son source. Après
+reconstruction de `ScratchChoiceSupportTransport`, les **65** modules
+`Scratch*` de la fermeture transitive des huit raccords récents ont été
+recompilés en ordre topologique avec le toolchain ConLeche épinglé. Résultat :
+65/65 réussis, aucun `sorryAx` dans les audits affichés. Le raccord
+`ofReduceActualRunWalkSuccessor` et le préfixe initial `Eq` ont ainsi été revérifiés
+contre les interfaces régénérées, pas contre les anciens `.olean`. Cela ne
+modifie ni le statut des trois axiomes hérités de ConLeche, ni la portée
+conditionnelle des théorèmes. Le nouveau raccord à trois transitions a
+ensuite été compilé contre ces artefacts régénérés.
+
+Les prochains tests séparent **deux objectifs** : fermer le transport de
+`TerminalSlice` depuis les seules lignes consommées pour les autres
+transitions ; étendre le transport désormais construit de la loi `Eq.{1}`
+aux autres familles de déclarations réellement traversées ; déterminer
+comment l'identité reduce consommée par `ofReduce*` est produite et
+transportée. Ni la non-reconstruction de
+`hAvalid` depuis `B0W`, ni sa production par le fold riche ne suffisent
+isolément à la promouvoir dans `B1`. Les sorties annotées et les deux
+branches pinned reduce sont déjà fermées, pas des hypothèses à retester.
+
+La prochaine expérience générique ne doit donc pas installer `BitAgree`
+dans le carrier : elle produit localement `hAvalid`, mais ne découle même
+pas de la conjonction des lignes positives et du certificat sur l'occurrence
+δ, et n'a pas été démontrée nécessaire pour la conservation de la slice.
+Repartir des prémisses exactes
+de `reduceOps_install` et tester la reconstruction de leurs lignes **pour
+un run opaque arbitraire**, sans déduire cette uniformité des seuls exemples
+δ, β et ι. Si une donnée historique supplémentaire résiste, la séparer sur
+un témoin concret avant d'envisager sa persistance. Les
+occurrences β et ι traitées éliminent `hAok` et `hAvalid` comme résidus sur
+**ces deux sources exactes** ; elles ne remplacent pas le test universel
+sur les autres formes acceptées.
 Les lignes encore ouvertes et le grade doivent rester testés séparément depuis
 `B0W + DeclOpaqueRun`, avec le même `value'` annoté, avant le passage de la vérification
 `isDefEqCore` à sa conséquence sémantique.
@@ -1966,14 +2481,27 @@ L’ordre obligatoire est désormais :
 1. ouvrir le producteur sémantique du certificat d'un `ReducePinRun` générique
    dans l'ordre réel de `reduceOps_install` : les lectures et leur
    coindexation sont fermées ; `hAok` est fermé pour une valeur constante,
-   tandis que `hAvalid` possède déjà un séparateur sur cette sous-classe avec
-   `hAok + hmemA`. Tester d'abord `hAok` pour les valeurs composées, puis
-   affaiblir la donnée nécessaire à `hAvalid`, avant de tester uniformément
-   `hmemA` et le grade de l'application et, seulement ensuite, le passage
-   de l'exécution `isDefEqCore` à son égalité sémantique, sans réintroduire
-   `DefEqClaim` comme primitive ; les cas alias-δ, β et l'occurrence identité
-   ι compilés sont trois raccords positifs de forces différentes, pas encore
-   le théorème uniforme ;
+   et les occurrences composées β et ι sont des tests positifs exacts, non
+   un théorème générique. Sur l'occurrence δ acceptée, les deux séparateurs
+   montrent indépendamment `hAvalid` sans certificat et certificat sans
+   `hAvalid`, toujours dans la classe des `B0W` faibles. Tester les
+   composantes de `hAok`, `hAvalid`, `hmemA` et du grade de
+   l'application pour un run opaque **arbitraire** ; `hTaOk` est déjà
+   reconstruit uniformément pour `reduceNat`, tandis que pour `reduceBool`
+   il est exactement équivalent à la validité de l'ancienne feuille Bool,
+   maintenant séparée sur une déclaration opaque `reduceBool` effectivement
+   acceptée depuis un environnement explicite (sans atteignabilité initiale
+   revendiquée). Sur la valeur épinglée exacte, `hAvalid` a la même
+   équivalence et reconstruit `hTaOk` ; compter ce résidu une seule fois.
+   La fermeture locale du sous-but applicatif de niveau `1` sans `hTaOk`
+   ne généralise pas encore à tous les metadata et toutes les valeurs
+   acceptées. Tester si la capacité restante se reconstruit sur les seuls
+   préfixes atteignables et les seules réalisations produites par le fold,
+   poursuivre dans l'ordre des consommations réelles, et n'aborder
+   qu'ensuite le passage `isDefEqCore` à sa
+   conséquence sémantique ; ne pas réintroduire `InferClaim` ou
+   `DefEqClaim` comme primitives, et ne pas inférer l'uniformité des seuls
+   cas δ, β, ι compilés ;
 2. affaiblir `AcvalDefnReadableAppAgreement` lui-même seulement si la preuve
    générique en consomme moins, puis construire un séparateur avant toute
    revendication de stricte faiblesse ou de persistance ;
@@ -1984,8 +2512,10 @@ L’ordre obligatoire est désormais :
 4. transporter `StoredEqValueAtUniverseOne` dans les branches réelles et le fold,
    puis le raccorder au parcours cached de `FullyChecked` ; cette interface plus
    forte remplace l'ancienne capacité limitée à `propext`, elle ne s'y ajoute pas ;
-5. raccorder l'identité produite et la loi `Eq.{1}` au vrai `DeclAxiomRun`
-   `ofReduceNat`/`ofReduceBool`, puis fermer leur nouvelle ligne terminale ;
+5. le raccord conditionnel de l'identité et de la loi `Eq.{1}` au vrai
+   `DeclAxiomRun` `ofReduceNat`/`ofReduceBool` est fermé ; il reste à
+   produire et transporter ces deux prémisses depuis l'histoire constituée,
+   sans les supposer depuis `B0W` ;
 6. raccorder les quatre sous-branches axiomatiques désormais fermées au dispatch
    `DeclRun`, puis reprendre la boucle au premier résidu concret suivant ;
 7. ne parler d'un enrichissement de carrier qu'après nécessité transitionnelle,
@@ -2520,6 +3050,16 @@ travail immédiat
   Gate 5c.3  certificat reduce ι identité fermé sur la lecture source exacte
   Gate 5c.3  alias-δ raccordé au vrai DeclOpaqueRun, DeclRun et checkDeclsPure
   Gate 5c.3  β/ι raccordés séparément au vrai DeclOpaqueRun, DeclRun et checkDeclsPure
+  Gate 5c.3  quatre lignes β et grade applicatif reconstruits depuis B0W
+  Gate 5c.3  quatre lignes ι et grade applicatif reconstruits depuis B0W
+  Gate 5c.3  BitAgree tête/corps testé comme producteur local de hAvalid δ
+  Gate 5c.3  hAvalid de la valeur constante séparé au premier résidu local
+  Gate 5c.3  deux branches pinned reduce fermées terminalement à tout fuel
+  Gate 5c.3  ofReduce raccordé conditionnellement au vrai DeclAxiomRun
+  Gate 5c.3  loi Eq.{1} produite à la sortie du vrai bloc basis eqK
+  Gate 5c.3  loi Eq.{1} transportée avec le même témoin sur reduceNat/Bool
+  Gate 5c.3  chaîne réelle eqK -> pinned reduce -> ofReduce fermée sous absence reduce explicite
+  Gate 5c.3  même chaîne fermée sans absence, sous identité reduce ancienne explicite
   Gate 5c.3  généraliser ce raccord au certificat de tout ReducePinRun
   Gate 5c.3  tester la conservation des capacités restantes avant tout B1
 
